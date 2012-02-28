@@ -116,6 +116,7 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
   AbstractStream* istream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
   //  Io::ReadError readErr = Io::NoReadError;
+  const UInt32 chunkSize = stlTriangleDataSize * 163;
 
   UInt8 buffer[8192];
   char* charBuffer = reinterpret_cast<char*>(buffer);
@@ -140,40 +141,54 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
   }
 
   // Read triangles
+  const UInt64 totalFacetSize = stlTriangleDataSize * facetCount;
+  UInt64 amountReadSize = 0;
   Triangle triangle;
-  for (UInt32 facet = 0; facet < facetCount; ++facet) {
-    istream->read(charBuffer, stlTriangleDataSize);
-    //    if ((readErr = streamRead(istream, charBuffer, stlTriangleDataSize)) != NoReadError)
-    //      return readErr;
+  bool streamError = false;
+  while (amountReadSize < totalFacetSize && !streamError) {
+    const Int64 iReadSize = istream->read(charBuffer, chunkSize);
+    if (iReadSize > 0 && (iReadSize % stlTriangleDataSize == 0)) {
+      const UInt32 iFacetCount = iReadSize / stlTriangleDataSize;
+      UInt32 bufferOffset = 0;
+      for (UInt32 i = 0; i < iFacetCount; ++i) {
+        // Read normal
+        triangle.normal.x = ::fromLittleEndian<Real32>(buffer + bufferOffset);
+        triangle.normal.y = ::fromLittleEndian<Real32>(buffer + 1*sizeof(Real32) + bufferOffset);
+        triangle.normal.z = ::fromLittleEndian<Real32>(buffer + 2*sizeof(Real32) + bufferOffset);
 
-    // Read normal
-    triangle.normal.x = ::fromLittleEndian<Real32>(buffer);
-    triangle.normal.y = ::fromLittleEndian<Real32>(buffer + 1*sizeof(Real32));
-    triangle.normal.z = ::fromLittleEndian<Real32>(buffer + 2*sizeof(Real32));
+        // Read vertex1
+        triangle.v1.x = ::fromLittleEndian<Real32>(buffer + 3*sizeof(Real32) + bufferOffset);
+        triangle.v1.y = ::fromLittleEndian<Real32>(buffer + 4*sizeof(Real32) + bufferOffset);
+        triangle.v1.z = ::fromLittleEndian<Real32>(buffer + 5*sizeof(Real32) + bufferOffset);
 
-    // Read vertex1
-    triangle.v1.x = ::fromLittleEndian<Real32>(buffer + 3*sizeof(Real32));
-    triangle.v1.y = ::fromLittleEndian<Real32>(buffer + 4*sizeof(Real32));
-    triangle.v1.z = ::fromLittleEndian<Real32>(buffer + 5*sizeof(Real32));
+        // Read vertex2
+        triangle.v2.x = ::fromLittleEndian<Real32>(buffer + 6*sizeof(Real32) + bufferOffset);
+        triangle.v2.y = ::fromLittleEndian<Real32>(buffer + 7*sizeof(Real32) + bufferOffset);
+        triangle.v2.z = ::fromLittleEndian<Real32>(buffer + 8*sizeof(Real32) + bufferOffset);
 
-    // Read vertex2
-    triangle.v2.x = ::fromLittleEndian<Real32>(buffer + 6*sizeof(Real32));
-    triangle.v2.y = ::fromLittleEndian<Real32>(buffer + 7*sizeof(Real32));
-    triangle.v2.z = ::fromLittleEndian<Real32>(buffer + 8*sizeof(Real32));
+        // Read vertex3
+        triangle.v3.x = ::fromLittleEndian<Real32>(buffer + 9*sizeof(Real32) + bufferOffset);
+        triangle.v3.y = ::fromLittleEndian<Real32>(buffer + 10*sizeof(Real32) + bufferOffset);
+        triangle.v3.z = ::fromLittleEndian<Real32>(buffer + 11*sizeof(Real32) + bufferOffset);
 
-    // Read vertex3
-    triangle.v3.x = ::fromLittleEndian<Real32>(buffer + 9*sizeof(Real32));
-    triangle.v3.y = ::fromLittleEndian<Real32>(buffer + 10*sizeof(Real32));
-    triangle.v3.z = ::fromLittleEndian<Real32>(buffer + 11*sizeof(Real32));
+        // Attribute byte count
+        const UInt16 attributeByteCount =
+            ::fromLittleEndian<UInt16>(buffer + 12*sizeof(Real32) + bufferOffset);
 
-    // Attribute byte count
-    const UInt16 attributeByteCount = ::fromLittleEndian<UInt16>(buffer + 12*sizeof(Real32));
+        // Add triangle
+        builder->nextTriangle(triangle, attributeByteCount);
 
-    // Add triangle
-    builder->nextTriangle(triangle, attributeByteCount);
+        bufferOffset += stlTriangleDataSize;
+      }
 
-    if (progress != 0)
-      progress->setValue(facet + 1);
+      if (progress != 0)
+        progress->setValue(amountReadSize / stlTriangleDataSize);
+
+      amountReadSize += iReadSize;
+    }
+    else {
+      streamError = true;
+    }
   }
 
   builder->endTriangles();
