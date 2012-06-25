@@ -43,9 +43,14 @@ public:
   Int64 read(char* data, Int64 maxSize)
   {
     m_istr->read(data, maxSize);
-    if (!m_istr->eof() && (m_istr->fail()))
+    if (!m_istr->eof() && m_istr->fail()) {
+      m_istr->clear();
       return -1;
-    return m_istr->gcount();
+    }
+    const Int64 bytesCount = m_istr->gcount();
+    if (m_istr->fail()) // TODO preserve eof() flag
+      m_istr->clear();
+    return bytesCount;
   }
 
   Int64 write(const char* /*data*/, Int64 /*maxSize*/)
