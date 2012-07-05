@@ -1,6 +1,5 @@
-#include "abstract_stream.h"
 #include "stlb.h"
-#include "abstract_task_progress.h"
+#include "../abstract_task_progress.h"
 
 #include <algorithm>
 #include <limits>
@@ -56,15 +55,13 @@ void toLittleEndian(NUMERIC n, foug::UInt8* bytes)
 }
 
 namespace foug {
-namespace stl {
-namespace bin {
+namespace stlb {
 
-static const int stlHeaderSize = 80;
 static const int stlFacetSize = 50;
 static const int stlMinFileSize = 284;
 static const int stlTriangleDataSize = (4 * 3) * sizeof(foug::Real32) + sizeof(foug::UInt16);
 
-void AbstractGeometryBuilder::header(const Header& /*data*/)
+void AbstractGeometryBuilder::processHeader(const Header& /*data*/)
 {
 }
 
@@ -76,32 +73,12 @@ void AbstractGeometryBuilder::endTriangles()
 {
 }
 
-Io::ReadError streamRead(AbstractStream* stream, char* buffer, Int64 size)
-{
-  const Int64 result = stream->read(buffer, size);
-  if (result == -1)
-    return Io::StreamReadError;
-  else if (result != size)
-    return Io::UnexpectedSizeReadError;
-  return Io::NoReadError;
-}
-
-Io::ReadError getReadError(Int64 readResult, Int64 expectedSize)
-{
-  if (readResult == -1)
-    return Io::StreamReadError;
-  else if (readResult != expectedSize)
-    return Io::UnexpectedSizeReadError;
-  else
-    return Io::NoReadError;
-}
-
 Io::Io(AbstractStream *stream)
   : IoBase(stream)
 {
 }
 
-Io::ReadError Io::read(AbstractGeometryBuilder* builder)
+bool Io::read(AbstractGeometryBuilder* builder)
 {
   //  // Check file size
   //  const qint64 fileSize = stream->size();
@@ -115,7 +92,6 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
 
   AbstractStream* istream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
-  //  Io::ReadError readErr = Io::NoReadError;
   const UInt32 chunkSize = stlTriangleDataSize * 163;
 
   UInt8 buffer[8192];
@@ -123,15 +99,13 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
 
   // Read header
   Header headerData;
-  istream->read(reinterpret_cast<char*>(&headerData), 80);
-  //  if ((readErr = streamRead(istream, reinterpret_cast<char*>(&headerData), 80)) != NoReadError)
-  //    return readErr;
-  builder->header(headerData);
+  if (istream->read(reinterpret_cast<char*>(&headerData), HeaderSize) != HeaderSize)
+    return false;
+  builder->processHeader(headerData);
 
   // Read facet count
-  istream->read(charBuffer, sizeof(UInt32));
-  //  if ((readErr = streamRead(istream, charBuffer, sizeof(UInt32))) != NoReadError)
-  //    return readErr;
+  if (istream->read(charBuffer, sizeof(UInt32)) != sizeof(UInt32))
+    return false;
   const UInt32 facetCount = ::fromLittleEndian<UInt32>(buffer);
   builder->beginTriangles(facetCount);
 
@@ -143,7 +117,7 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
   // Read triangles
   const UInt64 totalFacetSize = stlTriangleDataSize * facetCount;
   UInt64 amountReadSize = 0;
-  Triangle triangle;
+  stl::Triangle triangle;
   bool streamError = false;
   while (amountReadSize < totalFacetSize && !streamError) {
     const Int64 iReadSize = istream->read(charBuffer, chunkSize);
@@ -176,7 +150,7 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
             ::fromLittleEndian<UInt16>(buffer + 12*sizeof(Real32) + bufferOffset);
 
         // Add triangle
-        builder->nextTriangle(triangle, attributeByteCount);
+        builder->processNextTriangle(triangle, attributeByteCount);
 
         bufferOffset += stlTriangleDataSize;
       }
@@ -193,10 +167,10 @@ Io::ReadError Io::read(AbstractGeometryBuilder* builder)
 
   builder->endTriangles();
 
-  return NoReadError;
+  return !streamError;
 }
 
-Io::WriteError Io::write(const AbstractGeometry& geom, const AbstractGeometryExtraData* extraData)
+bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraData* extraData)
 {
   AbstractStream* ostream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
@@ -206,16 +180,18 @@ Io::WriteError Io::write(const AbstractGeometry& geom, const AbstractGeometryExt
   // Write header
   Header headerData;
   if (extraData != 0)
-    extraData->getHeaderData(headerData);
+    extraData->getHeader(headerData);
   else
-    std::fill(headerData, headerData + 80, 0);
+    std::fill(headerData, headerData + HeaderSize, 0);
 
-  ostream->write(reinterpret_cast<char*>(&headerData), 80);
+  if (ostream->write(reinterpret_cast<char*>(&headerData), HeaderSize) != HeaderSize)
+    return false;
 
   // Write facet count
   const UInt32 facetCount = geom.triangleCount();
   ::toLittleEndian<UInt32>(facetCount, buffer);
-  ostream->write(reinterpret_cast<char*>(&buffer), sizeof(UInt32));
+  if (ostream->write(reinterpret_cast<char*>(&buffer), sizeof(UInt32)) != sizeof(UInt32))
+    return false;
 
   if (progress != 0) {
     progress->reset();
@@ -223,7 +199,7 @@ Io::WriteError Io::write(const AbstractGeometry& geom, const AbstractGeometryExt
   }
 
   // Write triangles
-  Triangle triangle;
+  stl::Triangle triangle;
   for (UInt32 facet = 0; facet < facetCount; ++facet) {
     geom.getTriangle(facet, &triangle);
 
@@ -252,15 +228,16 @@ Io::WriteError Io::write(const AbstractGeometry& geom, const AbstractGeometryExt
     ::toLittleEndian<UInt16>(attrByteCount, buffer + 12*sizeof(Real32));
 
     // Write to stream
-    ostream->write(reinterpret_cast<const char*>(buffer), stlTriangleDataSize);
+    if (ostream->write(reinterpret_cast<const char*>(buffer), stlTriangleDataSize)
+        != stlTriangleDataSize)
+      return false;
 
     if (progress != 0)
       progress->setValue(facet + 1);
   }
 
-  return NoWriteError;
+  return true;
 }
 
-} // namespace bin
-} // namespace stl
+} // namespace stlb
 } // namespace foug

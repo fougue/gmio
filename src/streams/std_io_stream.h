@@ -1,7 +1,7 @@
 #ifndef FOUG_STD_IO_STREAM_H
 #define FOUG_STD_IO_STREAM_H
 
-#include "abstract_stream.h"
+#include "../abstract_stream.h"
 
 namespace foug {
 

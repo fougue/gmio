@@ -1,7 +1,7 @@
 #ifndef FOUG_QT4_STREAM_H
 #define FOUG_QT4_STREAM_H
 
-#include "abstract_stream.h"
+#include "../abstract_stream.h"
 class QIODevice;
 
 namespace foug {

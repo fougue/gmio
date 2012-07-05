@@ -33,7 +33,7 @@ public:
 class DummyGeometryBuilder : public foug::stl::bin::AbstractGeometryBuilder
 {
 public:
-  void header(const foug::stl::bin::Header& data)
+  void processHeader(const foug::stl::bin::Header& data)
   {
     qDebug() << "HEADER : \n" << QString::fromAscii(reinterpret_cast<const char*>(data), 79);
   }
@@ -44,7 +44,7 @@ public:
     qDebug() << "Triangle count" << count;
   }
 
-  void nextTriangle(const foug::stl::Triangle& triangle, foug::UInt16 attributeByteCount)
+  void processNextTriangle(const foug::stl::Triangle& triangle, foug::UInt16 attributeByteCount)
   {
     //    qDebug() << "TRIANGLE " << m_triangleCounter++;
     //    qDebug() << "   normal" << triangle.normal.x << triangle.normal.y << triangle.normal.z;
@@ -77,7 +77,7 @@ public:
 
   // -- foug::stl::bin::AbstractGeometryBuilder
 
-  void header(const foug::stl::bin::Header& data)
+  void processHeader(const foug::stlb::Header& data)
   {
     std::memcpy(m_header, data, 80);
   }
@@ -89,7 +89,7 @@ public:
     m_triangles.resize(0);
   }
 
-  void nextTriangle(const foug::stl::Triangle& triangle, foug::UInt16 attributeByteCount)
+  void processNextTriangle(const foug::stl::Triangle& triangle, foug::UInt16 attributeByteCount)
   {
     TriangleData data;
     data.triangle = triangle;
@@ -106,7 +106,7 @@ public:
 
   foug::UInt16 attributeByteCount(foug::UInt32 triangleIndex) const
   {
-    return m_triangles[triangleIndex].attributeByteCount;
+    return m_triangles.at(triangleIndex).attributeByteCount;
   }
 
   // -- foug::stl::AbstractGeometry
@@ -118,7 +118,7 @@ public:
 
   void getTriangle(foug::UInt32 index, foug::stl::Triangle* triangle) const
   {
-    *triangle = m_triangles[index].triangle;
+    *triangle = m_triangles.at(index).triangle;
   }
 
 private:
