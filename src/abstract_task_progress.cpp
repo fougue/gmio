@@ -16,7 +16,8 @@ public:
       m_rangeMin(-1.),
       m_rangeMax(-2.),
       m_rangeLength(0.),
-      m_progressThreshold(0.01) // Notifies each percent only
+      m_progressThreshold(0.01), // Notifies each percent only
+      m_isTaskStopRequested(false)
   {
   }
 
@@ -26,6 +27,7 @@ public:
   double m_rangeMax;
   double m_rangeLength;
   double m_progressThreshold;
+  bool m_isTaskStopRequested;
 };
 
 } // namespace internal
@@ -82,7 +84,7 @@ void AbstractTaskProgress::setValue(double v)
 {
   if (std::fabs(v - d->m_value) > std::fabs(d->m_progressThreshold * d->m_rangeLength)) {
     d->m_value = v;
-    this->handleProgressUpdate();
+    this->progressUpdateEvent();
   }
 }
 
@@ -96,9 +98,19 @@ void AbstractTaskProgress::setProgressUpdateThreshold(double v)
   d->m_progressThreshold = v;
 }
 
-bool AbstractTaskProgress::isStopRequested() const
+void AbstractTaskProgress::asyncTaskStop()
 {
-  return false;
+  d->m_isTaskStopRequested = true;
+}
+
+bool AbstractTaskProgress::isTaskStopRequested() const
+{
+  return d->m_isTaskStopRequested;
+}
+
+void AbstractTaskProgress::taskStoppedEvent()
+{
+  d->m_isTaskStopRequested = false;
 }
 
 void AbstractTaskProgress::reset()
@@ -107,6 +119,7 @@ void AbstractTaskProgress::reset()
   d->m_value = -1.;
   d->m_rangeMin = -1.;
   d->m_rangeMax = -2.;
+  d->m_isTaskStopRequested = false;
 }
 
 } // namespace foug

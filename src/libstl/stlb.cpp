@@ -90,6 +90,9 @@ bool Io::read(AbstractGeometryBuilder* builder)
 
   //  const int facetCount = (fileSize - stlHeaderSize - stlFacetCountSize) / stlFacetSize;
 
+  if (this->stream() == 0)
+    return false;
+
   AbstractStream* istream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
   const UInt32 chunkSize = stlTriangleDataSize * 163;
@@ -153,25 +156,36 @@ bool Io::read(AbstractGeometryBuilder* builder)
         builder->processNextTriangle(triangle, attributeByteCount);
 
         bufferOffset += stlTriangleDataSize;
-      }
+      } // end for
 
-      if (progress != 0)
-        progress->setValue(amountReadSize / stlTriangleDataSize);
+      if (progress != 0) {
+        if (progress->isTaskStopRequested()) {
+          streamError = true;
+          progress->taskStoppedEvent();
+        }
+        else {
+          progress->setValue(amountReadSize / stlTriangleDataSize);
+        }
+      }
 
       amountReadSize += iReadSize;
     }
     else {
       streamError = true;
     }
-  }
+  } // end while
 
-  builder->endTriangles();
+  if (!streamError)
+    builder->endTriangles();
 
   return !streamError;
 }
 
 bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraData* extraData)
 {
+  if (this->stream() == 0)
+    return false;
+
   AbstractStream* ostream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
 
@@ -232,9 +246,16 @@ bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraDat
         != stlTriangleDataSize)
       return false;
 
-    if (progress != 0)
-      progress->setValue(facet + 1);
-  }
+    if (progress != 0) {
+      if (progress->isTaskStopRequested()) {
+        progress->taskStoppedEvent();
+        return false;
+      }
+      else {
+        progress->setValue(facet + 1);
+      }
+    }
+  } // end for
 
   return true;
 }

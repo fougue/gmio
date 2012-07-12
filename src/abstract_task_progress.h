@@ -25,9 +25,13 @@ public:
   double progressUpdateThreshold() const;
   void setProgressUpdateThreshold(double v);
 
-  virtual bool isStopRequested() const;
-  virtual void handleProgressUpdate() = 0;
   virtual void reset();
+
+  void asyncTaskStop();
+  bool isTaskStopRequested() const;
+  virtual void taskStoppedEvent();
+
+  virtual void progressUpdateEvent() = 0;
 
 private:
   internal::AbstractTaskProgressPrivate* const d;
