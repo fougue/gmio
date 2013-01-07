@@ -1,5 +1,5 @@
-#ifndef FOUG_GLOBAL_H
-#define FOUG_GLOBAL_H
+#ifndef FOUG_CPP_GLOBAL_H
+#define FOUG_CPP_GLOBAL_H
 
 #if defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
     || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
@@ -36,4 +36,4 @@ typedef double Real64;
 
 } // namespace foug
 
-#endif // FOUG_GLOBAL_H
+#endif // FOUG_CPP_GLOBAL_H

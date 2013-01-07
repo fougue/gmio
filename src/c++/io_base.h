@@ -1,5 +1,5 @@
-#ifndef FOUG_IO_BASE_H
-#define FOUG_IO_BASE_H
+#ifndef FOUG_CPP_IO_BASE_H
+#define FOUG_CPP_IO_BASE_H
 
 namespace foug {
 
@@ -32,4 +32,4 @@ private:
 
 } // namespace foug
 
-#endif // FOUG_IO_BASE_H
+#endif // FOUG_CPP_IO_BASE_H

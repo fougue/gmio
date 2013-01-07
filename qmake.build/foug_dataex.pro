@@ -1,4 +1,4 @@
 TEMPLATE = subdirs
 CONFIG *= ordered
 
-SUBDIRS += libstl
+SUBDIRS += c++

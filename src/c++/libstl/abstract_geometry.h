@@ -1,5 +1,5 @@
-#ifndef FOUG_STL_ABSTRACT_GEOMETRY_H
-#define FOUG_STL_ABSTRACT_GEOMETRY_H
+#ifndef FOUG_CPP_LIBSTL_ABSTRACT_GEOMETRY_H
+#define FOUG_CPP_LIBSTL_ABSTRACT_GEOMETRY_H
 
 #include "stl_global.h"
 
@@ -37,4 +37,4 @@ public:
 } // namespace stl
 } // namespace foug
 
-#endif // FOUG_STL_ABSTRACT_GEOMETRY_H
+#endif // FOUG_CPP_LIBSTL_ABSTRACT_GEOMETRY_H

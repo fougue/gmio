@@ -1,5 +1,5 @@
-#ifndef FOUG_ABSTRACT_TASK_PROGRESS_H
-#define FOUG_ABSTRACT_TASK_PROGRESS_H
+#ifndef FOUG_CPP_ABSTRACT_TASK_PROGRESS_H
+#define FOUG_CPP_ABSTRACT_TASK_PROGRESS_H
 
 namespace foug {
 
@@ -39,4 +39,4 @@ private:
 
 } // namespace foug
 
-#endif // FOUG_ABSTRACT_TASK_PROGRESS_H
+#endif // FOUG_CPP_ABSTRACT_TASK_PROGRESS_H

@@ -1,5 +1,5 @@
-#ifndef FOUG_ABSTRACT_STREAM_H
-#define FOUG_ABSTRACT_STREAM_H
+#ifndef FOUG_CPP_ABSTRACT_STREAM_H
+#define FOUG_CPP_ABSTRACT_STREAM_H
 
 #include "foug_global.h"
 
@@ -21,4 +21,4 @@ public:
 
 } // namespace foug
 
-#endif // FOUG_ABSTRACT_STREAM_H
+#endif // FOUG_CPP_ABSTRACT_STREAM_H

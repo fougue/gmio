@@ -1,5 +1,5 @@
-#ifndef FOUG_STLB_H
-#define FOUG_STLB_H
+#ifndef FOUG_CPP_LIBSTL_STLB_H
+#define FOUG_CPP_LIBSTL_STLB_H
 
 #include "abstract_geometry.h"
 #include "stl_global.h"
@@ -40,4 +40,4 @@ public:
 } // namespace stlb
 } // namespace foug
 
-#endif // FOUG_STLB_H
+#endif // FOUG_CPP_LIBSTL_STLB_H

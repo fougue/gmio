@@ -1,5 +1,5 @@
-#ifndef FOUG_STD_IO_STREAM_H
-#define FOUG_STD_IO_STREAM_H
+#ifndef FOUG_CPP_STREAMS_STD_IO_STREAM_H
+#define FOUG_CPP_STREAMS_STD_IO_STREAM_H
 
 #include "../abstract_stream.h"
 
@@ -116,4 +116,4 @@ private:
 
 } // namespace foug
 
-#endif // FOUG_STD_IO_STREAM_H
+#endif // FOUG_CPP_STREAMS_STD_IO_STREAM_H
