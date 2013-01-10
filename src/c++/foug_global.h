@@ -1,38 +1,24 @@
 #ifndef FOUG_CPP_GLOBAL_H
 #define FOUG_CPP_GLOBAL_H
 
-#if defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
-    || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
-# define FOUG_DECL_EXPORT __declspec(dllexport)
-# define FOUG_DECL_IMPORT __declspec(dllimport)
-#else
-# define FOUG_DECL_EXPORT
-# define FOUG_DECL_IMPORT
-#endif // WIN
-
-//#include <QtCore/QtGlobal>
+#include "../c/foug_global.h"
 
 namespace foug {
 
-typedef char Int8;
-typedef unsigned char UInt8;
+typedef foug_int8 Int8;
+typedef foug_uint8 UInt8;
 
-typedef short Int16;
-typedef unsigned short UInt16;
+typedef foug_int16 Int16;
+typedef foug_uint16 UInt16;
 
-typedef int Int32;
-typedef unsigned int UInt32;
+typedef foug_int32 Int32;
+typedef foug_uint32 UInt32;
 
-#ifdef _MSC_VER
-typedef __int64 Int64;
-typedef unsigned __int64 UInt64;
-#else
-typedef long long Int64;
-typedef unsigned long long UInt64;
-#endif // _MSC_VER
+typedef foug_int64 Int64;
+typedef foug_uint64 UInt64;
 
-typedef float Real32;
-typedef double Real64;
+typedef foug_real32 Real32;
+typedef foug_real64 Real64;
 
 } // namespace foug
 

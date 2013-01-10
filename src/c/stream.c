@@ -1,0 +1,95 @@
+#include "stream.h"
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+struct _internal_foug_stream
+{
+  void* cookie;
+  foug_stream_manip_t manip;
+};
+
+foug_stream_t* foug_stream_create(foug_malloc_func_t func, void* data, foug_stream_manip_t manip)
+{
+  if (func == NULL)
+    return NULL;
+  foug_stream_t* stream = (*func)(sizeof(struct _internal_foug_stream));
+  if (stream != NULL) {
+    stream->cookie = data;
+    stream->manip = manip;
+  }
+  return stream;
+}
+
+foug_stream_manip_t foug_stream_manip_null()
+{
+  foug_stream_manip_t manip;
+  memset(&manip, 0, sizeof(foug_stream_manip_t));
+  return manip;
+}
+
+static foug_bool foug_stream_stdio_at_end(foug_stream_t* stream)
+{
+  return feof((FILE*) stream->cookie);
+}
+
+static foug_int32 foug_stream_stdio_seek(foug_stream_t* stream, foug_int64 pos)
+{
+  return fseek((FILE*) stream->cookie, pos, SEEK_SET);
+}
+
+static foug_uint64 foug_stream_stdio_read(foug_stream_t* stream, char* s, foug_uint64 max_size)
+{
+  return fread(s, sizeof(char), max_size, (FILE*) stream->cookie);
+}
+
+static foug_uint64 foug_stream_stdio_write(foug_stream_t* stream,
+                                           const char* s,
+                                           foug_uint64 max_size)
+{
+  return fwrite(s, sizeof(char), max_size, (FILE*) stream->cookie);
+}
+
+foug_stream_manip_t foug_stream_manip_stdio()
+{
+  foug_stream_manip_t manip;
+  manip.at_end_func = &foug_stream_stdio_at_end;
+  manip.seek_func = &foug_stream_stdio_seek;
+  manip.read_func = &foug_stream_stdio_read;
+  manip.write_func = &foug_stream_stdio_write;
+  return manip;
+}
+
+foug_bool foug_stream_at_end(foug_stream_t* stream)
+{
+  if (stream != NULL && stream->manip.at_end_func != NULL)
+    return (*(stream->manip.at_end_func))(stream);
+  return 0;
+}
+
+foug_int32 foug_stream_seek(foug_stream_t* stream, foug_int64 max_size)
+{
+  if (stream != NULL && stream->manip.seek_func != NULL)
+    return (*(stream->manip.seek_func))(stream, max_size);
+  return -1;
+}
+
+foug_uint64 foug_stream_read(foug_stream_t* stream, char* s, foug_uint64 max_size)
+{
+  if (stream != NULL && stream->manip.read_func != NULL)
+    return (*(stream->manip.read_func))(stream, s, max_size);
+  return 0;
+}
+
+foug_uint64 foug_stream_write(foug_stream_t* stream, const char* s, foug_uint64 max_size)
+{
+  if (stream != NULL && stream->manip.write_func != NULL)
+    return (*(stream->manip.write_func))(stream, s, max_size);
+  return 0;
+}
+
+void* foug_stream_get_cookie(const foug_stream_t* stream)
+{
+  return stream != NULL ? stream->cookie : NULL;
+}

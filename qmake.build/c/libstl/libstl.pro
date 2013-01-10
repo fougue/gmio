@@ -1,0 +1,50 @@
+isEmpty(PREFIX_DIR) {
+  PREFIX_DIR = ../../..
+}
+
+include(../../config.pri)
+
+message($$PREFIX_DIR)
+
+TEMPLATE = lib
+TARGET = fougstl-c$$TARGET_SUFFIX
+DESTDIR = $$PREFIX_DIR/lib
+CONFIG *= dll
+
+dll {
+  DEFINES *= FOUG_STL_DLL FOUG_STL_MAKE_DLL
+}
+
+#*g++*:QMAKE_CXXFLAGS_RELEASE -= -O2
+#*g++*:QMAKE_CXXFLAGS_RELEASE += -O3
+
+INCLUDEPATH += ../../../src
+
+HEADERS += \
+    ../../../src/c/foug_global.h \
+    ../../../src/c/memory.h \
+    ../../../src/c/stream.h \
+    ../../../src/c/task_control.h \
+    ../../../src/c/libstl/stlb.h \
+    ../../../src/c/libstl/triangle.h
+
+SOURCES += \
+    ../../../src/c/stream.c \
+    ../../../src/c/task_control.c \
+    ../../../src/c/libstl/stlb.c
+
+*-g++*:QMAKE_CFLAGS += -ansi
+
+global_inc.path  = $$PREFIX_DIR/include
+global_inc.files = ../../../src/*.h
+c_global_inc.path  = $$PREFIX_DIR/include/c
+c_global_inc.files = ../../../src/c/*.h
+c_streams_inc.path  = $$PREFIX_DIR/include/c/streams
+c_streams_inc.files = ../../../src/c/streams/*.h
+c_libstl_inc.path  = $$PREFIX_DIR/include/c/libstl
+c_libstl_inc.files = ../../../src/c/libstl/*.h
+INSTALLS += global_inc  c_global_inc  c_streams_inc  c_libstl_inc
+
+VER_MAJ = 0
+VER_MIN = 1
+VER_PAT = 0
