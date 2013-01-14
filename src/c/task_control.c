@@ -7,13 +7,13 @@
 
 struct _internal_foug_task_control
 {
-  foug_real32 range_min;
-  foug_real32 range_max;
-  foug_real32 range_length;
-  foug_int32 step_id;
-  foug_real32 progress_value;
-  foug_real32 progress_threshold;
-  foug_bool is_stop_requested;
+  foug_real32_t range_min;
+  foug_real32_t range_max;
+  foug_real32_t range_length;
+  int32_t step_id;
+  foug_real32_t progress_value;
+  foug_real32_t progress_threshold;
+  foug_bool_t is_stop_requested;
   void* cookie;
   foug_task_control_manip_t manip;
 };
@@ -49,17 +49,17 @@ void foug_task_control_manip_init(foug_task_control_manip_t* manip)
 
 /* Range */
 
-foug_real32 foug_task_control_get_range_min(const foug_task_control_t* ctrl)
+foug_real32_t foug_task_control_get_range_min(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->range_min : -1.;
 }
 
-foug_real32 foug_task_control_get_range_max(const foug_task_control_t* ctrl)
+foug_real32_t foug_task_control_get_range_max(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->range_max : -2.;
 }
 
-void foug_task_control_set_range(foug_task_control_t* ctrl, foug_real32 min, foug_real32 max)
+void foug_task_control_set_range(foug_task_control_t* ctrl, foug_real32_t min, foug_real32_t max)
 {
   if (ctrl != NULL) {
     ctrl->range_min = min;
@@ -70,32 +70,32 @@ void foug_task_control_set_range(foug_task_control_t* ctrl, foug_real32 min, fou
 
 /* Step id */
 
-foug_int32 foug_task_control_get_step_id(const foug_task_control_t* ctrl)
+int32_t foug_task_control_get_step_id(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->step_id : -1;
 }
 
-void foug_task_control_set_step_id(foug_task_control_t* ctrl, foug_int32 step_id)
+void foug_task_control_set_step_id(foug_task_control_t* ctrl, int32_t step_id)
 {
   if (ctrl != NULL)
     ctrl->step_id = step_id;
 }
 
 /* Progress */
-foug_real32 foug_task_control_get_progress_as_pc(const foug_task_control_t* ctrl)
+foug_real32_t foug_task_control_get_progress_as_pc(const foug_task_control_t* ctrl)
 {
   if (ctrl == NULL)
     return 0.;
-  const foug_real32 result = (ctrl->progress_value - ctrl->range_min) / ctrl->range_length;
+  const foug_real32_t result = (ctrl->progress_value - ctrl->range_min) / ctrl->range_length;
   return fabs(result);
 }
 
-foug_real32 foug_task_control_get_progress(const foug_task_control_t* ctrl)
+foug_real32_t foug_task_control_get_progress(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->progress_value : 0.;
 }
 
-void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32 v)
+void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32_t v)
 {
   if (ctrl == NULL)
     return;
@@ -107,12 +107,12 @@ void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32 v)
   }
 }
 
-foug_real32 foug_task_control_get_progress_update_threshold(const foug_task_control_t* ctrl)
+foug_real32_t foug_task_control_get_progress_update_threshold(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->progress_threshold : 0.01;
 }
 
-void foug_task_control_set_progress_update_threshold(foug_task_control_t* ctrl, foug_real32 v)
+void foug_task_control_set_progress_update_threshold(foug_task_control_t* ctrl, foug_real32_t v)
 {
   if (ctrl != NULL)
     ctrl->progress_threshold = v;
@@ -148,7 +148,7 @@ void foug_task_control_handle_stop(foug_task_control_t* ctrl)
   }
 }
 
-foug_bool foug_task_control_is_stop_requested(const foug_task_control_t* ctrl)
+foug_bool_t foug_task_control_is_stop_requested(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->is_stop_requested : 0;
 }

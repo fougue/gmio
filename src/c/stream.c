@@ -29,63 +29,67 @@ foug_stream_manip_t foug_stream_manip_null()
   return manip;
 }
 
-static foug_bool foug_stream_stdio_at_end(foug_stream_t* stream)
+static foug_bool_t foug_stream_stdio_at_end(foug_stream_t* stream)
 {
   return feof((FILE*) stream->cookie);
 }
 
-static foug_int32 foug_stream_stdio_seek(foug_stream_t* stream, foug_int64 pos)
+/*static int32_t foug_stream_stdio_seek(foug_stream_t* stream, int64_t pos)
 {
   return fseek((FILE*) stream->cookie, pos, SEEK_SET);
+}*/
+
+static size_t foug_stream_stdio_read(foug_stream_t* stream,
+                                     void* ptr,
+                                     size_t item_size,
+                                     size_t item_count)
+{
+  return fread(ptr, item_size, item_count, (FILE*) stream->cookie);
 }
 
-static foug_uint64 foug_stream_stdio_read(foug_stream_t* stream, char* s, foug_uint64 max_size)
+static size_t foug_stream_stdio_write(foug_stream_t* stream,
+                                      const void* ptr,
+                                      size_t item_size,
+                                      size_t item_count)
 {
-  return fread(s, sizeof(char), max_size, (FILE*) stream->cookie);
-}
-
-static foug_uint64 foug_stream_stdio_write(foug_stream_t* stream,
-                                           const char* s,
-                                           foug_uint64 max_size)
-{
-  return fwrite(s, sizeof(char), max_size, (FILE*) stream->cookie);
+  return fwrite(ptr, item_size, item_count, (FILE*) stream->cookie);
 }
 
 foug_stream_manip_t foug_stream_manip_stdio()
 {
   foug_stream_manip_t manip;
   manip.at_end_func = &foug_stream_stdio_at_end;
-  manip.seek_func = &foug_stream_stdio_seek;
+  /* manip.seek_func = &foug_stream_stdio_seek; */
   manip.read_func = &foug_stream_stdio_read;
   manip.write_func = &foug_stream_stdio_write;
   return manip;
 }
 
-foug_bool foug_stream_at_end(foug_stream_t* stream)
+foug_bool_t foug_stream_at_end(foug_stream_t* stream)
 {
   if (stream != NULL && stream->manip.at_end_func != NULL)
     return (*(stream->manip.at_end_func))(stream);
   return 0;
 }
 
-foug_int32 foug_stream_seek(foug_stream_t* stream, foug_int64 max_size)
+/*int32_t foug_stream_seek(foug_stream_t* stream, int64_t max_size)
 {
   if (stream != NULL && stream->manip.seek_func != NULL)
     return (*(stream->manip.seek_func))(stream, max_size);
   return -1;
-}
+}*/
 
-foug_uint64 foug_stream_read(foug_stream_t* stream, char* s, foug_uint64 max_size)
+size_t foug_stream_read(foug_stream_t* stream, void *ptr, size_t item_size, size_t item_count)
 {
   if (stream != NULL && stream->manip.read_func != NULL)
-    return (*(stream->manip.read_func))(stream, s, max_size);
+    return (*(stream->manip.read_func))(stream, ptr, item_size, item_count);
   return 0;
 }
 
-foug_uint64 foug_stream_write(foug_stream_t* stream, const char* s, foug_uint64 max_size)
+size_t foug_stream_write(foug_stream_t* stream, const void *ptr, size_t item_size, size_t item_count)
 {
   if (stream != NULL && stream->manip.write_func != NULL)
-    return (*(stream->manip.write_func))(stream, s, max_size);
+    return (*(stream->manip.write_func))(stream, ptr, item_size, item_count);
   return 0;
 }
 

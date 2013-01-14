@@ -10,26 +10,30 @@
 # define FOUG_DECL_IMPORT
 #endif /* WIN */
 
-typedef char foug_int8;
-typedef unsigned char foug_uint8;
-
-typedef foug_int8 foug_bool;
-
-typedef short foug_int16;
-typedef unsigned short foug_uint16;
-
-typedef int foug_int32;
-typedef unsigned int foug_uint32;
-
-#ifdef _MSC_VER
-typedef __int64 foug_int64;
-typedef unsigned __int64 foug_uint64;
+#ifdef FOUG_USE_STDINT_H
+# include <stdint.h>
 #else
-typedef long long foug_int64;
-typedef unsigned long long foug_uint64;
-#endif /* _MSC_VER */
+typedef char int8_t;
+typedef unsigned char uint8_t;
 
-typedef float foug_real32;
-typedef double foug_real64;
+typedef short int16_t;
+typedef unsigned short uint16_t;
+
+typedef int int32_t;
+typedef unsigned int uint32_t;
+
+# ifdef _MSC_VER
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+# else
+typedef long long int64_t;
+typedef unsigned long long uint64_t;
+# endif /* _MSC_VER */
+
+#endif /* FOUG_USE_STDINT_H */
+
+typedef int8_t foug_bool_t;
+typedef float foug_real32_t;
+typedef double foug_real64_t;
 
 #endif /* FOUG_C_GLOBAL_H */

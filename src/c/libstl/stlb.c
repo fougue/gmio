@@ -1,261 +1,125 @@
 #include "stlb.h"
 
-/*
-#include "../abstract_task_progress.h"
+#include "../endian.h"
 
-#include <algorithm>
-#include <limits>
-
-// Read tools
-
-template<typename NUMERIC>
-NUMERIC fromLittleEndian(const foug::UInt8* bytes)
+struct _internal_foug_stlb_geom
 {
-  return 0;
-}
+  void* cookie;
+  foug_stlb_geom_input_manip_t manip;
+};
 
-template<>
-foug::UInt16 fromLittleEndian<foug::UInt16>(const foug::UInt8* bytes)
+foug_stlb_geom_t* foug_stlb_geom_create(foug_malloc_func_t func,
+                                        void* data,
+                                        foug_stlb_geom_input_manip_t manip)
 {
-  // |BB|AA| -> 0xAABB
-  return (bytes[1] << 8) | bytes[0];
-}
-
-template<>
-foug::UInt32 fromLittleEndian<foug::UInt32>(const foug::UInt8* bytes)
-{
-  // |DD|CC|BB|AA| -> 0xAABBCCDD
-  return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-}
-
-template<>
-foug::Real32 fromLittleEndian<foug::Real32>(const foug::UInt8* bytes)
-{
-  union
-  {
-    foug::UInt32 asInteger;
-    foug::Real32 asFloat;
-  } helper;
-
-  helper.asInteger = fromLittleEndian<foug::UInt32>(bytes);
-  return helper.asFloat;
-}
-
-// Write tools
-
-template<typename NUMERIC>
-void toLittleEndian(NUMERIC n, foug::UInt8* bytes)
-{
-  union {
-    NUMERIC asNumeric;
-    foug::UInt8 asBytes[sizeof(NUMERIC)];
-  } helper;
-  helper.asNumeric = n;
-  //  std::copy(helper.asBytes, helper.asBytes + sizeof(NUMERIC), bytes);
-  for (unsigned i = 0; i < sizeof(NUMERIC); ++i)
-    bytes[i] = helper.asBytes[i];
-}
-
-namespace foug {
-namespace stlb {
-
-static const int stlFacetSize = 50;
-static const int stlMinFileSize = 284;
-static const int stlTriangleDataSize = (4 * 3) * sizeof(foug::Real32) + sizeof(foug::UInt16);
-
-
-void AbstractGeometryBuilder::endTriangles()
-{
-}
-
-Io::Io(AbstractStream *stream)
-  : IoBase(stream)
-{
-}
-
-bool Io::read(AbstractGeometryBuilder* builder)
-{
-  //  // Check file size
-  //  const qint64 fileSize = stream->size();
-  //  if (((fileSize - stlHeaderSize - stlFacetCountSize) % stlFacetSize != 0)
-  //      || fileSize < stlMinFileSize) {
-  //    cpp::checkedAssign(err, WrongFileSizeBinaryStlLoadError);
-  //    return false;
-  //  }
-
-  //  const int facetCount = (fileSize - stlHeaderSize - stlFacetCountSize) / stlFacetSize;
-
-  if (this->stream() == 0)
-    return false;
-
-  AbstractStream* istream = this->stream();
-  AbstractTaskProgress* progress = this->taskProgress();
-  const UInt32 chunkSize = stlTriangleDataSize * 163;
-
-  UInt8 buffer[8192];
-  char* charBuffer = reinterpret_cast<char*>(buffer);
-
-  // Read header
-  Header headerData;
-  if (istream->read(reinterpret_cast<char*>(&headerData), HeaderSize) != HeaderSize)
-    return false;
-  builder->processHeader(headerData);
-
-  // Read facet count
-  if (istream->read(charBuffer, sizeof(UInt32)) != sizeof(UInt32))
-    return false;
-  const UInt32 facetCount = ::fromLittleEndian<UInt32>(buffer);
-  builder->beginTriangles(facetCount);
-
-  if (progress != 0) {
-    progress->reset();
-    progress->setRange(0., facetCount);
+  if (func == NULL)
+    return NULL;
+  foug_stlb_geom_t* geom = (*func)(sizeof(struct _internal_foug_stlb_geom));
+  if (geom != NULL) {
+    geom->cookie = data;
+    geom->manip = manip;
   }
-
-  // Read triangles
-  const UInt64 totalFacetSize = stlTriangleDataSize * facetCount;
-  UInt64 amountReadSize = 0;
-  stl::Triangle triangle;
-  bool streamError = false;
-  while (amountReadSize < totalFacetSize && !streamError) {
-    const Int64 iReadSize = istream->read(charBuffer, chunkSize);
-    if (iReadSize > 0 && (iReadSize % stlTriangleDataSize == 0)) {
-      const UInt32 iFacetCount = iReadSize / stlTriangleDataSize;
-      UInt32 bufferOffset = 0;
-      for (UInt32 i = 0; i < iFacetCount; ++i) {
-        // Read normal
-        triangle.normal.x = ::fromLittleEndian<Real32>(buffer + bufferOffset);
-        triangle.normal.y = ::fromLittleEndian<Real32>(buffer + 1*sizeof(Real32) + bufferOffset);
-        triangle.normal.z = ::fromLittleEndian<Real32>(buffer + 2*sizeof(Real32) + bufferOffset);
-
-        // Read vertex1
-        triangle.v1.x = ::fromLittleEndian<Real32>(buffer + 3*sizeof(Real32) + bufferOffset);
-        triangle.v1.y = ::fromLittleEndian<Real32>(buffer + 4*sizeof(Real32) + bufferOffset);
-        triangle.v1.z = ::fromLittleEndian<Real32>(buffer + 5*sizeof(Real32) + bufferOffset);
-
-        // Read vertex2
-        triangle.v2.x = ::fromLittleEndian<Real32>(buffer + 6*sizeof(Real32) + bufferOffset);
-        triangle.v2.y = ::fromLittleEndian<Real32>(buffer + 7*sizeof(Real32) + bufferOffset);
-        triangle.v2.z = ::fromLittleEndian<Real32>(buffer + 8*sizeof(Real32) + bufferOffset);
-
-        // Read vertex3
-        triangle.v3.x = ::fromLittleEndian<Real32>(buffer + 9*sizeof(Real32) + bufferOffset);
-        triangle.v3.y = ::fromLittleEndian<Real32>(buffer + 10*sizeof(Real32) + bufferOffset);
-        triangle.v3.z = ::fromLittleEndian<Real32>(buffer + 11*sizeof(Real32) + bufferOffset);
-
-        // Attribute byte count
-        const UInt16 attributeByteCount =
-            ::fromLittleEndian<UInt16>(buffer + 12*sizeof(Real32) + bufferOffset);
-
-        // Add triangle
-        builder->processNextTriangle(triangle, attributeByteCount);
-
-        bufferOffset += stlTriangleDataSize;
-      } // end for
-
-      if (progress != 0) {
-        if (progress->isTaskStopRequested()) {
-          streamError = true;
-          progress->taskStoppedEvent();
-        }
-        else {
-          progress->setValue(amountReadSize / stlTriangleDataSize);
-        }
-      }
-
-      amountReadSize += iReadSize;
-    }
-    else {
-      streamError = true;
-    }
-  } // end while
-
-  if (!streamError)
-    builder->endTriangles();
-
-  return !streamError;
+  return geom;
 }
 
-bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraData* extraData)
+void* foug_stlb_geom_get_cookie(const foug_stlb_geom_t* geom)
 {
-  if (this->stream() == 0)
-    return false;
+  return geom != NULL ? geom->cookie : NULL;
+}
 
-  AbstractStream* ostream = this->stream();
-  AbstractTaskProgress* progress = this->taskProgress();
+static const int stlb_min_file_size = 284;
+static const int stlb_facet_size = (4 * 3) * sizeof(foug_real32_t) + sizeof(uint16_t);
 
-  UInt8 buffer[128];
+int foug_stlb_read(foug_stlb_read_args_t args)
+{
+  if (args.geom == NULL)
+    return FOUG_STLB_READ_NULL_GEOM_ERROR;
+  if (args.stream == NULL)
+    return FOUG_STLB_READ_NULL_STREAM_ERROR;
+  if (args.buffer_size == 0)
+    return FOUG_STLB_READ_INVALID_BUFFER_SIZE_ERROR;
 
-  // Write header
-  Header headerData;
-  if (extraData != 0)
-    extraData->getHeader(headerData);
-  else
-    std::fill(headerData, headerData + HeaderSize, 0);
+  uint8_t buffer[8192];
 
-  if (ostream->write(reinterpret_cast<char*>(&headerData), HeaderSize) != HeaderSize)
-    return false;
+  /* Read header */
+  uint8_t header_data[foug_stlb_header_size];
+  if (foug_stream_read(args.stream, header_data, 1, foug_stlb_header_size) != foug_stlb_header_size)
+    return FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR;
 
-  // Write facet count
-  const UInt32 facetCount = geom.triangleCount();
-  ::toLittleEndian<UInt32>(facetCount, buffer);
-  if (ostream->write(reinterpret_cast<char*>(&buffer), sizeof(UInt32)) != sizeof(UInt32))
-    return false;
+  if (args.geom->manip.process_header_func != NULL)
+    (*(args.geom->manip.process_header_func))(args.geom, header_data);
 
-  if (progress != 0) {
-    progress->reset();
-    progress->setRange(0., facetCount);
-  }
+  /* Read facet count */
+  if (foug_stream_read(args.stream, buffer, sizeof(uint32_t), 1) != 1)
+    return FOUG_STLB_READ_FACET_COUNT_ERROR;
 
-  // Write triangles
-  stl::Triangle triangle;
-  for (UInt32 facet = 0; facet < facetCount; ++facet) {
-    geom.getTriangle(facet, &triangle);
+  const uint32_t total_facet_count = foug_decode_uint32_le(buffer);
+  if (args.geom->manip.begin_triangles_func != NULL)
+    (*(args.geom->manip.begin_triangles_func))(args.geom, total_facet_count);
 
-    // Write normal
-    ::toLittleEndian<Real32>(triangle.normal.x, buffer);
-    ::toLittleEndian<Real32>(triangle.normal.y, buffer + 1*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.normal.z, buffer + 2*sizeof(Real32));
+  foug_task_control_reset(args.task_control);
+  foug_task_control_set_range(args.task_control, 0., (foug_real32_t)total_facet_count);
 
-    // Write vertex1
-    ::toLittleEndian<Real32>(triangle.v1.x, buffer + 3*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.v1.y, buffer + 4*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.v1.z, buffer + 5*sizeof(Real32));
+  /* Read triangles */
+  const size_t buffer_facet_count = 163;
+  size_t accum_facet_count_read = 0;
+  foug_stl_triangle_t triangle;
+  foug_bool_t stream_error = 0;
+  while (accum_facet_count_read < total_facet_count && !stream_error) {
+    const size_t facet_count_read =
+        foug_stream_read(args.stream, buffer, stlb_facet_size, buffer_facet_count);
+    if (facet_count_read > 0 /* && !foug_stream_has_error(args.stream)*/) {
+      uint32_t buffer_offset = 0;
+      uint32_t i_facet;
+      for (i_facet = 0; i_facet < facet_count_read; ++i_facet) {
+        /* Read normal */
+        triangle.normal.x = foug_decode_real32_le(buffer + buffer_offset);
+        triangle.normal.y = foug_decode_real32_le(buffer + 1*sizeof(foug_real32_t) + buffer_offset);
+        triangle.normal.z = foug_decode_real32_le(buffer + 2*sizeof(foug_real32_t) + buffer_offset);
 
-    // Write vertex2
-    ::toLittleEndian<Real32>(triangle.v2.x, buffer + 6*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.v2.y, buffer + 7*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.v2.z, buffer + 8*sizeof(Real32));
+        /* Read vertex1 */
+        triangle.v1.x = foug_decode_real32_le(buffer + 3*sizeof(foug_real32_t) + buffer_offset);
+        triangle.v1.y = foug_decode_real32_le(buffer + 4*sizeof(foug_real32_t) + buffer_offset);
+        triangle.v1.z = foug_decode_real32_le(buffer + 5*sizeof(foug_real32_t) + buffer_offset);
 
-    // Write vertex3
-    ::toLittleEndian<Real32>(triangle.v3.x, buffer + 9*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.v3.y, buffer + 10*sizeof(Real32));
-    ::toLittleEndian<Real32>(triangle.v3.z, buffer + 11*sizeof(Real32));
+        /* Read vertex2 */
+        triangle.v2.x = foug_decode_real32_le(buffer + 6*sizeof(foug_real32_t) + buffer_offset);
+        triangle.v2.y = foug_decode_real32_le(buffer + 7*sizeof(foug_real32_t) + buffer_offset);
+        triangle.v2.z = foug_decode_real32_le(buffer + 8*sizeof(foug_real32_t) + buffer_offset);
 
-    // Attribute byte count
-    const UInt16 attrByteCount = extraData != 0 ? extraData->attributeByteCount(facet) : 0;
-    ::toLittleEndian<UInt16>(attrByteCount, buffer + 12*sizeof(Real32));
+        /* Read vertex3 */
+        triangle.v3.x = foug_decode_real32_le(buffer + 9*sizeof(foug_real32_t) + buffer_offset);
+        triangle.v3.y = foug_decode_real32_le(buffer + 10*sizeof(foug_real32_t) + buffer_offset);
+        triangle.v3.z = foug_decode_real32_le(buffer + 11*sizeof(foug_real32_t) + buffer_offset);
 
-    // Write to stream
-    if (ostream->write(reinterpret_cast<const char*>(buffer), stlTriangleDataSize)
-        != stlTriangleDataSize)
-      return false;
+        /* Attribute byte count */
+        const uint16_t attribute_byte_count =
+            foug_decode_uint16_le(buffer + 12*sizeof(foug_real32_t) + buffer_offset);
 
-    if (progress != 0) {
-      if (progress->isTaskStopRequested()) {
-        progress->taskStoppedEvent();
-        return false;
+        /* Add triangle */
+        if (args.geom->manip.process_next_triangle_func != NULL)
+          (*(args.geom->manip.process_next_triangle_func))(args.geom, &triangle, attribute_byte_count);
+
+        buffer_offset += stlb_facet_size;
+      } /* end for */
+
+      if (foug_task_control_is_stop_requested(args.task_control)) {
+        stream_error = 1;
+        foug_task_control_handle_stop(args.task_control);
       }
       else {
-        progress->setValue(facet + 1);
+        foug_task_control_set_progress(args.task_control, accum_facet_count_read);
       }
+      accum_facet_count_read += facet_count_read;
     }
-  } // end for
 
-  return true;
+    else {
+      stream_error = 1;
+    }
+  } /* end while */
+
+  if (!stream_error && args.geom->manip.end_triangles_func != NULL)
+    (*(args.geom->manip.end_triangles_func))(args.geom);
+
+  return FOUG_STLB_READ_NO_ERROR;
 }
-
-} // namespace stlb
-} // namespace foug
-
-*/
