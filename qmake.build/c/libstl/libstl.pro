@@ -26,14 +26,14 @@ HEADERS += \
     ../../../src/c/memory.h \
     ../../../src/c/stream.h \
     ../../../src/c/task_control.h \
-    ../../../src/c/libstl/stlb.h \
+    ../../../src/c/libstl/stlb_read.h \
     ../../../src/c/libstl/triangle.h
 
 SOURCES += \
     ../../../src/c/endian.c \
     ../../../src/c/stream.c \
     ../../../src/c/task_control.c \
-    ../../../src/c/libstl/stlb.c
+    ../../../src/c/libstl/stlb_read.c
 
 *-g++*:QMAKE_CFLAGS += -ansi
 

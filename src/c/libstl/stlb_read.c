@@ -1,4 +1,4 @@
-#include "stlb.h"
+#include "stlb_read.h"
 
 #include "../endian.h"
 
@@ -29,6 +29,11 @@ void* foug_stlb_geom_get_cookie(const foug_stlb_geom_t* geom)
 
 static const int stlb_min_file_size = 284;
 static const int stlb_facet_size = (4 * 3) * sizeof(foug_real32_t) + sizeof(uint16_t);
+
+static foug_bool_t foug_stlb_no_error(int code)
+{
+  return code == FOUG_STLB_READ_NO_ERROR;
+}
 
 int foug_stlb_read(foug_stlb_read_args_t args)
 {
@@ -64,11 +69,13 @@ int foug_stlb_read(foug_stlb_read_args_t args)
   const size_t buffer_facet_count = 163;
   size_t accum_facet_count_read = 0;
   foug_stl_triangle_t triangle;
-  foug_bool_t stream_error = 0;
-  while (accum_facet_count_read < total_facet_count && !stream_error) {
+  int error = FOUG_STLB_READ_NO_ERROR;
+  while (foug_stlb_no_error(error) && accum_facet_count_read < total_facet_count) {
     const size_t facet_count_read =
         foug_stream_read(args.stream, buffer, stlb_facet_size, buffer_facet_count);
-    if (facet_count_read > 0 /* && !foug_stream_has_error(args.stream)*/) {
+    error = foug_stream_error(args.stream) != 0 ? FOUG_STLB_READ_STREAM_ERROR :
+                                                  FOUG_STLB_READ_NO_ERROR;
+    if (foug_stlb_no_error(error)) {
       uint32_t buffer_offset = 0;
       uint32_t i_facet;
       for (i_facet = 0; i_facet < facet_count_read; ++i_facet) {
@@ -103,23 +110,21 @@ int foug_stlb_read(foug_stlb_read_args_t args)
         buffer_offset += stlb_facet_size;
       } /* end for */
 
+      accum_facet_count_read += facet_count_read;
       if (foug_task_control_is_stop_requested(args.task_control)) {
-        stream_error = 1;
+        error = FOUG_STLB_READ_TASK_STOPPED_ERROR;
         foug_task_control_handle_stop(args.task_control);
       }
       else {
         foug_task_control_set_progress(args.task_control, accum_facet_count_read);
       }
-      accum_facet_count_read += facet_count_read;
-    }
-
-    else {
-      stream_error = 1;
     }
   } /* end while */
 
-  if (!stream_error && args.geom->manip.end_triangles_func != NULL)
+  if (foug_stlb_no_error(error) && args.geom->manip.end_triangles_func != NULL)
     (*(args.geom->manip.end_triangles_func))(args.geom);
 
-  return FOUG_STLB_READ_NO_ERROR;
+  if (foug_stlb_no_error(error) && accum_facet_count_read != total_facet_count)
+    error = FOUG_STLB_READ_FACET_COUNT_ERROR;
+  return error;
 }

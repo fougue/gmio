@@ -1,5 +1,5 @@
-#ifndef FOUG_C_LIBSTL_STLB_H
-#define FOUG_C_LIBSTL_STLB_H
+#ifndef FOUG_C_LIBSTL_STLB_READ_H
+#define FOUG_C_LIBSTL_STLB_READ_H
 
 #include "triangle.h"
 #include "../foug_global.h"
@@ -46,21 +46,7 @@ int foug_stlb_read(foug_stlb_read_args_t args);
 #define FOUG_STLB_READ_INVALID_BUFFER_SIZE_ERROR 3
 #define FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR 4
 #define FOUG_STLB_READ_FACET_COUNT_ERROR 5
+#define FOUG_STLB_READ_STREAM_ERROR 6
+#define FOUG_STLB_READ_TASK_STOPPED_ERROR 7
 
-/*class FOUG_STL_EXPORT AbstractGeometryExtraData
-{
-public:
-  virtual void getHeader(Header& data) const = 0;
-  virtual UInt16 attributeByteCount(UInt32 triangleIndex) const = 0;
-};
-
-class FOUG_STL_EXPORT Io : public IoBase
-{
-public:
-  Io(AbstractStream* stream = 0);
-
-  bool read(AbstractGeometryBuilder* builder);
-  bool write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraData* extraData = 0);
-};*/
-
-#endif /* FOUG_C_LIBSTL_STLB_H */
+#endif /* FOUG_C_LIBSTL_STLB_READ_H */
