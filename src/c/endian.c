@@ -1,5 +1,15 @@
 #include "endian.h"
 
+#include <string.h>
+
+#define _INTERNAL_FOUG_ENCODE_NUMERIC_LE(NUMERIC_TYPE) \
+  union { \
+    NUMERIC_TYPE as_numeric; \
+    uint8_t as_bytes[sizeof(NUMERIC_TYPE)]; \
+  } u; \
+  u.as_numeric = val; \
+  memcpy(bytes, u.as_bytes, sizeof(NUMERIC_TYPE));
+
 foug_endianness_t foug_host_endianness()
 {
   union {
@@ -42,6 +52,11 @@ uint16_t foug_decode_uint16_be(const uint8_t* bytes)
   return (bytes[0] << 8) | bytes[1];
 }
 
+void foug_encode_uint16_le(uint16_t val, uint8_t* bytes)
+{
+  _INTERNAL_FOUG_ENCODE_NUMERIC_LE(uint16_t);
+}
+
 uint32_t foug_uint32_swap(uint32_t val)
 {
   return
@@ -74,6 +89,11 @@ uint32_t foug_decode_uint32_be(const uint8_t* bytes)
   return bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
 }
 
+void foug_encode_uint32_le(uint32_t val, uint8_t* bytes)
+{
+  _INTERNAL_FOUG_ENCODE_NUMERIC_LE(uint32_t);
+}
+
 static foug_real32_t convert_real32(uint32_t val)
 {
   union
@@ -99,4 +119,9 @@ foug_real32_t foug_decode_real32_me(const uint8_t* bytes)
 foug_real32_t foug_decode_real32_be(const uint8_t* bytes)
 {
   return convert_real32(foug_decode_uint32_be(bytes));
+}
+
+void foug_encode_real32_le(foug_real32_t val, uint8_t* bytes)
+{
+  _INTERNAL_FOUG_ENCODE_NUMERIC_LE(foug_real32_t);
 }

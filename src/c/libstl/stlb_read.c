@@ -1,20 +1,21 @@
 #include "stlb_read.h"
+#include "stlb_global.h"
 
 #include "../endian.h"
 
-struct _internal_foug_stlb_geom
+struct _internal_foug_stlb_geom_input
 {
   void* cookie;
   foug_stlb_geom_input_manip_t manip;
 };
 
-foug_stlb_geom_t* foug_stlb_geom_create(foug_malloc_func_t func,
-                                        void* data,
-                                        foug_stlb_geom_input_manip_t manip)
+foug_stlb_geom_input_t* foug_stlb_geom_input_create(foug_malloc_func_t func,
+                                                    void* data,
+                                                    foug_stlb_geom_input_manip_t manip)
 {
   if (func == NULL)
     return NULL;
-  foug_stlb_geom_t* geom = (*func)(sizeof(struct _internal_foug_stlb_geom));
+  foug_stlb_geom_input_t* geom = (*func)(sizeof(struct _internal_foug_stlb_geom_input));
   if (geom != NULL) {
     geom->cookie = data;
     geom->manip = manip;
@@ -22,13 +23,10 @@ foug_stlb_geom_t* foug_stlb_geom_create(foug_malloc_func_t func,
   return geom;
 }
 
-void* foug_stlb_geom_get_cookie(const foug_stlb_geom_t* geom)
+void* foug_stlb_geom_input_get_cookie(const foug_stlb_geom_input_t* geom)
 {
   return geom != NULL ? geom->cookie : NULL;
 }
-
-static const int stlb_min_file_size = 284;
-static const int stlb_facet_size = (4 * 3) * sizeof(foug_real32_t) + sizeof(uint16_t);
 
 static foug_bool_t foug_stlb_no_error(int code)
 {
@@ -37,8 +35,8 @@ static foug_bool_t foug_stlb_no_error(int code)
 
 int foug_stlb_read(foug_stlb_read_args_t args)
 {
-  if (args.geom == NULL)
-    return FOUG_STLB_READ_NULL_GEOM_ERROR;
+  if (args.geom_input == NULL)
+    return FOUG_STLB_READ_NULL_GEOM_INPUT_ERROR;
   if (args.stream == NULL)
     return FOUG_STLB_READ_NULL_STREAM_ERROR;
   if (args.buffer_size == 0)
@@ -47,20 +45,20 @@ int foug_stlb_read(foug_stlb_read_args_t args)
   uint8_t buffer[8192];
 
   /* Read header */
-  uint8_t header_data[foug_stlb_header_size];
-  if (foug_stream_read(args.stream, header_data, 1, foug_stlb_header_size) != foug_stlb_header_size)
+  uint8_t header_data[FOUG_STLB_HEADER_SIZE];
+  if (foug_stream_read(args.stream, header_data, 1, FOUG_STLB_HEADER_SIZE) != FOUG_STLB_HEADER_SIZE)
     return FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR;
 
-  if (args.geom->manip.process_header_func != NULL)
-    (*(args.geom->manip.process_header_func))(args.geom, header_data);
+  if (args.geom_input->manip.process_header_func != NULL)
+    (*(args.geom_input->manip.process_header_func))(args.geom_input, header_data);
 
   /* Read facet count */
   if (foug_stream_read(args.stream, buffer, sizeof(uint32_t), 1) != 1)
     return FOUG_STLB_READ_FACET_COUNT_ERROR;
 
   const uint32_t total_facet_count = foug_decode_uint32_le(buffer);
-  if (args.geom->manip.begin_triangles_func != NULL)
-    (*(args.geom->manip.begin_triangles_func))(args.geom, total_facet_count);
+  if (args.geom_input->manip.begin_triangles_func != NULL)
+    (*(args.geom_input->manip.begin_triangles_func))(args.geom_input, total_facet_count);
 
   foug_task_control_reset(args.task_control);
   foug_task_control_set_range(args.task_control, 0., (foug_real32_t)total_facet_count);
@@ -72,7 +70,7 @@ int foug_stlb_read(foug_stlb_read_args_t args)
   int error = FOUG_STLB_READ_NO_ERROR;
   while (foug_stlb_no_error(error) && accum_facet_count_read < total_facet_count) {
     const size_t facet_count_read =
-        foug_stream_read(args.stream, buffer, stlb_facet_size, buffer_facet_count);
+        foug_stream_read(args.stream, buffer, FOUG_STLB_TRIANGLE_SIZE, buffer_facet_count);
     error = foug_stream_error(args.stream) != 0 ? FOUG_STLB_READ_STREAM_ERROR :
                                                   FOUG_STLB_READ_NO_ERROR;
     if (foug_stlb_no_error(error)) {
@@ -104,10 +102,13 @@ int foug_stlb_read(foug_stlb_read_args_t args)
             foug_decode_uint16_le(buffer + 12*sizeof(foug_real32_t) + buffer_offset);
 
         /* Add triangle */
-        if (args.geom->manip.process_next_triangle_func != NULL)
-          (*(args.geom->manip.process_next_triangle_func))(args.geom, &triangle, attribute_byte_count);
+        if (args.geom_input->manip.process_next_triangle_func != NULL) {
+          (*(args.geom_input->manip.process_next_triangle_func))(args.geom_input,
+                                                                 &triangle,
+                                                                 attribute_byte_count);
+        }
 
-        buffer_offset += stlb_facet_size;
+        buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
       } /* end for */
 
       accum_facet_count_read += facet_count_read;
@@ -121,8 +122,8 @@ int foug_stlb_read(foug_stlb_read_args_t args)
     }
   } /* end while */
 
-  if (foug_stlb_no_error(error) && args.geom->manip.end_triangles_func != NULL)
-    (*(args.geom->manip.end_triangles_func))(args.geom);
+  if (foug_stlb_no_error(error) && args.geom_input->manip.end_triangles_func != NULL)
+    (*(args.geom_input->manip.end_triangles_func))(args.geom_input);
 
   if (foug_stlb_no_error(error) && accum_facet_count_read != total_facet_count)
     error = FOUG_STLB_READ_FACET_COUNT_ERROR;
