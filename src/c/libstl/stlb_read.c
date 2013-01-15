@@ -1,5 +1,4 @@
 #include "stlb_read.h"
-#include "stlb_global.h"
 
 #include "../endian.h"
 

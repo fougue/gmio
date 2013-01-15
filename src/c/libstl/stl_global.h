@@ -3,6 +3,17 @@
 
 #include "../foug_global.h"
 
+#ifdef FOUG_DATAEX_LIBSTL_DLL
+# ifdef FOUG_DATAEX_LIBSTL_MAKE_DLL
+#  define FOUG_DATAEX_LIBSTL_EXPORT FOUG_DECL_EXPORT
+# else
+#  define FOUG_DATAEX_LIBSTL_EXPORT FOUG_DECL_IMPORT
+# endif /* APP_LIBCORE_MAKE_DLL */
+#else
+# define FOUG_DATAEX_LIBSTL_EXPORT
+#endif /* FOUG_DATAEX_LIBSTL_DLL */
+
+/* STLB */
 #define FOUG_STLB_HEADER_SIZE 80
 #define FOUG_STLB_MIN_CONTENTS_SIZE 284
 #define FOUG_STLB_TRIANGLE_SIZE 50 /* 12 * sizeof(foug_real32_t) + sizeof(uint16_t) */

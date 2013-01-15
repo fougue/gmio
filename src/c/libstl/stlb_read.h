@@ -1,8 +1,8 @@
 #ifndef FOUG_C_LIBSTL_STLB_READ_H
 #define FOUG_C_LIBSTL_STLB_READ_H
 
+#include "stl_global.h"
 #include "triangle.h"
-#include "../foug_global.h"
 #include "../stream.h"
 #include "../task_control.h"
 
@@ -23,10 +23,12 @@ typedef struct
   foug_stlb_geom_input_end_triangles_func_t end_triangles_func;
 } foug_stlb_geom_input_manip_t;
 
+FOUG_DATAEX_LIBSTL_EXPORT
 foug_stlb_geom_input_t* foug_stlb_geom_input_create(foug_malloc_func_t func,
                                                     void* data,
                                                     foug_stlb_geom_input_manip_t manip);
 
+FOUG_DATAEX_LIBSTL_EXPORT
 void* foug_stlb_geom_input_get_cookie(const foug_stlb_geom_input_t* geom);
 
 typedef struct
@@ -36,6 +38,8 @@ typedef struct
   foug_task_control_t* task_control;
   uint32_t buffer_size;
 } foug_stlb_read_args_t;
+
+FOUG_DATAEX_LIBSTL_EXPORT
 int foug_stlb_read(foug_stlb_read_args_t args);
 
 #define FOUG_STLB_READ_NO_ERROR 0

@@ -10,6 +10,16 @@
 # define FOUG_DECL_IMPORT
 #endif /* WIN */
 
+#ifdef FOUG_LIB_DLL
+# ifdef FOUG_LIB_MAKE_DLL
+#  define FOUG_LIB_EXPORT FOUG_DECL_EXPORT
+# else
+#  define FOUG_LIB_EXPORT FOUG_DECL_IMPORT
+# endif /* APP_LIBCORE_MAKE_DLL */
+#else
+# define FOUG_LIB_EXPORT
+#endif /* FOUG_LIB_DLL */
+
 #ifdef FOUG_USE_STDINT_H
 # include <stdint.h>
 #else

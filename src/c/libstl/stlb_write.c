@@ -1,6 +1,5 @@
 #include "stlb_write.h"
 
-#include "stlb_global.h"
 #include "../endian.h"
 #include <string.h>
 
@@ -57,7 +56,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
     memset(header_data, 0, FOUG_STLB_HEADER_SIZE);
 
   if (foug_stream_write(args.stream, header_data, FOUG_STLB_HEADER_SIZE, 1) != 1)
-    return FOUG_STLB_WRITE_HEADER_ERROR;
+    return FOUG_STLB_WRITE_STREAM_ERROR;
 
   /* Write facet count */
   const uint32_t facet_count = (*(args.geom_output->manip.get_triangle_count_func))(args.geom_output);
@@ -102,7 +101,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
 
     /* Write to stream */
     if (foug_stream_write(args.stream, buffer, FOUG_STLB_TRIANGLE_SIZE, 1) != 1)
-      error = FOUG_STLB_WRITE_NULL_STREAM_ERROR;
+      error = FOUG_STLB_WRITE_STREAM_ERROR;
 
     /* Task control */
     if (foug_stlb_no_error(error)) {

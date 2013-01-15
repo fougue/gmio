@@ -16,37 +16,41 @@ typedef struct
   foug_task_control_handle_progress_update_func handle_progress_update_func;
 } foug_task_control_manip_t;
 
-void foug_task_control_manip_init(foug_task_control_manip_t* manip);
+FOUG_LIB_EXPORT void foug_task_control_manip_init(foug_task_control_manip_t* manip);
 
-foug_task_control_t* foug_task_control_create(foug_malloc_func_t func,
-                                              void* data, foug_task_control_manip_t manip);
+FOUG_LIB_EXPORT foug_task_control_t* foug_task_control_create(foug_malloc_func_t func,
+                                                              void* data,
+                                                              foug_task_control_manip_t manip);
 
 /* Range */
-foug_real32_t foug_task_control_get_range_min(const foug_task_control_t* ctrl);
-foug_real32_t foug_task_control_get_range_max(const foug_task_control_t* ctrl);
-void foug_task_control_set_range(foug_task_control_t* ctrl, foug_real32_t min, foug_real32_t max);
+FOUG_LIB_EXPORT foug_real32_t foug_task_control_get_range_min(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT foug_real32_t foug_task_control_get_range_max(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_set_range(foug_task_control_t* ctrl,
+                                                 foug_real32_t min, foug_real32_t max);
 
 /* Step id */
-int32_t foug_task_control_get_step_id(const foug_task_control_t* ctrl);
-void foug_task_control_set_step_id(foug_task_control_t* ctrl, int32_t step_id);
+FOUG_LIB_EXPORT int32_t foug_task_control_get_step_id(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_set_step_id(foug_task_control_t* ctrl, int32_t step_id);
 
 /* Progress */
-foug_real32_t foug_task_control_get_progress_as_pc(const foug_task_control_t* ctrl);
-foug_real32_t foug_task_control_get_progress(const foug_task_control_t* ctrl);
-void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32_t v);
+FOUG_LIB_EXPORT foug_real32_t foug_task_control_get_progress_as_pc(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT foug_real32_t foug_task_control_get_progress(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32_t v);
 
+FOUG_LIB_EXPORT
 foug_real32_t foug_task_control_get_progress_update_threshold(const foug_task_control_t* ctrl);
-void foug_task_control_set_progress_update_threshold(foug_task_control_t* ctrl, foug_real32_t v);
+FOUG_LIB_EXPORT void foug_task_control_set_progress_update_threshold(foug_task_control_t* ctrl,
+                                                                     foug_real32_t v);
 
 /* Reset */
-void foug_task_control_reset(foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_reset(foug_task_control_t* ctrl);
 
 /* Task stop */
-void foug_task_control_async_stop(foug_task_control_t* ctrl);
-void foug_task_control_handle_stop(foug_task_control_t* ctrl);
-foug_bool_t foug_task_control_is_stop_requested(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_async_stop(foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_handle_stop(foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT foug_bool_t foug_task_control_is_stop_requested(const foug_task_control_t* ctrl);
 
 /* Cookie */
-void* foug_task_control_get_cookie(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void* foug_task_control_get_cookie(const foug_task_control_t* ctrl);
 
 #endif /* FOUG_C_TASK_CONTROL_H */

@@ -9,10 +9,10 @@ message($$PREFIX_DIR)
 TEMPLATE = lib
 TARGET = fougstl-c$$TARGET_SUFFIX
 DESTDIR = $$PREFIX_DIR/lib
-CONFIG *= dll
 
 dll {
-  DEFINES *= FOUG_STL_DLL FOUG_STL_MAKE_DLL
+  DEFINES *= FOUG_LIB_DLL  FOUG_LIB_MAKE_DLL
+  DEFINES *= FOUG_DATAEX_LIBSTL_DLL  FOUG_DATAEX_LIBSTL_MAKE_DLL
 }
 
 #*g++*:QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -26,7 +26,7 @@ HEADERS += \
     ../../../src/c/memory.h \
     ../../../src/c/stream.h \
     ../../../src/c/task_control.h \
-    ../../../src/c/libstl/stlb_global.h \
+    ../../../src/c/libstl/stl_global.h \
     ../../../src/c/libstl/stlb_read.h \
     ../../../src/c/libstl/stlb_write.h \
     ../../../src/c/libstl/triangle.h
