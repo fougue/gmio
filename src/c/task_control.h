@@ -1,7 +1,7 @@
 #ifndef FOUG_C_TASK_CONTROL_H
 #define FOUG_C_TASK_CONTROL_H
 
-#include "foug_global.h"
+#include "global.h"
 #include "memory.h"
 
 /* foug_task_control : opaque structure */

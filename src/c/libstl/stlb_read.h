@@ -2,7 +2,7 @@
 #define FOUG_C_LIBSTL_STLB_READ_H
 
 #include "stl_global.h"
-#include "triangle.h"
+#include "stl_triangle.h"
 #include "../stream.h"
 #include "../task_control.h"
 

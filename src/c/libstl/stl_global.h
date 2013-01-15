@@ -1,7 +1,7 @@
 #ifndef FOUG_C_LIBSTL_STLB_GLOBAL_H
 #define FOUG_C_LIBSTL_STLB_GLOBAL_H
 
-#include "../foug_global.h"
+#include "../global.h"
 
 #ifdef FOUG_DATAEX_LIBSTL_DLL
 # ifdef FOUG_DATAEX_LIBSTL_MAKE_DLL

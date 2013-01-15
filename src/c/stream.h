@@ -1,7 +1,7 @@
 #ifndef FOUG_C_STREAM_H
 #define FOUG_C_STREAM_H
 
-#include "foug_global.h"
+#include "global.h"
 #include "memory.h"
 
 /* foug_stream : opaque structure */

@@ -1,7 +1,7 @@
 #ifndef FOUG_C_LIBSTL_TRIANGLE_H
 #define FOUG_C_LIBSTL_TRIANGLE_H
 
-#include "../foug_global.h"
+#include "stl_global.h"
 
 typedef struct
 {

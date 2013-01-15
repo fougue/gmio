@@ -1,7 +1,7 @@
 #ifndef FOUG_ENDIAN_H
 #define FOUG_ENDIAN_H
 
-#include "foug_global.h"
+#include "global.h"
 
 typedef enum
 {

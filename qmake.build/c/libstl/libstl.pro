@@ -22,14 +22,14 @@ INCLUDEPATH += ../../../src
 
 HEADERS += \
     ../../../src/c/endian.h \
-    ../../../src/c/foug_global.h \
+    ../../../src/c/global.h \
     ../../../src/c/memory.h \
     ../../../src/c/stream.h \
     ../../../src/c/task_control.h \
     ../../../src/c/libstl/stl_global.h \
     ../../../src/c/libstl/stlb_read.h \
     ../../../src/c/libstl/stlb_write.h \
-    ../../../src/c/libstl/triangle.h
+    ../../../src/c/libstl/stl_triangle.h
 
 SOURCES += \
     ../../../src/c/endian.c \
