@@ -39,8 +39,8 @@ int foug_stlb_write(foug_stlb_write_args_t args)
     return FOUG_STLB_WRITE_NULL_GEOM_OUTPUT_ERROR;
   if (args.stream == NULL)
     return FOUG_STLB_WRITE_NULL_STREAM_ERROR;
-  if (args.buffer_size == 0)
-    return FOUG_STLB_WRITE_INVALID_BUFFER_SIZE_ERROR;
+/*  if (args.buffer_size == 0)
+      return FOUG_STLB_WRITE_INVALID_BUFFER_SIZE_ERROR;*/
   if (args.geom_output->manip.get_triangle_count_func == NULL)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC;
   if (args.geom_output->manip.get_triangle_func == NULL)

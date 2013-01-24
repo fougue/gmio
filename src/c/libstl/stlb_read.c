@@ -38,8 +38,8 @@ int foug_stlb_read(foug_stlb_read_args_t args)
     return FOUG_STLB_READ_NULL_GEOM_INPUT_ERROR;
   if (args.stream == NULL)
     return FOUG_STLB_READ_NULL_STREAM_ERROR;
-  if (args.buffer_size == 0)
-    return FOUG_STLB_READ_INVALID_BUFFER_SIZE_ERROR;
+/*  if (args.buffer_size == 0)
+      return FOUG_STLB_READ_INVALID_BUFFER_SIZE_ERROR;*/
 
   uint8_t buffer[8192];
 
