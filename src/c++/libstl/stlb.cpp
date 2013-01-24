@@ -7,46 +7,46 @@
 // Read tools
 
 template<typename NUMERIC>
-NUMERIC fromLittleEndian(const foug::UInt8* bytes)
+NUMERIC fromLittleEndian(const uint8_t* bytes)
 {
   return 0;
 }
 
 template<>
-foug::UInt16 fromLittleEndian<foug::UInt16>(const foug::UInt8* bytes)
+uint16_t fromLittleEndian<uint16_t>(const uint8_t* bytes)
 {
   // |BB|AA| -> 0xAABB
   return (bytes[1] << 8) | bytes[0];
 }
 
 template<>
-foug::UInt32 fromLittleEndian<foug::UInt32>(const foug::UInt8* bytes)
+uint32_t fromLittleEndian<uint32_t>(const uint8_t* bytes)
 {
   // |DD|CC|BB|AA| -> 0xAABBCCDD
   return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
 template<>
-foug::Real32 fromLittleEndian<foug::Real32>(const foug::UInt8* bytes)
+foug::Real32 fromLittleEndian<foug::Real32>(const uint8_t* bytes)
 {
   union
   {
-    foug::UInt32 asInteger;
+    uint32_t asInteger;
     foug::Real32 asFloat;
   } helper;
 
-  helper.asInteger = fromLittleEndian<foug::UInt32>(bytes);
+  helper.asInteger = fromLittleEndian<uint32_t>(bytes);
   return helper.asFloat;
 }
 
 // Write tools
 
 template<typename NUMERIC>
-void toLittleEndian(NUMERIC n, foug::UInt8* bytes)
+void toLittleEndian(NUMERIC n, uint8_t* bytes)
 {
   union {
     NUMERIC asNumeric;
-    foug::UInt8 asBytes[sizeof(NUMERIC)];
+    uint8_t asBytes[sizeof(NUMERIC)];
   } helper;
   helper.asNumeric = n;
   //  std::copy(helper.asBytes, helper.asBytes + sizeof(NUMERIC), bytes);
@@ -59,13 +59,13 @@ namespace stlb {
 
 static const int stlFacetSize = 50;
 static const int stlMinFileSize = 284;
-static const int stlTriangleDataSize = (4 * 3) * sizeof(foug::Real32) + sizeof(foug::UInt16);
+static const int stlTriangleDataSize = (4 * 3) * sizeof(foug::Real32) + sizeof(uint16_t);
 
 void AbstractGeometryBuilder::processHeader(const Header& /*data*/)
 {
 }
 
-void AbstractGeometryBuilder::beginTriangles(UInt32 /*count*/)
+void AbstractGeometryBuilder::beginTriangles(uint32_t /*count*/)
 {
 }
 
@@ -95,9 +95,9 @@ bool Io::read(AbstractGeometryBuilder* builder)
 
   AbstractStream* istream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
-  const UInt32 chunkSize = stlTriangleDataSize * 163;
+  const uint32_t chunkSize = stlTriangleDataSize * 163;
 
-  UInt8 buffer[8192];
+  uint8_t buffer[8192];
   char* charBuffer = reinterpret_cast<char*>(buffer);
 
   // Read header
@@ -107,9 +107,9 @@ bool Io::read(AbstractGeometryBuilder* builder)
   builder->processHeader(headerData);
 
   // Read facet count
-  if (istream->read(charBuffer, sizeof(UInt32)) != sizeof(UInt32))
+  if (istream->read(charBuffer, sizeof(uint32_t)) != sizeof(uint32_t))
     return false;
-  const UInt32 facetCount = ::fromLittleEndian<UInt32>(buffer);
+  const uint32_t facetCount = ::fromLittleEndian<uint32_t>(buffer);
   builder->beginTriangles(facetCount);
 
   if (progress != 0) {
@@ -118,16 +118,16 @@ bool Io::read(AbstractGeometryBuilder* builder)
   }
 
   // Read triangles
-  const UInt64 totalFacetSize = stlTriangleDataSize * facetCount;
-  UInt64 amountReadSize = 0;
+  const uint64_t totalFacetSize = stlTriangleDataSize * facetCount;
+  uint64_t amountReadSize = 0;
   stl::Triangle triangle;
   bool streamError = false;
   while (amountReadSize < totalFacetSize && !streamError) {
-    const Int64 iReadSize = istream->read(charBuffer, chunkSize);
+    const int64_t iReadSize = istream->read(charBuffer, chunkSize);
     if (iReadSize > 0 && (iReadSize % stlTriangleDataSize == 0)) {
-      const UInt32 iFacetCount = iReadSize / stlTriangleDataSize;
-      UInt32 bufferOffset = 0;
-      for (UInt32 i = 0; i < iFacetCount; ++i) {
+      const uint32_t iFacetCount = iReadSize / stlTriangleDataSize;
+      uint32_t bufferOffset = 0;
+      for (uint32_t i = 0; i < iFacetCount; ++i) {
         // Read normal
         triangle.normal.x = ::fromLittleEndian<Real32>(buffer + bufferOffset);
         triangle.normal.y = ::fromLittleEndian<Real32>(buffer + 1*sizeof(Real32) + bufferOffset);
@@ -149,8 +149,8 @@ bool Io::read(AbstractGeometryBuilder* builder)
         triangle.v3.z = ::fromLittleEndian<Real32>(buffer + 11*sizeof(Real32) + bufferOffset);
 
         // Attribute byte count
-        const UInt16 attributeByteCount =
-            ::fromLittleEndian<UInt16>(buffer + 12*sizeof(Real32) + bufferOffset);
+        const uint16_t attributeByteCount =
+            ::fromLittleEndian<uint16_t>(buffer + 12*sizeof(Real32) + bufferOffset);
 
         // Add triangle
         builder->processNextTriangle(triangle, attributeByteCount);
@@ -189,7 +189,7 @@ bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraDat
   AbstractStream* ostream = this->stream();
   AbstractTaskProgress* progress = this->taskProgress();
 
-  UInt8 buffer[128];
+  uint8_t buffer[128];
 
   // Write header
   Header headerData;
@@ -202,9 +202,9 @@ bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraDat
     return false;
 
   // Write facet count
-  const UInt32 facetCount = geom.triangleCount();
-  ::toLittleEndian<UInt32>(facetCount, buffer);
-  if (ostream->write(reinterpret_cast<char*>(&buffer), sizeof(UInt32)) != sizeof(UInt32))
+  const uint32_t facetCount = geom.triangleCount();
+  ::toLittleEndian<uint32_t>(facetCount, buffer);
+  if (ostream->write(reinterpret_cast<char*>(&buffer), sizeof(uint32_t)) != sizeof(uint32_t))
     return false;
 
   if (progress != 0) {
@@ -214,7 +214,7 @@ bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraDat
 
   // Write triangles
   stl::Triangle triangle;
-  for (UInt32 facet = 0; facet < facetCount; ++facet) {
+  for (uint32_t facet = 0; facet < facetCount; ++facet) {
     geom.getTriangle(facet, &triangle);
 
     // Write normal
@@ -238,8 +238,8 @@ bool Io::write(const stl::AbstractGeometry& geom, const AbstractGeometryExtraDat
     ::toLittleEndian<Real32>(triangle.v3.z, buffer + 11*sizeof(Real32));
 
     // Attribute byte count
-    const UInt16 attrByteCount = extraData != 0 ? extraData->attributeByteCount(facet) : 0;
-    ::toLittleEndian<UInt16>(attrByteCount, buffer + 12*sizeof(Real32));
+    const uint16_t attrByteCount = extraData != 0 ? extraData->attributeByteCount(facet) : 0;
+    ::toLittleEndian<uint16_t>(attrByteCount, buffer + 12*sizeof(Real32));
 
     // Write to stream
     if (ostream->write(reinterpret_cast<const char*>(buffer), stlTriangleDataSize)

@@ -9,7 +9,8 @@ message($$PREFIX_DIR)
 TEMPLATE = lib
 TARGET = fougstl-c++$$TARGET_SUFFIX
 DESTDIR = $$PREFIX_DIR/lib
-CONFIG *= dll
+
+DEFINES *= FOUG_USE_STDINT_H
 
 dll {
   DEFINES *= FOUG_STL_DLL FOUG_STL_MAKE_DLL
@@ -40,13 +41,13 @@ SOURCES += \
     ../../../src/c++/libstl/stlb.cpp \
     ../../../src/c++/libstl/stla.cpp
 
-global_inc.path  = $$PREFIX_DIR/include
+global_inc.path  = $$PREFIX_DIR/include/dataex
 global_inc.files = ../../../src/*.h
-cpp_global_inc.path  = $$PREFIX_DIR/include/c++
+cpp_global_inc.path  = $$PREFIX_DIR/include/dataex/c++
 cpp_global_inc.files = ../../../src/c++/*.h
-cpp_streams_inc.path  = $$PREFIX_DIR/include/c++/streams
+cpp_streams_inc.path  = $$PREFIX_DIR/include/dataex/c++/streams
 cpp_streams_inc.files = ../../../src/c++/streams/*.h
-cpp_libstl_inc.path  = $$PREFIX_DIR/include/c++/libstl
+cpp_libstl_inc.path  = $$PREFIX_DIR/include/dataex/c++/libstl
 cpp_libstl_inc.files = ../../../src/c++/libstl/*.h
 INSTALLS += global_inc  cpp_global_inc  cpp_streams_inc  cpp_libstl_inc
 

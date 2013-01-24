@@ -17,9 +17,9 @@ public:
   bool isReadable() const;
   bool isSequential() const;
 
-  bool seek(foug::Int64 pos);
-  Int64 read(char* data, Int64 maxSize);
-  Int64 write(const char* data, Int64 maxSize);
+  bool seek(int64_t pos);
+  int64_t read(char* data, int64_t maxSize);
+  int64_t write(const char* data, int64_t maxSize);
 
 private:
   QIODevice* m_device;

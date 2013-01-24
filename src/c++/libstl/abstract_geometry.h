@@ -30,8 +30,8 @@ typedef Triangle<Coords> Triangle;
 class FOUG_STL_EXPORT AbstractGeometry
 {
 public:
-  virtual UInt32 triangleCount() const = 0;
-  virtual void getTriangle(UInt32 index, Triangle* triangle) const = 0;
+  virtual uint32_t triangleCount() const = 0;
+  virtual void getTriangle(uint32_t index, Triangle* triangle) const = 0;
 };
 
 } // namespace stl

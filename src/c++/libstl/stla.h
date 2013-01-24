@@ -22,7 +22,7 @@ class FOUG_STL_EXPORT Io : public IoBase
 public:
   Io(AbstractStream* stream = 0);
 
-  bool read(AbstractGeometryBuilder* builder, Int64 streamSize = -1);
+  bool read(AbstractGeometryBuilder* builder, int64_t streamSize = -1);
   bool write(const stl::AbstractGeometry& geom, const std::string& solidName);
 };
 

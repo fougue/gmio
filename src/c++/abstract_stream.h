@@ -14,9 +14,9 @@ public:
   virtual bool isReadable() const = 0;
   virtual bool isSequential() const = 0;
 
-  virtual bool seek(foug::Int64 pos) = 0;
-  virtual Int64 read(char* data, Int64 maxSize) = 0;
-  virtual Int64 write(const char* data, Int64 maxSize) = 0;
+  virtual bool seek(int64_t pos) = 0;
+  virtual int64_t read(char* data, int64_t maxSize) = 0;
+  virtual int64_t write(const char* data, int64_t maxSize) = 0;
 };
 
 } // namespace foug

@@ -30,17 +30,17 @@ bool Qt4Stream::isSequential() const
   return m_device != 0 ? m_device->isSequential() : false;
 }
 
-bool Qt4Stream::seek(Int64 pos)
+bool Qt4Stream::seek(int64_t pos)
 {
   return m_device->seek(pos);
 }
 
-Int64 Qt4Stream::read(char *data, Int64 maxSize)
+int64_t Qt4Stream::read(char *data, int64_t maxSize)
 {
   return m_device->read(data, maxSize);
 }
 
-Int64 Qt4Stream::write(const char *data, Int64 maxSize)
+int64_t Qt4Stream::write(const char *data, int64_t maxSize)
 {
   return m_device->write(data, maxSize);
 }

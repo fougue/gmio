@@ -6,7 +6,7 @@
 namespace foug {
 namespace stla {
 
-bool Io::read(AbstractGeometryBuilder* builder, Int64 streamSize)
+bool Io::read(AbstractGeometryBuilder* builder, int64_t streamSize)
 {
   return false;
 }
