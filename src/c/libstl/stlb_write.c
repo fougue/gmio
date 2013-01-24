@@ -115,7 +115,8 @@ int foug_stlb_write(foug_stlb_write_args_t args)
         error = FOUG_STLB_WRITE_TASK_STOPPED_ERROR;
       }
       else {
-        foug_task_control_set_progress(args.task_control, i_facet + 1);
+        foug_task_control_set_progress(args.task_control,
+                                      (foug_real32_t)(i_facet + 1));
       }
     }
   } /* end for */

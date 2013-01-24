@@ -134,7 +134,8 @@ int foug_stlb_read(foug_stlb_read_args_t args)
         foug_task_control_handle_stop(args.task_control);
       }
       else {
-        foug_task_control_set_progress(args.task_control, accum_facet_count_read);
+        foug_task_control_set_progress(args.task_control,
+                                       (foug_real32_t)accum_facet_count_read);
       }
     }
   } /* end while */

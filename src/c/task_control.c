@@ -28,12 +28,12 @@ foug_task_control_t* foug_task_control_create(foug_malloc_func_t func,
 
   ctrl = (*func)(sizeof(struct _internal_foug_task_control));
   if (ctrl != 0) {
-    ctrl->range_min = -1.;
-    ctrl->range_max = -2.;
-    ctrl->range_length = -0.;
+    ctrl->range_min = -1.f;
+    ctrl->range_max = -2.f;
+    ctrl->range_length = -0.f;
     ctrl->step_id = -1;
-    ctrl->progress_value = -1.;
-    ctrl->progress_threshold = 0.01; /* Notifies each percent only */
+    ctrl->progress_value = -1.f;
+    ctrl->progress_threshold = 0.01f; /* Notifies each percent only */
     ctrl->is_stop_requested = 0;
     ctrl->cookie = data;
     ctrl->manip = manip;
@@ -53,12 +53,12 @@ void foug_task_control_manip_init(foug_task_control_manip_t* manip)
 
 foug_real32_t foug_task_control_get_range_min(const foug_task_control_t* ctrl)
 {
-  return ctrl != NULL ? ctrl->range_min : -1.;
+  return ctrl != NULL ? ctrl->range_min : -1.f;
 }
 
 foug_real32_t foug_task_control_get_range_max(const foug_task_control_t* ctrl)
 {
-  return ctrl != NULL ? ctrl->range_max : -2.;
+  return ctrl != NULL ? ctrl->range_max : -2.f;
 }
 
 void foug_task_control_set_range(foug_task_control_t* ctrl, foug_real32_t min, foug_real32_t max)
@@ -87,13 +87,13 @@ void foug_task_control_set_step_id(foug_task_control_t* ctrl, int32_t step_id)
 foug_real32_t foug_task_control_get_progress_as_pc(const foug_task_control_t* ctrl)
 {
   if (ctrl == NULL)
-    return 0.;
-  return fabs((ctrl->progress_value - ctrl->range_min) / ctrl->range_length);
+    return 0.f;
+  return fabsf((ctrl->progress_value - ctrl->range_min) / ctrl->range_length);
 }
 
 foug_real32_t foug_task_control_get_progress(const foug_task_control_t* ctrl)
 {
-  return ctrl != NULL ? ctrl->progress_value : 0.;
+  return ctrl != NULL ? ctrl->progress_value : 0.f;
 }
 
 void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32_t v)
@@ -110,7 +110,7 @@ void foug_task_control_set_progress(foug_task_control_t* ctrl, foug_real32_t v)
 
 foug_real32_t foug_task_control_get_progress_update_threshold(const foug_task_control_t* ctrl)
 {
-  return ctrl != NULL ? ctrl->progress_threshold : 0.01;
+  return ctrl != NULL ? ctrl->progress_threshold : 0.01f;
 }
 
 void foug_task_control_set_progress_update_threshold(foug_task_control_t* ctrl, foug_real32_t v)
@@ -125,9 +125,9 @@ void foug_task_control_reset(foug_task_control_t* ctrl)
 {
   if (ctrl != NULL) {
     ctrl->step_id = -1;
-    ctrl->progress_value = -1.;
-    ctrl->range_min = -1.;
-    ctrl->range_max = -2.;
+    ctrl->progress_value = -1.f;
+    ctrl->range_min = -1.f;
+    ctrl->range_max = -2.f;
     ctrl->is_stop_requested = 0;
   }
 }
