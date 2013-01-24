@@ -21,10 +21,12 @@ struct _internal_foug_task_control
 foug_task_control_t* foug_task_control_create(foug_malloc_func_t func,
                                               void* data, foug_task_control_manip_t manip)
 {
+  foug_task_control_t* ctrl;
+
   if (func == NULL)
     return NULL;
 
-  foug_task_control_t* ctrl = (*func)(sizeof(struct _internal_foug_task_control));
+  ctrl = (*func)(sizeof(struct _internal_foug_task_control));
   if (ctrl != 0) {
     ctrl->range_min = -1.;
     ctrl->range_max = -2.;
@@ -86,8 +88,7 @@ foug_real32_t foug_task_control_get_progress_as_pc(const foug_task_control_t* ct
 {
   if (ctrl == NULL)
     return 0.;
-  const foug_real32_t result = (ctrl->progress_value - ctrl->range_min) / ctrl->range_length;
-  return fabs(result);
+  return fabs((ctrl->progress_value - ctrl->range_min) / ctrl->range_length);
 }
 
 foug_real32_t foug_task_control_get_progress(const foug_task_control_t* ctrl)

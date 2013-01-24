@@ -38,7 +38,8 @@ SOURCES += \
     ../../../src/c/libstl/stlb_read.c \
     ../../../src/c/libstl/stlb_write.c
 
-*-g++*:QMAKE_CFLAGS += -ansi
+*-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
+*-msvc*:QMAKE_CFLAGS += -TC
 
 global_inc.path  = $$PREFIX_DIR/include/dataex
 global_inc.files = ../../../src/*.h

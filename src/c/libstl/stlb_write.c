@@ -13,9 +13,11 @@ foug_stlb_geom_output_t* foug_stlb_geom_output_create(foug_malloc_func_t func,
                                                       void* data,
                                                       foug_stlb_geom_output_manip_t manip)
 {
+  foug_stlb_geom_output_t* geom;
+
   if (func == NULL)
     return NULL;
-  foug_stlb_geom_output_t* geom = (*func)(sizeof(struct _internal_foug_stlb_geom_output));
+  geom = (*func)(sizeof(struct _internal_foug_stlb_geom_output));
   if (geom != NULL) {
     geom->cookie = data;
     geom->manip = manip;
@@ -35,6 +37,14 @@ static foug_bool_t foug_stlb_no_error(int code)
 
 int foug_stlb_write(foug_stlb_write_args_t args)
 {
+  uint8_t buffer[128];
+  uint8_t header_data[FOUG_STLB_HEADER_SIZE];
+  uint32_t facet_count;
+  foug_stl_triangle_t triangle;
+  uint16_t attr_byte_count;
+  uint32_t i_facet;
+  int error;
+
   if (args.geom_output == NULL)
     return FOUG_STLB_WRITE_NULL_GEOM_OUTPUT_ERROR;
   if (args.stream == NULL)
@@ -46,10 +56,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
   if (args.geom_output->manip.get_triangle_func == NULL)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC;
 
-  uint8_t buffer[128];
-
   /* Write header */
-  uint8_t header_data[FOUG_STLB_HEADER_SIZE];
   if (args.geom_output->manip.get_header_func != NULL)
     (*(args.geom_output->manip.get_header_func))(args.geom_output, header_data);
   else
@@ -59,7 +66,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
     return FOUG_STLB_WRITE_STREAM_ERROR;
 
   /* Write facet count */
-  const uint32_t facet_count = (*(args.geom_output->manip.get_triangle_count_func))(args.geom_output);
+  facet_count = (*(args.geom_output->manip.get_triangle_count_func))(args.geom_output);
   foug_encode_uint32_le(facet_count, buffer);
   if (foug_stream_write(args.stream, buffer, sizeof(uint32_t), 1) != 1)
     return FOUG_STLB_WRITE_STREAM_ERROR;
@@ -68,10 +75,8 @@ int foug_stlb_write(foug_stlb_write_args_t args)
   foug_task_control_set_range(args.task_control, 0., (foug_real32_t)facet_count);
 
   /* Write triangles */
-  foug_stl_triangle_t triangle;
-  uint16_t attr_byte_count = 0;
-  uint32_t i_facet;
-  int error = FOUG_STLB_WRITE_NO_ERROR;
+  attr_byte_count = 0;
+  error = FOUG_STLB_WRITE_NO_ERROR;
   for (i_facet = 0; i_facet < facet_count && foug_stlb_no_error(error); ++i_facet) {
     (*(args.geom_output->manip.get_triangle_func))(args.geom_output, i_facet,
                                                    &triangle, &attr_byte_count);

@@ -12,9 +12,11 @@ struct _internal_foug_stream
 
 foug_stream_t* foug_stream_create(foug_malloc_func_t func, void* data, foug_stream_manip_t manip)
 {
+  foug_stream_t* stream;
+
   if (func == NULL)
     return NULL;
-  foug_stream_t* stream = (*func)(sizeof(struct _internal_foug_stream));
+  stream = (*func)(sizeof(struct _internal_foug_stream));
   if (stream != NULL) {
     stream->cookie = data;
     stream->manip = manip;
