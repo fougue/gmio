@@ -58,10 +58,10 @@ static size_t foug_stream_stdio_write(foug_stream_t* stream,
 foug_stream_manip_t foug_stream_manip_stdio()
 {
   foug_stream_manip_t manip;
-  manip.at_end_func = &foug_stream_stdio_at_end;
-  manip.error_func = &foug_stream_stdio_error;
-  manip.read_func = &foug_stream_stdio_read;
-  manip.write_func = &foug_stream_stdio_write;
+  manip.at_end_func = foug_stream_stdio_at_end;
+  manip.error_func = foug_stream_stdio_error;
+  manip.read_func = foug_stream_stdio_read;
+  manip.write_func = foug_stream_stdio_write;
   return manip;
 }
 

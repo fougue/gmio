@@ -70,8 +70,13 @@ int foug_stlb_read(foug_stlb_read_args_t args)
   while (foug_stlb_no_error(error) && accum_facet_count_read < total_facet_count) {
     const size_t facet_count_read =
         foug_stream_read(args.stream, buffer, FOUG_STLB_TRIANGLE_SIZE, buffer_facet_count);
-    error = foug_stream_error(args.stream) != 0 ? FOUG_STLB_READ_STREAM_ERROR :
-                                                  FOUG_STLB_READ_NO_ERROR;
+    if (foug_stream_error(args.stream) != 0)
+      error = FOUG_STLB_READ_STREAM_ERROR;
+    else if (facet_count_read > 0)
+      error = FOUG_STLB_READ_NO_ERROR;
+    else
+      break; /* Exit if no facet to read */
+
     if (foug_stlb_no_error(error)) {
       uint32_t buffer_offset = 0;
       uint32_t i_facet;
