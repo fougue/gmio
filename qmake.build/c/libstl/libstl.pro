@@ -29,7 +29,8 @@ HEADERS += \
     ../../../src/c/libstl/stl_global.h \
     ../../../src/c/libstl/stlb_read.h \
     ../../../src/c/libstl/stlb_write.h \
-    ../../../src/c/libstl/stl_triangle.h
+    ../../../src/c/libstl/stl_triangle.h \
+    ../../../src/c/libstl/stlb_triangle.h
 
 SOURCES += \
     ../../../src/c/endian.c \
