@@ -2,19 +2,43 @@
 
 #include <string.h>
 
+typedef union
+{
+  uint32_t integer;
+  uint8_t bytes[4];
+} _internal_foug_int_bytes_32_convert_t;
+
+typedef union
+{
+  uint32_t as_integer;
+  foug_real32_t as_float;
+} _internal_foug_int_real_32_convert_t;
+
+static foug_real32_t convert_real32(uint32_t val)
+{
+  _internal_foug_int_real_32_convert_t conv;
+  conv.as_integer = val;
+  return conv.as_float;
+}
+
+static uint32_t convert_uint32(foug_real32_t val)
+{
+  _internal_foug_int_real_32_convert_t conv;
+  conv.as_float = val;
+  return conv.as_integer;
+}
+
+/*! Endianness (byte order) of the host's CPU architecture */
 foug_endianness_t foug_host_endianness()
 {
-  union {
-    uint32_t integer;
-    uint8_t bytes[4];
-  } u;
+  _internal_foug_int_bytes_32_convert_t conv;
 
-  u.integer = 0x01020408;
-  if (u.bytes[0] == 0x08 && u.bytes[3] == 0x01)
+  conv.integer = 0x01020408;
+  if (conv.bytes[0] == 0x08 && conv.bytes[3] == 0x01)
     return FOUG_LITTLE_ENDIAN;
-  else if (u.bytes[0] == 0x01 && u.bytes[3] == 0x08)
+  else if (conv.bytes[0] == 0x01 && conv.bytes[3] == 0x08)
     return FOUG_BIG_ENDIAN;
-  else if (u.bytes[1] == 0x08 && u.bytes[2] == 0x01)
+  else if (conv.bytes[1] == 0x08 && conv.bytes[2] == 0x01)
     return FOUG_MIDDLE_ENDIAN;
   else
     return FOUG_OTHER_ENDIAN;
@@ -30,6 +54,7 @@ uint16_t foug_uint16_noswap(uint16_t val)
   return val;
 }
 
+/*! Read a 16bit integer from memory-location \p bytes (little-endian byte order) */
 uint16_t foug_decode_uint16_le(const uint8_t* bytes)
 {
   /* |0 |1 | */
@@ -37,6 +62,7 @@ uint16_t foug_decode_uint16_le(const uint8_t* bytes)
   return (bytes[1] << 8) | bytes[0];
 }
 
+/*! Read a 16bit integer from memory-location \p bytes (big-endian byte order) */
 uint16_t foug_decode_uint16_be(const uint8_t* bytes)
 {
   /* |0 |1 | */
@@ -44,6 +70,7 @@ uint16_t foug_decode_uint16_be(const uint8_t* bytes)
   return (bytes[0] << 8) | bytes[1];
 }
 
+/*! Write 16bit integer \p val to the memory location at \p bytes in little-endian byte order */
 void foug_encode_uint16_le(uint16_t val, uint8_t* bytes)
 {
   bytes[0] = val & 0xFF;
@@ -64,24 +91,28 @@ uint32_t foug_uint32_noswap(uint32_t val)
   return val;
 }
 
+/*! Read a 32bit integer from memory-location \p bytes (little-endian byte order) */
 uint32_t foug_decode_uint32_le(const uint8_t* bytes)
 {
   /* |DD|CC|BB|AA| -> 0xAABBCCDD */
   return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
+/*! Read a 32bit integer from memory-location \p bytes (mixed-endian byte order) */
 uint32_t foug_decode_uint32_me(const uint8_t* bytes)
 {
   /* |DD|CC|BB|AA| -> 0xCCDDAABB */
-  return (bytes[0] >> 8) | (bytes[2] << 8) | (bytes[3] << 8) | (bytes[8] << 8);
+  return (bytes[0] >> 8) | (bytes[2] << 8) | (bytes[3] << 8) | (bytes[1] << 8);
 }
 
+/*! Read a 32bit integer from memory-location \p bytes (big-endian byte order) */
 uint32_t foug_decode_uint32_be(const uint8_t* bytes)
 {
   /* |DD|CC|BB|AA| -> 0xDDCCBBAA */
   return bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
 }
 
+/*! Write 32bit integer \p val to the memory location at \p bytes in little-endian byte order */
 void foug_encode_uint32_le(uint32_t val, uint8_t* bytes)
 {
   bytes[0] = val & 0xFF;
@@ -90,45 +121,25 @@ void foug_encode_uint32_le(uint32_t val, uint8_t* bytes)
   bytes[3] = (val >> 24) & 0xFF;
 }
 
-static foug_real32_t convert_real32(uint32_t val)
-{
-  union
-  {
-    uint32_t as_integer;
-    foug_real32_t as_float;
-  } u;
-
-  u.as_integer = val;
-  return u.as_float;
-}
-
-static uint32_t convert_uint32(foug_real32_t val)
-{
-  union
-  {
-    uint32_t as_integer;
-    foug_real32_t as_float;
-  } u;
-
-  u.as_float = val;
-  return u.as_integer;
-}
-
+/*! Read a 32bit real from memory-location \p bytes (little-endian byte order) */
 foug_real32_t foug_decode_real32_le(const uint8_t* bytes)
 {
   return convert_real32(foug_decode_uint32_le(bytes));
 }
 
+/*! Read a 32bit real from memory-location \p bytes (mixed-endian byte order) */
 foug_real32_t foug_decode_real32_me(const uint8_t* bytes)
 {
   return convert_real32(foug_decode_uint32_me(bytes));
 }
 
+/*! Read a 32bit real from memory-location \p bytes (big-endian byte order) */
 foug_real32_t foug_decode_real32_be(const uint8_t* bytes)
 {
   return convert_real32(foug_decode_uint32_be(bytes));
 }
 
+/*! Write 32bit real \p val to the memory location at \p bytes in little-endian byte order */
 void foug_encode_real32_le(foug_real32_t val, uint8_t* bytes)
 {
   foug_encode_uint32_le(convert_uint32(val), bytes);
