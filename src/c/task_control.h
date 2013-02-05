@@ -52,5 +52,6 @@ FOUG_LIB_EXPORT foug_bool_t foug_task_control_is_stop_requested(const foug_task_
 
 /* Cookie */
 FOUG_LIB_EXPORT void* foug_task_control_get_cookie(const foug_task_control_t* ctrl);
+FOUG_LIB_EXPORT void foug_task_control_set_cookie(foug_task_control_t* ctrl, void* data);
 
 #endif /* FOUG_C_TASK_CONTROL_H */

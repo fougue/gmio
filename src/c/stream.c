@@ -99,3 +99,9 @@ void* foug_stream_get_cookie(const foug_stream_t* stream)
 {
   return stream != NULL ? stream->cookie : NULL;
 }
+
+void foug_stream_set_cookie(foug_stream_t* stream, void* data)
+{
+  if (stream != NULL)
+    stream->cookie = data;
+}

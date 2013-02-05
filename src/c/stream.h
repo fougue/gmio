@@ -35,5 +35,6 @@ FOUG_LIB_EXPORT size_t foug_stream_read(foug_stream_t* stream,
 FOUG_LIB_EXPORT size_t foug_stream_write(foug_stream_t* stream,
                                          const void* ptr, size_t item_size, size_t item_count);
 FOUG_LIB_EXPORT void* foug_stream_get_cookie(const foug_stream_t* stream);
+FOUG_LIB_EXPORT void foug_stream_set_cookie(foug_stream_t* stream, void* data);
 
 #endif /* FOUG_C_STREAM_H */

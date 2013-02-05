@@ -27,7 +27,7 @@ foug_task_control_t* foug_task_control_create(foug_malloc_func_t func,
     return NULL;
 
   ctrl = (*func)(sizeof(struct _internal_foug_task_control));
-  if (ctrl != 0) {
+  if (ctrl != NULL) {
     ctrl->range_min = -1.f;
     ctrl->range_max = -2.f;
     ctrl->range_length = -0.f;
@@ -88,7 +88,7 @@ foug_real32_t foug_task_control_get_progress_as_pc(const foug_task_control_t* ct
 {
   if (ctrl == NULL)
     return 0.f;
-  return fabsf((ctrl->progress_value - ctrl->range_min) / ctrl->range_length);
+  return fabs((ctrl->progress_value - ctrl->range_min) / ctrl->range_length);
 }
 
 foug_real32_t foug_task_control_get_progress(const foug_task_control_t* ctrl)
@@ -159,4 +159,10 @@ foug_bool_t foug_task_control_is_stop_requested(const foug_task_control_t* ctrl)
 void* foug_task_control_get_cookie(const foug_task_control_t* ctrl)
 {
   return ctrl != NULL ? ctrl->cookie : NULL;
+}
+
+void foug_task_control_set_cookie(foug_task_control_t* ctrl, void* data)
+{
+  if (ctrl != NULL)
+    ctrl->cookie = data;
 }
