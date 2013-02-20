@@ -1,17 +1,14 @@
 include(../../qmake.build/config.pri)
-include(_local_config.pri)
 include(occ.pri)
 
 TEMPLATE = app
 TARGET = bench_occ$$TARGET_SUFFIX
 
-QT *= core
+HEADERS += ../commons/bench_tools.h
 
-HEADERS +=
+SOURCES += \
+           ../commons/bench_tools.c \
+           main.cpp
 
-SOURCES += main.cpp
-
-LIBS *= -lTKSTL -lTKernel
-
-INCLUDEPATH += ../../src
-LIBS += -L../../bin -lfougstl$$TARGET_SUFFIX
+LIBS *= -lTKSTL -lTKernel -lTKMath
+QMAKE_RPATHDIR *= $$CASCADE_LIB_PATH

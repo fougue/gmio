@@ -1,90 +1,38 @@
-#include <QtCore/QCoreApplication>
-#include <QtCore/QFile>
-#include <QtCore/QScopedPointer>
-#include <QtCore/QStringList>
-#include <QtCore/QTime>
-
-#include <QtCore/QtDebug>
+extern "C" {
+#include "../commons/bench_tools.h"
+}
 
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
 #include <StlMesh_Mesh.hxx>
+#include <StlAPI_Reader.hxx>
+#include <TopoDS_Shape.hxx>
 
-#include "streams/qt4_stream.h"
-#include "libstl/stlb.h"
-
-namespace internal {
-
-class OccStlMeshBuilder : public foug::stl::bin::AbstractGeometryBuilder
+static void occ_RWStl_ReadBinary(const char* filepath)
 {
-public:
-  void beginTriangles(foug::UInt32 count)
-  {
-    Q_UNUSED(count);
-    m_stlMesh = new StlMesh_Mesh;
-    m_stlMesh->AddDomain();
-  }
+  /*Handle_StlMesh_Mesh stlMesh = */RWStl::ReadBinary(OSD_Path(filepath));
+}
 
-  void nextTriangle(const foug::stl::Triangle& triangle, foug::UInt16 attributeByteCount)
-  {
-    Q_UNUSED(attributeByteCount);
-    const int uId = m_stlMesh->AddOnlyNewVertex(triangle.v1.x, triangle.v1.y, triangle.v1.z);
-    const int vId = m_stlMesh->AddOnlyNewVertex(triangle.v2.x, triangle.v2.y, triangle.v2.z);
-    const int wId = m_stlMesh->AddOnlyNewVertex(triangle.v3.x, triangle.v3.y, triangle.v3.z);
-    const foug::stl::Coords& n = triangle.normal;
-    m_stlMesh->AddTriangle(uId, vId, wId, n.x, n.y, n.z);
-  }
-
-  Handle_StlMesh_Mesh stlMesh() const
-  {
-    return m_stlMesh;
-  }
-
-private:
-  Handle_StlMesh_Mesh m_stlMesh;
-};
-
-} // namespace internal
+static void occ_StlAPI_Reader(const char* filepath)
+{
+  StlAPI_Reader reader;
+  TopoDS_Shape shape;
+  reader.Read(shape, filepath);
+}
 
 int main(int argc, char** argv)
 {
-  QStringList filePaths;
-  for (int i = 1; i < argc; ++i)
-    filePaths.append(argv[i]);
+  if (argc > 1)
+    benchmark(&occ_RWStl_ReadBinary, "RWStl::ReadBinary()", argc - 1, argv + 1);
 
-  const int benchCount = 1;
-  QTime time;
-  time.start();
-
-  qDebug() << sizeof(foug::stl::Triangle);
-
-  for (int i = 0; i < benchCount; ++i) {
-    foreach (const QString& filePath, filePaths) {
-      Handle_StlMesh_Mesh stlMesh = RWStl::ReadBinary(OSD_Path(filePath.toAscii().constData()));
-    }
-  }
-
-  qDebug() << QString("OCC read time : %1sec").arg(time.elapsed() / 1000.);
-
-
-  time.restart();
-
-  internal::OccStlMeshBuilder occStlMeshBuilder;
-  foug::stl::bin::Io io;
-  io.setAutoDeleteStream(false);
-  for (int i = 0; i < benchCount; ++i) {
-    foreach (const QString& filePath, filePaths) {
-      QFile file(filePath);
-      if (file.open(QIODevice::ReadOnly)) {
-        foug::Qt4Stream stream(&file);
-        io.setStream(&stream);
-        io.read(&occStlMeshBuilder);
-        Handle_StlMesh_Mesh stlMesh = occStlMeshBuilder.stlMesh();
-      }
-    }
-  }
-
-  qDebug() << QString("FougSTL read time : %1sec").arg(time.elapsed() / 1000.);
+//  startTick = std::clock();
+//  std::cout << "Read with StlAPI_Reader::Read() ..." << std::endl;
+//  for (int iarg = 1; iarg < argc; ++iarg) {
+//    StlAPI_Reader reader;
+//    TopoDS_Shape shape;
+//    reader.Read(shape, argv[iarg]);
+//  }
+//  std::cout << "  StlAPI_Reader::Read() read time: " << elapsed_secs(startTick) << "s" << std::endl;
 
   return 0;
 }
