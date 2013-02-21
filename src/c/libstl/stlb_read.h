@@ -2,26 +2,23 @@
 #define FOUG_C_LIBSTL_STLB_READ_H
 
 #include "stl_global.h"
-#include "stl_triangle.h"
+#include "stlb_triangle.h"
 #include "../stream.h"
 #include "../task_control.h"
 
 /* foug_stlb_geom_input : opaque structure */
 typedef struct _internal_foug_stlb_geom_input foug_stlb_geom_input_t;
-typedef void (*foug_stlb_geom_input_process_header_func_t)(foug_stlb_geom_input_t*, const uint8_t*);
-typedef void (*foug_stlb_geom_input_begin_triangles_func_t)(foug_stlb_geom_input_t*, uint32_t);
-typedef void (*foug_stlb_geom_input_process_next_triangle_func_t)(foug_stlb_geom_input_t*,
-                                                                  const foug_stl_triangle_t*,
-                                                                  uint16_t);
-typedef void (*foug_stlb_geom_input_end_triangles_func_t)(foug_stlb_geom_input_t*);
 
-typedef struct
+/* foug_stlb_geom_input_manip */
+typedef struct foug_stlb_geom_input_manip
 {
-  foug_stlb_geom_input_process_header_func_t process_header_func;
-  foug_stlb_geom_input_begin_triangles_func_t begin_triangles_func;
-  foug_stlb_geom_input_process_next_triangle_func_t process_next_triangle_func;
-  foug_stlb_geom_input_end_triangles_func_t end_triangles_func;
+  void (*process_header_func)(foug_stlb_geom_input_t*, const uint8_t*);
+  void (*begin_triangles_func)(foug_stlb_geom_input_t*, uint32_t);
+  void (*process_next_triangle_func)(foug_stlb_geom_input_t*, const foug_stlb_triangle_t*);
+  void (*end_triangles_func)(foug_stlb_geom_input_t*);
 } foug_stlb_geom_input_manip_t;
+
+/* foug_stlb_geom_input : services */
 
 FOUG_DATAEX_LIBSTL_EXPORT
 foug_stlb_geom_input_t* foug_stlb_geom_input_create(foug_malloc_func_t func,
@@ -30,10 +27,12 @@ foug_stlb_geom_input_t* foug_stlb_geom_input_create(foug_malloc_func_t func,
 
 FOUG_DATAEX_LIBSTL_EXPORT
 void* foug_stlb_geom_input_get_cookie(const foug_stlb_geom_input_t* geom);
+
 FOUG_DATAEX_LIBSTL_EXPORT
 void foug_stlb_geom_input_set_cookie(foug_stlb_geom_input_t* geom, void* data);
 
-typedef struct
+/* foug_stlb_read_args */
+typedef struct foug_stlb_read_args
 {
   foug_stlb_geom_input_t* geom_input;
   foug_stream_t* stream;
@@ -45,6 +44,7 @@ typedef struct
 FOUG_DATAEX_LIBSTL_EXPORT
 int foug_stlb_read(foug_stlb_read_args_t args);
 
+/* Error codes returned by foug_stlb_read() */
 #define FOUG_STLB_READ_NO_ERROR                  0
 #define FOUG_STLB_READ_NULL_GEOM_INPUT_ERROR     1
 #define FOUG_STLB_READ_NULL_STREAM_ERROR         2

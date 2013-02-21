@@ -2,26 +2,22 @@
 #define FOUG_C_LIBSTL_STLB_WRITE_H
 
 #include "stl_global.h"
-#include "stl_triangle.h"
+#include "stlb_triangle.h"
 #include "../stream.h"
 #include "../task_control.h"
 
 /* foug_stlb_geom_output : opaque structure */
 typedef struct _internal_foug_stlb_geom_output foug_stlb_geom_output_t;
-typedef void (*foug_stlb_geom_output_get_header_func_t)(const foug_stlb_geom_output_t*, uint8_t*);
-typedef uint32_t (*foug_stlb_geom_output_get_triangle_count_func_t)(const foug_stlb_geom_output_t*);
-typedef void (*foug_stlb_geom_output_get_triangle_func_t)(const foug_stlb_geom_output_t*,
-                                                          uint32_t,
-                                                          foug_stl_triangle_t*,
-                                                          uint16_t*);
 
-typedef struct
+/* foug_stlb_geom_output_manip */
+typedef struct foug_stlb_geom_output_manip
 {
-  foug_stlb_geom_output_get_header_func_t get_header_func;
-  foug_stlb_geom_output_get_triangle_count_func_t get_triangle_count_func;
-  foug_stlb_geom_output_get_triangle_func_t get_triangle_func;
+  void (*get_header_func)(const foug_stlb_geom_output_t*, uint8_t*);
+  uint32_t (*get_triangle_count_func)(const foug_stlb_geom_output_t*);
+  void (*get_triangle_func)(const foug_stlb_geom_output_t*, uint32_t, foug_stlb_triangle_t*);
 } foug_stlb_geom_output_manip_t;
 
+/* foug_stlb_geom_output : services */
 FOUG_DATAEX_LIBSTL_EXPORT
 foug_stlb_geom_output_t* foug_stlb_geom_output_create(foug_malloc_func_t func,
                                                       void* data,
@@ -29,10 +25,12 @@ foug_stlb_geom_output_t* foug_stlb_geom_output_create(foug_malloc_func_t func,
 
 FOUG_DATAEX_LIBSTL_EXPORT
 void* foug_stlb_geom_output_get_cookie(const foug_stlb_geom_output_t* geom);
+
 FOUG_DATAEX_LIBSTL_EXPORT
 void foug_stlb_geom_output_set_cookie(foug_stlb_geom_output_t* geom, void* data);
 
-typedef struct
+/* foug_stlb_write_args */
+typedef struct foug_stlb_write_args
 {
   foug_stlb_geom_output_t* geom_output;
   foug_stream_t* stream;
@@ -44,6 +42,7 @@ typedef struct
 FOUG_DATAEX_LIBSTL_EXPORT
 int foug_stlb_write(foug_stlb_write_args_t args);
 
+/* Error codes returned by foug_stlb_write() */
 #define FOUG_STLB_WRITE_NO_ERROR                     0
 #define FOUG_STLB_WRITE_NULL_GEOM_OUTPUT_ERROR       1
 #define FOUG_STLB_WRITE_NULL_STREAM_ERROR            2

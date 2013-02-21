@@ -1,5 +1,6 @@
 #include "stlb_write.h"
 
+#include "stlb_triangle.h"
 #include "../endian.h"
 #include <string.h>
 
@@ -46,42 +47,18 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom_output,
                                    uint32_t ifacet_start,
                                    uint32_t facet_count)
 {
-  foug_stl_triangle_t triangle;
-  uint16_t attr_byte_count;
+  foug_stlb_triangle_t triangle;
   uint32_t buffer_offset;
   uint32_t i_facet;
 
   if (geom_output->manip.get_triangle_func == NULL)
     return;
 
-  attr_byte_count = 0;
   buffer_offset = 0;
   for (i_facet = ifacet_start; i_facet < (ifacet_start + facet_count); ++i_facet) {
-    (*(geom_output->manip.get_triangle_func))(geom_output, i_facet, &triangle, &attr_byte_count);
+    (*(geom_output->manip.get_triangle_func))(geom_output, i_facet, &triangle);
 
-    /* Normal */
-    foug_encode_real32_le(triangle.normal.x, buffer + buffer_offset);
-    foug_encode_real32_le(triangle.normal.y, buffer + 1*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.normal.z, buffer + 2*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Vertex1 */
-    foug_encode_real32_le(triangle.v1.x, buffer + 3*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.v1.y, buffer + 4*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.v1.z, buffer + 5*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Vertex2 */
-    foug_encode_real32_le(triangle.v2.x, buffer + 6*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.v2.y, buffer + 7*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.v2.z, buffer + 8*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Vertex3 */
-    foug_encode_real32_le(triangle.v3.x, buffer + 9*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.v3.y, buffer + 10*sizeof(foug_real32_t) + buffer_offset);
-    foug_encode_real32_le(triangle.v3.z, buffer + 11*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Attribute byte count */
-    foug_encode_uint16_le(attr_byte_count, buffer + 12*sizeof(foug_real32_t) + buffer_offset);
-
+    memcpy(buffer + buffer_offset, &triangle, FOUG_STLB_TRIANGLE_SIZE);
     buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
   } /* end for */
 }
@@ -155,8 +132,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
         error = FOUG_STLB_WRITE_TASK_STOPPED_ERROR;
       }
       else {
-        foug_task_control_set_progress(args.task_control,
-                                       (foug_real32_t)(i_facet + 1));
+        foug_task_control_set_progress(args.task_control, (foug_real32_t)(i_facet + 1));
       }
     }
   } /* end for */

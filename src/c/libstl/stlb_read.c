@@ -1,6 +1,7 @@
 #include "stlb_read.h"
 
 #include "../endian.h"
+#include "stlb_triangle.h"
 
 struct _internal_foug_stlb_geom_input
 {
@@ -44,8 +45,7 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom_input,
                                   uint8_t* buffer,
                                   uint32_t facet_count)
 {
-  foug_stl_triangle_t triangle;
-  uint16_t attr_byte_count;
+  foug_stlb_triangle_t triangle;
   uint32_t buffer_offset;
   uint32_t i_facet;
 
@@ -54,32 +54,12 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom_input,
 
   buffer_offset = 0;
   for (i_facet = 0; i_facet < facet_count; ++i_facet) {
-    /* Read normal */
-    triangle.normal.x = foug_decode_real32_le(buffer + buffer_offset);
-    triangle.normal.y = foug_decode_real32_le(buffer + 1*sizeof(foug_real32_t) + buffer_offset);
-    triangle.normal.z = foug_decode_real32_le(buffer + 2*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Read vertex1 */
-    triangle.v1.x = foug_decode_real32_le(buffer + 3*sizeof(foug_real32_t) + buffer_offset);
-    triangle.v1.y = foug_decode_real32_le(buffer + 4*sizeof(foug_real32_t) + buffer_offset);
-    triangle.v1.z = foug_decode_real32_le(buffer + 5*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Read vertex2 */
-    triangle.v2.x = foug_decode_real32_le(buffer + 6*sizeof(foug_real32_t) + buffer_offset);
-    triangle.v2.y = foug_decode_real32_le(buffer + 7*sizeof(foug_real32_t) + buffer_offset);
-    triangle.v2.z = foug_decode_real32_le(buffer + 8*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Read vertex3 */
-    triangle.v3.x = foug_decode_real32_le(buffer + 9*sizeof(foug_real32_t) + buffer_offset);
-    triangle.v3.y = foug_decode_real32_le(buffer + 10*sizeof(foug_real32_t) + buffer_offset);
-    triangle.v3.z = foug_decode_real32_le(buffer + 11*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Attribute byte count */
-    attr_byte_count = foug_decode_uint16_le(buffer + 12*sizeof(foug_real32_t) + buffer_offset);
-
-    /* Add triangle */
-    (*(geom_input->manip.process_next_triangle_func))(geom_input, &triangle, attr_byte_count);
+    /* Decode data */
+    triangle = *((foug_stlb_triangle_t*)(buffer + buffer_offset));
     buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
+
+    /* Declare triangle */
+    (*(geom_input->manip.process_next_triangle_func))(geom_input, &triangle);
   }
 }
 
@@ -134,7 +114,7 @@ int foug_stlb_read(foug_stlb_read_args_t args)
       break; /* Exit if no facet to read */
 
     if (foug_stlb_no_error(error)) {
-      foug_stlb_read_facets_one_go(args.geom_input, args.buffer, facet_count_read);
+      foug_stlb_read_facets(args.geom_input, args.buffer, facet_count_read);
       accum_facet_count_read += facet_count_read;
       if (foug_task_control_is_stop_requested(args.task_control)) {
         error = FOUG_STLB_READ_TASK_STOPPED_ERROR;
