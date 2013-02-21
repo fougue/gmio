@@ -1,5 +1,5 @@
-#ifndef FOUG_ENDIAN_H
-#define FOUG_ENDIAN_H
+#ifndef FOUG_C_ENDIAN_H
+#define FOUG_C_ENDIAN_H
 
 #include "global.h"
 
