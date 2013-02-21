@@ -3,14 +3,14 @@
 
 #include "stl_global.h"
 
-typedef struct
+typedef struct foug_stl_coords
 {
   foug_real32_t x;
   foug_real32_t y;
   foug_real32_t z;
 } foug_stl_coords_t;
 
-typedef struct
+typedef struct foug_stl_triangle
 {
   foug_stl_coords_t normal;
   foug_stl_coords_t v1;
