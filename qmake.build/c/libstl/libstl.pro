@@ -46,11 +46,9 @@ global_inc.path  = $$PREFIX_DIR/include/dataex
 global_inc.files = ../../../src/*.h
 c_global_inc.path  = $$PREFIX_DIR/include/dataex/c
 c_global_inc.files = ../../../src/c/*.h
-c_streams_inc.path  = $$PREFIX_DIR/include/dataex/c/streams
-c_streams_inc.files = ../../../src/c/streams/*.h
 c_libstl_inc.path  = $$PREFIX_DIR/include/dataex/c/libstl
 c_libstl_inc.files = ../../../src/c/libstl/*.h
-INSTALLS += global_inc  c_global_inc  c_streams_inc  c_libstl_inc
+INSTALLS += global_inc  c_global_inc  c_libstl_inc
 
 #VER_MAJ = 0
 #VER_MIN = 1
