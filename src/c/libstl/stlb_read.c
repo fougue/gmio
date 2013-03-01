@@ -1,7 +1,6 @@
 #include "stlb_read.h"
 
 #include "../endian.h"
-#include "stlb_triangle.h"
 
 struct _internal_foug_stlb_geom_input
 {
@@ -59,7 +58,7 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom_input,
     buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
 
     /* Declare triangle */
-    (*(geom_input->manip.process_next_triangle_func))(geom_input, &triangle);
+    geom_input->manip.process_next_triangle_func(geom_input, &triangle);
   }
 }
 
@@ -86,7 +85,7 @@ int foug_stlb_read(foug_stlb_read_args_t args)
     return FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR;
 
   if (args.geom_input->manip.process_header_func != NULL)
-    (*(args.geom_input->manip.process_header_func))(args.geom_input, header_data);
+    args.geom_input->manip.process_header_func(args.geom_input, header_data);
 
   /* Read facet count */
   if (foug_stream_read(args.stream, args.buffer, sizeof(uint32_t), 1) != 1)
@@ -94,10 +93,10 @@ int foug_stlb_read(foug_stlb_read_args_t args)
 
   total_facet_count = foug_decode_uint32_le(args.buffer);
   if (args.geom_input->manip.begin_triangles_func != NULL)
-    (*(args.geom_input->manip.begin_triangles_func))(args.geom_input, total_facet_count);
+    args.geom_input->manip.begin_triangles_func(args.geom_input, total_facet_count);
 
   foug_task_control_reset(args.task_control);
-  foug_task_control_set_range(args.task_control, 0., (foug_real32_t)total_facet_count);
+  foug_task_control_set_range(args.task_control, 0.f, (foug_real32_t)total_facet_count);
 
   /* Read triangles */
   buffer_facet_count = args.buffer_size / FOUG_STLB_TRIANGLE_SIZE;
@@ -127,7 +126,7 @@ int foug_stlb_read(foug_stlb_read_args_t args)
   } /* end while */
 
   if (foug_stlb_no_error(error) && args.geom_input->manip.end_triangles_func != NULL)
-    (*(args.geom_input->manip.end_triangles_func))(args.geom_input);
+    args.geom_input->manip.end_triangles_func(args.geom_input);
 
   if (foug_stlb_no_error(error) && accum_facet_count_read != total_facet_count)
     error = FOUG_STLB_READ_FACET_COUNT_ERROR;

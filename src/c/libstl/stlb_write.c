@@ -56,7 +56,7 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom_output,
 
   buffer_offset = 0;
   for (i_facet = ifacet_start; i_facet < (ifacet_start + facet_count); ++i_facet) {
-    (*(geom_output->manip.get_triangle_func))(geom_output, i_facet, &triangle);
+    geom_output->manip.get_triangle_func(geom_output, i_facet, &triangle);
 
     memcpy(buffer + buffer_offset, &triangle, FOUG_STLB_TRIANGLE_SIZE);
     buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
@@ -87,7 +87,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
 
   /* Write header */
   if (args.geom_output->manip.get_header_func != NULL)
-    (*(args.geom_output->manip.get_header_func))(args.geom_output, header_data);
+    args.geom_output->manip.get_header_func(args.geom_output, header_data);
   else
     memset(header_data, 0, FOUG_STLB_HEADER_SIZE);
 
@@ -95,7 +95,7 @@ int foug_stlb_write(foug_stlb_write_args_t args)
     return FOUG_STLB_WRITE_STREAM_ERROR;
 
   /* Write facet count */
-  facet_count = (*(args.geom_output->manip.get_triangle_count_func))(args.geom_output);
+  facet_count = args.geom_output->manip.get_triangle_count_func(args.geom_output);
   foug_encode_uint32_le(facet_count, args.buffer);
   if (foug_stream_write(args.stream, args.buffer, sizeof(uint32_t), 1) != 1)
     return FOUG_STLB_WRITE_STREAM_ERROR;
