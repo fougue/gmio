@@ -41,13 +41,13 @@ SOURCES += \
     ../../../src/c++/libstl/stlb.cpp \
     ../../../src/c++/libstl/stla.cpp
 
-global_inc.path  = $$PREFIX_DIR/include/dataex
+global_inc.path  = $$PREFIX_DIR/include/datax
 global_inc.files = ../../../src/*.h
-cpp_global_inc.path  = $$PREFIX_DIR/include/dataex/c++
+cpp_global_inc.path  = $$PREFIX_DIR/include/datax/c++
 cpp_global_inc.files = ../../../src/c++/*.h
-cpp_streams_inc.path  = $$PREFIX_DIR/include/dataex/c++/streams
+cpp_streams_inc.path  = $$PREFIX_DIR/include/datax/c++/streams
 cpp_streams_inc.files = ../../../src/c++/streams/*.h
-cpp_libstl_inc.path  = $$PREFIX_DIR/include/dataex/c++/libstl
+cpp_libstl_inc.path  = $$PREFIX_DIR/include/datax/c++/libstl
 cpp_libstl_inc.files = ../../../src/c++/libstl/*.h
 INSTALLS += global_inc  cpp_global_inc  cpp_streams_inc  cpp_libstl_inc
 

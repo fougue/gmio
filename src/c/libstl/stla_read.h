@@ -28,8 +28,14 @@ typedef struct foug_stla_read_args
   size_t data_size_hint;
 } foug_stla_read_args_t;
 
-FOUG_DATAEX_LIBSTL_EXPORT
+FOUG_DATAX_LIBSTL_EXPORT
 int foug_stla_read(foug_stla_read_args_t* args);
+
+#define FOUG_DATAX_NO_ERROR                    0
+#define FOUG_DATAX_NULL_BUFFER                -1
+#define FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR  -2
+#define FOUG_DATAX_STREAM_ERROR               -3
+#define FOUG_DATAX_TASK_STOPPED_ERROR          -4
 
 /* Error codes returned by foug_stlb_read() */
 #define FOUG_STLA_READ_NO_ERROR                  0

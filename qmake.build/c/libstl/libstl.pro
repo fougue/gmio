@@ -12,7 +12,7 @@ DESTDIR = $$PREFIX_DIR/lib
 
 dll {
   DEFINES *= FOUG_LIB_DLL  FOUG_LIB_MAKE_DLL
-  DEFINES *= FOUG_DATAEX_LIBSTL_DLL  FOUG_DATAEX_LIBSTL_MAKE_DLL
+  DEFINES *= FOUG_DATAX_LIBSTL_DLL  FOUG_DATAX_LIBSTL_MAKE_DLL
 }
 
 #*g++*:QMAKE_CXXFLAGS_RELEASE -= -O2
@@ -44,11 +44,11 @@ SOURCES += \
 *-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
 *-msvc*:QMAKE_CFLAGS += -TC
 
-global_inc.path  = $$PREFIX_DIR/include/dataex
+global_inc.path  = $$PREFIX_DIR/include/datax
 global_inc.files = ../../../src/*.h
-c_global_inc.path  = $$PREFIX_DIR/include/dataex/c
+c_global_inc.path  = $$PREFIX_DIR/include/datax/c
 c_global_inc.files = ../../../src/c/*.h
-c_libstl_inc.path  = $$PREFIX_DIR/include/dataex/c/libstl
+c_libstl_inc.path  = $$PREFIX_DIR/include/datax/c/libstl
 c_libstl_inc.files = ../../../src/c/libstl/*.h
 INSTALLS += global_inc  c_global_inc  c_libstl_inc
 

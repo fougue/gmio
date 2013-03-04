@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 include(CheckIncludeFiles)
+include(CheckSymbolExists)
+include(CheckCSourceCompiles)
 
-project(foug_dataex C)
+project(foug_datax C)
 
 # Allow the user to build a static library
 option(BUILD_SHARED_LIBS "Build shared libraries (DLL)" ON)
@@ -15,10 +17,23 @@ check_include_files(stdint.h HAVE_STDINT_H)
 configure_file(src/c/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 
+# Have fabsf() ?
+#check_symbol_exists(fabs  "math.h" HAVE_FABS)
+#check_symbol_exists(fabsf "math.h" HAVE_FABSF)
+
+#check_c_source_compiles("
+#                         #include <math.h>
+#                         int main()
+#                         {
+#                           fabsf(-1);
+#                           return 0;
+#                         }"
+#                         HAVE_FABSF)
+
 # Specific flags for gcc
 if(CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -fstrict-aliasing -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors -fstrict-aliasing")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
 endif()
 
 # Specific flags for Visual C++
@@ -29,18 +44,18 @@ endif()
 if(BUILD_SHARED_LIBS)
   add_definitions(-DFOUG_LIB_DLL
                   -DFOUG_LIB_MAKE_DLL
-                  -DFOUG_DATAEX_LIBSTL_DLL
-                  -DFOUG_DATAEX_LIBSTL_MAKE_DLL)
+                  -DFOUG_DATAX_LIBSTL_DLL
+                  -DFOUG_DATAX_LIBSTL_MAKE_DLL)
 endif()
 
 # Declare installs
-install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/dataex/c)
+install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/datax/c)
 
 file(GLOB  C_GLOBAL_HEADERS  src/c/*.h)
-install(FILES ${C_GLOBAL_HEADERS} DESTINATION include/dataex/c)
+install(FILES ${C_GLOBAL_HEADERS} DESTINATION include/datax/c)
 
 file(GLOB  C_LIBSTL_HEADERS  src/c/libstl/*.h)
-install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/dataex/c/libstl)
+install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax/c/libstl)
 
 install(TARGETS fougstl-c
           RUNTIME DESTINATION lib

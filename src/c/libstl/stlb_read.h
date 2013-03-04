@@ -27,7 +27,7 @@ typedef struct foug_stlb_read_args
   uint32_t buffer_size;
 } foug_stlb_read_args_t;
 
-FOUG_DATAEX_LIBSTL_EXPORT
+FOUG_DATAX_LIBSTL_EXPORT
 int foug_stlb_read(foug_stlb_read_args_t* args);
 
 /* Error codes returned by foug_stlb_read() */
