@@ -3,37 +3,20 @@
 #include <math.h>
 #include <string.h>
 
-/* foug_task_control */
-
-foug_real32_t foug_task_progress_get_value_pc(const foug_task_progress_t *progress)
+foug_bool_t foug_task_control_handle_progress(foug_task_control_t* ctrl, uint8_t progress_pc)
 {
-  if (progress == NULL)
-    return 0.f;
-  return fabs((progress->value - progress->range_min) / (progress->range_max - progress->range_min));
+  if (ctrl != NULL && ctrl->handle_progress_func != NULL)
+    return ctrl->handle_progress_func(ctrl, progress_pc);
+  return 1;
 }
 
-FOUG_LIB_EXPORT void foug_task_control_set_progress(foug_task_control_t* ctrl,
-                                                    foug_task_progress_t *progress,
-                                                    foug_real32_t value)
+uint8_t foug_percentage(size_t range_min, size_t range_max, size_t value)
 {
-  progress->value = value;
-  if (ctrl->handle_progress_update_func != NULL)
-    ctrl->handle_progress_update_func(ctrl, progress);
-}
-
-/* Task stop */
-
-void foug_task_control_async_stop(foug_task_control_t* ctrl)
-{
-  if (ctrl != NULL)
-    ctrl->is_stop_requested = 1;
-}
-
-void foug_task_control_handle_stop(foug_task_control_t* ctrl)
-{
-  if (ctrl != NULL) {
-    ctrl->is_stop_requested = 0;
-    if (ctrl->handle_stop_func != NULL)
-      ctrl->handle_stop_func(ctrl);
-  }
+  if (value >= range_max)
+    return 100;
+  else if (value <= range_min)
+    return 0;
+  else if (range_min < range_max)
+    return (value * 100) / (range_max - range_min);
+  return 0;
 }

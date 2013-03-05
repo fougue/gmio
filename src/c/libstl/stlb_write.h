@@ -3,6 +3,7 @@
 
 #include "stl_global.h"
 #include "stlb_triangle.h"
+#include "../error.h"
 #include "../stream.h"
 #include "../task_control.h"
 
@@ -30,12 +31,7 @@ FOUG_DATAX_LIBSTL_EXPORT
 int foug_stlb_write(foug_stlb_write_args_t* args);
 
 /* Error codes returned by foug_stlb_write() */
-#define FOUG_STLB_WRITE_NO_ERROR                     0
-#define FOUG_STLB_WRITE_NULL_BUFFER_ERROR            3
-#define FOUG_STLB_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC 4
-#define FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC       5
-#define FOUG_STLB_WRITE_STREAM_ERROR                 6
-#define FOUG_STLB_WRITE_TASK_STOPPED_ERROR           7
-#define FOUG_STLB_WRITE_INVALID_BUFFER_SIZE_ERROR    8
+#define FOUG_STLB_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC 1
+#define FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC       2
 
 #endif /* FOUG_C_LIBSTL_STLB_WRITE_H */

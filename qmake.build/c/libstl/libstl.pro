@@ -31,7 +31,8 @@ HEADERS += \
     ../../../src/c/libstl/stlb_read.h \
     ../../../src/c/libstl/stlb_write.h \
     ../../../src/c/libstl/stl_triangle.h \
-    ../../../src/c/libstl/stlb_triangle.h
+    ../../../src/c/libstl/stlb_triangle.h \
+    ../../../src/c/error.h
 
 SOURCES += \
     ../../../src/c/endian.c \
@@ -39,7 +40,8 @@ SOURCES += \
     ../../../src/c/task_control.c \
     ../../../src/c/libstl/stla_read.c \
     ../../../src/c/libstl/stlb_read.c \
-    ../../../src/c/libstl/stlb_write.c
+    ../../../src/c/libstl/stlb_write.c \
+    ../../../src/c/error.c
 
 *-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
 *-msvc*:QMAKE_CFLAGS += -TC

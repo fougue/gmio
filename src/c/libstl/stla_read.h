@@ -3,6 +3,7 @@
 
 #include "stl_global.h"
 #include "stl_triangle.h"
+#include "../error.h"
 #include "../stream.h"
 #include "../task_control.h"
 
@@ -31,18 +32,7 @@ typedef struct foug_stla_read_args
 FOUG_DATAX_LIBSTL_EXPORT
 int foug_stla_read(foug_stla_read_args_t* args);
 
-#define FOUG_DATAX_NO_ERROR                    0
-#define FOUG_DATAX_NULL_BUFFER                -1
-#define FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR  -2
-#define FOUG_DATAX_STREAM_ERROR               -3
-#define FOUG_DATAX_TASK_STOPPED_ERROR          -4
-
-/* Error codes returned by foug_stlb_read() */
-#define FOUG_STLA_READ_NO_ERROR                  0
-#define FOUG_STLA_READ_NULL_BUFFER               3
-#define FOUG_STLA_READ_INVALID_BUFFER_SIZE_ERROR 4
-#define FOUG_STLA_READ_PARSE_ERROR               5
-#define FOUG_STLA_READ_STREAM_ERROR              7
-#define FOUG_STLA_READ_TASK_STOPPED_ERROR        8
+/* Error codes returned by foug_stla_read() */
+#define FOUG_STLA_READ_PARSE_ERROR  1
 
 #endif /* FOUG_C_LIBSTL_STLA_READ_H */

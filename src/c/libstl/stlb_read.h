@@ -3,6 +3,7 @@
 
 #include "stl_global.h"
 #include "stlb_triangle.h"
+#include "../error.h"
 #include "../stream.h"
 #include "../task_control.h"
 
@@ -31,12 +32,7 @@ FOUG_DATAX_LIBSTL_EXPORT
 int foug_stlb_read(foug_stlb_read_args_t* args);
 
 /* Error codes returned by foug_stlb_read() */
-#define FOUG_STLB_READ_NO_ERROR                  0
-#define FOUG_STLB_READ_NULL_BUFFER               3
-#define FOUG_STLB_READ_INVALID_BUFFER_SIZE_ERROR 4
-#define FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR   5
-#define FOUG_STLB_READ_FACET_COUNT_ERROR         6
-#define FOUG_STLB_READ_STREAM_ERROR              7
-#define FOUG_STLB_READ_TASK_STOPPED_ERROR        8
+#define FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR   1
+#define FOUG_STLB_READ_FACET_COUNT_ERROR         2
 
 #endif /* FOUG_C_LIBSTL_STLB_READ_H */

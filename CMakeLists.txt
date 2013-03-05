@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
 include(CheckIncludeFiles)
-include(CheckSymbolExists)
-include(CheckCSourceCompiles)
 
 project(foug_datax C)
 
@@ -16,19 +14,6 @@ add_library(fougstl-c ${ALL_SRC_FILES})
 check_include_files(stdint.h HAVE_STDINT_H)
 configure_file(src/c/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
-
-# Have fabsf() ?
-#check_symbol_exists(fabs  "math.h" HAVE_FABS)
-#check_symbol_exists(fabsf "math.h" HAVE_FABSF)
-
-#check_c_source_compiles("
-#                         #include <math.h>
-#                         int main()
-#                         {
-#                           fabsf(-1);
-#                           return 0;
-#                         }"
-#                         HAVE_FABSF)
 
 # Specific flags for gcc
 if(CMAKE_COMPILER_IS_GNUCC)

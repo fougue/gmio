@@ -1,5 +1,7 @@
 #include "stla_read.h"
 
+#include "../error.h"
+
 #include <ctype.h> /* isspace() */
 #include <errno.h>
 #include <stdlib.h>
@@ -15,7 +17,6 @@ typedef struct foug_stream_fwd_iterator
 
   void* cookie;
   void (*stream_read_hook)(const struct foug_stream_fwd_iterator* it);
-
 } foug_stream_fwd_iterator_t;
 
 static void foug_stream_fwd_iterator_read_hook(const foug_stream_fwd_iterator_t* it)
@@ -221,7 +222,6 @@ static int eat_facet(foug_stream_fwd_iterator_t* it,
 
 int foug_stla_read(foug_stla_read_args_t *args)
 {
-  foug_task_progress_t progress;
   char fixed_buffer[FOUG_STLA_READ_STRING_BUFFER_LEN];
   foug_string_buffer_t string_buffer;
   foug_stl_triangle_t triangle;
@@ -229,9 +229,9 @@ int foug_stla_read(foug_stla_read_args_t *args)
   int eat_facet_result;
 
   if (args->buffer == NULL)
-    return FOUG_STLA_READ_NULL_BUFFER;
+    return FOUG_DATAX_NULL_BUFFER_ERROR;
   if (args->buffer_size == 0)
-    return FOUG_STLA_READ_INVALID_BUFFER_SIZE_ERROR;
+    return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
 
   it.stream = &(args->stream);
   it.buffer = args->buffer;
@@ -245,11 +245,6 @@ int foug_stla_read(foug_stla_read_args_t *args)
   string_buffer.data = fixed_buffer;
   string_buffer.max_len = FOUG_STLA_READ_STRING_BUFFER_LEN;
   string_buffer.len = 0;
-
-  progress.range_min = 0.f;
-  progress.range_max = (foug_real32_t)args->data_size_hint;
-  progress.value = 0.f;
-  args->task_control.is_stop_requested = 0;
 
   /* Eat solids */
   while (eat_token(&it, "solid") == 0) {
@@ -283,5 +278,5 @@ int foug_stla_read(foug_stla_read_args_t *args)
     }
   }
 
-  return FOUG_STLA_READ_NO_ERROR;
+  return FOUG_DATAX_NO_ERROR;
 }
