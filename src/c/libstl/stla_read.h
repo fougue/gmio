@@ -7,6 +7,14 @@
 #include "../stream.h"
 #include "../task_control.h"
 
+/* foug_stla_read() */
+typedef struct foug_stla_read_args foug_stla_read_args_t;
+
+FOUG_DATAX_LIBSTL_EXPORT int foug_stla_read(foug_stla_read_args_t* args);
+
+/* Specific error codes returned by foug_stla_read() */
+#define FOUG_STLA_READ_PARSE_ERROR  1
+
 /* foug_stla_geom_input */
 typedef struct foug_stla_geom_input foug_stla_geom_input_t;
 struct foug_stla_geom_input
@@ -19,7 +27,7 @@ struct foug_stla_geom_input
 };
 
 /* foug_stla_read_args */
-typedef struct foug_stla_read_args
+struct foug_stla_read_args
 {
   foug_stla_geom_input_t geom_input;
   foug_stream_t stream;
@@ -27,12 +35,6 @@ typedef struct foug_stla_read_args
   char* buffer;
   uint32_t buffer_size;
   size_t data_size_hint;
-} foug_stla_read_args_t;
-
-FOUG_DATAX_LIBSTL_EXPORT
-int foug_stla_read(foug_stla_read_args_t* args);
-
-/* Error codes returned by foug_stla_read() */
-#define FOUG_STLA_READ_PARSE_ERROR  1
+};
 
 #endif /* FOUG_C_LIBSTL_STLA_READ_H */
