@@ -27,7 +27,6 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom_output,
 
 int foug_stlb_write(foug_stlb_write_args_t *args)
 {
-  uint8_t header_data[FOUG_STLB_HEADER_SIZE];
   uint32_t facet_count;
   uint32_t i_facet;
   uint32_t buffer_facet_count;
@@ -44,13 +43,16 @@ int foug_stlb_write(foug_stlb_write_args_t *args)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC;
 
   /* Write header */
-  if (args->geom_output.get_header_func != NULL)
-    args->geom_output.get_header_func(&args->geom_output, header_data);
-  else
-    memset(header_data, 0, FOUG_STLB_HEADER_SIZE);
+  {
+    uint8_t header_data[FOUG_STLB_HEADER_SIZE];
+    if (args->geom_output.get_header_func != NULL)
+      args->geom_output.get_header_func(&args->geom_output, header_data);
+    else
+      memset(header_data, 0, FOUG_STLB_HEADER_SIZE);
 
-  if (foug_stream_write(&args->stream, header_data, FOUG_STLB_HEADER_SIZE, 1) != 1)
-    return FOUG_DATAX_STREAM_ERROR;
+    if (foug_stream_write(&args->stream, header_data, FOUG_STLB_HEADER_SIZE, 1) != 1)
+      return FOUG_DATAX_STREAM_ERROR;
+  }
 
   /* Write facet count */
   facet_count = args->geom_output.get_triangle_count_func(&args->geom_output);
@@ -81,12 +83,11 @@ int foug_stlb_write(foug_stlb_write_args_t *args)
     }
 
     /* Task control */
-    if (foug_datax_no_error(error)) {
-      if (!foug_task_control_handle_progress(&args->task_control,
-                                             foug_percentage(0, facet_count, i_facet + 1)))
-      {
-        error = FOUG_DATAX_TASK_STOPPED_ERROR;
-      }
+    if (foug_datax_no_error(error)
+        && !foug_task_control_handle_progress(&args->task_control,
+                                              foug_percentage(0, facet_count, i_facet + 1)))
+    {
+      error = FOUG_DATAX_TASK_STOPPED_ERROR;
     }
   } /* end for */
 
