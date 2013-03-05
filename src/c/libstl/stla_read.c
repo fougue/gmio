@@ -13,17 +13,28 @@ typedef struct foug_stream_fwd_iterator
   char* buffer;
   uint32_t buffer_offset;
   uint32_t buffer_size;
-  size_t stream_offset;
 
   void* cookie;
-  void (*stream_read_hook)(const struct foug_stream_fwd_iterator* it);
+  void (*stream_read_hook)(struct foug_stream_fwd_iterator* it);
 } foug_stream_fwd_iterator_t;
 
-static void foug_stream_fwd_iterator_read_hook(const foug_stream_fwd_iterator_t* it)
+typedef struct foug_stream_fwd_iterator_stla_cookie
 {
-  foug_task_control_t* ctrl = it != NULL ? (foug_task_control_t*)(it->cookie) : NULL;
-  /*if (ctrl != NULL)
-    foug_task_control_set_progress(ctrl, it->stream_offset); */
+  foug_task_control_t* task_control;
+  size_t stream_data_size;
+  size_t stream_offset;
+  foug_bool_t is_stop_requested;
+} foug_stream_fwd_iterator_stla_cookie_t;
+
+static void foug_stream_fwd_iterator_stla_read_hook(foug_stream_fwd_iterator_t* it)
+{
+  foug_stream_fwd_iterator_stla_cookie_t* cookie =
+      it != NULL ? (foug_stream_fwd_iterator_stla_cookie_t*)(it->cookie) : NULL;
+  if (cookie != NULL) {
+    const uint8_t progress_pc = foug_percentage(0, cookie->stream_data_size, cookie->stream_offset);
+    cookie->is_stop_requested = !foug_task_control_handle_progress(cookie->task_control, progress_pc);
+    cookie->stream_offset += it->buffer_size;
+  }
 }
 
 static char* current_char(foug_stream_fwd_iterator_t* it)
@@ -38,17 +49,16 @@ static char* current_char(foug_stream_fwd_iterator_t* it)
 
 static char* next_char(foug_stream_fwd_iterator_t* it)
 {
-  size_t char_count_read;
-
   if (it == NULL)
     return NULL;
 
   if ((it->buffer_offset + 1) < it->buffer_size) {
     ++(it->buffer_offset);
-    ++(it->stream_offset);
     return it->buffer + it->buffer_offset;
   }
   else {
+    size_t char_count_read;
+
     if (foug_stream_error(it->stream) != 0 || foug_stream_at_end(it->stream))
       return NULL;
     /* Read next chunk of data */
@@ -58,8 +68,9 @@ static char* next_char(foug_stream_fwd_iterator_t* it)
     }
     else {
       it->buffer_offset = 0;
-      ++(it->stream_offset);
       it->buffer_size = char_count_read;
+      if (it->stream_read_hook != NULL)
+        it->stream_read_hook(it);
       return it->buffer;
     }
   }
@@ -67,7 +78,7 @@ static char* next_char(foug_stream_fwd_iterator_t* it)
 
 void foug_stream_fwd_iterator_init(foug_stream_fwd_iterator_t* it)
 {
-  it->buffer_offset = it->buffer_size;/* This will cause the first call to foug_stream_read() */
+  it->buffer_offset = it->buffer_size; /* This will cause the first call to foug_stream_read() */
   next_char(it);
 }
 
@@ -224,22 +235,25 @@ int foug_stla_read(foug_stla_read_args_t *args)
 {
   char fixed_buffer[FOUG_STLA_READ_STRING_BUFFER_LEN];
   foug_string_buffer_t string_buffer;
-  foug_stl_triangle_t triangle;
   foug_stream_fwd_iterator_t it;
-  int eat_facet_result;
+  foug_stream_fwd_iterator_stla_cookie_t stla_cookie;
 
   if (args->buffer == NULL)
     return FOUG_DATAX_NULL_BUFFER_ERROR;
   if (args->buffer_size == 0)
     return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
 
+  stla_cookie.task_control = &args->task_control;
+  stla_cookie.stream_data_size = args->data_size_hint;
+  stla_cookie.stream_offset = 0;
+  stla_cookie.is_stop_requested = 0;
+
   it.stream = &(args->stream);
   it.buffer = args->buffer;
   it.buffer_offset = 0;
   it.buffer_size = args->buffer_size;
-  it.stream_offset = 0;
-  it.cookie = &(args->task_control);
-  it.stream_read_hook = foug_stream_fwd_iterator_read_hook;
+  it.cookie = &stla_cookie;
+  it.stream_read_hook = foug_stream_fwd_iterator_stla_read_hook;
   foug_stream_fwd_iterator_init(&it);
 
   string_buffer.data = fixed_buffer;
@@ -247,16 +261,20 @@ int foug_stla_read(foug_stla_read_args_t *args)
   string_buffer.len = 0;
 
   /* Eat solids */
-  while (eat_token(&it, "solid") == 0) {
+  while (eat_token(&it, "solid") == 0 && !stla_cookie.is_stop_requested) {
+    int eat_facet_result;
+    foug_stl_triangle_t triangle;
+
     /* Try to eat solid's name */
-    if (eat_string(&it, &string_buffer) != 0) {
+    if (eat_string(&it, &string_buffer) != 0)
       return FOUG_STLA_READ_PARSE_ERROR;
-    }
     if (args->geom_input.begin_solid_func != NULL)
       args->geom_input.begin_solid_func(&args->geom_input, string_buffer.data);
 
     /* Try to eat facets */
-    while ((eat_facet_result = eat_facet(&it, &string_buffer, &triangle)) >= 0) {
+    while ((eat_facet_result = eat_facet(&it, &string_buffer, &triangle)) >= 0
+           && !stla_cookie.is_stop_requested)
+    {
       if (eat_facet_result == 0) {
         if (args->geom_input.process_next_triangle_func != NULL)
           args->geom_input.process_next_triangle_func(&args->geom_input, &triangle);
@@ -278,5 +296,5 @@ int foug_stla_read(foug_stla_read_args_t *args)
     }
   }
 
-  return FOUG_DATAX_NO_ERROR;
+  return !stla_cookie.is_stop_requested ? FOUG_DATAX_NO_ERROR : FOUG_DATAX_TASK_STOPPED_ERROR;
 }
