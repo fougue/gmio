@@ -5,10 +5,10 @@ project(foug_datax C)
 
 # Allow the user to build a static library
 option(BUILD_SHARED_LIBS "Build shared libraries (DLL)" ON)
+option(WITH_LIBSTL "Build the libSTL module" ON)
 
-# Declare fougstl-c library 
-file(GLOB_RECURSE  ALL_SRC_FILES  src/c/*)
-add_library(fougstl-c ${ALL_SRC_FILES})
+# Add core source files
+file(GLOB  ALL_SRC_FILES  src/c/*)
 
 # Have <stdint.h> ?
 check_include_files(stdint.h HAVE_STDINT_H)
@@ -28,9 +28,7 @@ endif()
 
 if(BUILD_SHARED_LIBS)
   add_definitions(-DFOUG_LIB_DLL
-                  -DFOUG_LIB_MAKE_DLL
-                  -DFOUG_DATAX_LIBSTL_DLL
-                  -DFOUG_DATAX_LIBSTL_MAKE_DLL)
+                  -DFOUG_LIB_MAKE_DLL)
 endif()
 
 # Declare installs
@@ -39,15 +37,25 @@ install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/datax/c)
 file(GLOB  C_GLOBAL_HEADERS  src/c/*.h)
 install(FILES ${C_GLOBAL_HEADERS} DESTINATION include/datax/c)
 
-file(GLOB  C_LIBSTL_HEADERS  src/c/libstl/*.h)
-install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax/c/libstl)
+# Module libSTL
+if(WITH_LIBSTL)
+  add_definitions(-DFOUG_DATAX_LIBSTL_DLL
+                  -DFOUG_DATAX_LIBSTL_MAKE_DLL)
 
-install(TARGETS fougstl-c
+  file(GLOB  ALL_LIBSTL_SRC_FILES  src/c/libstl/*)
+  set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_LIBSTL_SRC_FILES})
+
+  file(GLOB  C_LIBSTL_HEADERS  src/c/libstl/*.h)
+  install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax/c/libstl)
+endif()
+
+
+# Declare fougdatax library
+add_library(fougdatax-c ${ALL_SRC_FILES})
+install(TARGETS fougdatax-c
           RUNTIME DESTINATION lib
           LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib
-)
-
+          ARCHIVE DESTINATION lib)
 
 # Examples:
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
