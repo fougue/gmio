@@ -1,5 +1,5 @@
-#ifndef FOUG_C_LIBSTL_STLA_READ_H
-#define FOUG_C_LIBSTL_STLA_READ_H
+#ifndef FOUG_DATAX_C_LIBSTL_STLA_READ_H
+#define FOUG_DATAX_C_LIBSTL_STLA_READ_H
 
 #include "stl_global.h"
 #include "stl_triangle.h"
@@ -37,4 +37,4 @@ struct foug_stla_read_args
   size_t data_size_hint;
 };
 
-#endif /* FOUG_C_LIBSTL_STLA_READ_H */
+#endif /* FOUG_DATAX_C_LIBSTL_STLA_READ_H */

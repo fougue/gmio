@@ -1,5 +1,5 @@
-#ifndef FOUG_C_LIBSTL_STLB_GLOBAL_H
-#define FOUG_C_LIBSTL_STLB_GLOBAL_H
+#ifndef FOUG_DATAX_C_LIBSTL_STLB_GLOBAL_H
+#define FOUG_DATAX_C_LIBSTL_STLB_GLOBAL_H
 
 #include "../global.h"
 
@@ -8,7 +8,7 @@
 #  define FOUG_DATAX_LIBSTL_EXPORT FOUG_DECL_EXPORT
 # else
 #  define FOUG_DATAX_LIBSTL_EXPORT FOUG_DECL_IMPORT
-# endif /* APP_LIBCORE_MAKE_DLL */
+# endif /* FOUG_DATAX_LIBSTL_MAKE_DLL */
 #else
 # define FOUG_DATAX_LIBSTL_EXPORT
 #endif /* FOUG_DATAX_LIBSTL_DLL */
@@ -18,4 +18,4 @@
 #define FOUG_STLB_MIN_CONTENTS_SIZE 284
 #define FOUG_STLB_TRIANGLE_SIZE 50 /* 12 * sizeof(foug_real32_t) + sizeof(uint16_t) */
 
-#endif /* FOUG_C_LIBSTL_STLB_GLOBAL_H */
+#endif /* FOUG_DATAX_C_LIBSTL_STLB_GLOBAL_H */

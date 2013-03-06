@@ -15,7 +15,7 @@
 #  define FOUG_LIB_EXPORT FOUG_DECL_EXPORT
 # else
 #  define FOUG_LIB_EXPORT FOUG_DECL_IMPORT
-# endif /* APP_LIBCORE_MAKE_DLL */
+# endif /* FOUG_LIB_MAKE_DLL */
 #else
 # define FOUG_LIB_EXPORT
 #endif /* FOUG_LIB_DLL */

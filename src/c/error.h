@@ -1,5 +1,5 @@
-#ifndef FOUG_C_DATAX_ERROR_H
-#define FOUG_C_DATAX_ERROR_H
+#ifndef FOUG_DATAX_C_ERROR_H
+#define FOUG_DATAX_C_ERROR_H
 
 #include "global.h"
 
@@ -13,4 +13,4 @@
 FOUG_LIB_EXPORT foug_bool_t foug_datax_no_error(int code);
 FOUG_LIB_EXPORT foug_bool_t foug_datax_error(int code);
 
-#endif /* FOUG_C_DATAX_ERROR_H */
+#endif /* FOUG_DATAX_C_ERROR_H */

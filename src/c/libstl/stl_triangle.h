@@ -1,5 +1,5 @@
-#ifndef FOUG_C_LIBSTL_TRIANGLE_H
-#define FOUG_C_LIBSTL_TRIANGLE_H
+#ifndef FOUG_DATAX_C_LIBSTL_TRIANGLE_H
+#define FOUG_DATAX_C_LIBSTL_TRIANGLE_H
 
 #include "stl_global.h"
 
@@ -18,4 +18,4 @@ typedef struct foug_stl_triangle
   foug_stl_coords_t v3;
 } foug_stl_triangle_t;
 
-#endif /* FOUG_C_LIBSTL_TRIANGLE_H */
+#endif /* FOUG_DATAX_C_LIBSTL_TRIANGLE_H */

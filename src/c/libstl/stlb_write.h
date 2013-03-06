@@ -1,5 +1,5 @@
-#ifndef FOUG_C_LIBSTL_STLB_WRITE_H
-#define FOUG_C_LIBSTL_STLB_WRITE_H
+#ifndef FOUG_DATAX_C_LIBSTL_STLB_WRITE_H
+#define FOUG_DATAX_C_LIBSTL_STLB_WRITE_H
 
 #include "stl_global.h"
 #include "stlb_triangle.h"
@@ -36,4 +36,4 @@ struct foug_stlb_write_args
   uint32_t buffer_size;
 };
 
-#endif /* FOUG_C_LIBSTL_STLB_WRITE_H */
+#endif /* FOUG_DATAX_C_LIBSTL_STLB_WRITE_H */
