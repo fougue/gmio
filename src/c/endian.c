@@ -121,6 +121,15 @@ void foug_encode_uint32_le(uint32_t val, uint8_t* bytes)
   bytes[3] = (val >> 24) & 0xFF;
 }
 
+/*! Write 32bit integer \p val to the memory location at \p bytes in big-endian byte order */
+void foug_encode_uint32_be(uint32_t val, uint8_t* bytes)
+{
+  bytes[0] = (val >> 24) & 0xFF;
+  bytes[1] = (val >> 16) & 0xFF;
+  bytes[2] = (val >> 8) & 0xFF;
+  bytes[3] = val & 0xFF;
+}
+
 /*! Read a 32bit real from memory-location \p bytes (little-endian byte order) */
 foug_real32_t foug_decode_real32_le(const uint8_t* bytes)
 {

@@ -25,6 +25,7 @@ FOUG_LIB_EXPORT uint32_t foug_decode_uint32_le(const uint8_t* bytes);
 FOUG_LIB_EXPORT uint32_t foug_decode_uint32_me(const uint8_t* bytes);
 FOUG_LIB_EXPORT uint32_t foug_decode_uint32_be(const uint8_t* bytes);
 FOUG_LIB_EXPORT void foug_encode_uint32_le(uint32_t val, uint8_t* bytes);
+FOUG_LIB_EXPORT void foug_encode_uint32_be(uint32_t val, uint8_t* bytes);
 
 FOUG_LIB_EXPORT foug_real32_t foug_decode_real32_le(const uint8_t* bytes);
 FOUG_LIB_EXPORT foug_real32_t foug_decode_real32_me(const uint8_t* bytes);
