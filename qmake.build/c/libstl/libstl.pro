@@ -10,9 +10,10 @@ TEMPLATE = lib
 TARGET = fougdatax-c$$TARGET_SUFFIX
 DESTDIR = $$PREFIX_DIR/lib
 
-DATAX = stl
+DATAX *= stl
 
-dll:DEFINES *= FOUG_LIB_DLL  FOUG_LIB_MAKE_DLL
+dll:DEFINES *= FOUG_LIB_DLL \
+               FOUG_LIB_MAKE_DLL
 
 #*g++*:QMAKE_CXXFLAGS_RELEASE -= -O2
 #*g++*:QMAKE_CXXFLAGS_RELEASE += -O3
@@ -25,7 +26,8 @@ HEADERS += \
     ../../../src/c/global.h \
     ../../../src/c/memory.h \
     ../../../src/c/stream.h \
-    ../../../src/c/task_control.h
+    ../../../src/c/task_control.h \
+    ../../../src/c/transfer.h \
 
 SOURCES += \
     ../../../src/c/endian.c \
@@ -43,7 +45,8 @@ c_global_inc.files = ../../../src/c/*.h
 INSTALLS += global_inc  c_global_inc
 
 contains(DATAX, stl) {
-  dll:DEFINES *= FOUG_DATAX_LIBSTL_DLL  FOUG_DATAX_LIBSTL_MAKE_DLL
+  dll:DEFINES *= FOUG_DATAX_LIBSTL_DLL \
+                 FOUG_DATAX_LIBSTL_MAKE_DLL
 
   HEADERS += \
     ../../../src/c/libstl/stl_global.h \

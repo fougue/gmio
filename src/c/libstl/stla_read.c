@@ -231,27 +231,31 @@ static int eat_facet(foug_stream_fwd_iterator_t* it,
 
 #define FOUG_STLA_READ_STRING_BUFFER_LEN    512
 
-int foug_stla_read(foug_stla_read_args_t *args)
+int foug_stla_read(foug_stla_geom_input_t* geom,
+                   foug_transfer_t *trsf,
+                   size_t data_size_hint)
 {
   char fixed_buffer[FOUG_STLA_READ_STRING_BUFFER_LEN];
   foug_string_buffer_t string_buffer;
   foug_stream_fwd_iterator_t it;
   foug_stream_fwd_iterator_stla_cookie_t stla_cookie;
 
-  if (args->buffer == NULL)
+  if (trsf == NULL)
+    return FOUG_DATAX_NULL_TRANSFER_ERROR;
+  if (trsf->buffer == NULL)
     return FOUG_DATAX_NULL_BUFFER_ERROR;
-  if (args->buffer_size == 0)
+  if (trsf->buffer_size == 0)
     return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
 
-  stla_cookie.task_control = &args->task_control;
-  stla_cookie.stream_data_size = args->data_size_hint;
+  stla_cookie.task_control = &trsf->task_control;
+  stla_cookie.stream_data_size = data_size_hint;
   stla_cookie.stream_offset = 0;
   stla_cookie.is_stop_requested = 0;
 
-  it.stream = &(args->stream);
-  it.buffer = args->buffer;
+  it.stream = &(trsf->stream);
+  it.buffer = trsf->buffer;
   it.buffer_offset = 0;
-  it.buffer_size = args->buffer_size;
+  it.buffer_size = trsf->buffer_size;
   it.cookie = &stla_cookie;
   it.stream_read_hook = foug_stream_fwd_iterator_stla_read_hook;
   foug_stream_fwd_iterator_init(&it);
@@ -268,16 +272,16 @@ int foug_stla_read(foug_stla_read_args_t *args)
     /* Try to eat solid's name */
     if (eat_string(&it, &string_buffer) != 0)
       return FOUG_STLA_READ_PARSE_ERROR;
-    if (args->geom_input.begin_solid_func != NULL)
-      args->geom_input.begin_solid_func(&args->geom_input, string_buffer.data);
+    if (geom != NULL && geom->begin_solid_func != NULL)
+      geom->begin_solid_func(geom, string_buffer.data);
 
     /* Try to eat facets */
     while ((eat_facet_result = eat_facet(&it, &string_buffer, &triangle)) >= 0
            && !stla_cookie.is_stop_requested)
     {
       if (eat_facet_result == 0) {
-        if (args->geom_input.process_next_triangle_func != NULL)
-          args->geom_input.process_next_triangle_func(&args->geom_input, &triangle);
+        if (geom != NULL && geom->process_next_triangle_func != NULL)
+          geom->process_next_triangle_func(geom, &triangle);
       }
       else {
         break; /* Ate "endsolid" */
@@ -288,8 +292,8 @@ int foug_stla_read(foug_stla_read_args_t *args)
     if (eat_facet_result > 0) {
       if (eat_string(&it, &string_buffer) != 0)
         return FOUG_STLA_READ_PARSE_ERROR;
-      if (args->geom_input.end_solid_func != NULL)
-        args->geom_input.end_solid_func(&args->geom_input, string_buffer.data);
+      if (geom != NULL && geom->end_solid_func != NULL)
+        geom->end_solid_func(geom, string_buffer.data);
     }
     else {
       return FOUG_STLA_READ_PARSE_ERROR;
