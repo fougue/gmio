@@ -86,6 +86,8 @@ contains(DATAX, qt4_support) {
   HEADERS += ../src/c/support/qt4_stream.h
   SOURCES += ../src/c/support/qt4_stream.cpp
 
+  QT = core
+
   qt4_support_inc.path  = $$PREFIX_DIR/include/datax/c/support
   qt4_support_inc.files = ../src/c/support/qt4_stream.h
   INSTALLS += qt4_support_inc
