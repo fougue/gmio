@@ -10,10 +10,10 @@ typedef struct foug_stla_geom_output foug_stla_geom_output_t;
 struct foug_stla_geom_output
 {
   void* cookie;
-  size_t (*get_solid_count_func)(foug_stla_geom_output_t*);
-  void   (*get_solid_name)(foug_stla_geom_output_t*, size_t, char*);
+  size_t (*get_solid_count_func)   (foug_stla_geom_output_t*);
+  void   (*get_solid_name)         (foug_stla_geom_output_t*, size_t, char*);
   size_t (*get_triangle_count_func)(foug_stla_geom_output_t*, size_t);
-  void   (*get_triangle_func)(foug_stla_geom_output_t*, size_t, size_t, foug_stl_triangle_t*);
+  void   (*get_triangle_func)      (foug_stla_geom_output_t*, size_t, size_t, foug_stl_triangle_t*);
 };
 
 /* foug_stla_write() */

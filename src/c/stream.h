@@ -11,10 +11,12 @@ struct foug_stream
 {
   void* cookie;
   foug_bool_t (*at_end_func)(foug_stream_t*);
-  int32_t (*error_func)(foug_stream_t*);
-  size_t (*read_func)(foug_stream_t*, void*, size_t, size_t);
-  size_t (*write_func)(foug_stream_t*, const void*, size_t, size_t);
+  int32_t     (*error_func)(foug_stream_t*);
+  size_t      (*read_func)(foug_stream_t*, void*, size_t, size_t);
+  size_t      (*write_func)(foug_stream_t*, const void*, size_t, size_t);
 };
+
+/* Initialization */
 
 FOUG_LIB_EXPORT void foug_stream_set_null(foug_stream_t* stream);
 FOUG_LIB_EXPORT void foug_stream_set_stdio(foug_stream_t* stream, FILE* file);
