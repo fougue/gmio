@@ -4,7 +4,7 @@
 #include "../error.h"
 #include <string.h>
 
-static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom_output,
+static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
                                    uint8_t* buffer,
                                    uint32_t ifacet_start,
                                    uint32_t facet_count)
@@ -13,12 +13,12 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom_output,
   uint32_t buffer_offset;
   uint32_t i_facet;
 
-  if (geom_output->get_triangle_func == NULL)
+  if (geom == NULL || geom->get_triangle_func == NULL)
     return;
 
   buffer_offset = 0;
   for (i_facet = ifacet_start; i_facet < (ifacet_start + facet_count); ++i_facet) {
-    geom_output->get_triangle_func(geom_output, i_facet, &triangle);
+    geom->get_triangle_func(geom, i_facet, &triangle);
 
     memcpy(buffer + buffer_offset, &triangle, FOUG_STLB_TRIANGLE_SIZE);
     buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
