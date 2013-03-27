@@ -11,7 +11,7 @@ option(WITH_LIBSTL "Build the libSTL module" ON)
 file(GLOB  ALL_SRC_FILES  src/c/*)
 
 # Have <stdint.h> ?
-check_include_files(stdint.h HAVE_STDINT_H)
+check_include_files(stdint.h FOUG_HAVE_STDINT_H)
 configure_file(src/c/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 

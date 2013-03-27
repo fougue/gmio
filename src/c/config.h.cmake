@@ -3,8 +3,8 @@
 #ifndef FOUG_CONFIG_H_CMAKE
 #define FOUG_CONFIG_H_CMAKE
 
-#ifndef HAVE_STDINT_H
-#cmakedefine HAVE_STDINT_H
-#endif /* HAVE_STDINT_H */
+#ifndef FOUG_HAVE_STDINT_H
+#cmakedefine FOUG_HAVE_STDINT_H
+#endif /* FOUG_HAVE_STDINT_H */
 
 #endif /* FOUG_CONFIG_H_CMAKE */
