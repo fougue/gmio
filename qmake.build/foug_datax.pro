@@ -107,6 +107,21 @@ contains(DATAX, occ_support) {
   HEADERS += ../src/c/support/occ_libstl.h
   SOURCES += ../src/c/support/occ_libstl.cpp
 
+  CASCADE_LIBPATH =
+  unix:CASCADE_LIBPATH = $$CASCADE_ROOT/lib
+  CONFIG(debug, debug|release) {
+    win32-msvc2005:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc8/libd
+    win32-msvc2008:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc9/lib
+    win32-msvc2010:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc10/libd
+  } else {
+    win32-msvc2005:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc8/lib
+    win32-msvc2008:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc9/lib
+    win32-msvc2010:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc10/lib
+  }
+
+  LIBS += -L$$CASCADE_LIBPATH -lTKSTL -lTKernel
+  QMAKE_RPATHDIR += $$CASCADE_LIBPATH
+
   occ_support_inc.path  = $$PREFIX_DIR/include/datax/c/support
   occ_support_inc.files = ../src/c/support/occ_libstl.h
   INSTALLS += occ_support_inc
