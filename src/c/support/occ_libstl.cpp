@@ -6,7 +6,7 @@
 #include <StlMesh_SequenceOfMeshTriangle.hxx>
 #include <TColgp_SequenceOfXYZ.hxx>
 
-/* ASCII STL */
+/* Common */
 
 static void occ_mesh_stl_add_triangle(Handle_StlMesh_Mesh* mesh, const foug_stl_triangle_t* tri)
 {
@@ -15,6 +15,8 @@ static void occ_mesh_stl_add_triangle(Handle_StlMesh_Mesh* mesh, const foug_stl_
   const int wId = (*mesh)->AddOnlyNewVertex(tri->v3.x, tri->v3.y, tri->v3.z);
   (*mesh)->AddTriangle(uId, vId, wId, tri->normal.x, tri->normal.y, tri->normal.z);
 }
+
+/* ASCII STL */
 
 static void occ_mesh_stla_igeom_begin_solid(foug_stla_geom_input_t* geom, const char* /*name*/)
 {

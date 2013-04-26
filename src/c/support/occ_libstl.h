@@ -9,7 +9,7 @@ extern "C" {
 #include "../libstl/stlb_write.h"
 }
 
-#include <Handle_StlMesh_Mesh.hxx>
+class Handle_StlMesh_Mesh;
 
 /* ASCII STL */
 
