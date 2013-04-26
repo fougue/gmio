@@ -25,7 +25,8 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
   } /* end for */
 }
 
-int foug_stlb_write(const foug_stlb_geom_output_t* geom, foug_transfer_t* trsf)
+int foug_stlb_write(const foug_stlb_geom_output_t* geom,
+                    foug_transfer_t* trsf, foug_endianness_t byte_order)
 {
   uint32_t facet_count;
   uint32_t i_facet;
@@ -41,6 +42,8 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom, foug_transfer_t* trsf)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC;
   if (geom == NULL || geom->get_triangle_func == NULL)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC;
+  if (byte_order != FOUG_LITTLE_ENDIAN/* && byte_order != FOUG_BIG_ENDIAN*/)
+    return FOUG_STLB_WRITE_UNSUPPORTED_BYTE_ORDER;
 
   /* Write header */
   {
@@ -56,7 +59,10 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom, foug_transfer_t* trsf)
 
   /* Write facet count */
   facet_count = geom->get_triangle_count_func(geom);
-  foug_encode_uint32_le(facet_count, trsf->buffer);
+  if (byte_order == FOUG_LITTLE_ENDIAN)
+    foug_encode_uint32_le(facet_count, trsf->buffer);
+  else
+    foug_encode_uint32_be(facet_count, trsf->buffer);
   if (foug_stream_write(&trsf->stream, trsf->buffer, sizeof(uint32_t), 1) != 1)
     return FOUG_DATAX_STREAM_ERROR;
 

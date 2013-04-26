@@ -25,7 +25,9 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
   }
 }
 
-int foug_stlb_read(foug_stlb_geom_input_t* geom, foug_transfer_t* trsf)
+int foug_stlb_read(foug_stlb_geom_input_t* geom,
+                   foug_transfer_t* trsf,
+                   foug_endianness_t byte_order)
 {
   uint32_t total_facet_count;
   size_t accum_facet_count_read;
@@ -35,6 +37,8 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom, foug_transfer_t* trsf)
     return FOUG_DATAX_NULL_BUFFER_ERROR;
   if (trsf->buffer_size < FOUG_STLB_MIN_CONTENTS_SIZE)
     return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
+  if (byte_order != FOUG_LITTLE_ENDIAN)
+    return FOUG_STLB_READ_UNSUPPORTED_BYTE_ORDER;
 
   /* Read header */
   {
