@@ -99,6 +99,9 @@ contains(DATAX, occ_support) {
 
   INCLUDEPATH += $$CASCADE_ROOT/inc
 
+  win32-*:DEFINES *= WNT
+  linux-*:DEFINES *= LIN LININTEL OCC_CONVERT_SIGNALS
+  *-64:DEFINES *= _OCC64
   !win32:DEFINES *= HAVE_CONFIG_H \
                     HAVE_FSTREAM  \
                     HAVE_IOSTREAM \
@@ -119,7 +122,7 @@ contains(DATAX, occ_support) {
     win32-msvc2010:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc10/lib
   }
 
-  LIBS += -L$$CASCADE_LIBPATH -lTKSTL -lTKernel
+  LIBS += -L$$CASCADE_LIBPATH -lTKSTL -lTKernel -lTKMath
   QMAKE_RPATHDIR += $$CASCADE_LIBPATH
 
   occ_support_inc.path  = $$PREFIX_DIR/include/datax/c/support
