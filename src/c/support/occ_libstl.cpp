@@ -94,25 +94,25 @@ static void occ_mesh_stlb_ogeom_get_triangle(const foug_stlb_geom_output_t* geom
   Standard_Real yN;
   Standard_Real zN;
   tri->GetVertexAndOrientation(v1, v2, v3, xN, yN, zN);
-  facet->data.normal.x = xN;
-  facet->data.normal.y = yN;
-  facet->data.normal.z = zN;
+  facet->data.normal.x = static_cast<foug_real32_t>(xN);
+  facet->data.normal.y = static_cast<foug_real32_t>(yN);
+  facet->data.normal.z = static_cast<foug_real32_t>(zN);
 
   const TColgp_SequenceOfXYZ& vertices = (*mesh)->Vertices(1);
   const gp_XYZ& coordsV1 = vertices.Value(v1);
   const gp_XYZ& coordsV2 = vertices.Value(v2);
   const gp_XYZ& coordsV3 = vertices.Value(v3);
-  facet->data.v1.x = coordsV1.X();
-  facet->data.v2.x = coordsV2.X();
-  facet->data.v3.x = coordsV3.X();
+  facet->data.v1.x = static_cast<foug_real32_t>(coordsV1.X());
+  facet->data.v2.x = static_cast<foug_real32_t>(coordsV2.X());
+  facet->data.v3.x = static_cast<foug_real32_t>(coordsV3.X());
 
-  facet->data.v1.y = coordsV1.Y();
-  facet->data.v2.y = coordsV2.Y();
-  facet->data.v3.y = coordsV3.Y();
+  facet->data.v1.y = static_cast<foug_real32_t>(coordsV1.Y());
+  facet->data.v2.y = static_cast<foug_real32_t>(coordsV2.Y());
+  facet->data.v3.y = static_cast<foug_real32_t>(coordsV3.Y());
 
-  facet->data.v1.z = coordsV1.Z();
-  facet->data.v2.z = coordsV2.Z();
-  facet->data.v3.z = coordsV3.Z();
+  facet->data.v1.z = static_cast<foug_real32_t>(coordsV1.Z());
+  facet->data.v2.z = static_cast<foug_real32_t>(coordsV2.Z());
+  facet->data.v3.z = static_cast<foug_real32_t>(coordsV3.Z());
 
   facet->attribute_byte_count = 0;
 }
