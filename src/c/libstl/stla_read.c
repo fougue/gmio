@@ -11,9 +11,9 @@
 struct foug_stream_fwd_iterator
 {
   foug_stream_t* stream;
-  char* buffer;
-  uint32_t buffer_offset;
-  uint32_t buffer_size;
+  char*          buffer;
+  uint32_t       buffer_offset;
+  uint32_t       buffer_size;
 
   void* cookie;
   void (*stream_read_hook)(struct foug_stream_fwd_iterator* it);
@@ -24,7 +24,7 @@ typedef struct foug_stream_fwd_iterator
 /* foug_string_buffer */
 struct foug_string_buffer
 {
-  char* data;
+  char*  data;
   size_t max_len;
   size_t len;
 };
@@ -35,9 +35,9 @@ typedef struct foug_string_buffer
 struct foug_stream_fwd_iterator_stla_cookie
 {
   foug_task_control_t* task_control;
-  size_t stream_data_size;
-  size_t stream_offset;
-  foug_bool_t is_stop_requested;
+  size_t               stream_data_size;
+  size_t               stream_offset;
+  foug_bool_t          is_stop_requested;
 };
 typedef struct foug_stream_fwd_iterator_stla_cookie
         foug_stream_fwd_iterator_stla_cookie_t;
@@ -64,7 +64,7 @@ typedef enum foug_stla_token foug_stla_token_t;
 struct foug_stla_parse_data
 {
   foug_stla_token_t token;
-  foug_bool_t  error;
+  foug_bool_t       error;
   foug_stream_fwd_iterator_t             stream_iterator;
   foug_stream_fwd_iterator_stla_cookie_t stream_iterator_cookie;
   foug_string_buffer_t                   string_buffer;
@@ -479,7 +479,7 @@ int foug_stla_read(foug_stla_geom_input_t* geom,
   parse_data.stream_iterator_cookie.stream_offset = 0;
   parse_data.stream_iterator_cookie.is_stop_requested = 0;
 
-  parse_data.stream_iterator.stream = &(trsf->stream);
+  parse_data.stream_iterator.stream = &trsf->stream;
   parse_data.stream_iterator.buffer = trsf->buffer;
   parse_data.stream_iterator.buffer_offset = 0;
   parse_data.stream_iterator.buffer_size = trsf->buffer_size;

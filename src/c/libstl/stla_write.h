@@ -9,7 +9,7 @@
 typedef struct foug_stla_geom_output foug_stla_geom_output_t;
 struct foug_stla_geom_output
 {
-  void* cookie;
+  void*  cookie;
   size_t (*get_solid_count_func)   (foug_stla_geom_output_t*); /* Optional */
   void   (*get_solid_name)         (foug_stla_geom_output_t*, size_t, char*); /* Optional */
   size_t (*get_triangle_count_func)(foug_stla_geom_output_t*, size_t);
@@ -18,8 +18,8 @@ struct foug_stla_geom_output
 
 /* foug_stla_write() */
 FOUG_DATAX_LIBSTL_EXPORT int foug_stla_write(foug_stla_geom_output_t* geom,
-                                             foug_transfer_t* trsf,
-                                             uint8_t real32_precision);
+                                             foug_transfer_t*         trsf,
+                                             uint8_t                  real32_precision);
 
 /* Specific error codes returned by foug_stla_write() */
 #define FOUG_STLA_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC 1
