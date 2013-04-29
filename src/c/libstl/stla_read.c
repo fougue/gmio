@@ -7,6 +7,52 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ *
+ * STL ASCII grammar:
+ *
+ *  \code
+
+    CONTENTS  -> SOLID
+    CONTENTS  -> SOLID  SOLID
+
+    SOLID     -> BEG_SOLID  FACETS  END_SOLID
+    BEG_SOLID -> solid  SOLID_NAME
+    END_SOLID -> endsolid SOLID_NAME
+
+    SOLID_NAME ->
+    SOLID_NAME -> [id]  (Note: [id] == facet is forbidden)
+
+    FACETS ->
+    FACETS -> F
+    FACETS -> FF
+    F      -> facet N outer loop V V V endloop endfacet
+
+    V   -> vertex XYZ
+    N   -> normal XYZ
+    XYZ -> [float] [float] [float]
+
+ *  \endcode
+ *
+ *  Nullable, FIRST and FOLLOW:
+ *  \code
+                | Nullable |     FIRST    |           FOLLOW
+      ----------+----------+--------------µ-----------------------------
+       CONTENTS |    N           solid
+          SOLID |    N           solid                 solid
+      BEG_SOLID |    N           solid                 facet
+      END_SOLID |    N          endsolid               solid
+     SOLID_NAME |    Y           [id]           facet, endsolid, solid
+         FACETS |    Y           facet
+              F |    N           facet             facet, endsolid
+              N |    N           normal                 outer
+              V |    N           vertex             vertex, endloop
+            XYZ |    N           [float]        outer, vertex, endloop
+
+ *  \endcode
+ *
+ */
+
 /* foug_stream_fwd_iterator */
 struct foug_stream_fwd_iterator
 {
