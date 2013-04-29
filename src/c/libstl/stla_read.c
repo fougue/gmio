@@ -37,7 +37,7 @@
  *  Nullable, FIRST and FOLLOW:
  *  \code
                 | Nullable |     FIRST    |           FOLLOW
-      ----------+----------+--------------µ-----------------------------
+      ----------+----------+--------------+-----------------------------
        CONTENTS |    N           solid
           SOLID |    N           solid                 solid
       BEG_SOLID |    N           solid                 facet
