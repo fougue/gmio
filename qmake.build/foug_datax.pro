@@ -74,6 +74,7 @@ contains(DATAX, stl) {
 # libSupport
 HAS_SUPPORT = $$find(DATAX, support)
 !isEmpty(HAS_SUPPORT) {
+  HEADERS += ../src/c/support/support_global.h
   dll:DEFINES *= FOUG_LIBSUPPORT_DLL \
                  FOUG_LIBSUPPORT_MAKE_DLL
   support_inc.path  = $$PREFIX_DIR/include/datax/c/support
@@ -103,9 +104,10 @@ contains(DATAX, occ_support) {
   linux-*:DEFINES *= LIN LININTEL OCC_CONVERT_SIGNALS
   *-64:DEFINES *= _OCC64
   !win32:DEFINES *= HAVE_CONFIG_H \
-                    HAVE_FSTREAM  \
-                    HAVE_IOSTREAM \
-                    HAVE_LIMITS_H
+                   HAVE_FSTREAM \
+                   HAVE_IOSTREAM \
+                   HAVE_IOMANIP \
+                   HAVE_LIMITS_H
 
   HEADERS += ../src/c/support/occ_libstl.h
   SOURCES += ../src/c/support/occ_libstl.cpp
