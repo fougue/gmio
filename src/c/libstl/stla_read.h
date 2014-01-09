@@ -17,7 +17,6 @@ struct foug_stla_geom_input
 };
 
 /* foug_stla_read() */
-
 FOUG_DATAX_LIBSTL_EXPORT int foug_stla_read(foug_stla_geom_input_t* geom,
                                             foug_transfer_t*        trsf,
                                             size_t                  data_size_hint);

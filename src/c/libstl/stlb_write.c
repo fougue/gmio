@@ -26,7 +26,8 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
 }
 
 int foug_stlb_write(const foug_stlb_geom_output_t* geom,
-                    foug_transfer_t* trsf, foug_endianness_t byte_order)
+                    foug_transfer_t* trsf,
+                    foug_endianness_t byte_order)
 {
   uint32_t facet_count;
   uint32_t i_facet;
