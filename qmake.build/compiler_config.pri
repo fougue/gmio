@@ -1,11 +1,11 @@
-CONFIG *= debug_and_release
-CONFIG *= warn_on stl rtti exceptions
+CONFIG += debug_and_release
+CONFIG += warn_on stl rtti exceptions
 
 QT -= core gui
 
 CONFIG(debug, debug|release) {
   DEFINES *= _DEBUG_CONFIG_
-  CONFIG  *= console
+  CONFIG  += console
 }
 else {
   CONFIG  -= console

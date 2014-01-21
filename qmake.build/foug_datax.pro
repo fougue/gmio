@@ -12,7 +12,7 @@ DESTDIR = $$PREFIX_DIR/lib
 
 QT =
 
-DATAX *= stl qt4_support occ_support
+DATAX += stl qt4_support occ_support
 
 dll:DEFINES *= FOUG_LIB_DLL \
                FOUG_LIB_MAKE_DLL
