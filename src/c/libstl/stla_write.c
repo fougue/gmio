@@ -88,9 +88,26 @@ static foug_bool_t foug_tansfer_flush_buffer(foug_transfer_t* trsf, size_t n)
   return foug_stream_write(&trsf->stream, trsf->buffer, sizeof(char), n) == n;
 }
 
+/*! \brief Write geometry in the STL ascii format
+ *
+ *  \param geom Defines the custom geometry to write
+ *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
+ *  \param real32_prec The maximum number of significant digits
+ *
+ *  \return Error code
+ *
+ *  \retval FOUG_DATAX_NO_ERROR If operation successful
+ *  \retval FOUG_DATAX_NULL_BUFFER_ERROR If trsf->buffer is NULL
+ *  \retval FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR If trsf->buffer_size is less than 512 bytes
+ *  \retval FOUG_STLA_WRITE_INVALID_REAL32_PRECISION If \p real_prec is not inside [1..9]
+ *  \retval FOUG_STLA_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC If geom->get_triangle_count_func is NULL
+ *  \retval FOUG_STLA_WRITE_NULL_GET_TRIANGLE_FUNC If geom->get_triangle_func is NULL
+ *  \retval FOUG_DATAX_STREAM_ERROR For any writing error
+ *  \retval FOUG_DATAX_TASK_STOPPED_ERROR If the operation was interrupted foug_task_control
+ */
 int foug_stla_write(foug_stla_geom_output_t* geom,
                     foug_transfer_t* trsf,
-                    uint8_t real32_precision)
+                    uint8_t real32_prec)
 {
   size_t solid_count = 0;
   size_t total_facet_count = 0;
@@ -101,7 +118,7 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
   char coords_format[64];
   int error = FOUG_DATAX_NO_ERROR;
 
-  if (real32_precision == 0 || real32_precision > 9)
+  if (real32_prec == 0 || real32_prec > 9)
     return FOUG_STLA_WRITE_INVALID_REAL32_PRECISION;
   if (buffer_iterator == NULL)
     return FOUG_DATAX_NULL_BUFFER_ERROR;
@@ -114,11 +131,11 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
 
   {
     char* coords_format_iterator = coords_format;
-    coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_precision);
+    coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_prec);
     coords_format_iterator = foug_write_nspaces(coords_format_iterator, 2);
-    coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_precision);
+    coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_prec);
     coords_format_iterator = foug_write_nspaces(coords_format_iterator, 2);
-    coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_precision);
+    coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_prec);
     /* TODO: check the "format" string can contain the given precision */
   }
 

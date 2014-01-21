@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 /*!
- * \brief Install a null stream
+ * \brief Installs a null stream
  */
 void foug_stream_set_null(foug_stream_t* stream)
 {
@@ -39,7 +39,7 @@ static size_t foug_stream_stdio_write(foug_stream_t* stream,
 }
 
 /*!
- * \brief Create a stream for standard FILE*
+ * \brief Configures \p stream for standard FILE*
  */
 void foug_stream_set_stdio(foug_stream_t* stream, FILE* file)
 {
@@ -50,6 +50,9 @@ void foug_stream_set_stdio(foug_stream_t* stream, FILE* file)
   stream->write_func = foug_stream_stdio_write;
 }
 
+/*!
+ * \brief Returns true if the current read and write position is at the end of the stream
+ */
 foug_bool_t foug_stream_at_end(foug_stream_t* stream)
 {
   if (stream != NULL && stream->at_end_func != NULL)
@@ -58,7 +61,7 @@ foug_bool_t foug_stream_at_end(foug_stream_t* stream)
 }
 
 /*!
- * \brief Check error indicator
+ * \brief Checks error indicator
  *
  * Checks if the error indicator associated with \p stream is set, returning a value different from
  * zero if it is.
@@ -73,7 +76,7 @@ int foug_stream_error(foug_stream_t* stream)
 }
 
 /*!
- * \brief Read block of data from stream
+ * \brief Reads block of data from stream
  *
  * Reads an array of \p item_count elements, each one with a \p item_size of size bytes, from the
  * \p stream and stores them in the block of memory specified by \p ptr.
@@ -95,7 +98,7 @@ size_t foug_stream_read(foug_stream_t* stream, void *ptr, size_t item_size, size
 }
 
 /*!
- * \brief Write block of data to stream
+ * \brief Writes block of data to stream
  *
  *  Writes an array of \p item_count elements, each one with a \p item_size of size bytes, from the
  *  block of memory pointed by \p ptr to the current position in the \p stream.

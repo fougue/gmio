@@ -5,11 +5,23 @@
 #include "memory.h"
 #include <stdio.h>
 
-/* foug_stream */
 typedef struct foug_stream foug_stream_t;
+
+/*! \brief Stream that can get input from an arbitrary data source or can write output to an
+ *         arbitrary data sink
+ *
+ *  This is pretty much the same as
+ *  <a href="http://www.gnu.org/software/libc/manual/html_mono/libc.html#Custom-Streams">
+ *  custom streams</a> in the GNU C Library
+ *
+ * It uses a cookie being basically an opaque pointer on a hidden data type. The custom stream is
+ * implemented by defining hook functions that know how to read/write the data.
+ *
+ */
 struct foug_stream
 {
   void* cookie;
+
   foug_bool_t (*at_end_func)(foug_stream_t*);
   int32_t     (*error_func)(foug_stream_t*);
   size_t      (*read_func)(foug_stream_t*, void*, size_t, size_t);
