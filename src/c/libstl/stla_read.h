@@ -10,10 +10,9 @@ typedef struct foug_stla_geom_input foug_stla_geom_input_t;
 struct foug_stla_geom_input
 {
   void* cookie;
-  void (*begin_solid_func)          (foug_stla_geom_input_t*, const char*);
+  void (*begin_solid_func)          (foug_stla_geom_input_t*, const char*); /* Optional */
   void (*process_next_triangle_func)(foug_stla_geom_input_t*, const foug_stl_triangle_t*);
-  void (*end_solid_func)            (foug_stla_geom_input_t*, const char*);
-  /* void (*parse_error_func)(foug_stla_geom_input_t*, size_t, size_t); */
+  void (*end_solid_func)            (foug_stla_geom_input_t*, const char*); /* Optional */
 };
 
 /* foug_stla_read() */
