@@ -86,7 +86,7 @@ static void occ_mesh_stlb_ogeom_get_triangle(const foug_stlb_geom_output_t* geom
   Handle_StlMesh_Mesh* mesh = static_cast<Handle_StlMesh_Mesh*>(geom->cookie);
 
   const StlMesh_SequenceOfMeshTriangle& meshTriangles = (*mesh)->Triangles(1);
-  const Handle_StlMesh_MeshTriangle tri = meshTriangles.Value(index + 1);
+  const Handle_StlMesh_MeshTriangle& tri = meshTriangles.Value(index + 1);
   Standard_Integer v1;
   Standard_Integer v2;
   Standard_Integer v3;
