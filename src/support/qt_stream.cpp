@@ -1,4 +1,4 @@
-#include "qt4_stream.h"
+#include "qt_stream.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>

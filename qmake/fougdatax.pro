@@ -78,17 +78,17 @@ HAS_SUPPORT = $$find(DATAX, support)
   INSTALLS += support_inc
 } # !isEmpty(HAS_SUPPORT)
 
-# qt4_support
-contains(DATAX, qt4_support) {
-  HEADERS += ../src/support/qt4_stream.h
-  SOURCES += ../src/support/qt4_stream.cpp
+# qt_support
+contains(DATAX, qt_support) {
+  HEADERS += ../src/support/qt_stream.h
+  SOURCES += ../src/support/qt_stream.cpp
 
   QT = core
 
-  qt4_support_inc.path  = $$PREFIX_DIR/include/datax/support
-  qt4_support_inc.files = ../src/support/qt4_stream.h
-  INSTALLS += qt4_support_inc
-} # contains(DATAX, qt4_support)
+  qt_support_inc.path  = $$PREFIX_DIR/include/datax/support
+  qt_support_inc.files = ../src/support/qt_stream.h
+  INSTALLS += qt_support_inc
+} # contains(DATAX, qt_support)
 
 # occ_support
 contains(DATAX, occ_support) {
@@ -131,3 +131,7 @@ contains(DATAX, occ_support) {
 #VER_MAJ = 0
 #VER_MIN = 1
 #VER_PAT = 0
+
+OTHER_FILES += \
+            ../doc/main_page.cpp \
+            ../doc/Doxyfile
