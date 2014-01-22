@@ -109,7 +109,7 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
                     foug_transfer_t* trsf,
                     uint8_t real32_prec)
 {
-  size_t solid_count = 0;
+  const size_t solid_count = geom != NULL ? geom->solid_count : 0;
   size_t total_facet_count = 0;
   size_t written_facet_count = 0;
   size_t isolid = 0;
@@ -138,12 +138,6 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
     coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_prec);
     /* TODO: check the "format" string can contain the given precision */
   }
-
-  /* Get solid count */
-  if (geom->get_solid_count_func != NULL)
-    solid_count = geom->get_solid_count_func(geom);
-  else
-    solid_count = 1;
 
   /* Compute total facet count */
   if (trsf->task_control.handle_progress_func != NULL) {

@@ -429,7 +429,7 @@ static void parse_xyz_coords(foug_stla_parse_data_t* data, foug_stl_coords_t* co
   } /* end switch */
 }
 
-static void parse_facets(foug_stla_parse_data_t* data)
+static void parse_facets(foug_stla_parse_data_t* data, size_t i_facet_offset)
 {
   if (!parsing_can_continue(data))
     return;
@@ -458,12 +458,13 @@ static void parse_facets(foug_stla_parse_data_t* data)
     parsing_eat_token(ENDFACET_token, data);
 
     if (parsing_can_continue(data)
-        && data->geom != NULL && data->geom->process_next_triangle_func != NULL)
+        && data->geom != NULL
+        && data->geom->process_triangle_func != NULL)
     {
-      data->geom->process_next_triangle_func(data->geom, &facet);
+      data->geom->process_triangle_func(data->geom, &facet, i_facet_offset);
     }
 
-    parse_facets(data);
+    parse_facets(data, i_facet_offset + 1);
     break;
   }
   default:
@@ -479,7 +480,7 @@ static void parse_solid(foug_stla_parse_data_t* data)
   switch (data->token) {
   case SOLID_token:
     parse_beginsolid(data);
-    parse_facets(data);
+    parse_facets(data, 0);
     parse_endsolid(data);
     break;
   default:

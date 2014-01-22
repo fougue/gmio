@@ -53,7 +53,7 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom,
                     foug_transfer_t* trsf,
                     foug_endianness_t byte_order)
 {
-  uint32_t facet_count;
+  const uint32_t facet_count = geom != NULL ? geom->triangle_count : 0;
   uint32_t i_facet;
   uint32_t buffer_facet_count;
   uint32_t ifacet_start;
@@ -63,8 +63,6 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom,
     return FOUG_DATAX_NULL_BUFFER_ERROR;
   if (trsf->buffer_size < FOUG_STLB_MIN_CONTENTS_SIZE)
     return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
-  if (geom == NULL || geom->get_triangle_count_func == NULL)
-    return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_COUNT_FUNC;
   if (geom == NULL || geom->get_triangle_func == NULL)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC;
   if (byte_order != FOUG_LITTLE_ENDIAN/* && byte_order != FOUG_BIG_ENDIAN*/)
@@ -72,18 +70,20 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom,
 
   /* Write header */
   {
-    uint8_t header_data[FOUG_STLB_HEADER_SIZE];
-    if (geom->get_header_func != NULL)
-      geom->get_header_func(geom, header_data);
-    else
-      memset(header_data, 0, FOUG_STLB_HEADER_SIZE);
-
+    const uint8_t* header_data = NULL;
+    if (geom->header != NULL) {
+      header_data = geom->header;
+    }
+    else {
+      /* Use buffer to store an empty header (filled with zeroes) */
+      memset(trsf->buffer, 0, FOUG_STLB_HEADER_SIZE);
+      header_data = (const uint8_t*)trsf->buffer;
+    }
     if (foug_stream_write(&trsf->stream, header_data, FOUG_STLB_HEADER_SIZE, 1) != 1)
       return FOUG_DATAX_STREAM_ERROR;
   }
 
   /* Write facet count */
-  facet_count = geom->get_triangle_count_func(geom);
   if (byte_order == FOUG_LITTLE_ENDIAN)
     foug_encode_uint32_le(facet_count, trsf->buffer);
   else

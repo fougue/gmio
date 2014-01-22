@@ -11,7 +11,7 @@ struct foug_stla_geom_input
 {
   void* cookie;
   void (*begin_solid_func)          (foug_stla_geom_input_t*, const char*); /* Optional */
-  void (*process_next_triangle_func)(foug_stla_geom_input_t*, const foug_stl_triangle_t*);
+  void (*process_triangle_func)(foug_stla_geom_input_t*, const foug_stl_triangle_t*, uint32_t);
   void (*end_solid_func)            (foug_stla_geom_input_t*, const char*); /* Optional */
 };
 

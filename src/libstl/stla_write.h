@@ -11,10 +11,10 @@ struct foug_stla_geom_output
 {
   void*  cookie;
 
-  size_t (*get_solid_count_func)   (foug_stla_geom_output_t*); /* Optional (if NULL solid_count == 1) */
-  void   (*get_solid_name)         (foug_stla_geom_output_t*, size_t, char*); /* Optional */
-  size_t (*get_triangle_count_func)(foug_stla_geom_output_t*, size_t);
-  void   (*get_triangle_func)      (foug_stla_geom_output_t*, size_t, size_t, foug_stl_triangle_t*);
+  size_t solid_count;
+  void   (*get_solid_name)         (const foug_stla_geom_output_t*, size_t, char*); /* Optional */
+  size_t (*get_triangle_count_func)(const foug_stla_geom_output_t*, size_t);
+  void   (*get_triangle_func)      (const foug_stla_geom_output_t*, size_t, size_t, foug_stl_triangle_t*);
 };
 
 /* Write geometry in the STL ascii format */

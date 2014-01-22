@@ -11,10 +11,10 @@ typedef struct foug_stlb_geom_input foug_stlb_geom_input_t;
 struct foug_stlb_geom_input
 {
   void* cookie;
-  void  (*process_header_func)       (foug_stlb_geom_input_t*, const uint8_t*); /* Optional */
-  void  (*begin_triangles_func)      (foug_stlb_geom_input_t*, uint32_t);       /* Optional */
-  void  (*process_next_triangle_func)(foug_stlb_geom_input_t*, const foug_stlb_triangle_t*);
-  void  (*end_triangles_func)        (foug_stlb_geom_input_t*);                 /* Optional */
+  void  (*process_header_func)  (foug_stlb_geom_input_t*, const uint8_t*); /* Optional */
+  void  (*begin_triangles_func) (foug_stlb_geom_input_t*, uint32_t);       /* Optional */
+  void  (*process_triangle_func)(foug_stlb_geom_input_t*, const foug_stlb_triangle_t*, uint32_t);
+  void  (*end_triangles_func)   (foug_stlb_geom_input_t*);                 /* Optional */
 };
 
 /* foug_stlb_read() */

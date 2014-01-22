@@ -28,13 +28,14 @@ static void read_triangle_alignsafe(const uint8_t* buffer, foug_stlb_triangle_t*
 
 static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
                                   uint8_t* buffer,
-                                  uint32_t facet_count)
+                                  uint32_t facet_count,
+                                  uint32_t i_facet_offset)
 {
   foug_stlb_triangle_t triangle;
   uint32_t buffer_offset;
   uint32_t i_facet;
 
-  if (geom == NULL || geom->process_next_triangle_func == NULL)
+  if (geom == NULL || geom->process_triangle_func == NULL)
     return;
 
   buffer_offset = 0;
@@ -48,7 +49,7 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
     buffer_offset += FOUG_STLB_TRIANGLE_RAWSIZE;
 
     /* Declare triangle */
-    geom->process_next_triangle_func(geom, &triangle);
+    geom->process_triangle_func(geom, &triangle, i_facet_offset + i_facet);
   }
 }
 
@@ -105,7 +106,7 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
     if (foug_datax_no_error(error)) {
       uint8_t progress_pc;
 
-      foug_stlb_read_facets(geom, trsf->buffer, facet_count_read);
+      foug_stlb_read_facets(geom, trsf->buffer, facet_count_read, accum_facet_count_read);
       accum_facet_count_read += facet_count_read;
       progress_pc = foug_percentage(0, total_facet_count, accum_facet_count_read);
       if (!foug_task_control_handle_progress(&trsf->task_control, progress_pc))
