@@ -1,7 +1,30 @@
 #include "stlb_read.h"
 
+#include "../convert.h"
 #include "../error.h"
 #include "../endian.h"
+
+#include <string.h>
+
+static void read_triangle_memcpy(const uint8_t* buffer, foug_stlb_triangle_t* triangle)
+{
+  /* *triangle = *((foug_stlb_triangle_t*)(buffer)); */
+  memcpy(triangle, buffer, FOUG_STLB_TRIANGLE_RAWSIZE);
+}
+
+static void read_coords_alignsafe(const uint8_t* buffer, foug_stl_coords_t* coords)
+{
+  memcpy(coords, buffer, FOUG_STL_COORDS_RAWSIZE);
+}
+
+static void read_triangle_alignsafe(const uint8_t* buffer, foug_stlb_triangle_t* triangle)
+{
+  read_coords_alignsafe(buffer, &triangle->data.normal);
+  read_coords_alignsafe(buffer + 1*FOUG_STL_COORDS_RAWSIZE, &triangle->data.v1);
+  read_coords_alignsafe(buffer + 2*FOUG_STL_COORDS_RAWSIZE, &triangle->data.v2);
+  read_coords_alignsafe(buffer + 3*FOUG_STL_COORDS_RAWSIZE, &triangle->data.v3);
+  memcpy(&triangle->attribute_byte_count, buffer + 4*FOUG_STL_COORDS_RAWSIZE, sizeof(uint16_t));
+}
 
 static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
                                   uint8_t* buffer,
@@ -17,8 +40,12 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
   buffer_offset = 0;
   for (i_facet = 0; i_facet < facet_count; ++i_facet) {
     /* Decode data */
-    triangle = *((foug_stlb_triangle_t*)(buffer + buffer_offset));
-    buffer_offset += FOUG_STLB_TRIANGLE_SIZE;
+#ifdef FOUG_STLB_READWRITE_ALIGNSAFE
+    read_triangle_alignsafe(buffer + buffer_offset, &triangle);
+#else
+    read_triangle_memcpy(buffer + buffer_offset, &triangle);
+#endif
+    buffer_offset += FOUG_STLB_TRIANGLE_RAWSIZE;
 
     /* Declare triangle */
     geom->process_next_triangle_func(geom, &triangle);
@@ -66,8 +93,8 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
   while (foug_datax_no_error(error) && accum_facet_count_read < total_facet_count) {
     const size_t facet_count_read = foug_stream_read(&trsf->stream,
                                                      trsf->buffer,
-                                                     FOUG_STLB_TRIANGLE_SIZE,
-                                                     trsf->buffer_size / FOUG_STLB_TRIANGLE_SIZE);
+                                                     FOUG_STLB_TRIANGLE_RAWSIZE,
+                                                     trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE);
     if (foug_stream_error(&trsf->stream) != 0)
       error = FOUG_DATAX_STREAM_ERROR;
     else if (facet_count_read > 0)
