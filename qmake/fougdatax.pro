@@ -28,12 +28,14 @@ HEADERS += \
     ../src/stream.h \
     ../src/task_control.h \
     ../src/transfer.h \
+    ../src/convert.h
 
 SOURCES += \
     ../src/endian.c \
     ../src/error.c \
     ../src/stream.c \
-    ../src/task_control.c
+    ../src/task_control.c \
+    ../src/convert.c
 
 *-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
 *-msvc*:QMAKE_CFLAGS += -TC
@@ -46,6 +48,7 @@ INSTALLS += global_inc
 contains(DATAX, stl) {
   dll:DEFINES += FOUG_DATAX_LIBSTL_DLL \
                  FOUG_DATAX_LIBSTL_MAKE_DLL
+  #DEFINES += FOUG_STLB_READWRITE_ALIGNSAFE
 
   HEADERS += \
     ../src/libstl/stl_global.h \

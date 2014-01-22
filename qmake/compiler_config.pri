@@ -4,7 +4,7 @@ CONFIG += warn_on stl rtti exceptions
 QT -= core gui
 
 CONFIG(debug, debug|release) {
-  DEFINES *= _DEBUG_CONFIG_
+  DEFINES += _DEBUG_CONFIG_
   CONFIG  += console
 }
 else {
