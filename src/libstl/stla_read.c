@@ -219,10 +219,15 @@ static int eat_string(foug_stream_fwd_iterator_t* it, foug_string_buffer_t* str_
 
 static int get_real32(const char* str, foug_real32_t* value_ptr)
 {
-  char* conv_end_ptr; /* for strtod() */
+  char* end_ptr; /* for strtod() */
 
-  *value_ptr = (foug_real32_t)strtod(str, &conv_end_ptr);
-  if (conv_end_ptr == str || errno == ERANGE)
+#ifdef FOUG_HAVE_STRTOF_FUNC
+  *value_ptr = strtof(str, &end_ptr); /* Requires C99 */
+#else
+  *value_ptr = (foug_real32_t)strtod(str, &end_ptr);
+#endif
+
+  if (end_ptr == str || errno == ERANGE)
     return -1;
 
   return 0;
