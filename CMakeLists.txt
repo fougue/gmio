@@ -1,26 +1,49 @@
 cmake_minimum_required(VERSION 2.6)
+
 include(CheckIncludeFiles)
+include(CheckFunctionExists)
+include(CheckCSourceCompiles)
 
 project(fougdatax)
 
 # Options
-option(BUILD_SHARED_LIBS "Build shared libraries (DLL)" ON)
-option(WITH_LIBSTL       "Build the libSTL module" ON)
-option(WITH_QT_SUPPORT   "Build with Qt support" OFF)
-option(WITH_OCC_SUPPORT  "Build with OpenCascade support" OFF)
+option(BUILD_SHARED_LIBS       "Build shared libraries (DLL)" ON)
+option(BUILD_STRICT_C90        "Build with strict conformance to language standard C90" ON)
+option(BUILD_WITH_LIBSTL       "Build the libSTL module" ON)
+option(BUILD_WITH_QT_SUPPORT   "Build with Qt support" OFF)
+option(BUILD_WITH_OCC_SUPPORT  "Build with OpenCascade support" OFF)
 
 # Add core source files
 file(GLOB  ALL_SRC_FILES  src/*)
 
 # Have <stdint.h> ?
 check_include_files(stdint.h FOUG_HAVE_STDINT_H)
+
+# Have strtof() ?
+if(NOT BUILD_STRICT_C90)
+  check_function_exists(strtof FOUG_HAVE_STRTOF_FUNC)
+endif()
+
+# Have builtin byte swap functions ?
+if(CMAKE_COMPILER_IS_GNUCC)
+  check_c_source_compiles("int main() { return (int)__builtin_bswap32(0x11223344); }"
+                           FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC)
+elseif(MSVC)
+  check_c_source_compiles("#include <stdlib.h>
+                           int main() { return (int)_byteswap_ulong(0x11223344); }"
+                          FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+endif()
+
 configure_file(src/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 
 # Specific flags for gcc
 if(CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors -fstrict-aliasing")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
+  if (BUILD_STRICT_C90)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi")
+  endif()
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -fstrict-aliasing")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
 endif()
 
 # Specific flags for Visual C++
@@ -40,7 +63,7 @@ file(GLOB  C_GLOBAL_HEADERS  src/*.h)
 install(FILES ${C_GLOBAL_HEADERS} DESTINATION include/datax)
 
 # Module libSTL
-if(WITH_LIBSTL)
+if(BUILD_WITH_LIBSTL)
   add_definitions(-DFOUG_DATAX_LIBSTL_DLL
                   -DFOUG_DATAX_LIBSTL_MAKE_DLL)
 
@@ -53,7 +76,7 @@ endif()
 
 
 # Common for support modules
-if(WITH_QT_SUPPORT OR WITH_OCC_SUPPORT)
+if(BUILD_WITH_QT_SUPPORT OR BUILD_WITH_OCC_SUPPORT)
   if(BUILD_SHARED_LIBS)
     add_definitions(-DFOUG_LIBSUPPORT_DLL
                     -DFOUG_LIBSUPPORT_MAKE_DLL)
@@ -63,7 +86,7 @@ if(WITH_QT_SUPPORT OR WITH_OCC_SUPPORT)
 endif()
 
 # Qt support
-if(WITH_QT_SUPPORT)
+if(BUILD_WITH_QT_SUPPORT)
   find_package(Qt5Core REQUIRED)
 
   file(GLOB  ALL_QT_SUPPORT_SRC_FILES  src/support/qt_*)
@@ -72,7 +95,7 @@ if(WITH_QT_SUPPORT)
 endif()
 
 # OpenCASCADE support
-if(WITH_OCC_SUPPORT)
+if(BUILD_WITH_OCC_SUPPORT)
   set(CASCADE_ROOT "" CACHE PATH "Root directory of OpenCascade")
 
   file(GLOB  ALL_OCC_SUPPORT_SRC_FILES  src/support/occ_*)
@@ -117,12 +140,12 @@ install(TARGETS fougdatax
 
 
 # Qt support link
-if(WITH_QT_SUPPORT)
+if(BUILD_WITH_QT_SUPPORT)
   qt5_use_modules(fougdatax Core)
 endif()
 
 # OpenCascade support ling
-if(WITH_OCC_SUPPORT)
+if(BUILD_WITH_OCC_SUPPORT)
   target_link_libraries(fougdatax TKSTL TKernel TKMath)  
 endif()
 

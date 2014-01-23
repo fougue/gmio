@@ -5,6 +5,18 @@
 
 #ifndef FOUG_HAVE_STDINT_H
 #cmakedefine FOUG_HAVE_STDINT_H
-#endif /* FOUG_HAVE_STDINT_H */
+#endif
+
+#ifndef FOUG_HAVE_STRTOF_FUNC
+#cmakedefine FOUG_HAVE_STRTOF_FUNC
+#endif
+
+#ifndef FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC
+#cmakedefine FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC
+#endif
+
+#ifndef FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC
+#cmakedefine FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC
+#endif
 
 #endif /* FOUG_CONFIG_H_CMAKE */
