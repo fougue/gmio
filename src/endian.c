@@ -2,6 +2,9 @@
 
 #include "convert.h"
 
+#ifdef FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC
+# include <stdlib.h>
+#endif
 #include <string.h>
 
 typedef union
@@ -26,14 +29,19 @@ foug_endianness_t foug_host_endianness()
     return FOUG_OTHER_ENDIAN;
 }
 
-uint16_t foug_uint16_swap(uint16_t val)
+/*! Returns \p val with the order of bytes reversed.
+ *
+ *  Uses compiler builtin functions if available
+ */
+uint16_t foug_uint16_bswap(uint16_t val)
 {
+#ifdef FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC
+  return __builtin_bswap16(val);
+#elif defined(FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+  return _byteswap_ushort(val);
+#else
   return ((val & 0x00FF) << 8) | ((val >> 8) & 0x00FF);
-}
-
-uint16_t foug_uint16_noswap(uint16_t val)
-{
-  return val;
+#endif
 }
 
 /*! Read a 16bit integer from memory-location \p bytes (little-endian byte order) */
@@ -59,18 +67,23 @@ void foug_encode_uint16_le(uint16_t val, uint8_t* bytes)
   bytes[1] = (val >> 8) & 0xFF;
 }
 
-uint32_t foug_uint32_swap(uint32_t val)
+/*! Returns \p val with the order of bytes reversed.
+ *
+ *  Uses compiler builtin functions if available
+ */
+uint32_t foug_uint32_bswap(uint32_t val)
 {
+#ifdef FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC
+  return __builtin_bswap32(val);
+#elif defined(FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+  return _byteswap_ulong(val);
+#else
   return
       ((val & 0x000000FF) << 24)
       | ((val & 0x0000FF00) << 8)
       | ((val >> 8) & 0x0000FF00)
       | ((val >> 24) & 0x000000FF);
-}
-
-uint32_t foug_uint32_noswap(uint32_t val)
-{
-  return val;
+#endif
 }
 
 /*! Read a 32bit integer from memory-location \p bytes (little-endian byte order) */
