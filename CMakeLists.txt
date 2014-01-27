@@ -70,9 +70,9 @@ if(BUILD_WITH_LIBSTL)
   file(GLOB  ALL_LIBSTL_SRC_FILES  src/libstl/*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_LIBSTL_SRC_FILES})
 
-  file(GLOB  C_LIBSTL_HEADERS  src/libstl/*.h)
-  install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax/libstl)
 endif()
+file(GLOB  C_LIBSTL_HEADERS  src/libstl/*.h)
+install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax/libstl)
 
 
 # Common for support modules
@@ -81,18 +81,18 @@ if(BUILD_WITH_QT_SUPPORT OR BUILD_WITH_OCC_SUPPORT)
     add_definitions(-DFOUG_LIBSUPPORT_DLL
                     -DFOUG_LIBSUPPORT_MAKE_DLL)
   endif()
-
-  install(FILES src/support/support_global.h DESTINATION include/datax/support)
 endif()
+install(FILES src/support/support_global.h DESTINATION include/datax/support)
 
 # Qt support
 if(BUILD_WITH_QT_SUPPORT)
   find_package(Qt5Core REQUIRED)
-
   file(GLOB  ALL_QT_SUPPORT_SRC_FILES  src/support/qt_*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_QT_SUPPORT_SRC_FILES})
-  install(FILES src/support/qt_stream.h DESTINATION include/datax/support)
+else()
+  install(FILES src/support/qt_stream.cpp DESTINATION src/support)
 endif()
+install(FILES src/support/qt_stream.h DESTINATION include/datax/support)
 
 # OpenCASCADE support
 if(BUILD_WITH_OCC_SUPPORT)
@@ -125,10 +125,10 @@ if(BUILD_WITH_OCC_SUPPORT)
 
   # Library path
   link_directories(${CASCADE_ROOT}/lib)
-
-  # Installs
-  install(FILES src/support/occ_libstl.h DESTINATION include/datax/support)
+else()
+  install(FILES src/support/occ_libstl.cpp DESTINATION src/support)
 endif()
+install(FILES src/support/occ_libstl.h DESTINATION include/datax/support)
 
 
 # Declare fougdatax library
