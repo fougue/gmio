@@ -5,8 +5,6 @@
 #include "memory.h"
 #include <stdio.h>
 
-typedef struct foug_stream foug_stream_t;
-
 /*! \brief Stream that can get input from an arbitrary data source or can write output to an
  *         arbitrary data sink
  *
@@ -18,15 +16,15 @@ typedef struct foug_stream foug_stream_t;
  * implemented by defining hook functions that know how to read/write the data.
  *
  */
-struct foug_stream
+typedef struct
 {
   void* cookie;
 
-  foug_bool_t (*at_end_func)(foug_stream_t*);
-  int32_t     (*error_func)(foug_stream_t*);
-  size_t      (*read_func)(foug_stream_t*, void*, size_t, size_t);
-  size_t      (*write_func)(foug_stream_t*, const void*, size_t, size_t);
-};
+  foug_bool_t (*at_end_func)(void*);
+  int32_t     (*error_func)(void*);
+  size_t      (*read_func)(void*, void*, size_t, size_t);
+  size_t      (*write_func)(void*, const void*, size_t, size_t);
+} foug_stream_t;
 
 /* Initialization */
 

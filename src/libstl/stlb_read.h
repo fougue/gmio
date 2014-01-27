@@ -7,15 +7,17 @@
 #include "../transfer.h"
 
 /* foug_stlb_geom_input */
-typedef struct foug_stlb_geom_input foug_stlb_geom_input_t;
-struct foug_stlb_geom_input
+typedef struct
 {
   void* cookie;
-  void  (*process_header_func)  (foug_stlb_geom_input_t*, const uint8_t*); /* Optional */
-  void  (*begin_triangles_func) (foug_stlb_geom_input_t*, uint32_t);       /* Optional */
-  void  (*process_triangle_func)(foug_stlb_geom_input_t*, const foug_stlb_triangle_t*, uint32_t);
-  void  (*end_triangles_func)   (foug_stlb_geom_input_t*);                 /* Optional */
-};
+  /* All function pointers can be safely set to NULL */
+  void (*process_header_func)  (void*, const uint8_t*);
+  void (*begin_triangles_func) (void*, uint32_t);
+  void (*process_triangle_func)(void*, uint32_t, const foug_stl_triangle_t*, uint16_t);
+  void (*end_triangles_func)   (void*);
+} foug_stlb_geom_input_t;
+typedef void (*foug_stlb_begin_triangles_func_t)(void*, uint32_t);
+typedef void (*foug_stlb_process_triangle_func_t)(void*, uint32_t, const foug_stl_triangle_t*, uint16_t);
 
 /* foug_stlb_read() */
 FOUG_DATAX_LIBSTL_EXPORT int foug_stlb_read(foug_stlb_geom_input_t* geom,

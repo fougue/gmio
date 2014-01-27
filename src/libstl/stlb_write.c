@@ -35,9 +35,12 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
   if (geom == NULL || geom->get_triangle_func == NULL)
     return;
 
+  triangle.attribute_byte_count = 0;
   buffer_offset = 0;
   for (i_facet = ifacet_start; i_facet < (ifacet_start + facet_count); ++i_facet) {
-    geom->get_triangle_func(geom, i_facet, &triangle);
+    geom->get_triangle_func(geom->cookie, i_facet, &triangle.data);
+    if (geom->get_attr_byte_count_func != NULL)
+      geom->get_attr_byte_count_func(geom->cookie, &triangle.attribute_byte_count);
 
 #ifdef FOUG_STLB_READWRITE_ALIGNSAFE
     write_triangle_alignsafe(&triangle, buffer + buffer_offset);

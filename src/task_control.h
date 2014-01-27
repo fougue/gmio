@@ -4,13 +4,11 @@
 #include "global.h"
 #include "memory.h"
 
-/* foug_task_control */
-typedef struct foug_task_control foug_task_control_t;
-struct foug_task_control
+typedef struct foug_task_control
 {
   void* cookie;
-  foug_bool_t (*handle_progress_func)(foug_task_control_t*, uint8_t);
-};
+  foug_bool_t (*handle_progress_func)(void*, uint8_t);
+} foug_task_control_t;
 
 FOUG_LIB_EXPORT
 foug_bool_t foug_task_control_handle_progress(foug_task_control_t* ctrl, uint8_t progress_pc);

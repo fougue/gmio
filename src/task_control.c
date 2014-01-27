@@ -13,7 +13,7 @@
 foug_bool_t foug_task_control_handle_progress(foug_task_control_t* ctrl, uint8_t progress_pc)
 {
   if (ctrl != NULL && ctrl->handle_progress_func != NULL)
-    return ctrl->handle_progress_func(ctrl, progress_pc);
+    return ctrl->handle_progress_func(ctrl->cookie, progress_pc);
   return 1;
 }
 

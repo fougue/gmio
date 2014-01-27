@@ -6,15 +6,14 @@
 #include "../endian.h"
 #include "../transfer.h"
 
-/* foug_stlb_geom_output */
-typedef struct foug_stlb_geom_output foug_stlb_geom_output_t;
-struct foug_stlb_geom_output
+typedef struct
 {
-  void*    cookie;
-  uint8_t* header; /* May be NULL if empty header*/
-  uint32_t triangle_count;
-  void     (*get_triangle_func)(const foug_stlb_geom_output_t*, uint32_t, foug_stlb_triangle_t*);
-};
+  const uint8_t* header; /* May be NULL if empty header */
+  uint32_t       triangle_count;
+  const void*    cookie;
+  void (*get_triangle_func)(const void*, uint32_t, foug_stl_triangle_t*);
+  void (*get_attr_byte_count_func)(const void*, uint16_t*); /* Optional : may be NULL */
+} foug_stlb_geom_output_t;
 
 /* foug_stlb_write() */
 FOUG_DATAX_LIBSTL_EXPORT int foug_stlb_write(const foug_stlb_geom_output_t* geom,

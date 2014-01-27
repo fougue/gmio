@@ -12,30 +12,30 @@ void foug_stream_set_null(foug_stream_t* stream)
   memset(stream, 0, sizeof(foug_stream_t));
 }
 
-static foug_bool_t foug_stream_stdio_at_end(foug_stream_t* stream)
+static foug_bool_t foug_stream_stdio_at_end(void* cookie)
 {
-  return feof((FILE*) stream->cookie);
+  return feof((FILE*) cookie);
 }
 
-static int32_t foug_stream_stdio_error(foug_stream_t* stream)
+static int32_t foug_stream_stdio_error(void* cookie)
 {
-  return ferror((FILE*) stream->cookie);
+  return ferror((FILE*) cookie);
 }
 
-static size_t foug_stream_stdio_read(foug_stream_t* stream,
+static size_t foug_stream_stdio_read(void* cookie,
                                      void* ptr,
                                      size_t item_size,
                                      size_t item_count)
 {
-  return fread(ptr, item_size, item_count, (FILE*) stream->cookie);
+  return fread(ptr, item_size, item_count, (FILE*) cookie);
 }
 
-static size_t foug_stream_stdio_write(foug_stream_t* stream,
+static size_t foug_stream_stdio_write(void* cookie,
                                       const void* ptr,
                                       size_t item_size,
                                       size_t item_count)
 {
-  return fwrite(ptr, item_size, item_count, (FILE*) stream->cookie);
+  return fwrite(ptr, item_size, item_count, (FILE*) cookie);
 }
 
 /*!
@@ -56,7 +56,7 @@ void foug_stream_set_stdio(foug_stream_t* stream, FILE* file)
 foug_bool_t foug_stream_at_end(foug_stream_t* stream)
 {
   if (stream != NULL && stream->at_end_func != NULL)
-    return stream->at_end_func(stream);
+    return stream->at_end_func(stream->cookie);
   return 0;
 }
 
@@ -71,7 +71,7 @@ foug_bool_t foug_stream_at_end(foug_stream_t* stream)
 int foug_stream_error(foug_stream_t* stream)
 {
   if (stream != NULL && stream->error_func != NULL)
-    return stream->error_func(stream);
+    return stream->error_func(stream->cookie);
   return 0;
 }
 
@@ -93,7 +93,7 @@ int foug_stream_error(foug_stream_t* stream)
 size_t foug_stream_read(foug_stream_t* stream, void *ptr, size_t item_size, size_t item_count)
 {
   if (stream != NULL && stream->read_func != NULL)
-    return stream->read_func(stream, ptr, item_size, item_count);
+    return stream->read_func(stream->cookie, ptr, item_size, item_count);
   return 0;
 }
 
@@ -108,6 +108,6 @@ size_t foug_stream_read(foug_stream_t* stream, void *ptr, size_t item_size, size
 size_t foug_stream_write(foug_stream_t* stream, const void *ptr, size_t item_size, size_t item_count)
 {
   if (stream != NULL && stream->write_func != NULL)
-    return stream->write_func(stream, ptr, item_size, item_count);
+    return stream->write_func(stream->cookie, ptr, item_size, item_count);
   return 0;
 }

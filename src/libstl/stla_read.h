@@ -6,14 +6,15 @@
 #include "../transfer.h"
 
 /* foug_stla_geom_input */
-typedef struct foug_stla_geom_input foug_stla_geom_input_t;
-struct foug_stla_geom_input
+typedef struct
 {
-  void* cookie;
-  void (*begin_solid_func)          (foug_stla_geom_input_t*, const char*); /* Optional */
-  void (*process_triangle_func)(foug_stla_geom_input_t*, const foug_stl_triangle_t*, uint32_t);
-  void (*end_solid_func)            (foug_stla_geom_input_t*, const char*); /* Optional */
-};
+  void*  cookie;
+  void (*begin_solid_func)     (void*, const char*); /* Optional */
+  void (*process_triangle_func)(void*, uint32_t, const foug_stl_triangle_t*);
+  void (*end_solid_func)       (void*); /* Optional */
+} foug_stla_geom_input_t;
+typedef void (*foug_stla_begin_solid_func_t)(void*, const char*);
+typedef void (*foug_stla_process_triangle_func_t)(void*, uint32_t, const foug_stl_triangle_t*);
 
 /* foug_stla_read() */
 FOUG_DATAX_LIBSTL_EXPORT int foug_stla_read(foug_stla_geom_input_t* geom,

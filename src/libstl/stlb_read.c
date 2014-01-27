@@ -6,6 +6,19 @@
 
 #include <string.h>
 
+typedef struct
+{
+  foug_endianness_t host_endianness;
+  foug_endianness_t stream_endianness;
+} _internal_foug_endianness_info_t;
+
+typedef struct
+{
+  uint32_t facet_count;
+  uint32_t i_facet_offset;
+  _internal_foug_endianness_info_t endian_info;
+} _internal_foug_read_params_helper;
+
 static void read_triangle_memcpy(const uint8_t* buffer, foug_stlb_triangle_t* triangle)
 {
   /* *triangle = *((foug_stlb_triangle_t*)(buffer)); */
@@ -27,10 +40,11 @@ static void read_triangle_alignsafe(const uint8_t* buffer, foug_stlb_triangle_t*
 }
 
 static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
-                                  uint8_t* buffer,
-                                  uint32_t facet_count,
-                                  uint32_t i_facet_offset)
+                                  const uint8_t* buffer,
+                                  const _internal_foug_read_params_helper* params)
 {
+  const uint32_t facet_count = params->facet_count;
+  const uint32_t i_facet_offset = params->i_facet_offset;
   foug_stlb_triangle_t triangle;
   uint32_t buffer_offset;
   uint32_t i_facet;
@@ -49,7 +63,10 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
     buffer_offset += FOUG_STLB_TRIANGLE_RAWSIZE;
 
     /* Declare triangle */
-    geom->process_triangle_func(geom, &triangle, i_facet_offset + i_facet);
+    geom->process_triangle_func(geom->cookie,
+                                i_facet_offset + i_facet,
+                                &triangle.data,
+                                triangle.attribute_byte_count);
   }
 }
 
@@ -57,16 +74,22 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
                    foug_transfer_t* trsf,
                    foug_endianness_t byte_order)
 {
-  uint32_t total_facet_count;
-  size_t accum_facet_count_read;
-  int error;
+  _internal_foug_read_params_helper read_params;
+  uint32_t total_facet_count = 0;  /* Count of facets as declared in the stream */
+  int error = FOUG_DATAX_NO_ERROR; /* Helper variable to store function result error code  */
 
+  /* Check validity of input parameters */
   if (trsf->buffer == NULL)
     return FOUG_DATAX_NULL_BUFFER_ERROR;
   if (trsf->buffer_size < FOUG_STLB_MIN_CONTENTS_SIZE)
     return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
   if (byte_order != FOUG_LITTLE_ENDIAN)
     return FOUG_STLB_READ_UNSUPPORTED_BYTE_ORDER;
+
+  /* Initialize read_params */
+  memset(&read_params, 0, sizeof(_internal_foug_read_params_helper));
+  read_params.endian_info.host_endianness = foug_host_endianness();
+  read_params.endian_info.stream_endianness = byte_order;
 
   /* Read header */
   {
@@ -77,7 +100,7 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
       return FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR;
     }
     if (geom != NULL && geom->process_header_func != NULL)
-      geom->process_header_func(geom, header_data);
+      geom->process_header_func(geom->cookie, header_data);
   }
 
   /* Read facet count */
@@ -86,19 +109,19 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
 
   total_facet_count = foug_decode_uint32_le(trsf->buffer);
   if (geom != NULL && geom->begin_triangles_func != NULL)
-    geom->begin_triangles_func(geom, total_facet_count);
+    geom->begin_triangles_func(geom->cookie, total_facet_count);
 
   /* Read triangles */
-  accum_facet_count_read = 0;
-  error = FOUG_DATAX_NO_ERROR;
-  while (foug_datax_no_error(error) && accum_facet_count_read < total_facet_count) {
-    const size_t facet_count_read = foug_stream_read(&trsf->stream,
-                                                     trsf->buffer,
-                                                     FOUG_STLB_TRIANGLE_RAWSIZE,
-                                                     trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE);
+  while (foug_datax_no_error(error)
+         && read_params.i_facet_offset < total_facet_count)
+  {
+    read_params.facet_count = foug_stream_read(&trsf->stream,
+                                               trsf->buffer,
+                                               FOUG_STLB_TRIANGLE_RAWSIZE,
+                                               trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE);
     if (foug_stream_error(&trsf->stream) != 0)
       error = FOUG_DATAX_STREAM_ERROR;
-    else if (facet_count_read > 0)
+    else if (read_params.facet_count > 0)
       error = FOUG_DATAX_NO_ERROR;
     else
       break; /* Exit if no facet to read */
@@ -106,9 +129,9 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
     if (foug_datax_no_error(error)) {
       uint8_t progress_pc;
 
-      foug_stlb_read_facets(geom, trsf->buffer, facet_count_read, accum_facet_count_read);
-      accum_facet_count_read += facet_count_read;
-      progress_pc = foug_percentage(0, total_facet_count, accum_facet_count_read);
+      foug_stlb_read_facets(geom, trsf->buffer, &read_params);
+      read_params.i_facet_offset += read_params.facet_count;
+      progress_pc = foug_percentage(0, total_facet_count, read_params.i_facet_offset);
       if (!foug_task_control_handle_progress(&trsf->task_control, progress_pc))
         error = FOUG_DATAX_TASK_STOPPED_ERROR;
     }
@@ -117,10 +140,10 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
   if (foug_datax_no_error(error)
       && geom != NULL && geom->end_triangles_func != NULL)
   {
-    geom->end_triangles_func(geom);
+    geom->end_triangles_func(geom->cookie);
   }
 
-  if (foug_datax_no_error(error) && accum_facet_count_read != total_facet_count)
+  if (foug_datax_no_error(error) && read_params.i_facet_offset != total_facet_count)
     error = FOUG_STLB_READ_FACET_COUNT_ERROR;
   return error;
 }
