@@ -1,10 +1,9 @@
 #include "stla_read.h"
 
 #include "../error.h"
+#include "../internal/ascii_parse.h"
 
-#include <ctype.h> /* isspace() */
-#include <errno.h>
-#include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 
 /*
@@ -53,26 +52,6 @@
  *
  */
 
-/* foug_stream_fwd_iterator */
-typedef struct
-{
-  foug_stream_t* stream;
-  char*          buffer;
-  uint32_t       buffer_offset;
-  uint32_t       buffer_size;
-
-  void* cookie;
-  void (*stream_read_hook)(void*, const char*, uint32_t);
-} foug_stream_fwd_iterator_t;
-
-/* foug_string_buffer */
-typedef struct
-{
-  char*  data;
-  size_t max_len;
-  size_t len;
-} foug_string_buffer_t;
-
 /* foug_stream_fwd_iterator_stla_cookie */
 typedef struct
 {
@@ -83,7 +62,7 @@ typedef struct
 } foug_stream_fwd_iterator_stla_cookie_t;
 
 /* foug_stla_token */
-enum foug_stla_token
+typedef enum
 {
   ENDFACET_token,
   ENDLOOP_token,
@@ -97,17 +76,16 @@ enum foug_stla_token
   SOLID_token,
   VERTEX_token,
   unknown_token
-};
-typedef enum foug_stla_token foug_stla_token_t;
+} foug_stla_token_t;
 
 /* foug_stla_parse_data */
 typedef struct
 {
   foug_stla_token_t token;
   foug_bool_t       error;
-  foug_stream_fwd_iterator_t             stream_iterator;
+  foug_ascii_stream_fwd_iterator_t       stream_iterator;
   foug_stream_fwd_iterator_stla_cookie_t stream_iterator_cookie;
-  foug_string_buffer_t                   string_buffer;
+  foug_ascii_string_buffer_t             string_buffer;
   foug_stla_geom_input_t*                geom;
 } foug_stla_parse_data_t;
 
@@ -121,111 +99,6 @@ static void foug_stream_fwd_iterator_stla_read_hook(void* cookie,
     tcookie->is_stop_requested = !foug_task_control_handle_progress(tcookie->task_control, progress_pc);
     tcookie->stream_offset += buffer_len;
   }
-}
-
-static char* current_char(foug_stream_fwd_iterator_t* it)
-{
-  if (it == NULL)
-    return NULL;
-
-  if (it->buffer_offset < it->buffer_size)
-    return it->buffer + it->buffer_offset;
-  return NULL;
-}
-
-static char* next_char(foug_stream_fwd_iterator_t* it)
-{
-  if (it == NULL)
-    return NULL;
-
-  if ((it->buffer_offset + 1) < it->buffer_size) {
-    ++(it->buffer_offset);
-    return it->buffer + it->buffer_offset;
-  }
-  else {
-    size_t char_count_read;
-
-    if (foug_stream_error(it->stream) != 0 || foug_stream_at_end(it->stream))
-      return NULL;
-
-    /* Read next chunk of data */
-    char_count_read = foug_stream_read(it->stream, it->buffer, sizeof(char), it->buffer_size);
-    if (foug_stream_error(it->stream) != 0) {
-      return NULL;
-    }
-    else {
-      it->buffer_offset = 0;
-      it->buffer_size = char_count_read;
-      if (it->stream_read_hook != NULL)
-        it->stream_read_hook(it->cookie, it->buffer, it->buffer_size);
-      return it->buffer;
-    }
-  }
-}
-
-static void foug_stream_fwd_iterator_init(foug_stream_fwd_iterator_t* it)
-{
-  it->buffer_offset = it->buffer_size; /* This will cause the first call to foug_stream_read() */
-  next_char(it);
-}
-
-static void skip_spaces(foug_stream_fwd_iterator_t* it)
-{
-  char* curr_char = current_char(it);
-  while (curr_char != NULL && isspace(*curr_char))
-    curr_char = next_char(it);
-}
-
-static int eat_string(foug_stream_fwd_iterator_t* it, foug_string_buffer_t* str_buffer)
-{
-  const char* stream_curr_char = NULL;
-  int isspace_res = 0;
-  size_t i = 0;
-
-  if (str_buffer == NULL || str_buffer->data == NULL || str_buffer->max_len == 0)
-    return -1;
-
-  str_buffer->len = 0;
-  skip_spaces(it);
-  stream_curr_char = current_char(it);
-
-  while (i < str_buffer->max_len && stream_curr_char != NULL && isspace_res == 0) {
-    isspace_res = isspace(*stream_curr_char);
-    if (isspace_res == 0) {
-      str_buffer->data[i] = *stream_curr_char;
-      stream_curr_char = next_char(it);
-      ++i;
-    }
-  }
-
-  if (i < str_buffer->max_len) {
-    str_buffer->data[i] = 0; /* End string with null terminator */
-    str_buffer->len = i ;
-    if (stream_curr_char != NULL || foug_stream_at_end(it->stream))
-      return 0;
-    return -2;
-  }
-  return -3;
-}
-
-static int get_real32(const char* str, foug_real32_t* value_ptr)
-{
-  char* end_ptr; /* for strtod() */
-
-/*  printf("DEBUG get_real32(): ");
-  fflush(stdout);
-  printf("str=\"%s\"\n", str);*/
-#ifdef FOUG_HAVE_STRTOF_FUNC
-  *value_ptr = strtof(str, &end_ptr); /* Requires C99 */
-#else
-  /* *value_ptr = (foug_real32_t)strtod(str, &end_ptr); */
-  *value_ptr = (foug_real32_t)atof(str);
-#endif
-
-  if (end_ptr == str || errno == ERANGE)
-    return -1;
-
-  return 0;
 }
 
 foug_bool_t parsing_can_continue(const foug_stla_parse_data_t* data)
@@ -243,7 +116,7 @@ static const char* current_token_as_identifier(const foug_stla_parse_data_t* dat
 static int get_current_token_as_real32(const foug_stla_parse_data_t* data, foug_real32_t* value)
 {
   if (data->token == FLOAT_token)
-    return get_real32(data->string_buffer.data, value);
+    return foug_get_real32(data->string_buffer.data, value);
   return -3;
 }
 
@@ -261,7 +134,7 @@ static void parsing_advance(foug_stla_parse_data_t* data)
     return;
 
   data->token = unknown_token;
-  if (eat_string(&data->stream_iterator, &data->string_buffer) == 0) {
+  if (foug_eat_string(&data->stream_iterator, &data->string_buffer) == 0) {
     const size_t str_len = data->string_buffer.len;
 
     if (str_len >= 7 && strncmp(str, "end", 3) == 0) { /* Might be "end..." token */
@@ -518,7 +391,7 @@ int foug_stla_read(foug_stla_geom_input_t* geom,
   parse_data.stream_iterator.buffer_size = trsf->buffer_size;
   parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
   parse_data.stream_iterator.stream_read_hook = foug_stream_fwd_iterator_stla_read_hook;
-  foug_stream_fwd_iterator_init(&parse_data.stream_iterator);
+  foug_ascii_stream_fwd_iterator_init(&parse_data.stream_iterator);
 
   parse_data.string_buffer.data = fixed_buffer;
   parse_data.string_buffer.max_len = FOUG_STLA_READ_STRING_BUFFER_LEN;
