@@ -28,8 +28,8 @@ HEADERS += \
     ../src/stream.h \
     ../src/task_control.h \
     ../src/transfer.h \
-    ../src/convert.h \
     \
+    ../src/internal/convert.h \
     ../src/internal/ascii_parse.h
 
 SOURCES += \
@@ -37,8 +37,8 @@ SOURCES += \
     ../src/error.c \
     ../src/stream.c \
     ../src/task_control.c \
-    ../src/convert.c \
     \
+    ../src/internal/convert.c \
     ../src/internal/ascii_parse.c
 
 *-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors

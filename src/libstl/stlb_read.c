@@ -1,8 +1,8 @@
 #include "stlb_read.h"
 
-#include "../convert.h"
-#include "../error.h"
 #include "../endian.h"
+#include "../error.h"
+#include "../internal/convert.h"
 
 #include <string.h>
 

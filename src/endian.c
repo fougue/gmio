@@ -1,6 +1,6 @@
 #include "endian.h"
 
-#include "convert.h"
+#include "internal/convert.h"
 
 #ifdef FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC
 # include <stdlib.h>
