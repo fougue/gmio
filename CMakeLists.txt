@@ -15,7 +15,8 @@ option(BUILD_WITH_OCC_SUPPORT  "Build with OpenCascade support" OFF)
 
 # Add core source files
 file(GLOB  ALL_SRC_FILES  src/*)
-file(GLOB  ALL_SRC_FILES  src/internal/*)
+file(GLOB  ALL_SRC_INTERNAL_FILES  src/internal/*)
+set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_SRC_INTERNAL_FILES})
 
 # Have <stdint.h> ?
 check_include_files(stdint.h FOUG_HAVE_STDINT_H)
