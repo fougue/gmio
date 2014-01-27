@@ -4,10 +4,20 @@
 #include <errno.h>
 #include <stdlib.h>
 
+void foug_ascii_stream_fwd_iterator_init(foug_ascii_stream_fwd_iterator_t *it)
+{
+  /* Trick: declaring the buffer exhausted will actually trigger the first call to
+   * foug_stream_read() inside foug_next_char()
+   */
+  it->buffer.len = 0;
+  it->buffer_pos = it->buffer.max_len;
+  foug_next_char(it);
+}
+
 char *foug_current_char(foug_ascii_stream_fwd_iterator_t *it)
 {
-  if (it != NULL && it->buffer_offset < it->buffer_size)
-    return it->buffer + it->buffer_offset;
+  if (it != NULL && it->buffer_pos < it->buffer.len)
+    return it->buffer.ptr + it->buffer_pos;
   return NULL;
 }
 
@@ -16,35 +26,25 @@ char *foug_next_char(foug_ascii_stream_fwd_iterator_t *it)
   if (it == NULL)
     return NULL;
 
-  if ((it->buffer_offset + 1) < it->buffer_size) {
-    ++(it->buffer_offset);
-    return it->buffer + it->buffer_offset;
+  if ((it->buffer_pos + 1) < it->buffer.len) {
+    ++(it->buffer_pos);
+    return it->buffer.ptr + it->buffer_pos;
   }
   else {
-    size_t char_count_read;
-
     if (foug_stream_error(it->stream) != 0 || foug_stream_at_end(it->stream))
       return NULL;
 
     /* Read next chunk of data */
-    char_count_read = foug_stream_read(it->stream, it->buffer, sizeof(char), it->buffer_size);
-    if (foug_stream_error(it->stream) != 0) {
-      return NULL;
-    }
-    else {
-      it->buffer_offset = 0;
-      it->buffer_size = char_count_read;
+    it->buffer_pos = 0;
+    it->buffer.len = foug_stream_read(it->stream, it->buffer.ptr, sizeof(char), it->buffer.max_len);
+    if (foug_stream_error(it->stream) == 0) {
       if (it->stream_read_hook != NULL)
-        it->stream_read_hook(it->cookie, it->buffer, it->buffer_size);
-      return it->buffer;
+        it->stream_read_hook(it->cookie, &it->buffer);
+      return it->buffer.ptr;
     }
   }
-}
 
-void foug_stream_fwd_iterator_init(foug_ascii_stream_fwd_iterator_t *it)
-{
-  it->buffer_offset = it->buffer_size; /* This will cause the first call to foug_stream_read() */
-  foug_next_char(it);
+  return NULL;
 }
 
 void foug_skip_spaces(foug_ascii_stream_fwd_iterator_t *it)
@@ -54,31 +54,31 @@ void foug_skip_spaces(foug_ascii_stream_fwd_iterator_t *it)
     curr_char = foug_next_char(it);
 }
 
-int foug_eat_string(foug_ascii_stream_fwd_iterator_t *it, foug_ascii_string_buffer_t *str_buffer)
+int foug_eat_word(foug_ascii_stream_fwd_iterator_t *it, foug_ascii_string_buffer_t *buffer)
 {
   const char* stream_curr_char = NULL;
   int isspace_res = 0;
   size_t i = 0;
 
-  if (str_buffer == NULL || str_buffer->data == NULL || str_buffer->max_len == 0)
+  if (buffer == NULL || buffer->ptr == NULL)
     return -1;
 
-  str_buffer->len = 0;
+  buffer->len = 0;
   foug_skip_spaces(it);
   stream_curr_char = foug_current_char(it);
 
-  while (i < str_buffer->max_len && stream_curr_char != NULL && isspace_res == 0) {
+  while (i < buffer->max_len && stream_curr_char != NULL && isspace_res == 0) {
     isspace_res = isspace(*stream_curr_char);
     if (isspace_res == 0) {
-      str_buffer->data[i] = *stream_curr_char;
+      buffer->ptr[i] = *stream_curr_char;
       stream_curr_char = foug_next_char(it);
       ++i;
     }
   }
 
-  if (i < str_buffer->max_len) {
-    str_buffer->data[i] = 0; /* End string with null terminator */
-    str_buffer->len = i ;
+  if (i < buffer->max_len) {
+    buffer->ptr[i] = 0; /* End string with terminating null byte */
+    buffer->len = i;
     if (stream_curr_char != NULL || foug_stream_at_end(it->stream))
       return 0;
     return -2;

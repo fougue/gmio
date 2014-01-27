@@ -4,6 +4,7 @@
 #include "../internal/ascii_parse.h"
 
 #include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -59,7 +60,7 @@ typedef struct
   size_t               stream_data_size;
   size_t               stream_offset;
   foug_bool_t          is_stop_requested;
-} foug_stream_fwd_iterator_stla_cookie_t;
+} _internal_foug_fwd_iterator_cookie_t;
 
 /* foug_stla_token */
 typedef enum
@@ -83,21 +84,20 @@ typedef struct
 {
   foug_stla_token_t token;
   foug_bool_t       error;
-  foug_ascii_stream_fwd_iterator_t       stream_iterator;
-  foug_stream_fwd_iterator_stla_cookie_t stream_iterator_cookie;
-  foug_ascii_string_buffer_t             string_buffer;
-  foug_stla_geom_input_t*                geom;
+  foug_ascii_stream_fwd_iterator_t     stream_iterator;
+  _internal_foug_fwd_iterator_cookie_t stream_iterator_cookie;
+  foug_ascii_string_buffer_t           string_buffer;
+  foug_stla_geom_input_t*              geom;
 } foug_stla_parse_data_t;
 
 static void foug_stream_fwd_iterator_stla_read_hook(void* cookie,
-                                                    const char* buffer,
-                                                    uint32_t buffer_len)
+                                                    const foug_ascii_string_buffer_t* buffer)
 {
-  foug_stream_fwd_iterator_stla_cookie_t* tcookie = (foug_stream_fwd_iterator_stla_cookie_t*)(cookie);
+  _internal_foug_fwd_iterator_cookie_t* tcookie = (_internal_foug_fwd_iterator_cookie_t*)(cookie);
   if (tcookie != NULL) {
     const uint8_t progress_pc = foug_percentage(0, tcookie->stream_data_size, tcookie->stream_offset);
     tcookie->is_stop_requested = !foug_task_control_handle_progress(tcookie->task_control, progress_pc);
-    tcookie->stream_offset += buffer_len;
+    tcookie->stream_offset += buffer->len;
   }
 }
 
@@ -110,13 +110,13 @@ foug_bool_t parsing_can_continue(const foug_stla_parse_data_t* data)
 
 static const char* current_token_as_identifier(const foug_stla_parse_data_t* data)
 {
-  return data->token == ID_token ? data->string_buffer.data : "";
+  return data->token == ID_token ? data->string_buffer.ptr : "";
 }
 
-static int get_current_token_as_real32(const foug_stla_parse_data_t* data, foug_real32_t* value)
+static int get_current_token_as_real32(const foug_stla_parse_data_t* data, foug_real32_t* value_ptr)
 {
   if (data->token == FLOAT_token)
-    return foug_get_real32(data->string_buffer.data, value);
+    return foug_get_real32(data->string_buffer.ptr, value_ptr);
   return -3;
 }
 
@@ -128,57 +128,57 @@ static void parsing_error(foug_stla_parse_data_t* data)
 
 static void parsing_advance(foug_stla_parse_data_t* data)
 {
-  const char* str = data->string_buffer.data;
+  const char* word = data->string_buffer.ptr;
 
   if (!parsing_can_continue(data))
     return;
 
   data->token = unknown_token;
-  if (foug_eat_string(&data->stream_iterator, &data->string_buffer) == 0) {
-    const size_t str_len = data->string_buffer.len;
+  if (foug_eat_word(&data->stream_iterator, &data->string_buffer) == 0) {
+    const size_t word_len = data->string_buffer.len;
 
-    if (str_len >= 7 && strncmp(str, "end", 3) == 0) { /* Might be "end..." token */
-      switch (str[3]) {
+    if (word_len >= 7 && strncmp(word, "end", 3) == 0) { /* Might be "end..." token */
+      switch (word[3]) {
       case 'f':
-        if (strcmp(str + 4, "acet") == 0)
+        if (strcmp(word + 4, "acet") == 0)
           data->token = ENDFACET_token;
         break;
       case 'l':
-        if (strcmp(str + 4, "oop") == 0)
+        if (strcmp(word + 4, "oop") == 0)
           data->token = ENDLOOP_token;
         break;
       case 's':
-        if (strcmp(str + 4, "olid") == 0)
+        if (strcmp(word + 4, "olid") == 0)
           data->token = ENDSOLID_token;
         break;
       default:
         data->token = ID_token;
       } /* end switch */
     }
-    else if (str_len >= 4) {
-      switch (str[0]) {
+    else if (word_len >= 4) {
+      switch (word[0]) {
       case 'f':
-        if (strcmp(str + 1, "acet") == 0)
+        if (strcmp(word + 1, "acet") == 0)
           data->token = FACET_token;
         break;
       case 'l':
-        if (strcmp(str + 1, "oop") == 0)
+        if (strcmp(word + 1, "oop") == 0)
           data->token = LOOP_token;
         break;
       case 'n':
-        if (strcmp(str + 1, "ormal") == 0)
+        if (strcmp(word + 1, "ormal") == 0)
           data->token = NORMAL_token;
         break;
       case 'o':
-        if (strcmp(str + 1, "uter") == 0)
+        if (strcmp(word + 1, "uter") == 0)
           data->token = OUTER_token;
         break;
       case 's':
-        if (strcmp(str + 1, "olid") == 0)
+        if (strcmp(word + 1, "olid") == 0)
           data->token = SOLID_token;
         break;
       case 'v':
-        if (strcmp(str + 1, "ertex") == 0)
+        if (strcmp(word + 1, "ertex") == 0)
           data->token = VERTEX_token;
         break;
       default:
@@ -187,7 +187,7 @@ static void parsing_advance(foug_stla_parse_data_t* data)
     }
 
     if (data->token == unknown_token) {
-      if (str[0] == '+' || str[0] == '-' || isdigit(str[0])) /* Try to guess if it's a float */
+      if (word[0] == '+' || word[0] == '-' || isdigit(word[0])) /* Try to guess if it's a float */
         data->token = FLOAT_token;
       else
         data->token = ID_token;
@@ -302,47 +302,37 @@ static void parse_xyz_coords(foug_stla_parse_data_t* data, foug_stl_coords_t* co
   } /* end switch */
 }
 
-static void parse_facets(foug_stla_parse_data_t* data, size_t i_facet_offset)
+static void parse_facet(foug_stla_parse_data_t* data, foug_stl_triangle_t* facet)
 {
-  if (!parsing_can_continue(data))
-    return;
+  parsing_eat_token(FACET_token, data);
+  parsing_eat_token(NORMAL_token, data);
+  parse_xyz_coords(data, &facet->normal);
 
-  switch (data->token) {
-  case ENDSOLID_token:
-    break;
-  case FACET_token: {
-    foug_stl_triangle_t facet;
+  parsing_eat_token(OUTER_token, data);
+  parsing_eat_token(LOOP_token, data);
 
-    parsing_eat_token(FACET_token, data);
-    parsing_eat_token(NORMAL_token, data);
-    parse_xyz_coords(data, &facet.normal);
+  parsing_eat_token(VERTEX_token, data);
+  parse_xyz_coords(data, &facet->v1);
+  parsing_eat_token(VERTEX_token, data);
+  parse_xyz_coords(data, &facet->v2);
+  parsing_eat_token(VERTEX_token, data);
+  parse_xyz_coords(data, &facet->v3);
 
-    parsing_eat_token(OUTER_token, data);
-    parsing_eat_token(LOOP_token, data);
+  parsing_eat_token(ENDLOOP_token, data);
+  parsing_eat_token(ENDFACET_token, data);
+}
 
-    parsing_eat_token(VERTEX_token, data);
-    parse_xyz_coords(data, &facet.v1);
-    parsing_eat_token(VERTEX_token, data);
-    parse_xyz_coords(data, &facet.v2);
-    parsing_eat_token(VERTEX_token, data);
-    parse_xyz_coords(data, &facet.v3);
+static void parse_facets(foug_stla_parse_data_t* data)
+{
+  uint32_t i_facet_offset = 0;
+  foug_stl_triangle_t facet;
 
-    parsing_eat_token(ENDLOOP_token, data);
-    parsing_eat_token(ENDFACET_token, data);
-
-    if (parsing_can_continue(data)
-        && data->geom != NULL
-        && data->geom->process_triangle_func != NULL)
-    {
+  while (data->token == FACET_token && parsing_can_continue(data)) {
+    parse_facet(data, &facet);
+    if (data->geom != NULL && data->geom->process_triangle_func != NULL)
       data->geom->process_triangle_func(data->geom->cookie, i_facet_offset, &facet);
-    }
-
-    parse_facets(data, i_facet_offset + 1);
-    break;
+    ++i_facet_offset;
   }
-  default:
-    parsing_error(data);
-  } /* end switch */
 }
 
 static void parse_solid(foug_stla_parse_data_t* data)
@@ -350,13 +340,12 @@ static void parse_solid(foug_stla_parse_data_t* data)
   if (!parsing_can_continue(data))
     return;
 
-  switch (data->token) {
-  case SOLID_token:
+  if (data->token == SOLID_token) {
     parse_beginsolid(data);
-    parse_facets(data, 0);
+    parse_facets(data);
     parse_endsolid(data);
-    break;
-  default:
+  }
+  else {
     parsing_error(data);
   }
 }
@@ -386,16 +375,15 @@ int foug_stla_read(foug_stla_geom_input_t* geom,
   parse_data.stream_iterator_cookie.is_stop_requested = 0;
 
   parse_data.stream_iterator.stream = &trsf->stream;
-  parse_data.stream_iterator.buffer = trsf->buffer;
-  parse_data.stream_iterator.buffer_offset = 0;
-  parse_data.stream_iterator.buffer_size = trsf->buffer_size;
+  parse_data.stream_iterator.buffer.ptr = trsf->buffer;
+  parse_data.stream_iterator.buffer.max_len = trsf->buffer_size;
   parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
   parse_data.stream_iterator.stream_read_hook = foug_stream_fwd_iterator_stla_read_hook;
   foug_ascii_stream_fwd_iterator_init(&parse_data.stream_iterator);
 
-  parse_data.string_buffer.data = fixed_buffer;
-  parse_data.string_buffer.max_len = FOUG_STLA_READ_STRING_BUFFER_LEN;
+  parse_data.string_buffer.ptr = &fixed_buffer[0];
   parse_data.string_buffer.len = 0;
+  parse_data.string_buffer.max_len = FOUG_STLA_READ_STRING_BUFFER_LEN;
 
   parse_data.geom = geom;
 
