@@ -12,16 +12,12 @@ typedef struct
   uint32_t       triangle_count;
   const void*    cookie;
   void (*get_triangle_func)(const void*, uint32_t, foug_stl_triangle_t*);
-  void (*get_attr_byte_count_func)(const void*, uint16_t*); /* Optional : may be NULL */
+  void (*get_attr_byte_count_func)(const void*, uint32_t, uint16_t*); /* Optional : may be NULL */
 } foug_stlb_geom_output_t;
 
 /* foug_stlb_write() */
 FOUG_DATAX_LIBSTL_EXPORT int foug_stlb_write(const foug_stlb_geom_output_t* geom,
                                              foug_transfer_t*               trsf,
                                              foug_endianness_t              byte_order);
-
-/* Specific error codes returned by foug_stlb_write() */
-#define FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC       1
-#define FOUG_STLB_WRITE_UNSUPPORTED_BYTE_ORDER       2
 
 #endif /* FOUG_DATAX_C_LIBSTL_STLB_WRITE_H */

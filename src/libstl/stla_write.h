@@ -19,8 +19,4 @@ FOUG_DATAX_LIBSTL_EXPORT int foug_stla_write(foug_stla_geom_output_t* geom,
                                              foug_transfer_t*         trsf,
                                              uint8_t                  real32_prec);
 
-/* Specific error codes returned by foug_stla_write() */
-#define FOUG_STLA_WRITE_NULL_GET_TRIANGLE_FUNC       1 /*!< get_triangle_func is null */
-#define FOUG_STLA_WRITE_INVALID_REAL32_PRECISION     2 /*!< real32_prec is not in [1..9] */
-
 #endif /* FOUG_DATAX_C_LIBSTL_STLA_WRITE_H */
