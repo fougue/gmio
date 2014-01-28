@@ -30,7 +30,9 @@ HEADERS += \
     ../src/transfer.h \
     \
     ../src/internal/convert.h \
-    ../src/internal/ascii_parse.h
+    ../src/internal/ascii_parse.h \
+    ../src/internal/byte_swap.h \
+    ../src/internal/byte_codec.h
 
 SOURCES += \
     ../src/endian.c \
@@ -55,19 +57,28 @@ contains(DATAX, stl) {
   #DEFINES += FOUG_STLB_READWRITE_ALIGNSAFE
 
   HEADERS += \
+    ../src/libstl/stl_error.h \
+    ../src/libstl/stl_format.h \
     ../src/libstl/stl_global.h \
+    ../src/libstl/stl_triangle.h \
     ../src/libstl/stla_read.h \
     ../src/libstl/stla_write.h \
     ../src/libstl/stlb_read.h \
     ../src/libstl/stlb_write.h \
-    ../src/libstl/stl_triangle.h \
-    ../src/libstl/stlb_triangle.h
+    ../src/libstl/stlb_triangle.h \
+    \
+    ../src/internal/libstl/stlb_byte_swap.h \
+    ../src/internal/libstl/stlb_rw_common.h
 
   SOURCES += \
+    ../src/libstl/stl_format.c \
     ../src/libstl/stla_read.c \
     ../src/libstl/stla_write.c \
     ../src/libstl/stlb_read.c \
-    ../src/libstl/stlb_write.c
+    ../src/libstl/stlb_write.c \
+    \
+    ../src/internal/libstl/stlb_byte_swap.c \
+    ../src/internal/libstl/stlb_rw_common.c
 
   libstl_inc.path  = $$PREFIX_DIR/include/datax/libstl
   libstl_inc.files = ../src/libstl/*.h
@@ -141,4 +152,7 @@ contains(DATAX, occ_support) {
 
 OTHER_FILES += \
             ../doc/main_page.cpp \
-            ../doc/Doxyfile
+            ../doc/Doxyfile \
+            \
+            ../src/config.h.cmake
+

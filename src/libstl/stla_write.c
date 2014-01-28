@@ -1,6 +1,7 @@
 #include "stla_write.h"
 
 #include "../error.h"
+#include "stl_error.h"
 
 #include <stdio.h>
 #include <string.h>

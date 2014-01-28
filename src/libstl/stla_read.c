@@ -1,7 +1,8 @@
 #include "stla_read.h"
 
-#include "../error.h"
 #include "../internal/ascii_parse.h"
+#include "../error.h"
+#include "stl_error.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -101,26 +102,27 @@ static void foug_stream_fwd_iterator_stla_read_hook(void* cookie,
   }
 }
 
-foug_bool_t parsing_can_continue(const foug_stla_parse_data_t* data)
+FOUG_INLINE static foug_bool_t parsing_can_continue(const foug_stla_parse_data_t* data)
 {
   if (data->error || data->stream_iterator_cookie.is_stop_requested)
     return 0;
   return 1;
 }
 
-static const char* current_token_as_identifier(const foug_stla_parse_data_t* data)
+FOUG_INLINE static const char* current_token_as_identifier(const foug_stla_parse_data_t* data)
 {
   return data->token == ID_token ? data->string_buffer.ptr : "";
 }
 
-static int get_current_token_as_real32(const foug_stla_parse_data_t* data, foug_real32_t* value_ptr)
+FOUG_INLINE static int get_current_token_as_real32(const foug_stla_parse_data_t* data,
+                                                   foug_real32_t* value_ptr)
 {
   if (data->token == FLOAT_token)
     return foug_get_real32(data->string_buffer.ptr, value_ptr);
   return -3;
 }
 
-static void parsing_error(foug_stla_parse_data_t* data)
+FOUG_INLINE static void parsing_error(foug_stla_parse_data_t* data)
 {
   data->error = 1;
   data->token = unknown_token;

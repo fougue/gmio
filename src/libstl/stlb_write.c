@@ -2,9 +2,16 @@
 
 #include "../endian.h"
 #include "../error.h"
+#include "stl_error.h"
+
+#include "../internal/byte_codec.h"
+#include "../internal/libstl/stlb_byte_swap.h"
+#include "../internal/libstl/stlb_rw_common.h"
+
 #include <string.h>
 
-static void write_triangle_memcpy(const foug_stlb_triangle_t* triangle, uint8_t* buffer)
+FOUG_INLINE static void write_triangle_memcpy(const foug_stlb_triangle_t* triangle,
+                                              uint8_t* buffer)
 {
   memcpy(buffer, triangle, FOUG_STLB_TRIANGLE_RAWSIZE);
 }
@@ -25,9 +32,10 @@ static void write_triangle_alignsafe(const foug_stlb_triangle_t* triangle, uint8
 
 static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
                                    uint8_t* buffer,
-                                   uint32_t ifacet_start,
-                                   uint32_t facet_count)
+                                   const foug_readwrite_helper* wparams)
 {
+  const uint32_t facet_count = wparams->facet_count;
+  const uint32_t i_facet_offset = wparams->i_facet_offset;
   foug_stlb_triangle_t triangle;
   uint32_t buffer_offset;
   uint32_t i_facet;
@@ -37,10 +45,13 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
 
   triangle.attribute_byte_count = 0;
   buffer_offset = 0;
-  for (i_facet = ifacet_start; i_facet < (ifacet_start + facet_count); ++i_facet) {
+  for (i_facet = i_facet_offset; i_facet < (i_facet_offset + facet_count); ++i_facet) {
     geom->get_triangle_func(geom->cookie, i_facet, &triangle.data);
     if (geom->get_attr_byte_count_func != NULL)
-      geom->get_attr_byte_count_func(geom->cookie, &triangle.attribute_byte_count);
+      geom->get_attr_byte_count_func(geom->cookie, i_facet, &triangle.attribute_byte_count);
+
+    if (wparams->fix_endian_func != NULL)
+      wparams->fix_endian_func(&triangle);
 
 #ifdef FOUG_STLB_READWRITE_ALIGNSAFE
     write_triangle_alignsafe(&triangle, buffer + buffer_offset);
@@ -56,20 +67,23 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom,
                     foug_transfer_t* trsf,
                     foug_endianness_t byte_order)
 {
+  foug_readwrite_helper wparams;
   const uint32_t facet_count = geom != NULL ? geom->triangle_count : 0;
-  uint32_t i_facet;
-  uint32_t buffer_facet_count;
-  uint32_t ifacet_start;
-  int error;
+  uint32_t i_facet = 0;
+  int error = FOUG_DATAX_NO_ERROR;
 
-  if (trsf->buffer == NULL)
-    return FOUG_DATAX_NULL_BUFFER_ERROR;
-  if (trsf->buffer_size < FOUG_STLB_MIN_CONTENTS_SIZE)
-    return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
+  /* Check validity of input parameters */
+  error = foug_stlb_check_params(trsf, byte_order);
+  if (foug_datax_error(error))
+    return error;
   if (geom == NULL || geom->get_triangle_func == NULL)
     return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC;
-  if (byte_order != FOUG_LITTLE_ENDIAN/* && byte_order != FOUG_BIG_ENDIAN*/)
-    return FOUG_STLB_WRITE_UNSUPPORTED_BYTE_ORDER;
+
+  /* Initialize wparams */
+  memset(&wparams, 0, sizeof(foug_readwrite_helper));
+  if (foug_host_endianness() != byte_order)
+    wparams.fix_endian_func = foug_stlb_triangle_bswap;
+  wparams.facet_count = trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE;
 
   /* Write header */
   {
@@ -95,23 +109,20 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom,
     return FOUG_DATAX_STREAM_ERROR;
 
   /* Write triangles */
-  error = FOUG_DATAX_NO_ERROR;
-
-  buffer_facet_count = trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE;
-  ifacet_start = 0;
   for (i_facet = 0;
        i_facet < facet_count && foug_datax_no_error(error);
-       i_facet += buffer_facet_count)
+       i_facet += wparams.facet_count)
   {
     /* Write to buffer */
-    if (buffer_facet_count > (facet_count - ifacet_start))
-      buffer_facet_count = facet_count - ifacet_start;
-    foug_stlb_write_facets(geom, trsf->buffer, ifacet_start, buffer_facet_count);
-    ifacet_start += buffer_facet_count;
+    if (wparams.facet_count > (facet_count - wparams.i_facet_offset))
+      wparams.facet_count = facet_count - wparams.i_facet_offset;
+
+    foug_stlb_write_facets(geom, trsf->buffer, &wparams);
+    wparams.i_facet_offset += wparams.facet_count;
 
     /* Write buffer to stream */
-    if (foug_stream_write(&trsf->stream, trsf->buffer, FOUG_STLB_TRIANGLE_RAWSIZE, buffer_facet_count)
-        != buffer_facet_count)
+    if (foug_stream_write(&trsf->stream, trsf->buffer, FOUG_STLB_TRIANGLE_RAWSIZE, wparams.facet_count)
+        != wparams.facet_count)
     {
       error = FOUG_DATAX_STREAM_ERROR;
     }
