@@ -14,9 +14,8 @@ option(BUILD_WITH_QT_SUPPORT   "Build with Qt support" OFF)
 option(BUILD_WITH_OCC_SUPPORT  "Build with OpenCascade support" OFF)
 
 # Add core source files
-file(GLOB  ALL_SRC_FILES  src/*)
-file(GLOB  ALL_SRC_INTERNAL_FILES  src/internal/*)
-set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_SRC_INTERNAL_FILES})
+file(GLOB  ALL_SRC_FILES  src/*  src/internal/*)
+set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 
 # Have <stdint.h> ?
 check_include_files(stdint.h FOUG_HAVE_STDINT_H)
@@ -45,7 +44,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi")
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -fstrict-aliasing")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Winline -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
 endif()
 
 # Specific flags for Visual C++
@@ -69,7 +68,7 @@ if(BUILD_WITH_LIBSTL)
   add_definitions(-DFOUG_DATAX_LIBSTL_DLL
                   -DFOUG_DATAX_LIBSTL_MAKE_DLL)
 
-  file(GLOB  ALL_LIBSTL_SRC_FILES  src/libstl/*)
+  file(GLOB  ALL_LIBSTL_SRC_FILES  src/libstl/*  src/internal/libstl/*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_LIBSTL_SRC_FILES})
 
 endif()
