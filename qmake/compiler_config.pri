@@ -13,7 +13,7 @@ else {
 
 CONFIG(warn_on) {
   *-g++*:QMAKE_CXXFLAGS *= -Wextra
-  GCC_CFLAGS = -Wextra -fstrict-aliasing -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal
+  GCC_CFLAGS = -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal
   *-g++*:QMAKE_CFLAGS_DEBUG   *= $$GCC_CFLAGS
   *-g++*:QMAKE_CFLAGS_RELEASE *= $$GCC_CFLAGS
 }
