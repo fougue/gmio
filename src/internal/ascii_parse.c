@@ -14,7 +14,7 @@ void foug_ascii_stream_fwd_iterator_init(foug_ascii_stream_fwd_iterator_t *it)
   foug_next_char(it);
 }
 
-char *foug_current_char(foug_ascii_stream_fwd_iterator_t *it)
+char *foug_current_char(const foug_ascii_stream_fwd_iterator_t *it)
 {
   if (it != NULL && it->buffer_pos < it->buffer.len)
     return it->buffer.ptr + it->buffer_pos;
@@ -100,4 +100,18 @@ int foug_get_real32(const char *str, foug_real32_t *value_ptr)
     return -1;
 
   return 0;
+}
+
+foug_bool_t foug_checked_next_chars(foug_ascii_stream_fwd_iterator_t *it, const char *str)
+{
+  size_t pos = 0;
+  const char* curr_char = foug_current_char(it);
+  foug_bool_t same = curr_char != NULL && *curr_char == *str;
+
+  while (same) {
+    curr_char = foug_next_char(it);
+    same = curr_char != NULL && *curr_char == str[++pos];
+  }
+
+  return same;
 }
