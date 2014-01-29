@@ -1,7 +1,13 @@
 #include "utest_lib.h"
 
+#include "../src/internal/ascii_parse.h"
 #include "../src/internal/byte_swap.h"
 #include "../src/internal/byte_codec.h"
+
+#include "stream_buffer.h"
+
+#include <stdio.h>
+#include <string.h>
 
 const char* test_internal__byte_swap()
 {
@@ -35,6 +41,69 @@ const char* test_internal__byte_codec()
 
 const char* test_internal__ascii_parse()
 {
+  char text[] =
+      "Une    citation,\to je crois qu'elle est de moi :"
+      "Parfois le chemin est rude.\n"
+      "pi : 3.1415926535897932384626433832795";
+
+  {
+    foug_buffer_t buff;
+    foug_stream_t stream;
+
+    char small_fwd_it_str[4];
+    char fwd_it_str[32];
+    foug_ascii_stream_fwd_iterator_t fwd_it;
+
+    char copy_str[128];
+    foug_ascii_string_buffer_t copy_strbuff;
+
+    buff.ptr = text;
+    buff.len = strlen(text);
+    buff.pos = 0;
+    foug_stream_set_buffer(&stream, &buff);
+
+    memset(&fwd_it, 0, sizeof(foug_ascii_stream_fwd_iterator_t));
+    fwd_it.stream = &stream;
+    fwd_it.buffer.ptr = fwd_it_str;
+    fwd_it.buffer.max_len = sizeof(fwd_it_str);
+    foug_ascii_stream_fwd_iterator_init(&fwd_it);
+
+    copy_strbuff.ptr = copy_str;
+    copy_strbuff.max_len = sizeof(copy_str);
+
+    UTEST_ASSERT(foug_current_char(&fwd_it) != NULL);
+    UTEST_ASSERT(*foug_current_char(&fwd_it) == 'U');
+
+    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    /* printf("\ncopy_strbuff.ptr = \"%s\"\n", copy_strbuff.ptr); */
+    UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Une") == 0);
+
+    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
+
+    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(strcmp(copy_strbuff.ptr, "o") == 0);
+
+    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(strcmp(copy_strbuff.ptr, "je") == 0);
+
+    foug_skip_spaces(&fwd_it);
+    UTEST_ASSERT(foug_next_char(&fwd_it) != NULL);
+    UTEST_ASSERT(*foug_current_char(&fwd_it) == 'r');
+
+    /* Test with very small string buffer */
+    buff.pos = 0;
+    fwd_it.buffer.ptr = small_fwd_it_str;
+    fwd_it.buffer.max_len = sizeof(small_fwd_it_str);
+    foug_ascii_stream_fwd_iterator_init(&fwd_it);
+
+    UTEST_ASSERT(*foug_current_char(&fwd_it) == 'U');
+    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
+  }
+
+  return NULL;
 }
 
 const char* all_tests()
@@ -42,6 +111,7 @@ const char* all_tests()
   UTEST_SUITE_START();
   UTEST_RUN(test_internal__byte_swap);
   UTEST_RUN(test_internal__byte_codec);
+  UTEST_RUN(test_internal__ascii_parse);
   return NULL;
 }
 

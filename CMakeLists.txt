@@ -156,3 +156,18 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_RELEASE_POSTFIX=.release
 # make VERBOSE=1  or  cmake -DCMAKE_VERBOSE_MAKEFILE=TRUE
+
+
+# Tests
+
+enable_testing()
+set(CMAKE_CTEST_COMMAND ctest -V)
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+
+add_executable(test_internal EXCLUDE_FROM_ALL tests/test_internal.c
+                                              tests/stream_buffer.c
+                                              src/stream.c
+                                              src/internal/ascii_parse.c)
+add_test(test_internal test_internal)
+add_dependencies(check test_internal)
+

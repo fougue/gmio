@@ -23,19 +23,21 @@
                         tests_run++;\
                         if (message) return message;
 
-#define UTEST_MAIN(name) int main(int argc, char *argv[]) {\
-                           argc = 1;\
-                           printf("----\nRUNNING: %s\n", argv[0]);\
-                           const char *result = name();\
-                           if (result != 0) {\
-                             printf("\n\nFAILED: %s\n", result);\
-                           }\
-                           else {\
-                             printf("\n\nALL TESTS PASSED\n");\
-                           }\
-                           printf("Tests run: %d\n", tests_run);\
-                           exit(result != 0);\
-                         }
+#define UTEST_MAIN(name) \
+        int main(int argc, char *argv[]) {\
+          const char *result = NULL; \
+          \
+          printf("----\nRUNNING: %s\n", argv[0]);\
+          result = name();\
+          if (result != NULL) {\
+            printf("\n\nFAILED: %s\n", result);\
+          }\
+          else {\
+            printf("\n\nALL TESTS PASSED\n");\
+          }\
+          printf("Tests run: %d\n", tests_run);\
+          exit(result != NULL);\
+        }
 
 
 static int tests_run;
