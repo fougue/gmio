@@ -37,14 +37,17 @@ foug_stl_format_t foug_stl_get_format(foug_stream_t *stream, size_t data_size)
 
   /* ASCII STL ? */
   {
+    /* Skip spaces at beginning */
     size_t pos = 0;
     while (isspace(fixed_buffer[pos]) && pos < _INTERNAL_FOUG_FIXED_BUFFER_SIZE)
       ++pos;
-    if (pos == _INTERNAL_FOUG_FIXED_BUFFER_SIZE)
-      return FOUG_STL_ASCII_FORMAT;
 
-    if (strcmp(fixed_buffer + pos, "solid ") == 0)
+    /* Next token (if exists) must match "solid " */
+    if (pos < _INTERNAL_FOUG_FIXED_BUFFER_SIZE
+        && strcmp(fixed_buffer + pos, "solid ") == 0)
+    {
       return FOUG_STL_ASCII_FORMAT;
+    }
   }
 
   /* Fallback case */
