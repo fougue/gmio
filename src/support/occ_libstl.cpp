@@ -16,11 +16,14 @@ static StlMesh_Mesh* occMeshPtr(const Handle_StlMesh_Mesh& mesh)
 }
 
 static void occmesh_add_triangle(void* cookie,
-                                 uint32_t /*tri_id*/,
-                                 const foug_stl_triangle_t* tri,
-                                 void* /*dummy*/)
+                                 uint32_t tri_id,
+                                 const foug_stl_triangle_t* tri)
 {
   StlMesh_Mesh* mesh = static_cast<StlMesh_Mesh*>(cookie);
+
+  if (tri_id == 0)
+    mesh->AddDomain();
+
   const int uId = mesh->AddOnlyNewVertex(tri->v1.x, tri->v1.y, tri->v1.z);
   const int vId = mesh->AddOnlyNewVertex(tri->v2.x, tri->v2.y, tri->v2.z);
   const int wId = mesh->AddOnlyNewVertex(tri->v3.x, tri->v3.y, tri->v3.z);
@@ -62,10 +65,12 @@ static void occmesh_get_triangle(const void* cookie,
   triangle->v3.z = float(coordsV3.Z());
 }
 
-static void occmesh_add_domain(void* cookie, void* /*dummy*/)
+static void occmesh_stlb_add_triangle(void* cookie,
+                                      uint32_t tri_id,
+                                      const foug_stl_triangle_t* triangle,
+                                      uint16_t /*attr_byte_count*/)
 {
-  StlMesh_Mesh* mesh = static_cast<StlMesh_Mesh*>(cookie);
-  mesh->AddDomain();
+  occmesh_add_triangle(cookie, tri_id, triangle);
 }
 
 } // namespace internal
@@ -73,16 +78,15 @@ static void occmesh_add_domain(void* cookie, void* /*dummy*/)
 void foug_stla_geom_input_set_occmesh(foug_stla_geom_input_t* input, const Handle_StlMesh_Mesh &mesh)
 {
   input->cookie = internal::occMeshPtr(mesh);
-  input->begin_solid_func = (foug_stla_begin_solid_func_t)internal::occmesh_add_domain;
-  input->process_triangle_func = (foug_stla_process_triangle_func_t)internal::occmesh_add_triangle;
-  input->end_solid_func = NULL;
+  memset(input, 0, sizeof(foug_stla_geom_input_t));
+  input->process_triangle_func = internal::occmesh_add_triangle;
 }
 
 void foug_stla_geom_output_set_occmesh(foug_stla_geom_output_t *output,
                                        const foug_OccStlMeshDomain &meshCookie)
 {
   output->cookie = &meshCookie;
-  output->solid_name = NULL;
+  memset(output, 0, sizeof(foug_stla_geom_output_t));
   output->triangle_count = meshCookie.mesh->NbTriangles(meshCookie.domainId);
   output->get_triangle_func = internal::occmesh_get_triangle;
 }
@@ -90,10 +94,8 @@ void foug_stla_geom_output_set_occmesh(foug_stla_geom_output_t *output,
 void foug_stlb_geom_input_set_occmesh(foug_stlb_geom_input_t* input, const Handle_StlMesh_Mesh &mesh)
 {
   input->cookie = internal::occMeshPtr(mesh);
-  input->process_header_func = NULL;
-  input->begin_triangles_func = (foug_stlb_begin_triangles_func_t)internal::occmesh_add_domain;
-  input->process_triangle_func = (foug_stlb_process_triangle_func_t)internal::occmesh_add_triangle;
-  input->end_triangles_func = NULL;
+  memset(input, 0, sizeof(foug_stlb_geom_input_t));
+  input->process_triangle_func = internal::occmesh_stlb_add_triangle;
 }
 
 void foug_stlb_geom_output_set_occmesh(foug_stlb_geom_output_t* output,
