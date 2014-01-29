@@ -9,16 +9,16 @@ float elapsed_secs(clock_t start_tick)
 
 void benchmark(void (*func)(const char*), const char* title, int argc, char** argv)
 {
+  const clock_t start_tick = clock();
+  int iarg;
+
   if (func == NULL)
     return;
 
-  const clock_t start_tick = clock();
-
-  fprintf(stdout, "Bench %s ...\n", title);
-  int iarg;
+  printf("Bench %s ...\n", title);
   for (iarg = 0; iarg < argc; ++iarg) {
-    fprintf(stdout, "  Read file %s ...\n", argv[iarg]);
+    printf("  Read file %s ...\n", argv[iarg]);
     (*func)(argv[iarg]);
   }
-  fprintf(stdout, "\n  %s exec time: %.2fs\n", title, elapsed_secs(start_tick));
+  printf("\n  %s exec time: %.2fs\n", title, elapsed_secs(start_tick));
 }

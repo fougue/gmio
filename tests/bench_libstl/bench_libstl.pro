@@ -1,4 +1,6 @@
-include(../../qmake.build/config.pri)
+include(../../qmake/config.pri)
+
+*-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
 
 TEMPLATE = app
 TARGET = bench_libstl$$TARGET_SUFFIX
@@ -13,5 +15,5 @@ SOURCES += \
 
 DEFINES += FOUG_USE_STDINT_H
 
-LIBS *= -L$$FOUG_DATAX_ROOT/lib -lfougdatax-c$$TARGET_SUFFIX
-QMAKE_RPATHDIR *= $$FOUG_DATAX_ROOT/lib
+LIBS += -L$$FOUG_DATAX_ROOT/lib -lfougdatax$$TARGET_SUFFIX
+QMAKE_RPATHDIR += $$FOUG_DATAX_ROOT/lib

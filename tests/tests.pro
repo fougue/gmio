@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-           bench_occ \
+           #bench_occ \
            bench_libstl \
-           bench_assimp \
-           c-lib
+           #bench_assimp \
+           #c-lib
