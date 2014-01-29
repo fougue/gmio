@@ -37,14 +37,13 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
   const uint32_t facet_count = wparams->facet_count;
   const uint32_t i_facet_offset = wparams->i_facet_offset;
   foug_stlb_triangle_t triangle;
-  uint32_t buffer_offset;
-  uint32_t i_facet;
+  uint32_t buffer_offset = 0;
+  uint32_t i_facet = 0;
 
   if (geom == NULL || geom->get_triangle_func == NULL)
     return;
 
   triangle.attribute_byte_count = 0;
-  buffer_offset = 0;
   for (i_facet = i_facet_offset; i_facet < (i_facet_offset + facet_count); ++i_facet) {
     geom->get_triangle_func(geom->cookie, i_facet, &triangle.data);
     if (geom->get_attr_byte_count_func != NULL)
