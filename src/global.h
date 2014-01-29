@@ -47,7 +47,7 @@ typedef unsigned long long uint64_t;
 
 #endif /* FOUG_USE_STDINT_H */
 
-typedef int8_t foug_bool_t;
+typedef int    foug_bool_t;
 typedef float  foug_real32_t;
 typedef double foug_real64_t;
 
