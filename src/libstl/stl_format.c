@@ -3,7 +3,7 @@
 #include "../endian.h"
 #include "../internal/byte_codec.h"
 #include "../internal/byte_swap.h"
-#include "stlb_triangle.h"
+#include "stl_triangle.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -44,7 +44,7 @@ foug_stl_format_t foug_stl_get_format(foug_stream_t *stream, size_t data_size)
 
     /* Next token (if exists) must match "solid " */
     if (pos < _INTERNAL_FOUG_FIXED_BUFFER_SIZE
-        && strcmp(fixed_buffer + pos, "solid ") == 0)
+        && strncmp(fixed_buffer + pos, "solid ", 6) == 0)
     {
       return FOUG_STL_ASCII_FORMAT;
     }

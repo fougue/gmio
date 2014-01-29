@@ -10,31 +10,31 @@ extern "C" {
 }
 #include <Handle_StlMesh_Mesh.hxx>
 
-struct FOUG_LIBSUPPORT_EXPORT foug_OccStlMeshDomain
+class FOUG_LIBSUPPORT_EXPORT foug_OccStlMeshDomain
 {
-  foug_OccStlMeshDomain(const Handle_StlMesh_Mesh& stlMesh, int stlDomainId = 1);
-  Handle_StlMesh_Mesh mesh;
-  int domainId;
+public:
+  foug_OccStlMeshDomain(const Handle_StlMesh_Mesh& stlMesh, int domId = 1);
+
+  const Handle_StlMesh_Mesh& mesh() const;
+  void setMesh(const Handle_StlMesh_Mesh& stlMesh);
+
+  int domainId() const;
+  void setDomainId(int domId);
+
+private:
+  Handle_StlMesh_Mesh m_mesh;
+  int m_domainId;
+
+  Standard_Integer m_triVertexId[3];
+  Standard_Real m_triNormalCoords[3];
 };
 
-/* ASCII STL */
+FOUG_LIBSUPPORT_EXPORT
+void foug_stl_occmesh_geom(foug_stl_geom_t* geom,
+                           const foug_OccStlMeshDomain& meshCookie);
 
 FOUG_LIBSUPPORT_EXPORT
-void foug_stla_geom_input_set_occmesh(foug_stla_geom_input_t* input,
-                                      const Handle_StlMesh_Mesh& mesh);
-
-FOUG_LIBSUPPORT_EXPORT
-void foug_stla_geom_output_set_occmesh(foug_stla_geom_output_t* output,
-                                       const foug_OccStlMeshDomain& meshCookie);
-
-/* Binary STL */
-
-FOUG_LIBSUPPORT_EXPORT
-void foug_stlb_geom_input_set_occmesh(foug_stlb_geom_input_t* input,
-                                      const Handle_StlMesh_Mesh& mesh);
-
-FOUG_LIBSUPPORT_EXPORT
-void foug_stlb_geom_output_set_occmesh(foug_stlb_geom_output_t* output,
-                                       const foug_OccStlMeshDomain& meshCookie);
+void foug_stl_occmesh_geom_creator(foug_stl_geom_creator_t* creator,
+                                   const Handle_StlMesh_Mesh& mesh);
 
 #endif /* FOUG_SUPPORT_OCC_LIBSTL_H */

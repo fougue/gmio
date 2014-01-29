@@ -10,7 +10,7 @@
 
 #include <string.h>
 
-FOUG_INLINE static void write_triangle_memcpy(const foug_stlb_triangle_t* triangle,
+FOUG_INLINE static void write_triangle_memcpy(const foug_stl_triangle_t* triangle,
                                               uint8_t* buffer)
 {
   memcpy(buffer, triangle, FOUG_STLB_TRIANGLE_RAWSIZE);
@@ -21,22 +21,22 @@ static void write_coords_alignsafe(const foug_stl_coords_t* coords, uint8_t* buf
   memcpy(buffer, coords, FOUG_STL_COORDS_RAWSIZE);
 }
 
-static void write_triangle_alignsafe(const foug_stlb_triangle_t* triangle, uint8_t* buffer)
+static void write_triangle_alignsafe(const foug_stl_triangle_t* triangle, uint8_t* buffer)
 {
-  write_coords_alignsafe(&triangle->data.normal, buffer);
-  write_coords_alignsafe(&triangle->data.v1, buffer + 1*FOUG_STL_COORDS_RAWSIZE);
-  write_coords_alignsafe(&triangle->data.v2, buffer + 2*FOUG_STL_COORDS_RAWSIZE);
-  write_coords_alignsafe(&triangle->data.v3, buffer + 3*FOUG_STL_COORDS_RAWSIZE);
+  write_coords_alignsafe(&triangle->normal, buffer);
+  write_coords_alignsafe(&triangle->v1, buffer + 1*FOUG_STL_COORDS_RAWSIZE);
+  write_coords_alignsafe(&triangle->v2, buffer + 2*FOUG_STL_COORDS_RAWSIZE);
+  write_coords_alignsafe(&triangle->v3, buffer + 3*FOUG_STL_COORDS_RAWSIZE);
   memcpy(buffer + 4*FOUG_STL_COORDS_RAWSIZE, &triangle->attribute_byte_count, sizeof(uint16_t));
 }
 
-static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
+static void foug_stlb_write_facets(const foug_stl_geom_t* geom,
                                    uint8_t* buffer,
                                    const foug_readwrite_helper* wparams)
 {
   const uint32_t facet_count = wparams->facet_count;
   const uint32_t i_facet_offset = wparams->i_facet_offset;
-  foug_stlb_triangle_t triangle;
+  foug_stl_triangle_t triangle;
   uint32_t buffer_offset = 0;
   uint32_t i_facet = 0;
 
@@ -45,9 +45,7 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
 
   triangle.attribute_byte_count = 0;
   for (i_facet = i_facet_offset; i_facet < (i_facet_offset + facet_count); ++i_facet) {
-    geom->get_triangle_func(geom->cookie, i_facet, &triangle.data);
-    if (geom->get_attr_byte_count_func != NULL)
-      geom->get_attr_byte_count_func(geom->cookie, i_facet, &triangle.attribute_byte_count);
+    geom->get_triangle_func(geom->cookie, i_facet, &triangle);
 
     if (wparams->fix_endian_func != NULL)
       wparams->fix_endian_func(&triangle);
@@ -62,8 +60,9 @@ static void foug_stlb_write_facets(const foug_stlb_geom_output_t* geom,
   } /* end for */
 }
 
-int foug_stlb_write(const foug_stlb_geom_output_t* geom,
+int foug_stlb_write(const foug_stl_geom_t *geom,
                     foug_transfer_t* trsf,
+                    const uint8_t *header_data,
                     foug_endianness_t byte_order)
 {
   foug_readwrite_helper wparams;
@@ -81,16 +80,12 @@ int foug_stlb_write(const foug_stlb_geom_output_t* geom,
   /* Initialize wparams */
   memset(&wparams, 0, sizeof(foug_readwrite_helper));
   if (foug_host_endianness() != byte_order)
-    wparams.fix_endian_func = foug_stlb_triangle_bswap;
+    wparams.fix_endian_func = foug_stl_triangle_bswap;
   wparams.facet_count = trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE;
 
   /* Write header */
   {
-    const uint8_t* header_data = NULL;
-    if (geom->header != NULL) {
-      header_data = geom->header;
-    }
-    else {
+    if (header_data == NULL) {
       /* Use buffer to store an empty header (filled with zeroes) */
       memset(trsf->buffer, 0, FOUG_STLB_HEADER_SIZE);
       header_data = (const uint8_t*)trsf->buffer;

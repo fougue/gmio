@@ -30,14 +30,16 @@
 
 static char* foug_write_string(char* buffer, const char* str)
 {
-  strcpy(buffer, str);
-  return buffer + strlen(str);
+  const char* safe_str = str != NULL ? str : "";
+  strcpy(buffer, safe_str);
+  return buffer + strlen(safe_str);
 }
 
 static char* foug_write_string_eol(char* buffer, const char* str)
 {
-  const size_t len = strlen(str);
-  strncpy(buffer, str, len);
+  const char* safe_str = str != NULL ? str : "";
+  const size_t len = strlen(safe_str);
+  strncpy(buffer, safe_str, len);
   buffer[len] = '\n';
   return buffer + len + 1;
 }
@@ -85,7 +87,7 @@ static char* foug_write_coords(char* buffer,
   return buffer + sprintf(buffer, coords_format, coords->x, coords->y, coords->z);
 }
 
-static foug_bool_t foug_tansfer_flush_buffer(foug_transfer_t* trsf, size_t n)
+static foug_bool_t foug_transfer_flush_buffer(foug_transfer_t* trsf, size_t n)
 {
   return foug_stream_write(&trsf->stream, trsf->buffer, sizeof(char), n) == n;
 }
@@ -96,6 +98,7 @@ static foug_bool_t foug_tansfer_flush_buffer(foug_transfer_t* trsf, size_t n)
  *
  *  \param geom Defines the custom geometry to write
  *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
+*   \param solid_name May be NULL to generate default name
  *  \param real32_prec The maximum number of significant digits
  *
  *  \return Error code
@@ -108,11 +111,11 @@ static foug_bool_t foug_tansfer_flush_buffer(foug_transfer_t* trsf, size_t n)
  *  \retval FOUG_DATAX_STREAM_ERROR For any writing error
  *  \retval FOUG_DATAX_TASK_STOPPED_ERROR If the operation was interrupted foug_task_control
  */
-int foug_stla_write(foug_stla_geom_output_t* geom,
+int foug_stla_write(foug_stl_geom_t* geom,
                     foug_transfer_t* trsf,
+                    const char* solid_name,
                     uint8_t real32_prec)
 {
-  const char* solid_name = geom != NULL && geom->solid_name != NULL ? geom->solid_name : "";
   const uint32_t total_facet_count = geom != NULL ? geom->triangle_count : 0;
   uint32_t written_facet_count = 0;
   const uint32_t buffer_facet_count = trsf != NULL ? trsf->buffer_size / FOUG_STLA_FACET_SIZE_P2 : 0;
@@ -145,7 +148,7 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
   {
     buffer_iterator = foug_write_string(buffer_iterator, "solid ");
     buffer_iterator = foug_write_string_eol(buffer_iterator, solid_name);
-    if (!foug_tansfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
+    if (!foug_transfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
       return FOUG_DATAX_STREAM_ERROR;
   }
 
@@ -182,7 +185,7 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
       buffer_iterator = foug_write_string_eol(buffer_iterator, "endfacet");
     } /* end for (ibuffer_facet) */
 
-    if (!foug_tansfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
+    if (!foug_transfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
       error = FOUG_DATAX_STREAM_ERROR;
 
     /* Task control */
@@ -199,7 +202,7 @@ int foug_stla_write(foug_stla_geom_output_t* geom,
   if (foug_datax_no_error(error)) {
     buffer_iterator = foug_write_string(trsf->buffer, "endsolid ");
     buffer_iterator = foug_write_string_eol(buffer_iterator, solid_name);
-    if (!foug_tansfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
+    if (!foug_transfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
       error = FOUG_DATAX_STREAM_ERROR;
   }
 

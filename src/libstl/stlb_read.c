@@ -12,9 +12,9 @@
 #include <string.h>
 
 FOUG_INLINE static void read_triangle_memcpy(const uint8_t* buffer,
-                                             foug_stlb_triangle_t* triangle)
+                                             foug_stl_triangle_t* triangle)
 {
-  /* *triangle = *((foug_stlb_triangle_t*)(buffer)); */
+  /* *triangle = *((foug_stl_triangle_t*)(buffer)); */
   memcpy(triangle, buffer, FOUG_STLB_TRIANGLE_RAWSIZE);
 }
 
@@ -23,29 +23,28 @@ static void read_coords_alignsafe(const uint8_t* buffer, foug_stl_coords_t* coor
   memcpy(coords, buffer, FOUG_STL_COORDS_RAWSIZE);
 }
 
-static void read_triangle_alignsafe(const uint8_t* buffer, foug_stlb_triangle_t* triangle)
+static void read_triangle_alignsafe(const uint8_t* buffer, foug_stl_triangle_t* triangle)
 {
-  read_coords_alignsafe(buffer, &triangle->data.normal);
-  read_coords_alignsafe(buffer + 1*FOUG_STL_COORDS_RAWSIZE, &triangle->data.v1);
-  read_coords_alignsafe(buffer + 2*FOUG_STL_COORDS_RAWSIZE, &triangle->data.v2);
-  read_coords_alignsafe(buffer + 3*FOUG_STL_COORDS_RAWSIZE, &triangle->data.v3);
+  read_coords_alignsafe(buffer, &triangle->normal);
+  read_coords_alignsafe(buffer + 1*FOUG_STL_COORDS_RAWSIZE, &triangle->v1);
+  read_coords_alignsafe(buffer + 2*FOUG_STL_COORDS_RAWSIZE, &triangle->v2);
+  read_coords_alignsafe(buffer + 3*FOUG_STL_COORDS_RAWSIZE, &triangle->v3);
   memcpy(&triangle->attribute_byte_count, buffer + 4*FOUG_STL_COORDS_RAWSIZE, sizeof(uint16_t));
 }
 
-static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
+static void foug_stlb_read_facets(foug_stl_geom_creator_t* creator,
                                   const uint8_t* buffer,
                                   const foug_readwrite_helper* rparams)
 {
   const uint32_t facet_count = rparams->facet_count;
   const uint32_t i_facet_offset = rparams->i_facet_offset;
-  foug_stlb_triangle_t triangle;
-  uint32_t buffer_offset;
-  uint32_t i_facet;
+  foug_stl_triangle_t triangle;
+  uint32_t buffer_offset = 0;
+  uint32_t i_facet = 0;
 
-  if (geom == NULL || geom->process_triangle_func == NULL)
+  if (creator == NULL || creator->add_triangle_func == NULL)
     return;
 
-  buffer_offset = 0;
   for (i_facet = 0; i_facet < facet_count; ++i_facet) {
     /* Decode data */
 #ifdef FOUG_STLB_READWRITE_ALIGNSAFE
@@ -59,14 +58,11 @@ static void foug_stlb_read_facets(foug_stlb_geom_input_t* geom,
       rparams->fix_endian_func(&triangle);
 
     /* Declare triangle */
-    geom->process_triangle_func(geom->cookie,
-                                i_facet_offset + i_facet,
-                                &triangle.data,
-                                triangle.attribute_byte_count);
+    creator->add_triangle_func(creator->cookie, i_facet_offset + i_facet, &triangle);
   }
 }
 
-int foug_stlb_read(foug_stlb_geom_input_t* geom,
+int foug_stlb_read(foug_stl_geom_creator_t *creator,
                    foug_transfer_t* trsf,
                    foug_endianness_t byte_order)
 {
@@ -84,7 +80,7 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
   /* Initialize rparams */
   memset(&rparams, 0, sizeof(foug_readwrite_helper));
   if (host_byte_order != byte_order)
-    rparams.fix_endian_func = foug_stlb_triangle_bswap;
+    rparams.fix_endian_func = foug_stl_triangle_bswap;
 
   /* Read header */
   if (foug_stream_read(&trsf->stream, header_data, 1, FOUG_STLB_HEADER_SIZE)
@@ -102,8 +98,8 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
     total_facet_count = foug_uint32_bswap(total_facet_count);
 
   /* Callback to notify triangle count and header data */
-  if (geom != NULL && geom->begin_triangles_func != NULL)
-    geom->begin_triangles_func(geom->cookie, total_facet_count, header_data);
+  if (creator != NULL && creator->binary_begin_solid_func != NULL)
+    creator->binary_begin_solid_func(creator->cookie, total_facet_count, header_data);
 
   /* Read triangles */
   while (foug_datax_no_error(error)
@@ -123,7 +119,7 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
     if (foug_datax_no_error(error)) {
       uint8_t progress_pc;
 
-      foug_stlb_read_facets(geom, trsf->buffer, &rparams);
+      foug_stlb_read_facets(creator, trsf->buffer, &rparams);
       rparams.i_facet_offset += rparams.facet_count;
       progress_pc = foug_percentage(0, total_facet_count, rparams.i_facet_offset);
       if (!foug_task_control_handle_progress(&trsf->task_control, progress_pc))
@@ -132,9 +128,10 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
   } /* end while */
 
   if (foug_datax_no_error(error)
-      && geom != NULL && geom->end_triangles_func != NULL)
+      && creator != NULL
+      && creator->end_solid_func != NULL)
   {
-    geom->end_triangles_func(geom->cookie);
+    creator->end_solid_func(creator->cookie);
   }
 
   if (foug_datax_no_error(error) && rparams.i_facet_offset != total_facet_count)
