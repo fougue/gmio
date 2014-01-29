@@ -21,6 +21,7 @@ dll:DEFINES += FOUG_LIB_DLL \
 #*g++*:QMAKE_CXXFLAGS_RELEASE += -O3
 
 HEADERS += \
+    config.h \
     ../src/endian.h \
     ../src/error.h \
     ../src/global.h \
@@ -47,7 +48,7 @@ SOURCES += \
 *-msvc*:QMAKE_CFLAGS += -TC
 
 global_inc.path  = $$PREFIX_DIR/include/datax
-global_inc.files = ../src/*.h
+global_inc.files = config.h ../src/*.h
 INSTALLS += global_inc
 
 # libSTL
