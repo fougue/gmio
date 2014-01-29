@@ -72,6 +72,7 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
 {
   const foug_endianness_t host_byte_order = foug_host_endianness();
   foug_readwrite_helper rparams;
+  uint8_t  header_data[FOUG_STLB_HEADER_SIZE];
   uint32_t total_facet_count = 0;  /* Count of facets as declared in the stream */
   int error = FOUG_DATAX_NO_ERROR; /* Helper variable to store function result error code  */
 
@@ -86,15 +87,10 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
     rparams.fix_endian_func = foug_stlb_triangle_bswap;
 
   /* Read header */
+  if (foug_stream_read(&trsf->stream, header_data, 1, FOUG_STLB_HEADER_SIZE)
+      != FOUG_STLB_HEADER_SIZE)
   {
-    uint8_t header_data[FOUG_STLB_HEADER_SIZE];
-    if (foug_stream_read(&trsf->stream, header_data, 1, FOUG_STLB_HEADER_SIZE)
-        != FOUG_STLB_HEADER_SIZE)
-    {
-      return FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR;
-    }
-    if (geom != NULL && geom->process_header_func != NULL)
-      geom->process_header_func(geom->cookie, header_data);
+    return FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR;
   }
 
   /* Read facet count */
@@ -104,17 +100,19 @@ int foug_stlb_read(foug_stlb_geom_input_t* geom,
   memcpy(&total_facet_count, trsf->buffer, sizeof(uint32_t));
   if (host_byte_order != byte_order)
     total_facet_count = foug_uint32_bswap(total_facet_count);
+
+  /* Callback to notify triangle count and header data */
   if (geom != NULL && geom->begin_triangles_func != NULL)
-    geom->begin_triangles_func(geom->cookie, total_facet_count);
+    geom->begin_triangles_func(geom->cookie, total_facet_count, header_data);
 
   /* Read triangles */
   while (foug_datax_no_error(error)
          && rparams.i_facet_offset < total_facet_count)
   {
     rparams.facet_count = foug_stream_read(&trsf->stream,
-                                               trsf->buffer,
-                                               FOUG_STLB_TRIANGLE_RAWSIZE,
-                                               trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE);
+                                           trsf->buffer,
+                                           FOUG_STLB_TRIANGLE_RAWSIZE,
+                                           trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE);
     if (foug_stream_error(&trsf->stream) != 0)
       error = FOUG_DATAX_STREAM_ERROR;
     else if (rparams.facet_count > 0)
