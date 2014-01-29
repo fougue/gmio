@@ -13,8 +13,6 @@ typedef struct
   void (*process_triangle_func)(void*, uint32_t, const foug_stl_triangle_t*);
   void (*end_solid_func)       (void*); /* Optional */
 } foug_stla_geom_input_t;
-typedef void (*foug_stla_begin_solid_func_t)(void*, const char*);
-typedef void (*foug_stla_process_triangle_func_t)(void*, uint32_t, const foug_stl_triangle_t*);
 
 /* foug_stla_read() */
 FOUG_DATAX_LIBSTL_EXPORT int foug_stla_read(foug_stla_geom_input_t* geom,
