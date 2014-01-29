@@ -17,7 +17,7 @@ static foug_bool_t foug_stream_stdio_at_end(void* cookie)
   return feof((FILE*) cookie);
 }
 
-static int32_t foug_stream_stdio_error(void* cookie)
+static int foug_stream_stdio_error(void* cookie)
 {
   return ferror((FILE*) cookie);
 }

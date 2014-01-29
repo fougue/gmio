@@ -8,7 +8,7 @@ static foug_bool_t foug_stream_qiodevice_at_end(void* cookie)
   return static_cast<QIODevice*>(cookie)->atEnd();
 }
 
-static int32_t foug_stream_qiodevice_error(void* cookie)
+static int foug_stream_qiodevice_error(void* cookie)
 {
   const QIODevice* device = static_cast<QIODevice*>(cookie);
   const QFile* file = dynamic_cast<const QFile*>(device);
