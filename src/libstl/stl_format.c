@@ -13,16 +13,19 @@
 foug_stl_format_t foug_stl_get_format(foug_stream_t *stream, size_t data_size)
 {
   char fixed_buffer[_INTERNAL_FOUG_FIXED_BUFFER_SIZE];
-  size_t byte_read = 0;
+  size_t read_size = 0;
 
   if (stream == NULL || data_size == 0)
     return FOUG_STL_UNKNOWN_FORMAT;
 
+  /* Read a chunk of bytes from stream, then try to find format from that */
   memset(fixed_buffer, 0, _INTERNAL_FOUG_FIXED_BUFFER_SIZE);
-  byte_read = foug_stream_read(stream, &fixed_buffer, 1, _INTERNAL_FOUG_FIXED_BUFFER_SIZE);
+  read_size = foug_stream_read(stream, &fixed_buffer, 1, _INTERNAL_FOUG_FIXED_BUFFER_SIZE);
+  read_size = read_size < _INTERNAL_FOUG_FIXED_BUFFER_SIZE ? read_size :
+                                                             _INTERNAL_FOUG_FIXED_BUFFER_SIZE;
 
   /* Binary STL ? */
-  if (byte_read >= (FOUG_STLB_HEADER_SIZE + 4)) {
+  if (read_size >= (FOUG_STLB_HEADER_SIZE + 4)) {
     /* Try with little-endian format */
     uint32_t facet_count = foug_decode_uint32_le((const uint8_t*)fixed_buffer + 80);
 
@@ -39,7 +42,7 @@ foug_stl_format_t foug_stl_get_format(foug_stream_t *stream, size_t data_size)
   {
     /* Skip spaces at beginning */
     size_t pos = 0;
-    while (isspace(fixed_buffer[pos]) && pos < _INTERNAL_FOUG_FIXED_BUFFER_SIZE)
+    while (isspace(fixed_buffer[pos]) && pos < read_size)
       ++pos;
 
     /* Next token (if exists) must match "solid " */
