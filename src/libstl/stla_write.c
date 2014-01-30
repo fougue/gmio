@@ -1,6 +1,7 @@
 #include "stla_write.h"
 
 #include "../error.h"
+#include "../internal/libstl/stl_rw_common.h"
 #include "stl_error.h"
 
 #include <stdio.h>
@@ -124,16 +125,17 @@ int foug_stla_write(foug_stl_geom_t* geom,
   char coords_format[64];
   int error = FOUG_DATAX_NO_ERROR;
 
+  /* Check validity of input parameters */
+  foug_check_transfer(&error, trsf);
+  foug_stl_check_geom(&error, geom);
   if (real32_prec == 0 || real32_prec > 9)
-    return FOUG_STLA_WRITE_INVALID_REAL32_PRECISION;
-  if (buffer_iterator == NULL)
-    return FOUG_DATAX_NULL_BUFFER_ERROR;
+    error = FOUG_STLA_WRITE_INVALID_REAL32_PREC_ERROR;
   if (trsf->buffer_size < FOUG_STLA_FACET_SIZE_P2)
-    return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
-  if (geom->get_triangle_func == NULL)
-    return FOUG_STLA_WRITE_NULL_GET_TRIANGLE_FUNC;
+    error = FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
+  if (foug_datax_error(error))
+    return error;
 
-  {
+  { /* Create XYZ coords format string (for normal and vertex coords) */
     char* coords_format_iterator = coords_format;
     coords_format_iterator = foug_write_stdio_format(coords_format_iterator, real32_prec);
     coords_format_iterator = foug_write_nspaces(coords_format_iterator, 2);

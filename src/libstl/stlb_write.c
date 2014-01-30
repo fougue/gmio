@@ -5,8 +5,8 @@
 #include "stl_error.h"
 
 #include "../internal/byte_codec.h"
+#include "../internal/libstl/stl_rw_common.h"
 #include "../internal/libstl/stlb_byte_swap.h"
-#include "../internal/libstl/stlb_rw_common.h"
 
 #include <string.h>
 
@@ -32,7 +32,7 @@ static void write_triangle_alignsafe(const foug_stl_triangle_t* triangle, uint8_
 
 static void foug_stlb_write_facets(const foug_stl_geom_t* geom,
                                    uint8_t* buffer,
-                                   const foug_readwrite_helper* wparams)
+                                   const foug_stlb_readwrite_helper* wparams)
 {
   const uint32_t facet_count = wparams->facet_count;
   const uint32_t i_facet_offset = wparams->i_facet_offset;
@@ -65,20 +65,19 @@ int foug_stlb_write(const foug_stl_geom_t *geom,
                     const uint8_t *header_data,
                     foug_endianness_t byte_order)
 {
-  foug_readwrite_helper wparams;
+  foug_stlb_readwrite_helper wparams;
   const uint32_t facet_count = geom != NULL ? geom->triangle_count : 0;
   uint32_t i_facet = 0;
   int error = FOUG_DATAX_NO_ERROR;
 
   /* Check validity of input parameters */
-  error = foug_stlb_check_params(trsf, byte_order);
+  foug_stl_check_geom(&error, geom);
+  foug_stlb_check_params(&error, trsf, byte_order);
   if (foug_datax_error(error))
     return error;
-  if (geom == NULL || geom->get_triangle_func == NULL)
-    return FOUG_STLB_WRITE_NULL_GET_TRIANGLE_FUNC;
 
   /* Initialize wparams */
-  memset(&wparams, 0, sizeof(foug_readwrite_helper));
+  memset(&wparams, 0, sizeof(foug_stlb_readwrite_helper));
   if (foug_host_endianness() != byte_order)
     wparams.fix_endian_func = foug_stl_triangle_bswap;
   wparams.facet_count = trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE;

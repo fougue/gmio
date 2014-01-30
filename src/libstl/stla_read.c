@@ -1,6 +1,7 @@
 #include "stla_read.h"
 
 #include "../internal/ascii_parse.h"
+#include "../internal/libstl/stl_rw_common.h"
 #include "../error.h"
 #include "stl_error.h"
 
@@ -384,12 +385,11 @@ int foug_stla_read(foug_stl_geom_creator_t *creator,
   char fixed_buffer[FOUG_STLA_READ_STRING_BUFFER_LEN];
   foug_stla_parse_data_t parse_data;
 
-  if (trsf == NULL)
-    return FOUG_DATAX_NULL_TRANSFER_ERROR;
-  if (trsf->buffer == NULL)
-    return FOUG_DATAX_NULL_BUFFER_ERROR;
-  if (trsf->buffer_size == 0)
-    return FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR;
+  { /* Check validity of input parameters */
+    int error = FOUG_DATAX_NO_ERROR;
+    if (!foug_check_transfer(&error, trsf))
+      return error;
+  }
 
   parse_data.token = unknown_token;
   parse_data.error = 0;

@@ -6,8 +6,8 @@
 
 #include "../internal/convert.h"
 #include "../internal/byte_swap.h"
+#include "../internal/libstl/stl_rw_common.h"
 #include "../internal/libstl/stlb_byte_swap.h"
-#include "../internal/libstl/stlb_rw_common.h"
 
 #include <string.h>
 
@@ -34,7 +34,7 @@ static void read_triangle_alignsafe(const uint8_t* buffer, foug_stl_triangle_t* 
 
 static void foug_stlb_read_facets(foug_stl_geom_creator_t* creator,
                                   const uint8_t* buffer,
-                                  const foug_readwrite_helper* rparams)
+                                  const foug_stlb_readwrite_helper* rparams)
 {
   const uint32_t facet_count = rparams->facet_count;
   const uint32_t i_facet_offset = rparams->i_facet_offset;
@@ -67,18 +67,17 @@ int foug_stlb_read(foug_stl_geom_creator_t *creator,
                    foug_endianness_t byte_order)
 {
   const foug_endianness_t host_byte_order = foug_host_endianness();
-  foug_readwrite_helper rparams;
+  foug_stlb_readwrite_helper rparams;
   uint8_t  header_data[FOUG_STLB_HEADER_SIZE];
   uint32_t total_facet_count = 0;  /* Count of facets as declared in the stream */
   int error = FOUG_DATAX_NO_ERROR; /* Helper variable to store function result error code  */
 
   /* Check validity of input parameters */
-  error = foug_stlb_check_params(trsf, byte_order);
-  if (foug_datax_error(error))
+  if (!foug_stlb_check_params(&error, trsf, byte_order))
     return error;
 
   /* Initialize rparams */
-  memset(&rparams, 0, sizeof(foug_readwrite_helper));
+  memset(&rparams, 0, sizeof(foug_stlb_readwrite_helper));
   if (host_byte_order != byte_order)
     rparams.fix_endian_func = foug_stl_triangle_bswap;
 

@@ -50,6 +50,11 @@ typedef unsigned long long uint64_t;
 typedef int    foug_bool_t;
 typedef float  foug_real32_t;
 typedef double foug_real64_t;
+enum foug_bool_value
+{
+  FOUG_FALSE = 0,
+  FOUG_TRUE = 1
+};
 
 #ifndef FOUG_INLINE
 # if defined(__GNUC__)
