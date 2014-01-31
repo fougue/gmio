@@ -8,9 +8,10 @@ project(fougdatax)
 
 # Options
 option(BUILD_SHARED_LIBS       "Build shared libraries (DLL)" ON)
-option(BUILD_STRICT_C90        "Build with strict conformance to language standard C90" ON)
+option(BUILD_STRICT_C90        "Build with strict conformance to C90 standard, if disabled FougDataX can use C99 features (eg. fabsf(), strtof(), ...)" ON)
 option(BUILD_WITH_LIBSTL       "Build the libSTL module" ON)
 option(BUILD_WITH_QT_SUPPORT   "Build with Qt support" OFF)
+option(BUILD_WITH_QT_SUPPORT_FORCE_QT4   "Build the Qt support with Qt4 instead of Qt5. No effect if option BUILD_WITH_QT_SUPPORT is disabled" OFF)
 option(BUILD_WITH_OCC_SUPPORT  "Build with OpenCascade support" OFF)
 
 # Add core source files
@@ -87,7 +88,16 @@ install(FILES src/support/support_global.h DESTINATION include/datax/support)
 
 # Qt support
 if(BUILD_WITH_QT_SUPPORT)
-  find_package(Qt5Core REQUIRED)
+  if(BUILD_WITH_QT_SUPPORT_FORCE_QT4)
+    find_package(Qt4 REQUIRED)
+    set(QT_USE_QTCORE TRUE)
+    set(QT_USE_QTGUI  FALSE)
+    include(${QT_USE_FILE})
+    add_definitions(${QT_DEFINITIONS})
+  else()
+    find_package(Qt5Core REQUIRED)
+  endif()
+
   file(GLOB  ALL_QT_SUPPORT_SRC_FILES  src/support/qt_*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_QT_SUPPORT_SRC_FILES})
 else()
@@ -97,7 +107,7 @@ install(FILES src/support/qt_stream.h DESTINATION include/datax/support)
 
 # OpenCASCADE support
 if(BUILD_WITH_OCC_SUPPORT)
-  set(CASCADE_ROOT "" CACHE PATH "Root directory of OpenCascade")
+  set(CASCADE_ROOT "" CACHE PATH "Root directory of OpenCascade, useful only when option BUILD_WITH_OCC_SUPPORT is enabled")
 
   file(GLOB  ALL_OCC_SUPPORT_SRC_FILES  src/support/occ_*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_OCC_SUPPORT_SRC_FILES})
@@ -142,7 +152,11 @@ install(TARGETS fougdatax
 
 # Qt support link
 if(BUILD_WITH_QT_SUPPORT)
-  qt5_use_modules(fougdatax Core)
+  if(BUILD_WITH_QT_SUPPORT_FORCE_QT4)
+    target_link_libraries(fougdatax ${QT_LIBRARIES})
+  else()
+    qt5_use_modules(fougdatax Core)
+  endif()
 endif()
 
 # OpenCascade support ling
