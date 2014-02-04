@@ -70,7 +70,7 @@ contains(DATAX, stl) {
     ../src/libstl/stlb_write.h \
     \
     ../src/internal/libstl/stlb_byte_swap.h \
-    ../src/internal/libstl/stlb_rw_common.h
+    ../src/internal/libstl/stl_rw_common.h
 
   SOURCES += \
     ../src/libstl/stl_format.c \
@@ -80,7 +80,7 @@ contains(DATAX, stl) {
     ../src/libstl/stlb_write.c \
     \
     ../src/internal/libstl/stlb_byte_swap.c \
-    ../src/internal/libstl/stlb_rw_common.c
+    ../src/internal/libstl/stl_rw_common.c
 
   libstl_inc.path  = $$PREFIX_DIR/include/datax/libstl
   libstl_inc.files = ../src/libstl/*.h
@@ -128,18 +128,7 @@ contains(DATAX, occ_support) {
   HEADERS += ../src/support/occ_libstl.h
   SOURCES += ../src/support/occ_libstl.cpp
 
-  CASCADE_LIBPATH =
-  unix:CASCADE_LIBPATH = $$CASCADE_ROOT/lib
-  CONFIG(debug, debug|release) {
-    win32-msvc2005:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc8/libd
-    win32-msvc2008:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc9/lib
-    win32-msvc2010:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc10/libd
-  } else {
-    win32-msvc2005:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc8/lib
-    win32-msvc2008:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc9/lib
-    win32-msvc2010:CASCADE_LIBPATH = $$CASCADE_ROOT/win32/vc10/lib
-  }
-
+  CASCADE_LIBPATH = $$CASCADE_ROOT/lib
   LIBS += -L$$CASCADE_LIBPATH -lTKSTL -lTKernel -lTKMath
   QMAKE_RPATHDIR += $$CASCADE_LIBPATH
 
@@ -157,4 +146,3 @@ OTHER_FILES += \
             ../doc/Doxyfile \
             \
             ../src/config.h.cmake
-
