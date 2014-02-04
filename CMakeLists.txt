@@ -51,6 +51,7 @@ endif()
 # Specific flags for Visual C++
 if(MSVC)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -TC")
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 if(BUILD_SHARED_LIBS)
