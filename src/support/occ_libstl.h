@@ -24,9 +24,6 @@ public:
 private:
   Handle_StlMesh_Mesh m_mesh;
   int m_domainId;
-
-  Standard_Integer m_triVertexId[3];
-  Standard_Real m_triNormalCoords[3];
 };
 
 FOUG_LIBSUPPORT_EXPORT
