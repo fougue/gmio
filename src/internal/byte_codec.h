@@ -39,7 +39,7 @@ FOUG_INLINE static uint32_t foug_decode_uint32_le(const uint8_t* bytes)
 FOUG_INLINE static uint32_t foug_decode_uint32_me(const uint8_t* bytes)
 {
   /* |DD|CC|BB|AA| -> 0xCCDDAABB */
-  return (bytes[0] >> 8) | (bytes[2] << 8) | (bytes[3] << 8) | (bytes[1] << 8);
+  return (bytes[0] << 16) | (bytes[1] << 24) | (bytes[3] << 8) | bytes[2];
 }
 
 /*! Read a 32bit integer from memory-location \p bytes (big-endian byte order) */
