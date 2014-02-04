@@ -96,6 +96,7 @@ if(BUILD_WITH_QT_SUPPORT)
     include(${QT_USE_FILE})
     add_definitions(${QT_DEFINITIONS})
   else()
+    cmake_policy(SET CMP0020 NEW)
     find_package(Qt5Core REQUIRED)
   endif()
 
