@@ -182,10 +182,11 @@ enable_testing()
 set(CMAKE_CTEST_COMMAND ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
-add_executable(test_internal EXCLUDE_FROM_ALL tests/test_internal.c
-                                              tests/stream_buffer.c
+add_executable(test_internal EXCLUDE_FROM_ALL tests/stream_buffer.c
+                                              tests/test_internal.c
                                               src/stream.c
                                               src/internal/ascii_parse.c)
+add_executable(test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
 add_test(test_internal test_internal)
-add_dependencies(check test_internal)
-
+add_test(test_platform test_platform)
+add_dependencies(check test_internal test_platform)
