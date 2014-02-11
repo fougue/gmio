@@ -99,11 +99,13 @@ static void foug_stream_fwd_iterator_stla_read_hook(void* cookie,
                                                     const foug_ascii_string_buffer_t* buffer)
 {
   _internal_foug_fwd_iterator_cookie_t* tcookie = (_internal_foug_fwd_iterator_cookie_t*)(cookie);
-  if (tcookie != NULL) {
+  foug_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
+  if (ctrl != NULL) {
     const uint8_t progress_pc = foug_percentage(0, tcookie->stream_data_size, tcookie->stream_offset);
-    tcookie->is_stop_requested = !foug_task_control_handle_progress(tcookie->task_control, progress_pc);
-    tcookie->stream_offset += buffer->len;
+    tcookie->is_stop_requested = !foug_task_control_handle_progress(ctrl, progress_pc);
   }
+  if (tcookie != NULL)
+    tcookie->stream_offset += buffer->len;
 }
 
 FOUG_INLINE static foug_bool_t parsing_can_continue(const foug_stla_parse_data_t* data)
