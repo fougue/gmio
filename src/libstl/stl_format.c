@@ -42,7 +42,7 @@ foug_stl_format_t foug_stl_get_format(foug_stream_t *stream, size_t data_size)
   {
     /* Skip spaces at beginning */
     size_t pos = 0;
-    while (isspace(fixed_buffer[pos]) && pos < read_size)
+    while (pos < read_size && isspace(fixed_buffer[pos]))
       ++pos;
 
     /* Next token (if exists) must match "solid " */
