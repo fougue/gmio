@@ -4,7 +4,7 @@
 #include "stl_global.h"
 #include "stl_triangle.h"
 
-typedef struct
+struct foug_stl_geom_creator
 {
   void* cookie;
 
@@ -14,6 +14,8 @@ typedef struct
   void (*add_triangle_func)(void*, uint32_t, const foug_stl_triangle_t*); /* Optional */
 
   void (*end_solid_func)       (void*); /* Optional */
-} foug_stl_geom_creator_t;
+};
+
+typedef struct foug_stl_geom_creator foug_stl_geom_creator_t;
 
 #endif /* FOUG_LIBSTL_STL_GEOM_CREATOR_H */

@@ -4,13 +4,15 @@
 #include "global.h"
 
 /*! This enum identifies endian representations of numbers */
-typedef enum
+enum foug_endianness
 {
   FOUG_LITTLE_ENDIAN,
   FOUG_BIG_ENDIAN,
   FOUG_MIDDLE_ENDIAN,
   FOUG_OTHER_ENDIAN
-} foug_endianness_t;
+};
+
+typedef enum foug_endianness foug_endianness_t;
 
 /*! Returns endianness (byte order) of the host's CPU architecture */
 FOUG_LIB_EXPORT foug_endianness_t foug_host_endianness();

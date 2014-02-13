@@ -4,7 +4,7 @@
 #include "global.h"
 
 /*! This enum defines common errors */
-typedef enum
+enum foug_datax_error
 {
   /*! No error occurred, success */
   FOUG_DATAX_NO_ERROR = 0,
@@ -21,10 +21,11 @@ typedef enum
   /*! An error occurred with the argument foug_stream_t (check foug_stream_error()) */
   FOUG_DATAX_STREAM_ERROR = -4,
 
-  /*! Operation was stopped by user (foug_task_control_t::handle_progress_func() returned false) */
+  /*! Operation was stopped by user (foug_task_control::handle_progress_func() returned FOUG_FALSE) */
   FOUG_DATAX_TASK_STOPPED_ERROR = -5
+};
 
-} foug_datax_error_t;
+typedef enum foug_datax_error foug_datax_error_t;
 
 /*! Returns true if \p code == FOUG_DATAX_NO_ERROR */
 FOUG_LIB_EXPORT foug_bool_t foug_datax_no_error(int code);

@@ -2,7 +2,8 @@
 #define FOUG_LIBSTL_STL_ERROR_H
 
 #define FOUG_STL_ERROR_TAG  0x11000000
-typedef enum
+
+enum foug_stl_rw_error
 {
   FOUG_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = FOUG_STL_ERROR_TAG + 1,
 
@@ -14,6 +15,8 @@ typedef enum
   FOUG_STLB_UNSUPPORTED_BYTE_ORDER_ERROR = FOUG_STL_ERROR_TAG + 300,
   FOUG_STLB_READ_HEADER_WRONG_SIZE_ERROR = FOUG_STL_ERROR_TAG + 301,
   FOUG_STLB_READ_FACET_COUNT_ERROR = FOUG_STL_ERROR_TAG + 302
-} foug_stl_rw_error_t;
+};
+
+typedef enum foug_stl_rw_error foug_stl_rw_error_t;
 
 #endif /* FOUG_LIBSTL_STL_ERROR_H */
