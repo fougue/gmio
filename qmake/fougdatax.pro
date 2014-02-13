@@ -63,11 +63,8 @@ contains(DATAX, stl) {
     ../src/libstl/stl_geom.h \
     ../src/libstl/stl_geom_creator.h \
     ../src/libstl/stl_global.h \
+    ../src/libstl/stl_io.h \
     ../src/libstl/stl_triangle.h \
-    ../src/libstl/stla_read.h \
-    ../src/libstl/stla_write.h \
-    ../src/libstl/stlb_read.h \
-    ../src/libstl/stlb_write.h \
     \
     ../src/internal/libstl/stlb_byte_swap.h \
     ../src/internal/libstl/stl_rw_common.h

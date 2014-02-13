@@ -3,10 +3,7 @@
 
 extern "C" {
 #include "support_global.h"
-#include "../libstl/stla_read.h"
-#include "../libstl/stla_write.h"
-#include "../libstl/stlb_read.h"
-#include "../libstl/stlb_write.h"
+#include "../libstl/stl_io.h"
 }
 #include <Handle_StlMesh_Mesh.hxx>
 
