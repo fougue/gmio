@@ -47,14 +47,19 @@ typedef unsigned long long uint64_t;
 
 #endif /* FOUG_USE_STDINT_H */
 
+/*! Typedef for boolean type */
 typedef int    foug_bool_t;
-typedef float  foug_real32_t;
-typedef double foug_real64_t;
+/*! This enum defines true/false boolean values */
 enum foug_bool_value
 {
   FOUG_FALSE = 0,
   FOUG_TRUE = 1
 };
+
+/*! Typedef for 32bit real type (float) */
+typedef float  foug_real32_t;
+/*! Typedef for 64bit real type (double) */
+typedef double foug_real64_t;
 
 #ifndef FOUG_INLINE
 # if defined(__GNUC__)

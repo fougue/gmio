@@ -10,7 +10,6 @@ typedef union
   uint8_t  bytes[4];
 } _internal_foug_int_bytes_32_convert_t;
 
-/*! Endianness (byte order) of the host's CPU architecture */
 foug_endianness_t foug_host_endianness()
 {
   _internal_foug_int_bytes_32_convert_t conv;
