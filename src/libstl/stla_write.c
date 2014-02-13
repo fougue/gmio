@@ -95,7 +95,7 @@ static foug_bool_t foug_transfer_flush_buffer(foug_transfer_t* trsf, size_t n)
 
 #define _FOUG_INTERNAL_MIN(v1, v2)  ((v1) < (v2) ? (v1) : (v2))
 
-/*! \brief Write geometry in the STL ascii format
+/*! \fn int foug_stla_write(foug_stl_geom_t*, foug_transfer_t*, const char*, uint8_t)
  *
  *  \param geom Defines the custom geometry to write
  *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
@@ -105,12 +105,6 @@ static foug_bool_t foug_transfer_flush_buffer(foug_transfer_t* trsf, size_t n)
  *  \return Error code
  *
  *  \retval FOUG_DATAX_NO_ERROR If operation successful
- *  \retval FOUG_DATAX_NULL_BUFFER_ERROR If trsf->buffer is NULL
- *  \retval FOUG_DATAX_INVALID_BUFFER_SIZE_ERROR If trsf->buffer_size is less than 512 bytes
- *  \retval FOUG_STLA_WRITE_INVALID_REAL32_PRECISION If \p real_prec is not inside [1..9]
- *  \retval FOUG_STLA_WRITE_NULL_GET_TRIANGLE_FUNC If geom->get_triangle_func is NULL
- *  \retval FOUG_DATAX_STREAM_ERROR For any writing error
- *  \retval FOUG_DATAX_TASK_STOPPED_ERROR If the operation was interrupted foug_task_control
  */
 int foug_stla_write(foug_stl_geom_t* geom,
                     foug_transfer_t* trsf,

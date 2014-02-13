@@ -4,6 +4,7 @@
 #include "stl_global.h"
 #include "../stream.h"
 
+/*! This enums defines the various STL formats */
 enum foug_stl_format
 {
   FOUG_STL_ASCII_FORMAT,     /*!< STL ASCII (text) */

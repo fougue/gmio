@@ -5,6 +5,7 @@
 
 enum foug_stl_rw_error
 {
+  /*! Common STL write error indicating foug_stl_geom::get_triangle_func() pointer is NULL */
   FOUG_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = FOUG_STL_ERROR_TAG + 1,
 
   /* Specific error codes returned by STL_ascii read function */

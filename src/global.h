@@ -49,6 +49,7 @@ typedef unsigned long long uint64_t;
 
 /*! Typedef for boolean type */
 typedef int    foug_bool_t;
+
 /*! This enum defines true/false boolean values */
 enum foug_bool_value
 {
@@ -58,6 +59,7 @@ enum foug_bool_value
 
 /*! Typedef for 32bit real type (float) */
 typedef float  foug_real32_t;
+
 /*! Typedef for 64bit real type (double) */
 typedef double foug_real64_t;
 
