@@ -6,6 +6,8 @@ include(CheckCSourceCompiles)
 
 project(fougdatax)
 
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # Options
 option(BUILD_SHARED_LIBS       "Build shared libraries (DLL)" ON)
 option(BUILD_STRICT_C90        "Build with strict conformance to C90 standard, if disabled FougDataX can use C99 features (eg. fabsf(), strtof(), ...)" ON)
@@ -39,7 +41,7 @@ endif()
 configure_file(src/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 
-# Specific flags for gcc
+# Specific flags for GCC
 if(CMAKE_COMPILER_IS_GNUCC)
   if (BUILD_STRICT_C90)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi")
@@ -105,6 +107,7 @@ if(BUILD_WITH_QT_SUPPORT)
   file(GLOB  ALL_QT_SUPPORT_SRC_FILES  src/support/qt_*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_QT_SUPPORT_SRC_FILES})
 else()
+  install(FILES src/support/qt_stream.h   DESTINATION src/support)
   install(FILES src/support/qt_stream.cpp DESTINATION src/support)
 endif()
 install(FILES src/support/qt_stream.h DESTINATION include/datax/support)
@@ -138,15 +141,28 @@ if(BUILD_WITH_OCC_SUPPORT)
                     -DHAVE_LIMITS_H)
   endif()
 
-  # Library path
+  # Libraries
+  
+  #set(CASCADE_TOOLKITS  TKSTL TKernel TKMath)
+  #foreach(occToolKit ${CASCADE_TOOLKITS})
+  #  find_library(${occToolKit}_OCCLIB ${occToolKit} ${CASCADE_ROOT}/lib NO_DEFAULT_PATH)
+  #  set(foundOccLib ${${occToolKit}_OCCLIB})
+  #  if(foundOccLib STREQUAL ${occToolKit}_OCCLIB-NOTFOUND)
+  #    message(FATAL_ERROR "Cannot find ${occToolKit} in ${CASCADE_ROOT}/lib")
+  #  endif()
+  #  set(CASCADE_LIBRARIES ${CASCADE_LIBRARIES} ${foundOccLib})
+  #  mark_as_advanced(${occToolKit}_OCCLIB)
+  #endforeach()
+
   link_directories(${CASCADE_ROOT}/lib)
 else()
+  install(FILES src/support/occ_libstl.h   DESTINATION src/support)
   install(FILES src/support/occ_libstl.cpp DESTINATION src/support)
 endif()
 install(FILES src/support/occ_libstl.h DESTINATION include/datax/support)
 
 
-# Declare fougdatax library
+# Installs for target
 add_library(fougdatax ${ALL_SRC_FILES})
 install(TARGETS fougdatax
           RUNTIME DESTINATION lib
@@ -163,12 +179,12 @@ if(BUILD_WITH_QT_SUPPORT)
   endif()
 endif()
 
-# OpenCascade support ling
+# OpenCascade support link
 if(BUILD_WITH_OCC_SUPPORT)
-  target_link_libraries(fougdatax TKSTL TKernel TKMath)  
+  #target_link_libraries(fougdatax ${CASCADE_LIBRARIES})
+  target_link_libraries(fougdatax TKSTL TKernel TKMath)
 endif()
 
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Examples:
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
