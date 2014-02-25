@@ -12,7 +12,7 @@
 /*! Returns \p val with the order of bytes reversed, uses compiler builtin functions if available */
 FOUG_INLINE static uint16_t foug_uint16_bswap(uint16_t val)
 {
-#ifdef FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC
+#ifdef FOUG_HAVE_GCC_BUILTIN_BSWAP16_FUNC
   return __builtin_bswap16(val);
 #elif defined(FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
   return _byteswap_ushort(val);
@@ -24,7 +24,7 @@ FOUG_INLINE static uint16_t foug_uint16_bswap(uint16_t val)
 /*! Returns \p val with the order of bytes reversed, uses compiler builtin functions if available */
 FOUG_INLINE static uint32_t foug_uint32_bswap(uint32_t val)
 {
-#ifdef FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC
+#ifdef FOUG_HAVE_GCC_BUILTIN_BSWAP32_FUNC
   return __builtin_bswap32(val);
 #elif defined(FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
   return _byteswap_ulong(val);

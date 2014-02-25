@@ -30,8 +30,12 @@ endif()
 
 # Have builtin byte swap functions ?
 if(CMAKE_COMPILER_IS_GNUCC)
+  # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
+  # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
+  check_c_source_compiles("int main() { return (int)__builtin_bswap16(0x1122); }"
+                           FOUG_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
   check_c_source_compiles("int main() { return (int)__builtin_bswap32(0x11223344); }"
-                           FOUG_HAVE_GCC_BUILTIN_BSWAP_FUNC)
+                           FOUG_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
 elseif(MSVC)
   check_c_source_compiles("#include <stdlib.h>
                            int main() { return (int)_byteswap_ulong(0x11223344); }"
