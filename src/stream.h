@@ -4,6 +4,8 @@
 #include "global.h"
 #include <stdio.h>
 
+FOUG_C_LINKAGE_BEGIN
+
 /*! Stream that can get input from an arbitrary data source or can write output to an arbitrary
  *  data sink
  */
@@ -54,5 +56,7 @@ FOUG_LIB_EXPORT size_t foug_stream_write(foug_stream_t* stream,
                                          const void* ptr,
                                          size_t size,
                                          size_t count);
+
+FOUG_C_LINKAGE_END
 
 #endif /* FOUG_C_STREAM_H */

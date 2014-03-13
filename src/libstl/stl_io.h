@@ -7,6 +7,8 @@
 #include "../endian.h"
 #include "../transfer.h"
 
+FOUG_C_LINKAGE_BEGIN
+
 /*
  *  STL ascii
  */
@@ -36,5 +38,7 @@ FOUG_DATAX_LIBSTL_EXPORT int foug_stlb_write(const foug_stl_geom_t* geom,
                                              foug_transfer_t*       trsf,
                                              const uint8_t*         header_data,
                                              foug_endianness_t      byte_order);
+
+FOUG_C_LINKAGE_END
 
 #endif /* FOUG_DATAX_LIBSTL_STL_IO_H */

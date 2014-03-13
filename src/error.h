@@ -3,6 +3,8 @@
 
 #include "global.h"
 
+FOUG_C_LINKAGE_BEGIN
+
 /*! This enum defines common errors */
 enum foug_datax_error
 {
@@ -32,5 +34,7 @@ FOUG_LIB_EXPORT foug_bool_t foug_datax_no_error(int code);
 
 /*! Returns true if \p code != FOUG_DATAX_NO_ERROR */
 FOUG_LIB_EXPORT foug_bool_t foug_datax_error(int code);
+
+FOUG_C_LINKAGE_END
 
 #endif /* FOUG_DATAX_C_ERROR_H */

@@ -4,6 +4,8 @@
 #include "global.h"
 #include "memory.h"
 
+FOUG_C_LINKAGE_BEGIN
+
 /*! Provides control over a general task.
  *
  *  "Control" here means task progress handling and interruption request (abort).
@@ -25,5 +27,7 @@ FOUG_LIB_EXPORT foug_bool_t foug_task_control_handle_progress(foug_task_control_
 
 /*! Utility function that converts \p value as a percentage */
 FOUG_LIB_EXPORT uint8_t foug_percentage(size_t range_min, size_t range_max, size_t value);
+
+FOUG_C_LINKAGE_END
 
 #endif /* FOUG_C_TASK_CONTROL_H */

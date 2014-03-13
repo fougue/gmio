@@ -73,4 +73,12 @@ typedef double foug_real64_t;
 # endif
 #endif /* !FOUG_INLINE */
 
+#ifdef __cplusplus
+# define FOUG_C_LINKAGE_BEGIN extern "C" {
+# define FOUG_C_LINKAGE_END   }
+#else
+# define FOUG_C_LINKAGE_BEGIN
+# define FOUG_C_LINKAGE_END
+#endif /* __cplusplus */
+
 #endif /* FOUG_C_GLOBAL_H */

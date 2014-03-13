@@ -4,6 +4,8 @@
 #include "stl_global.h"
 #include "../stream.h"
 
+FOUG_C_LINKAGE_BEGIN
+
 /*! This enums defines the various STL formats */
 enum foug_stl_format
 {
@@ -17,5 +19,7 @@ typedef enum foug_stl_format foug_stl_format_t;
 
 FOUG_DATAX_LIBSTL_EXPORT
 foug_stl_format_t foug_stl_get_format(foug_stream_t* stream, size_t data_size);
+
+FOUG_C_LINKAGE_END
 
 #endif /* FOUG_LIBSTL_FORMAT_H */
