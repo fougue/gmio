@@ -83,15 +83,13 @@ int foug_stlb_write(const foug_stl_geom_t *geom,
   wparams.facet_count = trsf->buffer_size / FOUG_STLB_TRIANGLE_RAWSIZE;
 
   /* Write header */
-  {
-    if (header_data == NULL) {
-      /* Use buffer to store an empty header (filled with zeroes) */
-      memset(trsf->buffer, 0, FOUG_STLB_HEADER_SIZE);
-      header_data = (const uint8_t*)trsf->buffer;
-    }
-    if (foug_stream_write(&trsf->stream, header_data, FOUG_STLB_HEADER_SIZE, 1) != 1)
-      return FOUG_DATAX_STREAM_ERROR;
+  if (header_data == NULL) {
+    /* Use buffer to store an empty header (filled with zeroes) */
+    memset(trsf->buffer, 0, FOUG_STLB_HEADER_SIZE);
+    header_data = (const uint8_t*)trsf->buffer;
   }
+  if (foug_stream_write(&trsf->stream, header_data, FOUG_STLB_HEADER_SIZE, 1) != 1)
+    return FOUG_DATAX_STREAM_ERROR;
 
   /* Write facet count */
   if (byte_order == FOUG_LITTLE_ENDIAN)
