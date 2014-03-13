@@ -5,7 +5,7 @@
 #define FOUG_STL_ERROR_TAG  0x11000000
 
 /*! This enum defines the various error codes reported by STL read/write functions */
-enum foug_stl_rw_error
+enum foug_stl_error
 {
   /*! Common STL write error indicating foug_stl_geom::get_triangle_func() pointer is NULL */
   FOUG_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = FOUG_STL_ERROR_TAG + 1,
@@ -30,6 +30,6 @@ enum foug_stl_rw_error
   FOUG_STLB_READ_FACET_COUNT_ERROR = FOUG_STL_ERROR_TAG + 302
 };
 
-typedef enum foug_stl_rw_error foug_stl_rw_error_t;
+typedef enum foug_stl_error  foug_stl_error_t;
 
 #endif /* FOUG_LIBSTL_STL_ERROR_H */
