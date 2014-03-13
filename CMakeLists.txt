@@ -4,7 +4,7 @@ include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 
-project(fougdatax)
+project(fougdatax C)
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -49,6 +49,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -fstrict-aliasing")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Winline -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
+  # Force PIC for GCC, see : https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
