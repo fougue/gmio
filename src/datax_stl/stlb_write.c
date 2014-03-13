@@ -16,20 +16,6 @@ FOUG_INLINE static void write_triangle_memcpy(const foug_stl_triangle_t* triangl
   memcpy(buffer, triangle, FOUG_STLB_TRIANGLE_RAWSIZE);
 }
 
-static void write_coords_alignsafe(const foug_stl_coords_t* coords, uint8_t* buffer)
-{
-  memcpy(buffer, coords, FOUG_STL_COORDS_RAWSIZE);
-}
-
-static void write_triangle_alignsafe(const foug_stl_triangle_t* triangle, uint8_t* buffer)
-{
-  write_coords_alignsafe(&triangle->normal, buffer);
-  write_coords_alignsafe(&triangle->v1, buffer + 1*FOUG_STL_COORDS_RAWSIZE);
-  write_coords_alignsafe(&triangle->v2, buffer + 2*FOUG_STL_COORDS_RAWSIZE);
-  write_coords_alignsafe(&triangle->v3, buffer + 3*FOUG_STL_COORDS_RAWSIZE);
-  memcpy(buffer + 4*FOUG_STL_COORDS_RAWSIZE, &triangle->attribute_byte_count, sizeof(uint16_t));
-}
-
 static void foug_stlb_write_facets(const foug_stl_geom_t* geom,
                                    uint8_t* buffer,
                                    const foug_stlb_readwrite_helper* wparams)
@@ -50,11 +36,7 @@ static void foug_stlb_write_facets(const foug_stl_geom_t* geom,
     if (wparams->fix_endian_func != NULL)
       wparams->fix_endian_func(&triangle);
 
-#ifdef FOUG_STLB_READWRITE_ALIGNSAFE
-    write_triangle_alignsafe(&triangle, buffer + buffer_offset);
-#else
     write_triangle_memcpy(&triangle, buffer + buffer_offset);
-#endif
 
     buffer_offset += FOUG_STLB_TRIANGLE_RAWSIZE;
   } /* end for */
