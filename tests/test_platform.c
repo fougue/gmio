@@ -1,7 +1,7 @@
 #include "utest_lib.h"
 
-#include "../src/global.h"
-#include "../src/libstl/stl_triangle.h"
+#include "../src/datax_core/global.h"
+#include "../src/datax_stl/stl_triangle.h"
 
 #include <stddef.h>
 

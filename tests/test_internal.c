@@ -1,8 +1,8 @@
 #include "utest_lib.h"
 
-#include "../src/internal/ascii_parse.h"
-#include "../src/internal/byte_swap.h"
-#include "../src/internal/byte_codec.h"
+#include "../src/datax_core/internal/ascii_parse.h"
+#include "../src/datax_core/internal/byte_swap.h"
+#include "../src/datax_core/internal/byte_codec.h"
 
 #include "stream_buffer.h"
 

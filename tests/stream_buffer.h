@@ -1,7 +1,7 @@
 #ifndef FOUG_STREAM_BUFFER_H
 #define FOUG_STREAM_BUFFER_H
 
-#include "../src/stream.h"
+#include "../src/datax_core/stream.h"
 
 typedef struct
 {
