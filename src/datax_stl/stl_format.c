@@ -1,9 +1,10 @@
 #include "stl_format.h"
 
-#include "../endian.h"
-#include "../internal/byte_codec.h"
-#include "../internal/byte_swap.h"
 #include "stl_triangle.h"
+
+#include "../datax_core/endian.h"
+#include "../datax_core/internal/byte_codec.h"
+#include "../datax_core/internal/byte_swap.h"
 
 #include <ctype.h>
 #include <string.h>

@@ -1,7 +1,7 @@
 #include "stl_rw_common.h"
 
-#include "../../error.h"
-#include "../../libstl/stl_error.h"
+#include "../../datax_core/error.h"
+#include "../stl_error.h"
 
 foug_bool_t foug_check_transfer(int *error, const foug_transfer_t* trsf)
 {

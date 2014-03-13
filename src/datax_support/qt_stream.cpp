@@ -1,4 +1,6 @@
-#include "qt_stream.h"
+#include <datax_support/qt_stream.h>
+
+#include <datax_core/stream.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>

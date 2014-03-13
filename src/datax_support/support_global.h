@@ -1,7 +1,7 @@
 #ifndef FOUG_C_SUPPORT_GLOBAL_H
 #define FOUG_C_SUPPORT_GLOBAL_H
 
-#include "../global.h"
+#include <datax_core/global.h>
 
 #ifdef FOUG_LIBSUPPORT_DLL
 # ifdef FOUG_LIBSUPPORT_MAKE_DLL

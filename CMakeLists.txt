@@ -6,18 +6,15 @@ include(CheckCSourceCompiles)
 
 project(fougdatax)
 
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Options
 option(BUILD_SHARED_LIBS       "Build shared libraries (DLL)" ON)
 option(BUILD_STRICT_C90        "Build with strict conformance to C90 standard, if disabled FougDataX can use C99 features (eg. fabsf(), strtof(), ...)" ON)
 option(BUILD_WITH_LIBSTL       "Build the libSTL module" ON)
-option(BUILD_WITH_QT_SUPPORT   "Build with Qt support" OFF)
-option(BUILD_WITH_QT_SUPPORT_FORCE_QT4   "Build the Qt support with Qt4 instead of Qt5. No effect if option BUILD_WITH_QT_SUPPORT is disabled" OFF)
-option(BUILD_WITH_OCC_SUPPORT  "Build with OpenCascade support" OFF)
 
 # Add core source files
-file(GLOB  ALL_SRC_FILES  src/*  src/internal/*)
+file(GLOB  ALL_SRC_FILES  src/datax_core/*  src/datax_core/internal/*)
 set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 
 # Have <stdint.h> ?
@@ -42,7 +39,7 @@ elseif(MSVC)
                           FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
 endif()
 
-configure_file(src/config.h.cmake config.h @ONLY)
+configure_file(src/datax_core/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 
 # Specific flags for GCC
@@ -52,6 +49,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
   endif()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -fstrict-aliasing")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Winline -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # Specific flags for Visual C++
@@ -66,105 +64,36 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # Declare installs
-install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/datax)
+install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/datax_core)
 
-file(GLOB  C_GLOBAL_HEADERS  src/*.h)
-install(FILES ${C_GLOBAL_HEADERS} DESTINATION include/datax)
+file(GLOB  C_CORE_HEADERS  src/datax_core/*.h)
+install(FILES ${C_CORE_HEADERS} DESTINATION include/datax_core)
 
 # Module libSTL
 if(BUILD_WITH_LIBSTL)
-  add_definitions(-DFOUG_DATAX_LIBSTL_DLL
-                  -DFOUG_DATAX_LIBSTL_MAKE_DLL)
+  if(BUILD_SHARED_LIBS)
+    add_definitions(-DFOUG_DATAX_LIBSTL_DLL
+                    -DFOUG_DATAX_LIBSTL_MAKE_DLL)
+  endif()
 
-  file(GLOB  ALL_LIBSTL_SRC_FILES  src/libstl/*  src/internal/libstl/*)
+  file(GLOB  ALL_LIBSTL_SRC_FILES  src/datax_stl/*  src/datax_stl/internal/*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_LIBSTL_SRC_FILES})
 
 endif()
-file(GLOB  C_LIBSTL_HEADERS  src/libstl/*.h)
-install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax/libstl)
+file(GLOB  C_LIBSTL_HEADERS  src/datax_stl/*.h)
+install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax_stl)
 
 
 # Common for support modules
-if(BUILD_WITH_QT_SUPPORT OR BUILD_WITH_OCC_SUPPORT)
-  if(BUILD_SHARED_LIBS)
-    add_definitions(-DFOUG_LIBSUPPORT_DLL
-                    -DFOUG_LIBSUPPORT_MAKE_DLL)
-  endif()
-endif()
-install(FILES src/support/support_global.h DESTINATION include/datax/support)
+install(FILES src/datax_support/support_global.h DESTINATION include/datax_support)
 
 # Qt support
-if(BUILD_WITH_QT_SUPPORT)
-  if(BUILD_WITH_QT_SUPPORT_FORCE_QT4)
-    find_package(Qt4 REQUIRED)
-    set(QT_USE_QTCORE TRUE)
-    set(QT_USE_QTGUI  FALSE)
-    include(${QT_USE_FILE})
-    add_definitions(${QT_DEFINITIONS})
-  else()
-    if ("${CMAKE_VERSION}" VERSION_GREATER 2.8.11)
-      cmake_policy(SET CMP0020 NEW)
-    endif()
-    find_package(Qt5Core REQUIRED)
-  endif()
-
-  file(GLOB  ALL_QT_SUPPORT_SRC_FILES  src/support/qt_*)
-  set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_QT_SUPPORT_SRC_FILES})
-else()
-  install(FILES src/support/qt_stream.h   DESTINATION src/support)
-  install(FILES src/support/qt_stream.cpp DESTINATION src/support)
-endif()
-install(FILES src/support/qt_stream.h DESTINATION include/datax/support)
+install(FILES src/datax_support/qt_stream.h   DESTINATION include/datax_support)
+install(FILES src/datax_support/qt_stream.cpp DESTINATION src/datax_support)
 
 # OpenCASCADE support
-if(BUILD_WITH_OCC_SUPPORT)
-  set(CASCADE_ROOT "" CACHE PATH "Root directory of OpenCascade, useful only when option BUILD_WITH_OCC_SUPPORT is enabled")
-
-  file(GLOB  ALL_OCC_SUPPORT_SRC_FILES  src/support/occ_*)
-  set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_OCC_SUPPORT_SRC_FILES})
-  include_directories(${CASCADE_ROOT}/inc)
-
-  # Defines
-  if(WIN32)
-    add_definitions(-DWNT) 
-  elseif("${CMAKE_SYSTEM}" MATCHES "Linux")
-    add_definitions(-DLIN
-                    -DLININTEL
-                    -DOCC_CONVERT_SIGNALS) 
-  endif()
-
-  if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64b ?
-    add_definitions(-D_OCC64)
-  endif()
-
-  if(NOT WIN32)
-    add_definitions(-DHAVE_CONFIG_H
-                    -DHAVE_FSTREAM
-                    -DHAVE_IOSTREAM
-                    -DHAVE_IOMANIP
-                    -DHAVE_LIMITS_H)
-  endif()
-
-  # Libraries
-  
-  #set(CASCADE_TOOLKITS  TKSTL TKernel TKMath)
-  #foreach(occToolKit ${CASCADE_TOOLKITS})
-  #  find_library(${occToolKit}_OCCLIB ${occToolKit} ${CASCADE_ROOT}/lib NO_DEFAULT_PATH)
-  #  set(foundOccLib ${${occToolKit}_OCCLIB})
-  #  if(foundOccLib STREQUAL ${occToolKit}_OCCLIB-NOTFOUND)
-  #    message(FATAL_ERROR "Cannot find ${occToolKit} in ${CASCADE_ROOT}/lib")
-  #  endif()
-  #  set(CASCADE_LIBRARIES ${CASCADE_LIBRARIES} ${foundOccLib})
-  #  mark_as_advanced(${occToolKit}_OCCLIB)
-  #endforeach()
-
-  link_directories(${CASCADE_ROOT}/lib)
-else()
-  install(FILES src/support/occ_libstl.h   DESTINATION src/support)
-  install(FILES src/support/occ_libstl.cpp DESTINATION src/support)
-endif()
-install(FILES src/support/occ_libstl.h DESTINATION include/datax/support)
-
+install(FILES src/datax_support/occ_libstl.h   DESTINATION include/datax_support)
+install(FILES src/datax_support/occ_libstl.cpp DESTINATION src/datax_support)
 
 # Installs for target
 add_library(fougdatax ${ALL_SRC_FILES})
@@ -172,22 +101,6 @@ install(TARGETS fougdatax
           RUNTIME DESTINATION lib
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib)
-
-
-# Qt support link
-if(BUILD_WITH_QT_SUPPORT)
-  if(BUILD_WITH_QT_SUPPORT_FORCE_QT4)
-    target_link_libraries(fougdatax ${QT_LIBRARIES})
-  else()
-    qt5_use_modules(fougdatax Core)
-  endif()
-endif()
-
-# OpenCascade support link
-if(BUILD_WITH_OCC_SUPPORT)
-  #target_link_libraries(fougdatax ${CASCADE_LIBRARIES})
-  target_link_libraries(fougdatax TKSTL TKernel TKMath)
-endif()
 
 
 # Examples:
@@ -204,8 +117,8 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 add_executable(test_internal EXCLUDE_FROM_ALL tests/stream_buffer.c
                                               tests/test_internal.c
-                                              src/stream.c
-                                              src/internal/ascii_parse.c)
+                                              src/datax_core/stream.c
+                                              src/datax_core/internal/ascii_parse.c)
 add_executable(test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
 add_test(test_internal test_internal)
 add_test(test_platform test_platform)

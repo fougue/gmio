@@ -17,32 +17,34 @@ DATAX += stl
 dll:DEFINES += FOUG_LIB_DLL \
                FOUG_LIB_MAKE_DLL
 
+INCLUDEPATH += $$PWD/../src
+
 #*g++*:QMAKE_CXXFLAGS_RELEASE -= -O2
 #*g++*:QMAKE_CXXFLAGS_RELEASE += -O3
 
 HEADERS += \
     config.h \
-    ../src/endian.h \
-    ../src/error.h \
-    ../src/global.h \
-    ../src/memory.h \
-    ../src/stream.h \
-    ../src/task_control.h \
-    ../src/transfer.h \
+    ../src/datax_core/endian.h \
+    ../src/datax_core/error.h \
+    ../src/datax_core/global.h \
+    ../src/datax_core/memory.h \
+    ../src/datax_core/stream.h \
+    ../src/datax_core/task_control.h \
+    ../src/datax_core/transfer.h \
     \
-    ../src/internal/convert.h \
-    ../src/internal/ascii_parse.h \
-    ../src/internal/byte_swap.h \
-    ../src/internal/byte_codec.h
+    ../src/datax_core/internal/convert.h \
+    ../src/datax_core/internal/ascii_parse.h \
+    ../src/datax_core/internal/byte_swap.h \
+    ../src/datax_core/internal/byte_codec.h
 
 SOURCES += \
-    ../src/endian.c \
-    ../src/error.c \
-    ../src/stream.c \
-    ../src/task_control.c \
+    ../src/datax_core/endian.c \
+    ../src/datax_core/error.c \
+    ../src/datax_core/stream.c \
+    ../src/datax_core/task_control.c \
     \
-    ../src/internal/convert.c \
-    ../src/internal/ascii_parse.c
+    ../src/datax_core/internal/convert.c \
+    ../src/datax_core/internal/ascii_parse.c
 
 *-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
 *-msvc*:QMAKE_CFLAGS += -TC
@@ -58,29 +60,29 @@ contains(DATAX, stl) {
   #DEFINES += FOUG_STLB_READWRITE_ALIGNSAFE
 
   HEADERS += \
-    ../src/libstl/stl_error.h \
-    ../src/libstl/stl_format.h \
-    ../src/libstl/stl_geom.h \
-    ../src/libstl/stl_geom_creator.h \
-    ../src/libstl/stl_global.h \
-    ../src/libstl/stl_io.h \
-    ../src/libstl/stl_triangle.h \
+    ../src/datax_stl/stl_error.h \
+    ../src/datax_stl/stl_format.h \
+    ../src/datax_stl/stl_geom.h \
+    ../src/datax_stl/stl_geom_creator.h \
+    ../src/datax_stl/stl_global.h \
+    ../src/datax_stl/stl_io.h \
+    ../src/datax_stl/stl_triangle.h \
     \
-    ../src/internal/libstl/stlb_byte_swap.h \
-    ../src/internal/libstl/stl_rw_common.h
+    ../src/datax_stl/internal/stlb_byte_swap.h \
+    ../src/datax_stl/internal/stl_rw_common.h
 
   SOURCES += \
-    ../src/libstl/stl_format.c \
-    ../src/libstl/stla_read.c \
-    ../src/libstl/stla_write.c \
-    ../src/libstl/stlb_read.c \
-    ../src/libstl/stlb_write.c \
+    ../src/datax_stl/stl_format.c \
+    ../src/datax_stl/stla_read.c \
+    ../src/datax_stl/stla_write.c \
+    ../src/datax_stl/stlb_read.c \
+    ../src/datax_stl/stlb_write.c \
     \
-    ../src/internal/libstl/stlb_byte_swap.c \
-    ../src/internal/libstl/stl_rw_common.c
+    ../src/datax_stl/internal/stlb_byte_swap.c \
+    ../src/datax_stl/internal/stl_rw_common.c
 
-  libstl_inc.path  = $$PREFIX_DIR/include/datax/libstl
-  libstl_inc.files = ../src/libstl/*.h
+  libstl_inc.path  = $$PREFIX_DIR/include/datax_stl
+  libstl_inc.files = ../src/datax_stl/*.h
   INSTALLS += libstl_inc
 } # contains(DATAX, stl)
 
@@ -91,46 +93,21 @@ HAS_SUPPORT = $$find(DATAX, support)
   dll:DEFINES += FOUG_LIBSUPPORT_DLL \
                  FOUG_LIBSUPPORT_MAKE_DLL
   support_inc.path  = $$PREFIX_DIR/include/datax/support
-  support_inc.files = ../src/support/support_global.h
+  support_inc.files = ../src/datax_support/support_global.h
   INSTALLS += support_inc
 } # !isEmpty(HAS_SUPPORT)
 
 # qt_support
 contains(DATAX, qt_support) {
-  HEADERS += ../src/support/qt_stream.h
-  SOURCES += ../src/support/qt_stream.cpp
-
-  QT = core
-
-  qt_support_inc.path  = $$PREFIX_DIR/include/datax/support
-  qt_support_inc.files = ../src/support/qt_stream.h
+  qt_support_inc.path  = $$PREFIX_DIR/include/datax_support
+  qt_support_inc.files = ../src/datax_support/qt_stream.h
   INSTALLS += qt_support_inc
 } # contains(DATAX, qt_support)
 
 # occ_support
 contains(DATAX, occ_support) {
-  isEmpty(CASCADE_ROOT):error(Variable CASCADE_ROOT is not defined)
-
-  INCLUDEPATH += $$CASCADE_ROOT/inc
-
-  win32-*:DEFINES += WNT
-  linux-*:DEFINES += LIN LININTEL OCC_CONVERT_SIGNALS
-  *-64:DEFINES += _OCC64
-  !win32:DEFINES += HAVE_CONFIG_H \
-                    HAVE_FSTREAM \
-                    HAVE_IOSTREAM \
-                    HAVE_IOMANIP \
-                    HAVE_LIMITS_H
-
-  HEADERS += ../src/support/occ_libstl.h
-  SOURCES += ../src/support/occ_libstl.cpp
-
-  CASCADE_LIBPATH = $$CASCADE_ROOT/lib
-  LIBS += -L$$CASCADE_LIBPATH -lTKSTL -lTKernel -lTKMath
-  QMAKE_RPATHDIR += $$CASCADE_LIBPATH
-
-  occ_support_inc.path  = $$PREFIX_DIR/include/datax/support
-  occ_support_inc.files = ../src/support/occ_libstl.h
+  occ_support_inc.path  = $$PREFIX_DIR/include/datax_support
+  occ_support_inc.files = ../src/datax_support/occ_libstl.h
   INSTALLS += occ_support_inc
 } # contains(DATAX, occ_support)
 
@@ -142,4 +119,4 @@ OTHER_FILES += \
             ../doc/main_page.cpp \
             ../doc/Doxyfile \
             \
-            ../src/config.h.cmake
+            ../src/datax_core/config.h.cmake

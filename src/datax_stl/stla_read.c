@@ -1,9 +1,10 @@
 #include "stl_io.h"
 
-#include "../internal/ascii_parse.h"
-#include "../internal/libstl/stl_rw_common.h"
-#include "../error.h"
 #include "stl_error.h"
+#include "internal/stl_rw_common.h"
+
+#include "../datax_core/error.h"
+#include "../datax_core/internal/ascii_parse.h"
 
 #include <ctype.h>
 #include <stdlib.h>

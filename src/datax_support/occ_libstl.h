@@ -1,11 +1,10 @@
 #ifndef FOUG_SUPPORT_OCC_LIBSTL_H
 #define FOUG_SUPPORT_OCC_LIBSTL_H
 
-extern "C" {
 #include "support_global.h"
-#include "../libstl/stl_io.h"
-}
 #include <Handle_StlMesh_Mesh.hxx>
+struct foug_stl_geom;
+struct foug_stl_geom_creator;
 
 class FOUG_LIBSUPPORT_EXPORT foug_OccStlMeshDomain
 {
@@ -24,11 +23,11 @@ private:
 };
 
 FOUG_LIBSUPPORT_EXPORT
-void foug_stl_occmesh_geom(foug_stl_geom_t* geom,
+void foug_stl_occmesh_geom(foug_stl_geom* geom,
                            const foug_OccStlMeshDomain& meshCookie);
 
 FOUG_LIBSUPPORT_EXPORT
-void foug_stl_occmesh_geom_creator(foug_stl_geom_creator_t* creator,
+void foug_stl_occmesh_geom_creator(foug_stl_geom_creator* creator,
                                    const Handle_StlMesh_Mesh& mesh);
 
 #endif /* FOUG_SUPPORT_OCC_LIBSTL_H */

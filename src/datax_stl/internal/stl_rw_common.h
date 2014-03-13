@@ -1,11 +1,11 @@
 #ifndef FOUG_INTERNAL_STL_RW_COMMON_H
 #define FOUG_INTERNAL_STL_RW_COMMON_H
 
-#include "../../global.h"
-#include "../../endian.h"
-#include "../../transfer.h"
-#include "../../libstl/stl_geom.h"
-#include "../../libstl/stl_triangle.h"
+#include "../../datax_core/global.h"
+#include "../../datax_core/endian.h"
+#include "../../datax_core/transfer.h"
+#include "../stl_geom.h"
+#include "../stl_triangle.h"
 
 typedef struct
 {

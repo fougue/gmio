@@ -1,6 +1,6 @@
 #include "stlb_byte_swap.h"
 
-#include "../byte_swap.h"
+#include "../../datax_core/internal/byte_swap.h"
 
 void foug_stl_triangle_bswap(foug_stl_triangle_t* triangle)
 {

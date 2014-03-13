@@ -1,4 +1,7 @@
-#include "occ_libstl.h"
+#include <datax_support/occ_libstl.h>
+
+#include <datax_stl/stl_geom.h>
+#include <datax_stl/stl_geom_creator.h>
 
 #include <cstring>
 #include <StlMesh_Mesh.hxx>

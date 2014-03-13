@@ -2,7 +2,7 @@
 #define FOUG_LIBSTL_FORMAT_H
 
 #include "stl_global.h"
-#include "../stream.h"
+#include "../datax_core/stream.h"
 
 FOUG_C_LINKAGE_BEGIN
 

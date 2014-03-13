@@ -4,8 +4,8 @@
 #include "stl_global.h"
 #include "stl_geom.h"
 #include "stl_geom_creator.h"
-#include "../endian.h"
-#include "../transfer.h"
+#include "../datax_core/endian.h"
+#include "../datax_core/transfer.h"
 
 FOUG_C_LINKAGE_BEGIN
 

@@ -4,4 +4,4 @@ CONFIG(debug, debug|release) {
 } else {
   TARGET_SUFFIX = 
 }
-CONFIG *= build_all debug_and_release
+CONFIG += build_all debug_and_release

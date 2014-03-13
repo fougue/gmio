@@ -1,7 +1,7 @@
 #ifndef FOUG_DATAX_C_LIBSTL_STLB_GLOBAL_H
 #define FOUG_DATAX_C_LIBSTL_STLB_GLOBAL_H
 
-#include "../global.h"
+#include "../datax_core/global.h"
 
 #ifdef FOUG_DATAX_LIBSTL_DLL
 # ifdef FOUG_DATAX_LIBSTL_MAKE_DLL
