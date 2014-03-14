@@ -1,6 +1,5 @@
-#include <datax/libstl/stla_read.h>
-#include <datax/libstl/stlb_read.h>
-#include <datax/error.h>
+#include <datax_core/error.h>
+#include <datax_stl/stl_io.h>
 
 #include "../commons/bench_tools.h"
 #include <stdio.h>
@@ -22,9 +21,11 @@ static void dummy_process_triangle(void* cookie,
 
 static void libstl_foug_stlb_read(const char* filepath)
 {
+  /* uint8_t stack_buff[30 * 1024]; */
+
   my_igeom_t cookie;
   foug_transfer_t trsf;
-  foug_stlb_geom_input_t geom;
+  foug_stl_geom_creator_t geom_creator;
   int result;
 
   FILE* file = fopen(filepath, "rb");
@@ -34,16 +35,18 @@ static void libstl_foug_stlb_read(const char* filepath)
   }
 
   cookie.facet_count = 0;
-  memset(&geom, 0, sizeof(foug_stlb_geom_input_t));
-  geom.cookie = &cookie;
-  geom.process_triangle_func = (foug_stlb_process_triangle_func_t)dummy_process_triangle;
+  memset(&geom_creator, 0, sizeof(foug_stl_geom_creator_t));
+  geom_creator.cookie = &cookie;
+  geom_creator.add_triangle_func = dummy_process_triangle;
 
   memset(&trsf, 0, sizeof(foug_transfer_t));
   foug_stream_set_stdio(&trsf.stream, file);
   trsf.buffer = (uint8_t*)malloc(512 * 1024);
   trsf.buffer_size = 512 * 1024;
+  /* trsf.buffer = stack_buff;
+  trsf.buffer_size = 24 * 1024; */
 
-  result = foug_stlb_read(&geom, &trsf, FOUG_LITTLE_ENDIAN);
+  result = foug_stlb_read(&geom_creator, &trsf, FOUG_LITTLE_ENDIAN);
   if (foug_datax_error(result))
     fprintf(stderr, "foug_stlb_read() error %i", result);
 

@@ -1,5 +1,7 @@
 include(../../qmake/config.pri)
 
+CONFIG -= build_all
+
 *-g++*:QMAKE_CFLAGS += -ansi -pedantic-errors
 
 TEMPLATE = app
