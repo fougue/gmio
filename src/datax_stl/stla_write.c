@@ -100,14 +100,14 @@ static foug_bool_t foug_transfer_flush_buffer(foug_transfer_t* trsf, size_t n)
  *
  *  \param geom Defines the custom geometry to write
  *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
-*   \param solid_name May be NULL to generate default name
+ *  \param solid_name May be NULL to generate default name
  *  \param real32_prec The maximum number of significant digits
  *
  *  \return Error code
  *
  *  \retval FOUG_DATAX_NO_ERROR If operation successful
  */
-int foug_stla_write(foug_stl_geom_t* geom,
+int foug_stla_write(const foug_stl_geom_t* geom,
                     foug_transfer_t* trsf,
                     const char* solid_name,
                     uint8_t real32_prec)

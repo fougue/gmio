@@ -19,7 +19,7 @@ FOUG_DATAX_LIBSTL_EXPORT int foug_stla_read(foug_stl_geom_creator_t* creator,
                                             size_t                   data_size_hint);
 
 /*! Write geometry in the STL ascii format */
-FOUG_DATAX_LIBSTL_EXPORT int foug_stla_write(foug_stl_geom_t* geom,
+FOUG_DATAX_LIBSTL_EXPORT int foug_stla_write(const foug_stl_geom_t* geom,
                                              foug_transfer_t* trsf,
                                              const char*      solid_name,
                                              uint8_t          real32_prec);
