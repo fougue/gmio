@@ -1505,6 +1505,8 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = FOUG_LIB_EXPORT= \
                          FOUG_LIBSUPPORT_EXPORT= \
                          FOUG_DATAX_LIBSTL_EXPORT= \
+                         FOUG_C_LINKAGE_BEGIN= \
+                         FOUG_C_LINKAGE_END= \
                          FOUG_HAVE_STDINT_H=1
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
