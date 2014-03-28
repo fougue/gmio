@@ -1,0 +1,20 @@
+#ifndef GMIO_LIBSTL_GLOBAL_H
+#define GMIO_LIBSTL_GLOBAL_H
+
+#include "../gmio_core/global.h"
+
+#ifdef GMIO_LIBSTL_DLL
+# ifdef GMIO_LIBSTL_MAKE_DLL
+#  define GMIO_LIBSTL_EXPORT GMIO_DECL_EXPORT
+# else
+#  define GMIO_LIBSTL_EXPORT GMIO_DECL_IMPORT
+# endif /* GMIO_DATAX_LIBSTL_MAKE_DLL */
+#else
+# define GMIO_LIBSTL_EXPORT
+#endif /* GMIO_LIBSTL_DLL */
+
+/* STLB */
+#define GMIO_STLB_HEADER_SIZE 80
+#define GMIO_STLB_MIN_CONTENTS_SIZE 284
+
+#endif /* GMIO_LIBSTL_GLOBAL_H */

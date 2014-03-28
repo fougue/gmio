@@ -26,7 +26,7 @@ DOXYFILE_ENCODING      = UTF-8
 # identify the project. Note that if you do not use Doxywizard you need 
 # to put quotes around the project name if it contains spaces.
 
-PROJECT_NAME           = FougDataX
+PROJECT_NAME           = gmio (GeoMetry Input/Output) Library
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -38,7 +38,7 @@ PROJECT_NUMBER = 0.1.0
 # for a project that appears at the top of each page and should give viewer 
 # a quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "Fast, portable Data eXchange"
+PROJECT_BRIEF          = "Fast, portable geometry input/output"
 
 # With the PROJECT_LOGO tag one can specify an logo or icon that is 
 # included in the documentation. The maximum height of the logo should not 
@@ -128,7 +128,7 @@ FULL_PATH_NAMES        = YES
 # If left blank the directory from which doxygen is run is used as the 
 # path to strip.
 
-STRIP_FROM_PATH        = /home/cerf/dev/projects/fougue/foug_datax/src
+STRIP_FROM_PATH        = /home/cerf/dev/projects/fougue/gmio/src
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of 
 # the path mentioned in the documentation of a class, which tells 
@@ -1502,12 +1502,12 @@ INCLUDE_FILE_PATTERNS  =
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = FOUG_LIB_EXPORT= \
-                         FOUG_LIBSUPPORT_EXPORT= \
-                         FOUG_DATAX_LIBSTL_EXPORT= \
-                         FOUG_C_LINKAGE_BEGIN= \
-                         FOUG_C_LINKAGE_END= \
-                         FOUG_HAVE_STDINT_H=1
+PREDEFINED             = GMIO_LIB_EXPORT= \
+                         GMIO_LIBSUPPORT_EXPORT= \
+                         GMIO_LIBSTL_EXPORT= \
+                         GMIO_C_LINKAGE_BEGIN= \
+                         GMIO_C_LINKAGE_END= \
+                         GMIO_HAVE_STDINT_H=1
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 
@@ -1544,7 +1544,7 @@ TAGFILES               =
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads.
 
-GENERATE_TAGFILE       = fougdatax.tags
+GENERATE_TAGFILE       = gmio.tags
 
 # If the ALLEXTERNALS tag is set to YES all external classes will be listed 
 # in the class index. If set to NO only the inherited external classes 

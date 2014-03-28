@@ -1,0 +1,113 @@
+#include "stl_io.h"
+
+#include "stl_error.h"
+#include "internal/stl_rw_common.h"
+#include "internal/stlb_byte_swap.h"
+
+#include "../gmio_core/endian.h"
+#include "../gmio_core/error.h"
+#include "../gmio_core/internal/byte_codec.h"
+
+#include <string.h>
+
+GMIO_INLINE static void write_triangle_memcpy(const gmio_stl_triangle_t* triangle,
+                                              uint8_t* buffer)
+{
+  memcpy(buffer, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
+}
+
+static void gmio_stlb_write_facets(const gmio_stl_geom_t* geom,
+                                   uint8_t* buffer,
+                                   const gmio_stlb_readwrite_helper* wparams)
+{
+  const uint32_t facet_count = wparams->facet_count;
+  const uint32_t i_facet_offset = wparams->i_facet_offset;
+  gmio_stl_triangle_t triangle;
+  uint32_t buffer_offset = 0;
+  uint32_t i_facet = 0;
+
+  if (geom == NULL || geom->get_triangle_func == NULL)
+    return;
+
+  triangle.attribute_byte_count = 0;
+  for (i_facet = i_facet_offset; i_facet < (i_facet_offset + facet_count); ++i_facet) {
+    geom->get_triangle_func(geom->cookie, i_facet, &triangle);
+
+    if (wparams->fix_endian_func != NULL)
+      wparams->fix_endian_func(&triangle);
+
+    write_triangle_memcpy(&triangle, buffer + buffer_offset);
+
+    buffer_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
+  } /* end for */
+}
+
+int gmio_stlb_write(const gmio_stl_geom_t *geom,
+                    gmio_transfer_t* trsf,
+                    const uint8_t *header_data,
+                    gmio_endianness_t byte_order)
+{
+  gmio_stlb_readwrite_helper wparams;
+  const uint32_t facet_count = geom != NULL ? geom->triangle_count : 0;
+  uint32_t i_facet = 0;
+  int error = GMIO_NO_ERROR;
+
+  /* Check validity of input parameters */
+  gmio_stl_check_geom(&error, geom);
+  gmio_stlb_check_params(&error, trsf, byte_order);
+  if (gmio_error(error))
+    return error;
+
+  /* Initialize wparams */
+  memset(&wparams, 0, sizeof(gmio_stlb_readwrite_helper));
+  if (gmio_host_endianness() != byte_order)
+    wparams.fix_endian_func = gmio_stl_triangle_bswap;
+  wparams.facet_count = trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE;
+
+  /* Write header */
+  if (header_data == NULL) {
+    /* Use buffer to store an empty header (filled with zeroes) */
+    memset(trsf->buffer, 0, GMIO_STLB_HEADER_SIZE);
+    header_data = (const uint8_t*)trsf->buffer;
+  }
+  if (gmio_stream_write(&trsf->stream, header_data, GMIO_STLB_HEADER_SIZE, 1) != 1)
+    return GMIO_STREAM_ERROR;
+
+  /* Write facet count */
+  if (byte_order == GMIO_LITTLE_ENDIAN)
+    gmio_encode_uint32_le(facet_count, trsf->buffer);
+  else
+    gmio_encode_uint32_be(facet_count, trsf->buffer);
+  if (gmio_stream_write(&trsf->stream, trsf->buffer, sizeof(uint32_t), 1) != 1)
+    return GMIO_STREAM_ERROR;
+
+  /* Write triangles */
+  for (i_facet = 0;
+       i_facet < facet_count && gmio_no_error(error);
+       i_facet += wparams.facet_count)
+  {
+    /* Write to buffer */
+    if (wparams.facet_count > (facet_count - wparams.i_facet_offset))
+      wparams.facet_count = facet_count - wparams.i_facet_offset;
+
+    gmio_stlb_write_facets(geom, trsf->buffer, &wparams);
+    wparams.i_facet_offset += wparams.facet_count;
+
+    /* Write buffer to stream */
+    if (gmio_stream_write(&trsf->stream, trsf->buffer, GMIO_STLB_TRIANGLE_RAWSIZE, wparams.facet_count)
+        != wparams.facet_count)
+    {
+      error = GMIO_STREAM_ERROR;
+    }
+
+    /* Task control */
+    if (gmio_no_error(error)
+        && !gmio_task_control_handle_progress(&trsf->task_control,
+                                              gmio_percentage(0, facet_count, i_facet + 1)))
+    {
+      error = GMIO_TASK_STOPPED_ERROR;
+    }
+  } /* end for */
+
+  return error;
+}

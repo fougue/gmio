@@ -4,17 +4,17 @@ include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 
-project(fougdatax C)
+project(gmio C)
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Options
 option(BUILD_SHARED_LIBS       "Build shared libraries (DLL)" ON)
-option(BUILD_STRICT_C90        "Build with strict conformance to C90 standard, if disabled FougDataX can use C99 features (eg. fabsf(), strtof(), ...)" ON)
+option(BUILD_STRICT_C90        "Build with strict conformance to C90 standard, if disabled, C99 features can be used (eg. fabsf(), strtof(), ...)" ON)
 option(BUILD_WITH_LIBSTL       "Build the libSTL module" ON)
 
 # Add core source files
-file(GLOB  ALL_SRC_FILES  src/datax_core/*  src/datax_core/internal/*)
+file(GLOB  ALL_SRC_FILES  src/gmio_core/*  src/gmio_core/internal/*)
 set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 
 # Have <stdint.h> ?
@@ -39,7 +39,7 @@ elseif(MSVC)
                           FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
 endif()
 
-configure_file(src/datax_core/config.h.cmake config.h @ONLY)
+configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 
 # Specific flags for GCC
@@ -65,40 +65,40 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # Declare installs
-install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/datax_core)
+install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/gmio_core)
 
-file(GLOB  C_CORE_HEADERS  src/datax_core/*.h)
-install(FILES ${C_CORE_HEADERS} DESTINATION include/datax_core)
+file(GLOB  C_CORE_HEADERS  src/gmio_core/*.h)
+install(FILES ${C_CORE_HEADERS} DESTINATION include/gmio_core)
 
 # Module libSTL
 if(BUILD_WITH_LIBSTL)
   if(BUILD_SHARED_LIBS)
-    add_definitions(-DFOUG_DATAX_LIBSTL_DLL
-                    -DFOUG_DATAX_LIBSTL_MAKE_DLL)
+    add_definitions(-DGMIO_LIBSTL_DLL
+                    -DGMIO_LIBSTL_MAKE_DLL)
   endif()
 
-  file(GLOB  ALL_LIBSTL_SRC_FILES  src/datax_stl/*  src/datax_stl/internal/*)
+  file(GLOB  ALL_LIBSTL_SRC_FILES  src/gmio_stl/*  src/gmio_stl/internal/*)
   set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_LIBSTL_SRC_FILES})
 
 endif()
-file(GLOB  C_LIBSTL_HEADERS  src/datax_stl/*.h)
-install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/datax_stl)
+file(GLOB  C_LIBSTL_HEADERS  src/gmio_stl/*.h)
+install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/gmio_stl)
 
 
 # Common for support modules
-install(FILES src/datax_support/support_global.h DESTINATION include/datax_support)
+install(FILES src/gmio_support/support_global.h DESTINATION include/gmio_support)
 
 # Qt support
-install(FILES src/datax_support/qt_stream.h   DESTINATION include/datax_support)
-install(FILES src/datax_support/qt_stream.cpp DESTINATION src/datax_support)
+install(FILES src/gmio_support/qt_stream.h   DESTINATION include/gmio_support)
+install(FILES src/gmio_support/qt_stream.cpp DESTINATION src/gmio_support)
 
 # OpenCASCADE support
-install(FILES src/datax_support/occ_libstl.h   DESTINATION include/datax_support)
-install(FILES src/datax_support/occ_libstl.cpp DESTINATION src/datax_support)
+install(FILES src/gmio_support/occ_libstl.h   DESTINATION include/gmio_support)
+install(FILES src/gmio_support/occ_libstl.cpp DESTINATION src/gmio_support)
 
 # Installs for target
-add_library(fougdatax ${ALL_SRC_FILES})
-install(TARGETS fougdatax
+add_library(gmio ${ALL_SRC_FILES})
+install(TARGETS gmio
           RUNTIME DESTINATION lib
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib)
@@ -118,8 +118,8 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 add_executable(test_internal EXCLUDE_FROM_ALL tests/stream_buffer.c
                                               tests/test_internal.c
-                                              src/datax_core/stream.c
-                                              src/datax_core/internal/ascii_parse.c)
+                                              src/gmio_core/stream.c
+                                              src/gmio_core/internal/ascii_parse.c)
 add_executable(test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
 add_test(test_internal test_internal)
 add_test(test_platform test_platform)

@@ -3,41 +3,35 @@
 \mainpage
 
 
-\section intro_sec INTRODUCTION
+\section intro_sec Introduction
 
-This is FougDataX v0.1
+This is gmio library v0.1
 
-Check source code at : https://github.com/fougsys/fougdatax
+Check source code at : https://github.com/fougsys/gmio
 
-FougDataX is a fast and portable C library for data exchange.
+gmio is a fast and portable C library for data exchange.
 
 
-\section build_sec BUILDING FougDataX
+\section build_sec BUILDING gmio library
 
-FougDataX can be built with qmake or cmake.
+The gmio library can be built with qmake or cmake.
 
 <b>With qmake :</b>
 \code
-  .../fougdatax$ cd qmake
-  .../fougdatax$ qmake PREFIX_DIR=../gcc-linux64
-  .../fougdatax$ make all
-  .../fougdatax$ make install
+  .../gmio$ cd qmake
+  .../gmio$ qmake PREFIX_DIR=../gcc-linux64
+  .../gmio$ make all
+  .../gmio$ make install
 \endcode
 
 If you want static libraries (instead of DLLs) just add "CONFIG+=staticlib" to the qmake command :
 \code
-  .../fougdatax$ qmake PREFIX_DIR=../gcc-linux64 CONFIG+=staticlib
+  .../gmio$ qmake PREFIX_DIR=../gcc-linux64 CONFIG+=staticlib
 \endcode
 
-If you want Qt and OpenCascade support inside the library use this qmake command :
-\code
-  .../fougdatax$ qmake PREFIX_DIR=../gcc-linux64  "DATAX+=qt_support occ_support" CASCADE_ROOT=/path/to/occ
-\endcode
-
-Note that on Windows, qmake complains about deprecated support of
-backslash '\' characters.
-So you may have to escape backslashes like C:\\path\\to\\opencascade
-or simply use Unix separators instead C:/path/to/opencascade
+Note that on Windows, qmake complains about deprecated support of backslash '\' characters.
+So you may have to escape backslashes like C:\\path\\to\\opencascade or simply use Unix separators
+instead C:/path/to/opencascade
 
 
 <b>With CMake :</b>
@@ -46,16 +40,16 @@ or simply use Unix separators instead C:/path/to/opencascade
 
 \section reportbug_sec HOW TO REPORT A BUG
 
-If you think you have found a bug in FougDataX, we would like to hear
-about it so that we can fix it. The FougTools bug tracking system is
-open to the public at https://github.com/fougsys/fougdatax/issues.
+If you think you have found a bug in gmio, we would like to hear
+about it so that we can fix it. The gmio bug tracking system is
+open to the public at https://github.com/fougsys/gmio/issues.
 
 Before reporting a bug, please use the bug-tracker's search functions
 to see if the issue is already known.
 
 Always include the following information in your bug report: the name
 and version number of your compiler; the name and version number of
-your operating system; the version of FougDataX you are using, and
+your operating system; the version of gmio you are using, and
 what configure options it was compiled with.
 
 If the problem you are reporting is only visible at run-time, try to

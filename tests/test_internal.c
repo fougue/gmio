@@ -1,8 +1,8 @@
 #include "utest_lib.h"
 
-#include "../src/datax_core/internal/ascii_parse.h"
-#include "../src/datax_core/internal/byte_swap.h"
-#include "../src/datax_core/internal/byte_codec.h"
+#include "../src/gmio_core/internal/ascii_parse.h"
+#include "../src/gmio_core/internal/byte_swap.h"
+#include "../src/gmio_core/internal/byte_codec.h"
 
 #include "stream_buffer.h"
 
@@ -11,8 +11,8 @@
 
 const char* test_internal__byte_swap()
 {
-  UTEST_ASSERT(foug_uint16_bswap(0x1122) == 0x2211);
-  UTEST_ASSERT(foug_uint32_bswap(0x11223344) == 0x44332211);
+  UTEST_ASSERT(gmio_uint16_bswap(0x1122) == 0x2211);
+  UTEST_ASSERT(gmio_uint32_bswap(0x11223344) == 0x44332211);
   return NULL;
 }
 
@@ -20,19 +20,19 @@ const char* test_internal__byte_codec()
 {
   { /* decode */
     const uint8_t data[] = { 0x11, 0x22, 0x33, 0x44 };
-    UTEST_ASSERT(foug_decode_uint16_le(data) == 0x2211);
-    UTEST_ASSERT(foug_decode_uint16_be(data) == 0x1122);
-    UTEST_ASSERT(foug_decode_uint32_le(data) == 0x44332211);
-    UTEST_ASSERT(foug_decode_uint32_be(data) == 0x11223344);
+    UTEST_ASSERT(gmio_decode_uint16_le(data) == 0x2211);
+    UTEST_ASSERT(gmio_decode_uint16_be(data) == 0x1122);
+    UTEST_ASSERT(gmio_decode_uint32_le(data) == 0x44332211);
+    UTEST_ASSERT(gmio_decode_uint32_be(data) == 0x11223344);
   }
 
   { /* encode */
     uint8_t data[] = { 0, 0, 0, 0 };
-    foug_encode_uint16_le(0x1122, data);
+    gmio_encode_uint16_le(0x1122, data);
     UTEST_ASSERT(data[0] == 0x22 && data[1] == 0x11);
-    foug_encode_uint32_le(0x11223344, data);
+    gmio_encode_uint32_le(0x11223344, data);
     UTEST_ASSERT(data[0] == 0x44 && data[1] == 0x33 && data[2] == 0x22 && data[3] == 0x11);
-    foug_encode_uint32_be(0x11223344, data);
+    gmio_encode_uint32_be(0x11223344, data);
     UTEST_ASSERT(data[3] == 0x44 && data[2] == 0x33 && data[1] == 0x22 && data[0] == 0x11);
   }
 
@@ -47,59 +47,59 @@ const char* test_internal__ascii_parse()
       "pi : 3.1415926535897932384626433832795";
 
   {
-    foug_buffer_t buff;
-    foug_stream_t stream;
+    gmio_buffer_t buff;
+    gmio_stream_t stream;
 
     char small_fwd_it_str[4];
     char fwd_it_str[32];
-    foug_ascii_stream_fwd_iterator_t fwd_it;
+    gmio_ascii_stream_fwd_iterator_t fwd_it;
 
     char copy_str[128];
-    foug_ascii_string_buffer_t copy_strbuff;
+    gmio_ascii_string_buffer_t copy_strbuff;
 
     buff.ptr = text;
     buff.len = strlen(text);
     buff.pos = 0;
-    foug_stream_set_buffer(&stream, &buff);
+    gmio_stream_set_buffer(&stream, &buff);
 
-    memset(&fwd_it, 0, sizeof(foug_ascii_stream_fwd_iterator_t));
+    memset(&fwd_it, 0, sizeof(gmio_ascii_stream_fwd_iterator_t));
     fwd_it.stream = &stream;
     fwd_it.buffer.ptr = fwd_it_str;
     fwd_it.buffer.max_len = sizeof(fwd_it_str);
-    foug_ascii_stream_fwd_iterator_init(&fwd_it);
+    gmio_ascii_stream_fwd_iterator_init(&fwd_it);
 
     copy_strbuff.ptr = copy_str;
     copy_strbuff.max_len = sizeof(copy_str);
 
-    UTEST_ASSERT(foug_current_char(&fwd_it) != NULL);
-    UTEST_ASSERT(*foug_current_char(&fwd_it) == 'U');
+    UTEST_ASSERT(gmio_current_char(&fwd_it) != NULL);
+    UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'U');
 
-    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
     /* printf("\ncopy_strbuff.ptr = \"%s\"\n", copy_strbuff.ptr); */
     UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Une") == 0);
 
-    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
     UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
 
-    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
     UTEST_ASSERT(strcmp(copy_strbuff.ptr, "o") == 0);
 
-    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
     UTEST_ASSERT(strcmp(copy_strbuff.ptr, "je") == 0);
 
-    foug_skip_spaces(&fwd_it);
-    UTEST_ASSERT(foug_next_char(&fwd_it) != NULL);
-    UTEST_ASSERT(*foug_current_char(&fwd_it) == 'r');
+    gmio_skip_spaces(&fwd_it);
+    UTEST_ASSERT(gmio_next_char(&fwd_it) != NULL);
+    UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'r');
 
     /* Test with very small string buffer */
     buff.pos = 0;
     fwd_it.buffer.ptr = small_fwd_it_str;
     fwd_it.buffer.max_len = sizeof(small_fwd_it_str);
-    foug_ascii_stream_fwd_iterator_init(&fwd_it);
+    gmio_ascii_stream_fwd_iterator_init(&fwd_it);
 
-    UTEST_ASSERT(*foug_current_char(&fwd_it) == 'U');
-    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
-    UTEST_ASSERT(foug_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'U');
+    UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
+    UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
     UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
   }
 
