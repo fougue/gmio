@@ -18,7 +18,7 @@ GMIO_INLINE static void write_triangle_memcpy(const gmio_stl_triangle_t* triangl
 
 static void gmio_stlb_write_facets(const gmio_stl_geom_t* geom,
                                    uint8_t* buffer,
-                                   const gmio_stlb_readwrite_helper* wparams)
+                                   const gmio_stlb_readwrite_helper_t* wparams)
 {
   const uint32_t facet_count = wparams->facet_count;
   const uint32_t i_facet_offset = wparams->i_facet_offset;
@@ -47,7 +47,7 @@ int gmio_stlb_write(const gmio_stl_geom_t *geom,
                     const uint8_t *header_data,
                     gmio_endianness_t byte_order)
 {
-  gmio_stlb_readwrite_helper wparams;
+  gmio_stlb_readwrite_helper_t wparams;
   const uint32_t facet_count = geom != NULL ? geom->triangle_count : 0;
   uint32_t i_facet = 0;
   int error = GMIO_NO_ERROR;
@@ -59,7 +59,7 @@ int gmio_stlb_write(const gmio_stl_geom_t *geom,
     return error;
 
   /* Initialize wparams */
-  memset(&wparams, 0, sizeof(gmio_stlb_readwrite_helper));
+  memset(&wparams, 0, sizeof(gmio_stlb_readwrite_helper_t));
   if (gmio_host_endianness() != byte_order)
     wparams.fix_endian_func = gmio_stl_triangle_bswap;
   wparams.facet_count = trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE;

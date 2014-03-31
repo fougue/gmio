@@ -20,7 +20,7 @@ GMIO_INLINE static void read_triangle_memcpy(const uint8_t* buffer,
 
 static void gmio_stlb_read_facets(gmio_stl_geom_creator_t* creator,
                                   const uint8_t* buffer,
-                                  const gmio_stlb_readwrite_helper* rparams)
+                                  const gmio_stlb_readwrite_helper_t* rparams)
 {
   const uint32_t facet_count = rparams->facet_count;
   const uint32_t i_facet_offset = rparams->i_facet_offset;
@@ -49,7 +49,7 @@ int gmio_stlb_read(gmio_stl_geom_creator_t *creator,
                    gmio_endianness_t byte_order)
 {
   const gmio_endianness_t host_byte_order = gmio_host_endianness();
-  gmio_stlb_readwrite_helper rparams;
+  gmio_stlb_readwrite_helper_t rparams;
   uint8_t  header_data[GMIO_STLB_HEADER_SIZE];
   uint32_t total_facet_count = 0;  /* Count of facets as declared in the stream */
   int error = GMIO_NO_ERROR; /* Helper variable to store function result error code  */
@@ -59,7 +59,7 @@ int gmio_stlb_read(gmio_stl_geom_creator_t *creator,
     return error;
 
   /* Initialize rparams */
-  memset(&rparams, 0, sizeof(gmio_stlb_readwrite_helper));
+  memset(&rparams, 0, sizeof(gmio_stlb_readwrite_helper_t));
   if (host_byte_order != byte_order)
     rparams.fix_endian_func = gmio_stl_triangle_bswap;
 

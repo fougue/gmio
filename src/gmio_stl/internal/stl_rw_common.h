@@ -7,12 +7,13 @@
 #include "../stl_geom.h"
 #include "../stl_triangle.h"
 
-typedef struct
+struct gmio_stlb_readwrite_helper
 {
   uint32_t facet_count;
   uint32_t i_facet_offset;
-  void   (*fix_endian_func)(gmio_stl_triangle_t*);
-} gmio_stlb_readwrite_helper;
+  void   (*fix_endian_func)(gmio_stl_triangle_t* tri);
+};
+typedef struct gmio_stlb_readwrite_helper  gmio_stlb_readwrite_helper_t;
 
 gmio_bool_t gmio_check_transfer(int* error, const gmio_transfer_t* trsf);
 

@@ -4,22 +4,26 @@
 #include "../global.h"
 #include "../stream.h"
 
-typedef struct
+struct gmio_ascii_string_buffer
 {
   char*  ptr;       /*!< Buffer contents */
   size_t len;       /*!< Size(length) of current contents */
   size_t max_len;   /*!< Maximum contents size(length) */
-} gmio_ascii_string_buffer_t;
+};
 
-typedef struct
+typedef struct gmio_ascii_string_buffer  gmio_ascii_string_buffer_t;
+
+struct gmio_ascii_stream_fwd_iterator
 {
   gmio_stream_t*             stream;
   gmio_ascii_string_buffer_t buffer;
   size_t                     buffer_pos; /*!< Position indicator in buffer */
 
   void* cookie;
-  void (*stream_read_hook)(void*, const gmio_ascii_string_buffer_t*);
-} gmio_ascii_stream_fwd_iterator_t;
+  void (*stream_read_hook)(void* cookie, const gmio_ascii_string_buffer_t* str_buffer);
+};
+
+typedef struct gmio_ascii_stream_fwd_iterator  gmio_ascii_stream_fwd_iterator_t;
 
 void  gmio_ascii_stream_fwd_iterator_init(gmio_ascii_stream_fwd_iterator_t* it);
 char* gmio_current_char(const gmio_ascii_stream_fwd_iterator_t* it);
