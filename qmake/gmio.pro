@@ -35,7 +35,9 @@ HEADERS += \
     ../src/gmio_core/internal/convert.h \
     ../src/gmio_core/internal/ascii_parse.h \
     ../src/gmio_core/internal/byte_swap.h \
-    ../src/gmio_core/internal/byte_codec.h
+    ../src/gmio_core/internal/byte_codec.h \
+    ../src/gmio_stl/stl_mesh.h \
+    ../src/gmio_stl/stl_mesh_creator.h
 
 SOURCES += \
     ../src/gmio_core/endian.c \
@@ -61,8 +63,6 @@ contains(GMIO, stl) {
   HEADERS += \
     ../src/gmio_stl/stl_error.h \
     ../src/gmio_stl/stl_format.h \
-    ../src/gmio_stl/stl_geom.h \
-    ../src/gmio_stl/stl_geom_creator.h \
     ../src/gmio_stl/stl_global.h \
     ../src/gmio_stl/stl_io.h \
     ../src/gmio_stl/stl_triangle.h \

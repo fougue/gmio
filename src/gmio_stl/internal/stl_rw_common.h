@@ -4,7 +4,7 @@
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/endian.h"
 #include "../../gmio_core/transfer.h"
-#include "../stl_geom.h"
+#include "../stl_mesh.h"
 #include "../stl_triangle.h"
 
 struct gmio_stlb_readwrite_helper
@@ -17,7 +17,7 @@ typedef struct gmio_stlb_readwrite_helper  gmio_stlb_readwrite_helper_t;
 
 gmio_bool_t gmio_check_transfer(int* error, const gmio_transfer_t* trsf);
 
-gmio_bool_t gmio_stl_check_geom(int* error, const gmio_stl_geom_t* geom);
+gmio_bool_t gmio_stl_check_mesh(int* error, const gmio_stl_mesh_t *mesh);
 
 gmio_bool_t gmio_stlb_check_params(int* error,
                                    const gmio_transfer_t* trsf,

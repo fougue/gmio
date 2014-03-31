@@ -16,7 +16,7 @@ GMIO_INLINE static void write_triangle_memcpy(const gmio_stl_triangle_t* triangl
   memcpy(buffer, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
-static void gmio_stlb_write_facets(const gmio_stl_geom_t* geom,
+static void gmio_stlb_write_facets(const gmio_stl_mesh_t* mesh,
                                    uint8_t* buffer,
                                    const gmio_stlb_readwrite_helper_t* wparams)
 {
@@ -26,12 +26,12 @@ static void gmio_stlb_write_facets(const gmio_stl_geom_t* geom,
   uint32_t buffer_offset = 0;
   uint32_t i_facet = 0;
 
-  if (geom == NULL || geom->get_triangle_func == NULL)
+  if (mesh == NULL || mesh->get_triangle_func == NULL)
     return;
 
   triangle.attribute_byte_count = 0;
   for (i_facet = i_facet_offset; i_facet < (i_facet_offset + facet_count); ++i_facet) {
-    geom->get_triangle_func(geom->cookie, i_facet, &triangle);
+    mesh->get_triangle_func(mesh->cookie, i_facet, &triangle);
 
     if (wparams->fix_endian_func != NULL)
       wparams->fix_endian_func(&triangle);
@@ -42,18 +42,18 @@ static void gmio_stlb_write_facets(const gmio_stl_geom_t* geom,
   } /* end for */
 }
 
-int gmio_stlb_write(const gmio_stl_geom_t *geom,
+int gmio_stlb_write(const gmio_stl_mesh_t *mesh,
                     gmio_transfer_t* trsf,
                     const uint8_t *header_data,
                     gmio_endianness_t byte_order)
 {
   gmio_stlb_readwrite_helper_t wparams;
-  const uint32_t facet_count = geom != NULL ? geom->triangle_count : 0;
+  const uint32_t facet_count = mesh != NULL ? mesh->triangle_count : 0;
   uint32_t i_facet = 0;
   int error = GMIO_NO_ERROR;
 
   /* Check validity of input parameters */
-  gmio_stl_check_geom(&error, geom);
+  gmio_stl_check_mesh(&error, mesh);
   gmio_stlb_check_params(&error, trsf, byte_order);
   if (gmio_error(error))
     return error;
@@ -90,7 +90,7 @@ int gmio_stlb_write(const gmio_stl_geom_t *geom,
     if (wparams.facet_count > (facet_count - wparams.i_facet_offset))
       wparams.facet_count = facet_count - wparams.i_facet_offset;
 
-    gmio_stlb_write_facets(geom, trsf->buffer, &wparams);
+    gmio_stlb_write_facets(mesh, trsf->buffer, &wparams);
     wparams.i_facet_offset += wparams.facet_count;
 
     /* Write buffer to stream */

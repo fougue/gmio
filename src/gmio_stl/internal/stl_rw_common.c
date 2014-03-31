@@ -18,10 +18,10 @@ gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
   return gmio_no_error(*error);
 }
 
-gmio_bool_t gmio_stl_check_geom(int *error, const gmio_stl_geom_t* geom)
+gmio_bool_t gmio_stl_check_mesh(int *error, const gmio_stl_mesh_t* mesh)
 {
-  if (geom == NULL
-      || (geom->triangle_count > 0 && geom->get_triangle_func == NULL))
+  if (mesh == NULL
+      || (mesh->triangle_count > 0 && mesh->get_triangle_func == NULL))
   {
     *error = GMIO_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR;
   }

@@ -1,11 +1,11 @@
-#ifndef GMIO_LIBSTL_STL_GEOM_H
-#define GMIO_LIBSTL_STL_GEOM_H
+#ifndef GMIO_LIBSTL_STL_MESH_H
+#define GMIO_LIBSTL_STL_MESH_H
 
 #include "stl_global.h"
 #include "stl_triangle.h"
 
 /*! Provides an interface for accessing the underlying(hidden) user mesh */
-struct gmio_stl_geom
+struct gmio_stl_mesh
 {
   /*! Opaque pointer on the user mesh, passed as first argument to hook functions */
   const void* cookie;
@@ -17,6 +17,6 @@ struct gmio_stl_geom
   void      (*get_triangle_func)(const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle);
 };
 
-typedef struct gmio_stl_geom gmio_stl_geom_t;
+typedef struct gmio_stl_mesh gmio_stl_mesh_t;
 
-#endif /* GMIO_LIBSTL_STL_GEOM_H */
+#endif /* GMIO_LIBSTL_STL_MESH_H */

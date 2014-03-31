@@ -93,7 +93,7 @@ typedef struct
   gmio_ascii_stream_fwd_iterator_t     stream_iterator;
   _internal_gmio_fwd_iterator_cookie_t stream_iterator_cookie;
   gmio_ascii_string_buffer_t           string_buffer;
-  gmio_stl_geom_creator_t*             creator;
+  gmio_stl_mesh_creator_t*             creator;
 } gmio_stla_parse_data_t;
 
 static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
@@ -381,7 +381,7 @@ static void parse_solid(gmio_stla_parse_data_t* data)
 
 #define GMIO_STLA_READ_STRING_BUFFER_LEN    512
 
-int gmio_stla_read(gmio_stl_geom_creator_t *creator,
+int gmio_stla_read(gmio_stl_mesh_creator_t *creator,
                    gmio_transfer_t *trsf,
                    size_t data_size_hint)
 {

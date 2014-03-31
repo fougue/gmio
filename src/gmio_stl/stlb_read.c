@@ -18,7 +18,7 @@ GMIO_INLINE static void read_triangle_memcpy(const uint8_t* buffer,
   memcpy(triangle, buffer, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
-static void gmio_stlb_read_facets(gmio_stl_geom_creator_t* creator,
+static void gmio_stlb_read_facets(gmio_stl_mesh_creator_t* creator,
                                   const uint8_t* buffer,
                                   const gmio_stlb_readwrite_helper_t* rparams)
 {
@@ -44,7 +44,7 @@ static void gmio_stlb_read_facets(gmio_stl_geom_creator_t* creator,
   }
 }
 
-int gmio_stlb_read(gmio_stl_geom_creator_t *creator,
+int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
                    gmio_transfer_t* trsf,
                    gmio_endianness_t byte_order)
 {

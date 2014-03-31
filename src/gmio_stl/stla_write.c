@@ -96,9 +96,7 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 
 #define _GMIO_INTERNAL_MIN(v1, v2)  ((v1) < (v2) ? (v1) : (v2))
 
-/*! \fn int gmio_stla_write(gmio_stl_geom_t*, gmio_transfer_t*, const char*, uint8_t)
- *
- *  \param geom Defines the custom geometry to write
+/*! \param geom Defines the custom geometry to write
  *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
  *  \param solid_name May be NULL to generate default name
  *  \param real32_prec The maximum number of significant digits
@@ -107,12 +105,12 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
  *
  *  \retval GMIO_NO_ERROR If operation successful
  */
-int gmio_stla_write(const gmio_stl_geom_t* geom,
+int gmio_stla_write(const gmio_stl_mesh_t *mesh,
                     gmio_transfer_t* trsf,
                     const char* solid_name,
                     uint8_t real32_prec)
 {
-  const uint32_t total_facet_count = geom != NULL ? geom->triangle_count : 0;
+  const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
   uint32_t written_facet_count = 0;
   const uint32_t buffer_facet_count = trsf != NULL ? trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2 : 0;
   uint32_t ifacet = 0;
@@ -122,7 +120,7 @@ int gmio_stla_write(const gmio_stl_geom_t* geom,
 
   /* Check validity of input parameters */
   gmio_check_transfer(&error, trsf);
-  gmio_stl_check_geom(&error, geom);
+  gmio_stl_check_mesh(&error, mesh);
   if (real32_prec == 0 || real32_prec > 9)
     error = GMIO_STLA_WRITE_INVALID_REAL32_PREC_ERROR;
   if (trsf->buffer_size < GMIO_STLA_FACET_SIZE_P2)
@@ -162,7 +160,7 @@ int gmio_stla_write(const gmio_stl_geom_t* geom,
     /* Writing of facets is buffered */
     buffer_iterator = trsf->buffer;
     for (ibuffer_facet = ifacet; ibuffer_facet < clamped_facet_count; ++ibuffer_facet) {
-      geom->get_triangle_func(geom->cookie, ibuffer_facet, &tri);
+      mesh->get_triangle_func(mesh->cookie, ibuffer_facet, &tri);
       buffer_iterator = gmio_write_string(buffer_iterator, "facet normal  ");
       buffer_iterator = gmio_write_coords(buffer_iterator, coords_format, &tri.normal);
       buffer_iterator = gmio_write_eol(buffer_iterator);

@@ -7,7 +7,7 @@
 /*! This enum defines the various error codes reported by STL read/write functions */
 enum gmio_stl_error
 {
-  /*! Common STL write error indicating gmio_stl_geom::get_triangle_func() pointer is NULL */
+  /*! Common STL write error indicating gmio_stl_mesh::get_triangle_func() pointer is NULL */
   GMIO_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = GMIO_STL_ERROR_TAG + 1,
 
   /* Specific error codes returned by STL_ascii read function */

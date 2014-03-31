@@ -1,11 +1,11 @@
-#ifndef GMIO_LIBSTL_STL_GEOM_CREATOR_H
-#define GMIO_LIBSTL_STL_GEOM_CREATOR_H
+#ifndef GMIO_LIBSTL_STL_MESH_CREATOR_H
+#define GMIO_LIBSTL_STL_MESH_CREATOR_H
 
 #include "stl_global.h"
 #include "stl_triangle.h"
 
 /*! Provides an interface for the creation of the underlying(hidden) user mesh */
-struct gmio_stl_geom_creator
+struct gmio_stl_mesh_creator
 {
   /*! Opaque pointer on the user mesh, passed as first argument to hook functions */
   void* cookie;
@@ -43,6 +43,6 @@ struct gmio_stl_geom_creator
   void (*end_solid_func)(void* cookie);
 };
 
-typedef struct gmio_stl_geom_creator gmio_stl_geom_creator_t;
+typedef struct gmio_stl_mesh_creator gmio_stl_mesh_creator_t;
 
-#endif /* GMIO_LIBSTL_STL_GEOM_CREATOR_H */
+#endif /* GMIO_LIBSTL_STL_MESH_CREATOR_H */
