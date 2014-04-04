@@ -88,10 +88,10 @@ contains(GMIO, stl) {
 # libSupport
 HAS_SUPPORT = $$find(GMIO, support)
 !isEmpty(HAS_SUPPORT) {
-  HEADERS += ../src/support/support_global.h
+  HEADERS += ../src/gmio_support/support_global.h
   dll:DEFINES += GMIO_LIBSUPPORT_DLL \
                  GMIO_LIBSUPPORT_MAKE_DLL
-  support_inc.path  = $$PREFIX_DIR/include/gmio/support
+  support_inc.path  = $$PREFIX_DIR/include/gmio_support
   support_inc.files = ../src/gmio_support/support_global.h
   INSTALLS += support_inc
 } # !isEmpty(HAS_SUPPORT)
