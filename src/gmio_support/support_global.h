@@ -1,7 +1,7 @@
 #ifndef GMIO_C_SUPPORT_GLOBAL_H
 #define GMIO_C_SUPPORT_GLOBAL_H
 
-#include "../datax_core/global.h"
+#include "../gmio_core/global.h"
 
 #ifdef GMIO_LIBSUPPORT_DLL
 # ifdef GMIO_LIBSUPPORT_MAKE_DLL

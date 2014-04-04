@@ -1,7 +1,7 @@
 #include <gmio_support/occ_libstl.h>
 
-#include <gmio_stl/stl_geom.h>
-#include <gmio_stl/stl_geom_creator.h>
+#include <gmio_stl/stl_mesh.h>
+#include <gmio_stl/stl_mesh_creator.h>
 
 #include <cstring>
 #include <StlMesh_Mesh.hxx>
@@ -68,19 +68,17 @@ static void occmesh_get_triangle(const void* cookie,
 
 } // namespace internal
 
-void gmio_stl_occmesh_geom(gmio_stl_geom_t *geom,
-                           const gmio_OccStlMeshDomain &meshCookie)
+void gmio_stl_occmesh(gmio_stl_mesh_t *mesh, const gmio_OccStlMeshDomain &meshCookie)
 {
-  std::memset(geom, 0, sizeof(gmio_stl_geom_t));
-  geom->cookie = &meshCookie;
-  geom->triangle_count = meshCookie.mesh()->NbTriangles(meshCookie.domainId());
-  geom->get_triangle_func = internal::occmesh_get_triangle;
+  std::memset(mesh, 0, sizeof(gmio_stl_mesh_t));
+  mesh->cookie = &meshCookie;
+  mesh->triangle_count = meshCookie.mesh()->NbTriangles(meshCookie.domainId());
+  mesh->get_triangle_func = internal::occmesh_get_triangle;
 }
 
-void gmio_stl_occmesh_geom_creator(gmio_stl_geom_creator_t *creator,
-                                   const Handle_StlMesh_Mesh &mesh)
+void gmio_stl_occmesh_creator(gmio_stl_mesh_creator_t *creator, const Handle_StlMesh_Mesh &mesh)
 {
-  std::memset(creator, 0, sizeof(gmio_stl_geom_creator_t));
+  std::memset(creator, 0, sizeof(gmio_stl_mesh_creator_t));
   creator->cookie = internal::occMeshPtr(mesh);
   creator->add_triangle_func = internal::occmesh_add_triangle;
 }

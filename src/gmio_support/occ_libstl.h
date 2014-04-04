@@ -23,11 +23,9 @@ private:
 };
 
 GMIO_LIBSUPPORT_EXPORT
-void gmio_stl_occmesh_geom(gmio_stl_geom* geom,
-                           const gmio_OccStlMeshDomain& meshCookie);
+void gmio_stl_occmesh(gmio_stl_geom* geom, const gmio_OccStlMeshDomain& meshCookie);
 
 GMIO_LIBSUPPORT_EXPORT
-void gmio_stl_occmesh_geom_creator(gmio_stl_geom_creator* creator,
-                                   const Handle_StlMesh_Mesh& mesh);
+void gmio_stl_occmesh_creator(gmio_stl_geom_creator* creator, const Handle_StlMesh_Mesh& mesh);
 
 #endif /* GMIO_SUPPORT_OCC_LIBSTL_H */
