@@ -5,16 +5,16 @@
 
 \section intro_sec Introduction
 
-This is gmio library v0.1
+This is GeomIO library v0.1
 
 Check source code at : https://github.com/fougsys/gmio
 
-gmio is a fast and portable C library for data exchange.
+GeomIO is a fast and portable C library for reading and writing geometry data.
 
 
-\section build_sec BUILDING gmio library
+\section build_sec BUILDING GeomIO library
 
-The gmio library can be built with qmake or cmake.
+The GeomIO library can be built with qmake or cmake.
 
 <b>With qmake :</b>
 \code
@@ -40,8 +40,8 @@ instead C:/path/to/opencascade
 
 \section reportbug_sec HOW TO REPORT A BUG
 
-If you think you have found a bug in gmio, we would like to hear
-about it so that we can fix it. The gmio bug tracking system is
+If you think you have found a bug in GeomIO, we would like to hear
+about it so that we can fix it. The GeomIO bug tracking system is
 open to the public at https://github.com/fougsys/gmio/issues.
 
 Before reporting a bug, please use the bug-tracker's search functions
@@ -49,7 +49,7 @@ to see if the issue is already known.
 
 Always include the following information in your bug report: the name
 and version number of your compiler; the name and version number of
-your operating system; the version of gmio you are using, and
+your operating system; the version of GeomIO you are using, and
 what configure options it was compiled with.
 
 If the problem you are reporting is only visible at run-time, try to
