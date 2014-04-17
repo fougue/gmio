@@ -18,11 +18,11 @@ file(GLOB  ALL_SRC_FILES  src/gmio_core/*  src/gmio_core/internal/*)
 set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 
 # Have <stdint.h> ?
-check_include_files(stdint.h FOUG_HAVE_STDINT_H)
+check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
 # Have strtof() ?
 if(NOT BUILD_STRICT_C90)
-  check_function_exists(strtof FOUG_HAVE_STRTOF_FUNC)
+  check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 endif()
 
 # Have builtin byte swap functions ?
@@ -30,13 +30,13 @@ if(CMAKE_COMPILER_IS_GNUCC)
   # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
   # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
   check_c_source_compiles("int main() { return (int)__builtin_bswap16(0x1122); }"
-                           FOUG_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
+                           GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
   check_c_source_compiles("int main() { return (int)__builtin_bswap32(0x11223344); }"
-                           FOUG_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
+                           GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
 elseif(MSVC)
   check_c_source_compiles("#include <stdlib.h>
                            int main() { return (int)_byteswap_ulong(0x11223344); }"
-                          FOUG_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+                          GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
 endif()
 
 configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
@@ -60,8 +60,8 @@ if(MSVC)
 endif()
 
 if(BUILD_SHARED_LIBS)
-  add_definitions(-DFOUG_LIB_DLL
-                  -DFOUG_LIB_MAKE_DLL)
+  add_definitions(-DGMIO_LIB_DLL
+                  -DGMIO_LIB_MAKE_DLL)
 endif()
 
 # Declare installs
