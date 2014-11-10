@@ -47,6 +47,16 @@ typedef unsigned long long uint64_t;
 
 #endif /* GMIO_USE_STDINT_H */
 
+#ifdef GMIO_HAVE_STDBOOL_H
+# include <stdbool.h>
+
+/*! Typedef for boolean type */
+typedef bool gmio_bool_t;
+
+#define GMIO_FALSE false
+#define GMIO_TRUE  true
+
+#else
 /*! Typedef for boolean type */
 typedef int    gmio_bool_t;
 
@@ -56,6 +66,8 @@ enum gmio_bool_value
   GMIO_FALSE = 0,
   GMIO_TRUE = 1
 };
+
+#endif /* GMIO_HAVE_STDBOOL_H */
 
 /*! Typedef for 32bit real type (float) */
 typedef float  gmio_real32_t;

@@ -20,6 +20,9 @@ set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 # Have <stdint.h> ?
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
+# Have <stdbool.h> ?
+check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
+
 # Have strtof() ?
 if(NOT BUILD_STRICT_C90)
   check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)

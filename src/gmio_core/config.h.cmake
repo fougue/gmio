@@ -4,6 +4,7 @@
 #define GMIO_CONFIG_H_CMAKE
 
 #cmakedefine GMIO_HAVE_STDINT_H
+#cmakedefine GMIO_HAVE_STDBOOL_H
 #cmakedefine GMIO_HAVE_STRTOF_FUNC
 
 #cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
