@@ -96,7 +96,7 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 
 #define _GMIO_INTERNAL_MIN(v1, v2)  ((v1) < (v2) ? (v1) : (v2))
 
-/*! \param geom Defines the custom geometry to write
+/*! \param mesh Defines the mesh to write
  *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
  *  \param solid_name May be NULL to generate default name
  *  \param real32_prec The maximum number of significant digits
@@ -105,7 +105,7 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
  *
  *  \retval GMIO_NO_ERROR If operation successful
  */
-int gmio_stla_write(const gmio_stl_mesh_t *mesh,
+int gmio_stla_write(const gmio_stl_mesh_t* mesh,
                     gmio_transfer_t* trsf,
                     const char* solid_name,
                     uint8_t real32_prec)

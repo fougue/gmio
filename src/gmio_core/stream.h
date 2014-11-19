@@ -7,7 +7,7 @@
 GMIO_C_LINKAGE_BEGIN
 
 /*! Stream that can get input from an arbitrary data source or can write output to an arbitrary
- *  data sink
+ *  data sink. It can be seen as generalization of the standard FILE*
  */
 struct gmio_stream
 {

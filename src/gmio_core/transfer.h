@@ -5,16 +5,16 @@
 #include "stream.h"
 #include "task_control.h"
 
-/*! Defines data required for any transfer(read/write) operation */
+/*! Defines objects required for any transfer(read/write) operation */
 struct gmio_transfer
 {
-  /*! The stream to be used for I/O */
+  /*! The stream object to be used for I/O */
   gmio_stream_t       stream;
 
   /*! The optional control object used to handle progress of the transfer */
   gmio_task_control_t task_control;
 
-  /*! Pointer on a user memory area used by the transfer as a buffer for stream optimization */
+  /*! Pointer on a memory buffer used by the transfer for stream operations */
   void*               buffer;
 
   /*! Size (in bytes) of the memory buffer */
