@@ -47,12 +47,12 @@ const char* test_internal__ascii_parse()
       "pi : 3.1415926535897932384626433832795";
 
   {
-    gmio_buffer_t buff;
-    gmio_stream_t stream;
+    gmio_buffer_t buff = {0};
+    gmio_stream_t stream = {0};
 
     char small_fwd_it_str[4];
     char fwd_it_str[32];
-    gmio_ascii_stream_fwd_iterator_t fwd_it;
+    gmio_ascii_stream_fwd_iterator_t fwd_it = {0};
 
     char copy_str[128];
     gmio_ascii_string_buffer_t copy_strbuff;
@@ -62,7 +62,6 @@ const char* test_internal__ascii_parse()
     buff.pos = 0;
     gmio_stream_set_buffer(&stream, &buff);
 
-    memset(&fwd_it, 0, sizeof(gmio_ascii_stream_fwd_iterator_t));
     fwd_it.stream = &stream;
     fwd_it.buffer.ptr = fwd_it_str;
     fwd_it.buffer.max_len = sizeof(fwd_it_str);
