@@ -111,7 +111,6 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
                     uint8_t real32_prec)
 {
   const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
-  uint32_t written_facet_count = 0;
   const uint32_t buffer_facet_count = trsf != NULL ? trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2 : 0;
   uint32_t ifacet = 0;
   char* buffer_iterator = trsf != NULL ? trsf->buffer : NULL;
@@ -184,13 +183,8 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
       error = GMIO_STREAM_ERROR;
 
     /* Task control */
-    if (gmio_no_error(error) && trsf->task_control.handle_progress_func != NULL) {
-      uint32_t percentage = 0;
-      written_facet_count += buffer_facet_count;
-      percentage = gmio_percentage(0, total_facet_count, written_facet_count);
-      if (!gmio_task_control_handle_progress(&trsf->task_control, percentage))
+    if (gmio_no_error(error) && gmio_task_control_is_stop_requested(&trsf->task_control))
         error = GMIO_TASK_STOPPED_ERROR;
-    }
   } /* end for (ifacet) */
 
   /* Write end of solid */

@@ -97,12 +97,9 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
       break; /* Exit if no facet to read */
 
     if (gmio_no_error(error)) {
-      uint8_t progress_pc;
-
       gmio_stlb_read_facets(creator, trsf->buffer, &rparams);
       rparams.i_facet_offset += rparams.facet_count;
-      progress_pc = gmio_percentage(0, total_facet_count, rparams.i_facet_offset);
-      if (!gmio_task_control_handle_progress(&trsf->task_control, progress_pc))
+      if (gmio_task_control_is_stop_requested(&trsf->task_control))
         error = GMIO_TASK_STOPPED_ERROR;
     }
   } /* end while */

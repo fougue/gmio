@@ -100,12 +100,8 @@ int gmio_stlb_write(const gmio_stl_mesh_t *mesh,
     }
 
     /* Task control */
-    if (gmio_no_error(error)
-        && !gmio_task_control_handle_progress(&trsf->task_control,
-                                              gmio_percentage(0, facet_count, i_facet + 1)))
-    {
+    if (gmio_no_error(error) && gmio_task_control_is_stop_requested(&trsf->task_control))
       error = GMIO_TASK_STOPPED_ERROR;
-    }
   } /* end for */
 
   return error;

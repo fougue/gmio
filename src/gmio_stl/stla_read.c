@@ -100,11 +100,9 @@ static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
                                                     const gmio_ascii_string_buffer_t* buffer)
 {
   _internal_gmio_fwd_iterator_cookie_t* tcookie = (_internal_gmio_fwd_iterator_cookie_t*)(cookie);
-  gmio_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
-  if (ctrl != NULL) {
-    const uint8_t progress_pc = gmio_percentage(0, tcookie->stream_data_size, tcookie->stream_offset);
-    tcookie->is_stop_requested = !gmio_task_control_handle_progress(ctrl, progress_pc);
-  }
+  const gmio_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
+  if (ctrl != NULL)
+    tcookie->is_stop_requested = !gmio_task_control_is_stop_requested(ctrl);
   if (tcookie != NULL)
     tcookie->stream_offset += buffer->len;
 }
