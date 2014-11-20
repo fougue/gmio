@@ -111,9 +111,9 @@ static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
 
 GMIO_INLINE static gmio_bool_t parsing_can_continue(const gmio_stla_parse_data_t* data)
 {
-  if (data->error || data->stream_iterator_cookie.is_stop_requested)
-    return 0;
-  return 1;
+  if (!data->error && !data->stream_iterator_cookie.is_stop_requested)
+    return GMIO_TRUE;
+  return GMIO_FALSE;
 }
 
 GMIO_INLINE static const char* current_token_as_identifier(const gmio_stla_parse_data_t* data)
@@ -131,9 +131,11 @@ GMIO_INLINE static int get_current_token_as_real32(const gmio_stla_parse_data_t*
 
 GMIO_INLINE static void parsing_error(gmio_stla_parse_data_t* data)
 {
-  data->error = 1;
+  data->error = GMIO_TRUE;
   data->token = unknown_token;
-  printf("parsing_error, token: %s\n", data->string_buffer.ptr);
+  fprintf(stderr,
+          "\n[gmio_stla_read()] parsing_error, token: \"%s\"\n",
+          data->string_buffer.ptr);
 }
 
 static gmio_stla_token_t parsing_find_token(const gmio_ascii_string_buffer_t* str_buffer)
@@ -146,33 +148,42 @@ static gmio_stla_token_t parsing_find_token(const gmio_ascii_string_buffer_t* st
     return empty_token;
 
   /* Try to guess if it's a float */
-  if (word[0] == '+' || word[0] == '-' || isdigit(word[0]))
+  if ((word[0] == '+' || word[0] == '-' || isdigit(word[0]))
+      && isdigit(word[word_len - 1]))
+  {
     return FLOAT_token;
+  }
 
   /* Try to find non "endXxx" token */
   if (word_len >= 4) {
     switch (word[0]) {
     case 'f':
+    case 'F':
       if (strcmp(word + 1, "acet") == 0)
         return FACET_token;
       break;
     case 'l':
+    case 'L':
       if (strcmp(word + 1, "oop") == 0)
         return LOOP_token;
       break;
     case 'n':
+    case 'N':
       if (strcmp(word + 1, "ormal") == 0)
         return NORMAL_token;
       break;
     case 'o':
+    case 'O':
       if (strcmp(word + 1, "uter") == 0)
         return OUTER_token;
       break;
     case 's':
+    case 'S':
       if (strcmp(word + 1, "olid") == 0)
         return SOLID_token;
       break;
     case 'v':
+    case 'V':
       if (strcmp(word + 1, "ertex") == 0)
         return VERTEX_token;
       break;
@@ -185,14 +196,17 @@ static gmio_stla_token_t parsing_find_token(const gmio_ascii_string_buffer_t* st
   if (word_len >= 7 && strncmp(word, "end", 3) == 0) {
     switch (word[3]) {
     case 'f':
+    case 'F':
       if (strcmp(word + 4, "acet") == 0)
         return ENDFACET_token;
       break;
     case 'l':
+    case 'L':
       if (strcmp(word + 4, "oop") == 0)
         return ENDLOOP_token;
       break;
     case 's':
+    case 'S':
       if (strcmp(word + 4, "olid") == 0)
         return ENDSOLID_token;
       break;
@@ -395,7 +409,7 @@ int gmio_stla_read(gmio_stl_mesh_creator_t *creator,
   }
 
   parse_data.token = unknown_token;
-  parse_data.error = 0;
+  parse_data.error = GMIO_FALSE;
 
   parse_data.stream_iterator_cookie.task_control = &trsf->task_control;
   parse_data.stream_iterator_cookie.stream_data_size = data_size_hint;
