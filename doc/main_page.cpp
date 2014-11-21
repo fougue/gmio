@@ -14,29 +14,8 @@ GeomIO is a fast and portable C library for reading and writing geometry data.
 
 \section build_sec BUILDING GeomIO library
 
-The GeomIO library can be built with qmake or cmake.
-
-<b>With qmake :</b>
-\code
-  .../gmio$ cd qmake
-  .../gmio$ qmake PREFIX_DIR=../gcc-linux64
-  .../gmio$ make all
-  .../gmio$ make install
-\endcode
-
-If you want static libraries (instead of DLLs) just add "CONFIG+=staticlib" to the qmake command :
-\code
-  .../gmio$ qmake PREFIX_DIR=../gcc-linux64 CONFIG+=staticlib
-\endcode
-
-Note that on Windows, qmake complains about deprecated support of backslash '\' characters.
-So you may have to escape backslashes like C:\\path\\to\\opencascade or simply use Unix separators
-instead C:/path/to/opencascade
-
-
-<b>With CMake :</b>
-<TO_BE_DONE>
-
+The GeomIO library can be built with cmake.
+Once makefiles are generated, init tests can be run with "make check"
 
 \section reportbug_sec HOW TO REPORT A BUG
 

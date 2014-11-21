@@ -6,6 +6,10 @@
 struct gmio_stl_mesh;
 struct gmio_stl_mesh_creator;
 
+/*! \brief Domain in a StlMesh_Mesh object
+ *
+ *  The domain is indicated with its index within the STL mesh
+ */
 class GMIO_LIBSUPPORT_EXPORT gmio_OccStlMeshDomain
 {
 public:
@@ -22,9 +26,17 @@ private:
   int m_domainId;
 };
 
+/*! \brief Initializes \p mesh so it maps to a domain in StlMesh_Mesh
+ *
+ *  \c mesh->cookie will point to \p meshCookie
+ */
 GMIO_LIBSUPPORT_EXPORT
 void gmio_stl_occmesh(gmio_stl_mesh* mesh, const gmio_OccStlMeshDomain& meshCookie);
 
+/*! \brief Initializes \p creator to build a new domain in a StlMesh_Mesh object
+ *
+ *  \c creator->cookie will point to the internal data(ie. StlMesh_Mesh*) of handle \p mesh
+ */
 GMIO_LIBSUPPORT_EXPORT
 void gmio_stl_occmesh_creator(gmio_stl_mesh_creator* creator, const Handle_StlMesh_Mesh& mesh);
 

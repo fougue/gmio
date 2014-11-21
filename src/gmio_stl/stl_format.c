@@ -11,16 +11,6 @@
 
 #define _INTERNAL_GMIO_FIXED_BUFFER_SIZE  512
 
-/*! \brief Returns the format of the STL data in \p stream
- *
- *  It will try to read 512 bytes from \p stream into a buffer and then analyses this data to guess
- *  the format.
- *
- *  Parameter \p data_size must provide the total size (in bytes) of the stream data (e.g. file
- *  size), it is required to guess endianness in case of binary format.
- *
- *  Returns GMIO_STL_UNKNOWN_FORMAT in case of error.
- */
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
 {
   char fixed_buffer[_INTERNAL_GMIO_FIXED_BUFFER_SIZE];

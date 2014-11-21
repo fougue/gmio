@@ -11,7 +11,7 @@ struct gmio_transfer
   /*! The stream object to be used for I/O */
   gmio_stream_t       stream;
 
-  /*! The optional control object used to handle progress of the transfer */
+  /*! The optional object used to control execution of the transfer */
   gmio_task_control_t task_control;
 
   /*! Pointer on a memory buffer used by the transfer for stream operations */

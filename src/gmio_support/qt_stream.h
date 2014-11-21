@@ -5,6 +5,8 @@
 struct gmio_stream;
 class QIODevice;
 
+/*! \brief Configures \p stream for \c QIODevice* (cookie will hold \p device)
+ */
 GMIO_LIBSUPPORT_EXPORT
 void gmio_stream_set_qiodevice(struct gmio_stream* stream, QIODevice* device);
 
