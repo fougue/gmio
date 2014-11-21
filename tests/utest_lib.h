@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define UTEST_SUITE_START() const char *message = NULL
+#define UTEST_SUITE_START() const char* message = NULL
 
 #define UTEST_ASSERT(test) if (!(test))\
                            { printf("  ERROR : %s   (line = %i, file = %s)", #test, __LINE__, __FILE__);\

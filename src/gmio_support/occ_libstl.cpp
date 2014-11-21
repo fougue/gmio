@@ -35,9 +35,12 @@ static void occmesh_get_triangle(const void* cookie,
                                  uint32_t tri_id,
                                  gmio_stl_triangle_t* triangle)
 {
-  const gmio_OccStlMeshDomain* meshCookie = static_cast<const gmio_OccStlMeshDomain*>(cookie);
-  const StlMesh_SequenceOfMeshTriangle& occTriangles = meshCookie->mesh()->Triangles(meshCookie->domainId());
-  const Handle_StlMesh_MeshTriangle& occTri = occTriangles.Value(tri_id + 1);
+  const gmio_OccStlMeshDomain* meshCookie =
+      static_cast<const gmio_OccStlMeshDomain*>(cookie);
+  const StlMesh_SequenceOfMeshTriangle& occTriangles =
+      meshCookie->mesh()->Triangles(meshCookie->domainId());
+  const Handle_StlMesh_MeshTriangle& occTri =
+      occTriangles.Value(tri_id + 1);
   Standard_Integer v1;
   Standard_Integer v2;
   Standard_Integer v3;
