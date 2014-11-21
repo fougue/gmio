@@ -75,6 +75,9 @@ typedef float  gmio_real32_t;
 /*! Typedef for 64bit real type (double) */
 typedef double gmio_real64_t;
 
+/*! Tells the compiler that a parameter is not used in the body of a function */
+#define GMIO_UNUSED(x) (void)x;
+
 #ifndef GMIO_INLINE
 # if defined(__GNUC__)
 #  define GMIO_INLINE __inline__  /* Compatible with C90 */
