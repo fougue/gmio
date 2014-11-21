@@ -96,20 +96,12 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 
 #define _GMIO_INTERNAL_MIN(v1, v2)  ((v1) < (v2) ? (v1) : (v2))
 
-/*! \param mesh Defines the mesh to write
- *  \param trsf Defines needed objects (stream, buffer, ...) for the writing operation
- *  \param solid_name May be NULL to generate default name
- *  \param real32_prec The maximum number of significant digits
- *
- *  \return Error code
- *
- *  \retval GMIO_NO_ERROR If operation successful
- */
 int gmio_stla_write(const gmio_stl_mesh_t* mesh,
                     gmio_transfer_t* trsf,
-                    const char* solid_name,
-                    uint8_t real32_prec)
+                    const gmio_stla_write_options_t* options)
 {
+  const char* solid_name = options != NULL ? options->solid_name : NULL;
+  const uint8_t real32_prec = options != NULL ? options->real32_prec : 9;
   const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
   const uint32_t buffer_facet_count = trsf != NULL ? trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2 : 0;
   uint32_t ifacet = 0;

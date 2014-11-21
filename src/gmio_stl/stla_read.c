@@ -62,7 +62,6 @@
 typedef struct
 {
   gmio_task_control_t* task_control;
-  size_t               stream_data_size;
   size_t               stream_offset;
   gmio_bool_t          is_stop_requested;
 } _internal_gmio_fwd_iterator_cookie_t;
@@ -102,7 +101,7 @@ static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
   _internal_gmio_fwd_iterator_cookie_t* tcookie = (_internal_gmio_fwd_iterator_cookie_t*)(cookie);
   const gmio_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
   if (ctrl != NULL)
-    tcookie->is_stop_requested = !gmio_task_control_is_stop_requested(ctrl);
+    tcookie->is_stop_requested = gmio_task_control_is_stop_requested(ctrl);
   if (tcookie != NULL)
     tcookie->stream_offset += buffer->len;
 }
@@ -393,12 +392,13 @@ static void parse_solid(gmio_stla_parse_data_t* data)
 
 #define GMIO_STLA_READ_STRING_BUFFER_LEN    512
 
-int gmio_stla_read(gmio_stl_mesh_creator_t *creator,
-                   gmio_transfer_t *trsf,
-                   size_t data_size_hint)
+int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
+                   gmio_transfer_t* trsf,
+                   const gmio_stla_read_options_t* options)
 {
   char fixed_buffer[GMIO_STLA_READ_STRING_BUFFER_LEN];
   gmio_stla_parse_data_t parse_data;
+  GMIO_UNUSED(options);
 
   { /* Check validity of input parameters */
     int error = GMIO_NO_ERROR;
@@ -410,9 +410,8 @@ int gmio_stla_read(gmio_stl_mesh_creator_t *creator,
   parse_data.error = GMIO_FALSE;
 
   parse_data.stream_iterator_cookie.task_control = &trsf->task_control;
-  parse_data.stream_iterator_cookie.stream_data_size = data_size_hint;
   parse_data.stream_iterator_cookie.stream_offset = 0;
-  parse_data.stream_iterator_cookie.is_stop_requested = 0;
+  parse_data.stream_iterator_cookie.is_stop_requested = GMIO_FALSE;
 
   parse_data.stream_iterator.stream = &trsf->stream;
   parse_data.stream_iterator.buffer.ptr = trsf->buffer;

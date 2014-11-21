@@ -46,9 +46,10 @@ static void gmio_stlb_read_facets(gmio_stl_mesh_creator_t* creator,
 
 int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
                    gmio_transfer_t* trsf,
-                   gmio_endianness_t byte_order)
+                   const gmio_stlb_read_options_t* options)
 {
   const gmio_endianness_t host_byte_order = gmio_host_endianness();
+  const gmio_endianness_t byte_order = options != NULL ? options->byte_order : host_byte_order;
   gmio_stlb_readwrite_helper_t rparams = {0};
   uint8_t  header_data[GMIO_STLB_HEADER_SIZE];
   uint32_t total_facet_count = 0;  /* Count of facets as declared in the stream */
