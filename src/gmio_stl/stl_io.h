@@ -20,7 +20,7 @@ GMIO_C_LINKAGE_BEGIN
  */
 struct gmio_stla_read_options
 {
-  void* dummy; /*!< Structs must have at least one member ... */
+  void* dummy; /*!< Structs must have at least one member in strict ISO-C90 */
   /* Flag to force locale ? */
 };
 typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
@@ -29,9 +29,10 @@ typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
  *
  *  \p options should be always set to NULL (not used for the moment)
  */
-GMIO_LIBSTL_EXPORT int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
-                                      gmio_transfer_t* trsf,
-                                      const gmio_stla_read_options_t* options); /* NULL */
+GMIO_LIBSTL_EXPORT
+int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
+                   gmio_transfer_t* trsf,
+                   const gmio_stla_read_options_t* options); /* NULL */
 
 /*! \brief Options for gmio_stla_write()
  */
@@ -55,9 +56,10 @@ typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
  *  \return Error code
  *  \retval GMIO_NO_ERROR If operation successful
  */
-GMIO_LIBSTL_EXPORT int gmio_stla_write(const gmio_stl_mesh_t* mesh,
-                                       gmio_transfer_t* trsf,
-                                       const gmio_stla_write_options_t* options);
+GMIO_LIBSTL_EXPORT
+int gmio_stla_write(const gmio_stl_mesh_t* mesh,
+                    gmio_transfer_t* trsf,
+                    const gmio_stla_write_options_t* options);
 
 /* ============================================================================
  *  STL binary
@@ -75,9 +77,10 @@ typedef struct gmio_stlb_read_options  gmio_stlb_read_options_t;
 
 /*! \brief Read geometry from STL binary stream
  */
-GMIO_LIBSTL_EXPORT int gmio_stlb_read(gmio_stl_mesh_creator_t* creator,
-                                      gmio_transfer_t* trsf,
-                                      const gmio_stlb_read_options_t* options);
+GMIO_LIBSTL_EXPORT
+int gmio_stlb_read(gmio_stl_mesh_creator_t* creator,
+                   gmio_transfer_t* trsf,
+                   const gmio_stlb_read_options_t* options);
 
 
 /*! \brief Options for gmio_stlb_write()
@@ -94,9 +97,10 @@ typedef struct gmio_stlb_write_options  gmio_stlb_write_options_t;
 
 /*! \brief Write geometry in the STL binary format
  */
-GMIO_LIBSTL_EXPORT int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
-                                       gmio_transfer_t* trsf,
-                                       const gmio_stlb_write_options_t* options);
+GMIO_LIBSTL_EXPORT
+int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
+                    gmio_transfer_t* trsf,
+                    const gmio_stlb_write_options_t* options);
 
 GMIO_C_LINKAGE_END
 

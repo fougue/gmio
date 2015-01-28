@@ -19,11 +19,12 @@ typedef enum gmio_stl_format gmio_stl_format_t;
 
 /*! \brief Returns the format of the STL data in \p stream
  *
- *  It will try to read 512 bytes from \p stream into a buffer and then analyses this data to guess
- *  the format.
+ *  It will try to read 512 bytes from \p stream into a buffer and then
+ *  analyses this data to guess the format.
  *
- *  Parameter \p data_size must provide the total size (in bytes) of the stream data (e.g. file
- *  size), it is required to guess endianness in case of binary format.
+ *  Parameter \p data_size must provide the total size (in bytes) of the
+ *  stream data (e.g. file size), it is required to guess endianness in case
+ *  of binary format.
  *
  *  Returns GMIO_STL_UNKNOWN_FORMAT in case of error.
  */

@@ -29,6 +29,12 @@ void  gmio_ascii_stream_fwd_iterator_init(gmio_ascii_stream_fwd_iterator_t* it);
 char* gmio_current_char(const gmio_ascii_stream_fwd_iterator_t* it);
 void  gmio_skip_spaces(gmio_ascii_stream_fwd_iterator_t* it);
 int   gmio_eat_word(gmio_ascii_stream_fwd_iterator_t* it, gmio_ascii_string_buffer_t* buffer);
+
+/*! \brief Converts the string pointed to by \p str to gmio_real32_t representation
+ *
+ *  \retval 0  On success
+ *  \retval -1 On error(check \c errno to see what happened)
+ */
 int   gmio_get_real32(const char* str, gmio_real32_t* value_ptr);
 
 char*       gmio_next_char(gmio_ascii_stream_fwd_iterator_t* it);
