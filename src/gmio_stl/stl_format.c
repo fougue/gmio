@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#define _INTERNAL_GMIO_FIXED_BUFFER_SIZE  512
+enum { _INTERNAL_GMIO_FIXED_BUFFER_SIZE = 512 };
 
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
 {
