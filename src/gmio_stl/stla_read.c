@@ -73,8 +73,8 @@ typedef enum
   ENDLOOP_token,
   ENDSOLID_token,
   FACET_token,
-  FLOAT_token,
   ID_token,
+  FLOAT_token = ID_token,
   LOOP_token,
   NORMAL_token,
   OUTER_token,
@@ -143,13 +143,6 @@ static gmio_stla_token_t parsing_find_token(const gmio_ascii_string_buffer_t* st
   /* Get rid of ill-formed token */
   if (word_len == 0)
     return empty_token;
-
-  /* Try to guess if it's a float */
-  if ((word[0] == '+' || word[0] == '-' || isdigit(word[0]))
-      && isdigit(word[word_len - 1]))
-  {
-    return FLOAT_token;
-  }
 
   /* Try to find non "endXxx" token */
   if (word_len >= 4) {
