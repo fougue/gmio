@@ -21,6 +21,7 @@
 #include "stl_error.h"
 
 #include "../gmio_core/error.h"
+#include "../gmio_core/internal/min_max.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -110,8 +111,6 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 {
   return gmio_stream_write(&trsf->stream, trsf->buffer, sizeof(char), n) == n;
 }
-
-#define _GMIO_INTERNAL_MIN(v1, v2)  ((v1) < (v2) ? (v1) : (v2))
 
 int gmio_stla_write(const gmio_stl_mesh_t* mesh,
                     gmio_transfer_t* trsf,
