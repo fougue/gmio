@@ -21,7 +21,7 @@
 #include "internal/stl_rw_common.h"
 
 #include "../gmio_core/error.h"
-#include "../gmio_core/internal/ascii_parse.h"
+#include "../gmio_core/internal/string_parse.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -106,14 +106,14 @@ typedef struct
 {
   gmio_stla_token_t token;
   gmio_bool_t       error;
-  gmio_ascii_stream_fwd_iterator_t     stream_iterator;
+  gmio_string_stream_fwd_iterator_t     stream_iterator;
   _internal_gmio_fwd_iterator_cookie_t stream_iterator_cookie;
-  gmio_ascii_string_buffer_t           string_buffer;
+  gmio_string_buffer_t           string_buffer;
   gmio_stl_mesh_creator_t*             creator;
 } gmio_stla_parse_data_t;
 
 static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
-                                                    const gmio_ascii_string_buffer_t* buffer)
+                                                    const gmio_string_buffer_t* buffer)
 {
   _internal_gmio_fwd_iterator_cookie_t* tcookie = (_internal_gmio_fwd_iterator_cookie_t*)(cookie);
   const gmio_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
@@ -152,7 +152,7 @@ GMIO_INLINE static void parsing_error(gmio_stla_parse_data_t* data)
           data->string_buffer.ptr);
 }
 
-static gmio_stla_token_t parsing_find_token(const gmio_ascii_string_buffer_t* str_buffer)
+static gmio_stla_token_t parsing_find_token(const gmio_string_buffer_t* str_buffer)
 {
   const char* word = str_buffer->ptr;
   const size_t word_len = str_buffer->len;
@@ -428,7 +428,7 @@ int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
   parse_data.stream_iterator.buffer.max_len = trsf->buffer_size;
   parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
   parse_data.stream_iterator.stream_read_hook = gmio_stream_fwd_iterator_stla_read_hook;
-  gmio_ascii_stream_fwd_iterator_init(&parse_data.stream_iterator);
+  gmio_string_stream_fwd_iterator_init(&parse_data.stream_iterator);
 
   parse_data.string_buffer.ptr = &fixed_buffer[0];
   parse_data.string_buffer.len = 0;

@@ -17,9 +17,9 @@
 
 #include "utest_lib.h"
 
-#include "../src/gmio_core/internal/ascii_parse.h"
-#include "../src/gmio_core/internal/byte_swap.h"
 #include "../src/gmio_core/internal/byte_codec.h"
+#include "../src/gmio_core/internal/byte_swap.h"
+#include "../src/gmio_core/internal/string_parse.h"
 
 #include "stream_buffer.h"
 
@@ -56,7 +56,7 @@ const char* test_internal__byte_codec()
   return NULL;
 }
 
-const char* test_internal__ascii_parse()
+const char* test_internal__string_parse()
 {
   char text[] =
       "Une    citation,\to je crois qu'elle est de moi :"
@@ -69,10 +69,10 @@ const char* test_internal__ascii_parse()
 
     char small_fwd_it_str[4];
     char fwd_it_str[32];
-    gmio_ascii_stream_fwd_iterator_t fwd_it = {0};
+    gmio_string_stream_fwd_iterator_t fwd_it = {0};
 
     char copy_str[128];
-    gmio_ascii_string_buffer_t copy_strbuff;
+    gmio_string_buffer_t copy_strbuff;
 
     buff.ptr = text;
     buff.len = strlen(text);
@@ -82,7 +82,7 @@ const char* test_internal__ascii_parse()
     fwd_it.stream = &stream;
     fwd_it.buffer.ptr = fwd_it_str;
     fwd_it.buffer.max_len = sizeof(fwd_it_str);
-    gmio_ascii_stream_fwd_iterator_init(&fwd_it);
+    gmio_string_stream_fwd_iterator_init(&fwd_it);
 
     copy_strbuff.ptr = copy_str;
     copy_strbuff.max_len = sizeof(copy_str);
@@ -111,7 +111,7 @@ const char* test_internal__ascii_parse()
     buff.pos = 0;
     fwd_it.buffer.ptr = small_fwd_it_str;
     fwd_it.buffer.max_len = sizeof(small_fwd_it_str);
-    gmio_ascii_stream_fwd_iterator_init(&fwd_it);
+    gmio_string_stream_fwd_iterator_init(&fwd_it);
 
     UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'U');
     UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
@@ -127,7 +127,7 @@ const char* all_tests()
   UTEST_SUITE_START();
   UTEST_RUN(test_internal__byte_swap);
   UTEST_RUN(test_internal__byte_codec);
-  UTEST_RUN(test_internal__ascii_parse);
+  UTEST_RUN(test_internal__string_parse);
   return NULL;
 }
 

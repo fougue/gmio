@@ -15,13 +15,13 @@
 **
 ****************************************************************************/
 
-#include "ascii_parse.h"
+#include "string_parse.h"
 
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 
-void gmio_ascii_stream_fwd_iterator_init(gmio_ascii_stream_fwd_iterator_t *it)
+void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
 {
   /* Trick: declaring the buffer exhausted will actually trigger the first call to
    * gmio_stream_read() inside gmio_next_char()
@@ -31,14 +31,14 @@ void gmio_ascii_stream_fwd_iterator_init(gmio_ascii_stream_fwd_iterator_t *it)
   gmio_next_char(it);
 }
 
-char *gmio_current_char(const gmio_ascii_stream_fwd_iterator_t *it)
+char *gmio_current_char(const gmio_string_stream_fwd_iterator_t *it)
 {
   if (it != NULL && it->buffer_pos < it->buffer.len)
     return it->buffer.ptr + it->buffer_pos;
   return NULL;
 }
 
-char *gmio_next_char(gmio_ascii_stream_fwd_iterator_t *it)
+char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
 {
   if (it == NULL)
     return NULL;
@@ -64,14 +64,14 @@ char *gmio_next_char(gmio_ascii_stream_fwd_iterator_t *it)
   return NULL;
 }
 
-void gmio_skip_spaces(gmio_ascii_stream_fwd_iterator_t *it)
+void gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
 {
   const char* curr_char = gmio_current_char(it);
   while (curr_char != NULL && isspace(*curr_char))
     curr_char = gmio_next_char(it);
 }
 
-int gmio_eat_word(gmio_ascii_stream_fwd_iterator_t *it, gmio_ascii_string_buffer_t *buffer)
+int gmio_eat_word(gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *buffer)
 {
   const char* stream_curr_char = NULL;
   int isspace_res = 0;
@@ -119,7 +119,7 @@ int gmio_get_real32(const char *str, gmio_real32_t *value_ptr)
   return 0;
 }
 
-gmio_bool_t gmio_checked_next_chars(gmio_ascii_stream_fwd_iterator_t *it, const char *str)
+gmio_bool_t gmio_checked_next_chars(gmio_string_stream_fwd_iterator_t *it, const char *str)
 {
   size_t pos = 0;
   const char* curr_char = gmio_current_char(it);
