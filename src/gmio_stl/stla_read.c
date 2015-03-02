@@ -383,7 +383,7 @@ static void parse_solid(gmio_stla_parse_data_t* data)
   }
 }
 
-#define GMIO_STLA_READ_STRING_BUFFER_LEN    512
+enum { GMIO_STLA_READ_STRING_BUFFER_LEN = 512 };
 
 int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
                    gmio_transfer_t* trsf,

@@ -2,7 +2,7 @@
 #define GMIO_LIBSTL_STL_ERROR_H
 
 /*! A byte-mask to tag(identify) STL-specific error codes */
-#define GMIO_STL_ERROR_TAG  0x11000000
+enum { GMIO_STL_ERROR_TAG = 0x11000000 };
 
 /*! This enum defines the various error codes reported by STL read/write functions */
 enum gmio_stl_error

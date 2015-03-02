@@ -26,9 +26,9 @@
  * Total with EOL(2 chars) = 307 + 7*2 = 321
  */
 
-#define GMIO_STLA_FACET_SIZE          321
-#define GMIO_STLA_FACET_SIZE_P2       512
-#define GMIO_STLA_SOLID_NAME_MAX_LEN  512
+enum { GMIO_STLA_FACET_SIZE = 321 };
+enum { GMIO_STLA_FACET_SIZE_P2 = 512 };
+enum { GMIO_STLA_SOLID_NAME_MAX_LEN = 512 };
 
 static char* gmio_write_string(char* buffer, const char* str)
 {

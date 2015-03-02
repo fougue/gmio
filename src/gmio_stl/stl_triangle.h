@@ -30,12 +30,12 @@ struct gmio_stl_triangle
 typedef struct gmio_stl_triangle gmio_stl_triangle_t;
 
 /*! Compact size of a gmio_stl_coords_t object */
-#define GMIO_STL_COORDS_RAWSIZE (3 * sizeof(gmio_real32_t))
+enum { GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(gmio_real32_t)) };
 
 /*! Compact size of a gmio_stl_triangle_t object for STL ascii format */
-#define GMIO_STLA_TRIANGLE_RAWSIZE (4 * GMIO_STL_COORDS_RAWSIZE)
+enum { GMIO_STLA_TRIANGLE_RAWSIZE = (4 * GMIO_STL_COORDS_RAWSIZE) };
 
 /*! Compact size of a gmio_stl_triangle_t object for STL binary format */
-#define GMIO_STLB_TRIANGLE_RAWSIZE (GMIO_STLA_TRIANGLE_RAWSIZE + sizeof(uint16_t))
+enum { GMIO_STLB_TRIANGLE_RAWSIZE = (GMIO_STLA_TRIANGLE_RAWSIZE + sizeof(uint16_t)) };
 
 #endif /* GMIO_LIBSTL_TRIANGLE_H */
