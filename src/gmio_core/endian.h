@@ -5,7 +5,7 @@
 
 GMIO_C_LINKAGE_BEGIN
 
-/*! This enum identifies endian representations of numbers */
+/*! This enum identifies common endianness (byte order) of computer memory */
 enum gmio_endianness
 {
   GMIO_LITTLE_ENDIAN,

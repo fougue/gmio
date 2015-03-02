@@ -16,12 +16,13 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! \brief Options for gmio_stla_read()
  *
- *  No options yet, it just exists for future needs
+ *  No options yet, it just exists for future needs, which could possibly be:
+ *     - flag to force locale ?
+ *     - case sensitive/insensitive ?
  */
 struct gmio_stla_read_options
 {
   void* dummy; /*!< Structs must have at least one member in strict ISO-C90 */
-  /* Flag to force locale ? */
 };
 typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 
@@ -32,7 +33,7 @@ typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 GMIO_LIBSTL_EXPORT
 int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
                    gmio_transfer_t* trsf,
-                   const gmio_stla_read_options_t* options); /* NULL */
+                   const gmio_stla_read_options_t* options /* NULL */);
 
 /*! \brief Options for gmio_stla_write()
  */
@@ -51,7 +52,8 @@ typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
  *  \param mesh Defines the mesh to write
  *  \param trsf Defines needed objects (stream, buffer, ...) for the writing
  *              operation
- *  \param options Options for the writing operation
+ *  \param options Options for the writing operation, can be set to NULL to
+ *                 use default values
  *
  *  \return Error code
  *  \retval GMIO_NO_ERROR If operation successful
