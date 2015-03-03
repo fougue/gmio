@@ -25,9 +25,9 @@
 
 #define UTEST_MAIN(name) \
         int main(int argc, char *argv[]) {\
-            (void)argc; \
             const char *result = NULL; \
             \
+            (void)argc; \
             printf("----\nRUNNING: %s\n", argv[0]);\
             result = name();\
             if (result != NULL) {\
