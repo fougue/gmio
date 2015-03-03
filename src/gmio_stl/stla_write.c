@@ -22,6 +22,7 @@
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/min_max.h"
+#include "../gmio_core/internal/safe_cast.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -119,7 +120,9 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
   const char* solid_name = options != NULL ? options->solid_name : NULL;
   const uint8_t real32_prec = options != NULL ? options->real32_prec : 9;
   const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
-  const uint32_t buffer_facet_count = trsf != NULL ? trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2 : 0;
+  const uint32_t buffer_facet_count =
+          trsf != NULL ?
+              gmio_size_to_uint32(trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2) : 0;
   uint32_t ifacet = 0;
   char* buffer_iterator = trsf != NULL ? trsf->buffer : NULL;
   char coords_format[64];

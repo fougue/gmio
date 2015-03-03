@@ -65,7 +65,7 @@ gmio_bool_t gmio_stream_at_end(gmio_stream_t* stream)
 {
   if (stream != NULL && stream->at_end_func != NULL)
     return stream->at_end_func(stream->cookie);
-  return 0;
+  return GMIO_FALSE;
 }
 
 int gmio_stream_error(gmio_stream_t* stream)

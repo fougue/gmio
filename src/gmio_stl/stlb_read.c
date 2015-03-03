@@ -23,8 +23,9 @@
 
 #include "../gmio_core/endian.h"
 #include "../gmio_core/error.h"
-#include "../gmio_core/internal/convert.h"
 #include "../gmio_core/internal/byte_swap.h"
+#include "../gmio_core/internal/convert.h"
+#include "../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 
@@ -66,10 +67,13 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
                    const gmio_stlb_read_options_t* options)
 {
   const gmio_endianness_t host_byte_order = gmio_host_endianness();
-  const gmio_endianness_t byte_order = options != NULL ? options->byte_order : host_byte_order;
+  const gmio_endianness_t byte_order =
+          options != NULL ? options->byte_order : host_byte_order;
+  const uint32_t max_facet_count_per_read =
+          gmio_size_to_uint32(trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE);
   gmio_stlb_readwrite_helper_t rparams = {0};
   uint8_t  header_data[GMIO_STLB_HEADER_SIZE];
-  uint32_t total_facet_count = 0;  /* Count of facets as declared in the stream */
+  uint32_t total_facet_count = 0; /* Count of facets as declared in the stream */
   int error = GMIO_NO_ERROR; /* Helper variable to store function result error code  */
 
   /* Check validity of input parameters */
@@ -103,10 +107,13 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
   while (gmio_no_error(error)
          && rparams.i_facet_offset < total_facet_count)
   {
-    rparams.facet_count = gmio_stream_read(&trsf->stream,
-                                           trsf->buffer,
-                                           GMIO_STLB_TRIANGLE_RAWSIZE,
-                                           trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE);
+    rparams.facet_count =
+            gmio_size_to_uint32(
+                gmio_stream_read(
+                    &trsf->stream,
+                    trsf->buffer,
+                    GMIO_STLB_TRIANGLE_RAWSIZE,
+                    max_facet_count_per_read));
     if (gmio_stream_error(&trsf->stream) != 0)
       error = GMIO_STREAM_ERROR;
     else if (rparams.facet_count > 0)

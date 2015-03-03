@@ -24,6 +24,8 @@
 #include "../gmio_core/endian.h"
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_codec.h"
+#include "../gmio_core/internal/min_max.h"
+#include "../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 
@@ -80,7 +82,7 @@ int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
   /* Initialize wparams */
   if (host_byte_order != byte_order)
     wparams.fix_endian_func = gmio_stl_triangle_bswap;
-  wparams.facet_count = trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE;
+  wparams.facet_count = gmio_size_to_uint32(trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
   /* Write header */
   if (header_data == NULL) {
@@ -105,8 +107,8 @@ int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
        i_facet += wparams.facet_count)
   {
     /* Write to buffer */
-    if (wparams.facet_count > (facet_count - wparams.i_facet_offset))
-      wparams.facet_count = facet_count - wparams.i_facet_offset;
+    wparams.facet_count = _GMIO_INTERNAL_MIN(wparams.facet_count,
+                                             facet_count - wparams.i_facet_offset);
 
     gmio_stlb_write_facets(mesh, trsf->buffer, &wparams);
     wparams.i_facet_offset += wparams.facet_count;
