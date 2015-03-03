@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_TASK_CONTROL_H
@@ -28,14 +26,15 @@ GMIO_C_LINKAGE_BEGIN
  */
 struct gmio_task_control
 {
-    /*! Opaque pointer on a user task object, passed as first argument to hook functions */
+    /*! Opaque pointer on a user task object, passed as first argument to hook
+     *  functions */
     void* cookie;
 
-    /*! \brief Pointer on a function that says if the current task must stop
-   *
-   *  If GMIO_TRUE is returned then the current task should abort as soon as possible, otherwise it
-   *  can continue execution.
-   */
+    /*! Pointer on a function that says if the current task must stop
+     *
+     *  If GMIO_TRUE is returned then the current task should abort as soon as
+     *  possible, otherwise it can continue execution.
+     */
     gmio_bool_t (*is_stop_requested_func)(void* cookie);
 };
 

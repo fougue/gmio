@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_INTERNAL_CONVERT_H

@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_LIBSTL_FORMAT_H
@@ -34,7 +32,7 @@ enum gmio_stl_format
 
 typedef enum gmio_stl_format gmio_stl_format_t;
 
-/*! \brief Returns the format of the STL data in \p stream
+/*! Returns the format of the STL data in \p stream
  *
  *  It will try to read 512 bytes from \p stream into a buffer and then
  *  analyses this data to guess the format.
@@ -43,7 +41,7 @@ typedef enum gmio_stl_format gmio_stl_format_t;
  *  stream data (e.g. file size), it is required to guess endianness in case
  *  of binary format.
  *
- *  Returns GMIO_STL_UNKNOWN_FORMAT in case of error.
+ *  \retval GMIO_STL_UNKNOWN_FORMAT in case of error.
  */
 GMIO_LIBSTL_EXPORT
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream, size_t data_size);

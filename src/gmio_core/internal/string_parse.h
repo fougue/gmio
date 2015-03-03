@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_INTERNAL_STRING_PARSE_H
@@ -47,7 +45,7 @@ char* gmio_current_char(const gmio_string_stream_fwd_iterator_t* it);
 void  gmio_skip_spaces(gmio_string_stream_fwd_iterator_t* it);
 int   gmio_eat_word(gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
 
-/*! \brief Converts the string pointed to by \p str to gmio_float32_t representation
+/*! Converts the string pointed to by \p str to gmio_float32_t representation
  *
  *  \retval 0  On success
  *  \retval -1 On error(check \c errno to see what happened)

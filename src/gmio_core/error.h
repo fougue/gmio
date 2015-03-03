@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_ERROR_H
@@ -37,10 +35,11 @@ enum gmio_error
     /*! Argument buffer's size is too small */
     GMIO_INVALID_BUFFER_SIZE_ERROR = -3,
 
-    /*! An error occurred with the argument gmio_stream_t (check gmio_stream_error()) */
+    /*! An error occurred with the argument gmio_stream_t */
     GMIO_STREAM_ERROR = -4,
 
-    /*! Operation was stopped by user (gmio_task_control::handle_progress_func() returned GMIO_FALSE) */
+    /*! Operation was stopped by user, that is to say
+     *  gmio_task_control::is_stop_requested_func() returned GMIO_FALSE */
     GMIO_TASK_STOPPED_ERROR = -5
 };
 

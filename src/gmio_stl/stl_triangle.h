@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_LIBSTL_TRIANGLE_H
@@ -20,9 +18,8 @@
 
 #include "stl_global.h"
 
-/*! \brief Cartesian coordinate entity in 3D space, specifically tailored for
- *         STL needs (single-float)
- */
+/*! Cartesian coordinate entity in 3D space, specifically tailored for
+ *  STL needs (single-float) */
 struct gmio_stl_coords
 {
     gmio_float32_t x;
@@ -32,9 +29,8 @@ struct gmio_stl_coords
 
 typedef struct gmio_stl_coords gmio_stl_coords_t;
 
-/*! \brief STL mesh triangle defined three geometric vertices and an
- *         orientation(normal)
- */
+/*! STL mesh triangle defined three geometric vertices and an
+ *  orientation(normal) */
 struct gmio_stl_triangle
 {
     gmio_stl_coords_t normal;

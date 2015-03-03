@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,12 +11,12 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
-/* Warning : this header has no multi-inclusion guard. It must be included only once in the
- *           translation unit of use. The reason is that all functions defined here are meant to
- *           be inlined for performance purpose
+/* WARNING :
+ *     this header has no multi-inclusion guard. It must be included only once
+ *     in the translation unit of use. The reason is that all functions
+ *     defined here are meant to be inlined for performance purpose
  */
 
 #include "../global.h"
@@ -26,7 +25,8 @@
 #  include <stdlib.h>
 #endif
 
-/*! Returns \p val with the order of bytes reversed, uses compiler builtin functions if available */
+/*! Returns \p val with the order of bytes reversed, uses compiler builtin
+ *  functions if available */
 GMIO_INLINE static uint16_t gmio_uint16_bswap(uint16_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
@@ -38,7 +38,8 @@ GMIO_INLINE static uint16_t gmio_uint16_bswap(uint16_t val)
 #endif
 }
 
-/*! Returns \p val with the order of bytes reversed, uses compiler builtin functions if available */
+/*! Returns \p val with the order of bytes reversed, uses compiler builtin
+ *  functions if available */
 GMIO_INLINE static uint32_t gmio_uint32_bswap(uint32_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC

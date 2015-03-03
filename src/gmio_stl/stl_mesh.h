@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,7 +11,6 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
 #ifndef GMIO_LIBSTL_STL_MESH_H
@@ -24,14 +22,18 @@
 /*! Provides an interface for accessing the underlying(hidden) user mesh */
 struct gmio_stl_mesh
 {
-    /*! Opaque pointer on the user mesh, passed as first argument to hook functions */
+    /*! Opaque pointer on the user mesh, passed as first argument to hook
+     *  functions */
     const void* cookie;
 
     /*! Number of triangles in the mesh */
     uint32_t    triangle_count;
 
-    /*! Pointer on a function that stores the mesh triangle of index \p tri_id into \p triangle */
-    void      (*get_triangle_func)(const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle);
+    /*! Pointer on a function that stores the mesh triangle of index \p tri_id
+     *  into \p triangle */
+    void      (*get_triangle_func)(const void* cookie,
+                                   uint32_t tri_id,
+                                   gmio_stl_triangle_t* triangle);
 };
 
 typedef struct gmio_stl_mesh gmio_stl_mesh_t;

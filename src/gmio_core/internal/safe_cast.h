@@ -1,5 +1,4 @@
 /****************************************************************************
-**
 ** GeomIO Library
 ** Copyright FougSys (2 Mar. 2015)
 ** contact@fougsys.fr
@@ -12,12 +11,12 @@
 ** modify and/ or redistribute the software under the terms of the CeCILL-B
 ** license as circulated by CEA, CNRS and INRIA at the following URL
 ** "http://www.cecill.info".
-**
 ****************************************************************************/
 
-/* Warning : this header has no multi-inclusion guard. It must be included only once in the
- *           translation unit of use. The reason is that all functions defined here are meant to
- *           be inlined for performance purpose
+/* WARNING :
+ *     this header has no multi-inclusion guard. It must be included only once
+ *     in the translation unit of use. The reason is that all functions
+ *     defined here are meant to be inlined for performance purpose
  */
 
 #include "../global.h"
