@@ -23,7 +23,7 @@
 #include "../global.h"
 
 #ifdef GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC
-# include <stdlib.h>
+#  include <stdlib.h>
 #endif
 
 /*! Returns \p val with the order of bytes reversed, uses compiler builtin functions if available */
