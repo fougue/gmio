@@ -23,11 +23,11 @@ typedef union
 {
     uint32_t integer;
     uint8_t  bytes[4];
-} _internal_gmio_int_bytes_32_convert_t;
+} gmio_int_bytes_32_convert_t;
 
 gmio_endianness_t gmio_host_endianness()
 {
-    _internal_gmio_int_bytes_32_convert_t conv;
+    gmio_int_bytes_32_convert_t conv;
 
     conv.integer = 0x01020408;
     if (conv.bytes[0] == 0x08 && conv.bytes[3] == 0x01)

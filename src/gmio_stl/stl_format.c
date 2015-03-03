@@ -20,25 +20,25 @@
 #include "../gmio_core/endian.h"
 #include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/byte_swap.h"
+#include "../gmio_core/internal/min_max.h"
 
 #include <ctype.h>
 #include <string.h>
 
-enum { _INTERNAL_GMIO_FIXED_BUFFER_SIZE = 512 };
+enum { GMIO_FIXED_BUFFER_SIZE = 512 };
 
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
 {
-    char fixed_buffer[_INTERNAL_GMIO_FIXED_BUFFER_SIZE];
+    char fixed_buffer[GMIO_FIXED_BUFFER_SIZE];
     size_t read_size = 0;
 
     if (stream == NULL || data_size == 0)
         return GMIO_STL_UNKNOWN_FORMAT;
 
     /* Read a chunk of bytes from stream, then try to find format from that */
-    memset(fixed_buffer, 0, _INTERNAL_GMIO_FIXED_BUFFER_SIZE);
-    read_size = gmio_stream_read(stream, &fixed_buffer, 1, _INTERNAL_GMIO_FIXED_BUFFER_SIZE);
-    read_size = read_size < _INTERNAL_GMIO_FIXED_BUFFER_SIZE ? read_size :
-                                                               _INTERNAL_GMIO_FIXED_BUFFER_SIZE;
+    memset(fixed_buffer, 0, GMIO_FIXED_BUFFER_SIZE);
+    read_size = gmio_stream_read(stream, &fixed_buffer, 1, GMIO_FIXED_BUFFER_SIZE);
+    read_size = GMIO_MIN(read_size, GMIO_FIXED_BUFFER_SIZE);
 
     /* Binary STL ? */
     if (read_size >= (GMIO_STLB_HEADER_SIZE + 4)) {
@@ -62,7 +62,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
             ++pos;
 
         /* Next token (if exists) must match "solid " */
-        if (pos < _INTERNAL_GMIO_FIXED_BUFFER_SIZE
+        if (pos < GMIO_FIXED_BUFFER_SIZE
                 && strncmp(fixed_buffer + pos, "solid ", 6) == 0)
         {
             return GMIO_STL_ASCII_FORMAT;

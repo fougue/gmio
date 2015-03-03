@@ -162,8 +162,8 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
          ifacet < total_facet_count && gmio_no_error(error);
          ifacet += buffer_facet_count)
     {
-        const uint32_t clamped_facet_count = _GMIO_INTERNAL_MIN(ifacet + buffer_facet_count,
-                                                                total_facet_count);
+        const uint32_t clamped_facet_count = GMIO_MIN(ifacet + buffer_facet_count,
+                                                      total_facet_count);
         gmio_stl_triangle_t tri;
         uint32_t ibuffer_facet;
 

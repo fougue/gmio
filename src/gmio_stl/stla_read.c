@@ -81,7 +81,7 @@ typedef struct
     gmio_task_control_t* task_control;
     size_t               stream_offset;
     gmio_bool_t          is_stop_requested;
-} _internal_gmio_fwd_iterator_cookie_t;
+} gmio_string_stream_fwd_iterator_cookie_t;
 
 /* gmio_stla_token */
 typedef enum
@@ -106,16 +106,17 @@ typedef struct
 {
     gmio_stla_token_t token;
     gmio_bool_t       error;
-    gmio_string_stream_fwd_iterator_t     stream_iterator;
-    _internal_gmio_fwd_iterator_cookie_t stream_iterator_cookie;
-    gmio_string_buffer_t           string_buffer;
-    gmio_stl_mesh_creator_t*             creator;
+    gmio_string_stream_fwd_iterator_t        stream_iterator;
+    gmio_string_stream_fwd_iterator_cookie_t stream_iterator_cookie;
+    gmio_string_buffer_t     string_buffer;
+    gmio_stl_mesh_creator_t* creator;
 } gmio_stla_parse_data_t;
 
 static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
                                                     const gmio_string_buffer_t* buffer)
 {
-    _internal_gmio_fwd_iterator_cookie_t* tcookie = (_internal_gmio_fwd_iterator_cookie_t*)(cookie);
+    gmio_string_stream_fwd_iterator_cookie_t* tcookie =
+            (gmio_string_stream_fwd_iterator_cookie_t*)(cookie);
     const gmio_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
     if (ctrl != NULL)
         tcookie->is_stop_requested = gmio_task_control_is_stop_requested(ctrl);
