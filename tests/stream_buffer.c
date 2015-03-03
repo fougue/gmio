@@ -38,13 +38,15 @@ static size_t gmio_stream_buffer_read(void* cookie,
 {
     if (item_size > 0 && item_count > 0) {
         gmio_buffer_t* buff = (gmio_buffer_t*)cookie;
+        const void* buff_ptr =
+                buff->readonly_ptr != NULL ? buff->readonly_ptr : buff->readwrite_ptr;
         const size_t buff_remaining_size = buff->len - buff->pos;
         const size_t wanted_read_size = item_size * item_count;
-        const size_t next_read_size = wanted_read_size <= buff_remaining_size ? wanted_read_size :
-                                                                                buff_remaining_size;
+        const size_t next_read_size =
+                wanted_read_size <= buff_remaining_size ? wanted_read_size : buff_remaining_size;
         const size_t next_read_item_count = next_read_size / item_size;
 
-        memcpy(ptr, (const char*)buff->ptr + buff->pos, next_read_item_count * item_size);
+        memcpy(ptr, (const char*)buff_ptr + buff->pos, next_read_item_count * item_size);
         buff->pos += next_read_item_count * item_size;
         return next_read_item_count;
     }
@@ -66,7 +68,7 @@ static size_t gmio_stream_buffer_write(void* cookie,
                                                                                   buff_remaining_size;
         const size_t next_write_item_count = next_write_size / item_size;
 
-        memcpy((char*)buff->ptr + buff->pos, ptr, next_write_item_count * item_size);
+        memcpy((char*)buff->readwrite_ptr + buff->pos, ptr, next_write_item_count * item_size);
         buff->pos += next_write_item_count * item_size;
         return next_write_item_count;
     }
@@ -75,7 +77,7 @@ static size_t gmio_stream_buffer_write(void* cookie,
     }
 }
 
-void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_buffer_t *buff)
+void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_buffer_t* buff)
 {
     stream->cookie = buff;
     stream->at_end_func = gmio_stream_buffer_at_end;

@@ -21,9 +21,9 @@
 
 struct gmio_string_buffer
 {
-    char*  ptr;       /*!< Buffer contents */
-    size_t len;       /*!< Size(length) of current contents */
-    size_t max_len;   /*!< Maximum contents size(length) */
+    char*  ptr;     /*!< Buffer contents */
+    size_t len;     /*!< Size(length) of current contents */
+    size_t max_len; /*!< Maximum contents size(length) */
 };
 
 typedef struct gmio_string_buffer  gmio_string_buffer_t;
@@ -41,9 +41,12 @@ struct gmio_string_stream_fwd_iterator
 typedef struct gmio_string_stream_fwd_iterator  gmio_string_stream_fwd_iterator_t;
 
 void  gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t* it);
-char* gmio_current_char(const gmio_string_stream_fwd_iterator_t* it);
+const char* gmio_current_char(const gmio_string_stream_fwd_iterator_t* it);
 void  gmio_skip_spaces(gmio_string_stream_fwd_iterator_t* it);
 int   gmio_eat_word(gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
+
+const char* gmio_next_char(gmio_string_stream_fwd_iterator_t* it);
+gmio_bool_t gmio_checked_next_chars(gmio_string_stream_fwd_iterator_t* it, const char* str);
 
 /*! Converts the string pointed to by \p str to gmio_float32_t representation
  *
@@ -51,8 +54,5 @@ int   gmio_eat_word(gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t*
  *  \retval -1 On error(check \c errno to see what happened)
  */
 int   gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
-
-char*       gmio_next_char(gmio_string_stream_fwd_iterator_t* it);
-gmio_bool_t gmio_checked_next_chars(gmio_string_stream_fwd_iterator_t* it, const char* str);
 
 #endif /* GMIO_INTERNAL_STRING_PARSE_H */

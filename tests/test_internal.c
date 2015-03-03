@@ -58,7 +58,7 @@ const char* test_internal__byte_codec()
 
 const char* test_internal__string_parse()
 {
-    char text[] =
+    const char text[] =
             "Une    citation,\to je crois qu'elle est de moi :"
             "Parfois le chemin est rude.\n"
             "pi : 3.1415926535897932384626433832795";
@@ -74,7 +74,7 @@ const char* test_internal__string_parse()
         char copy_str[128];
         gmio_string_buffer_t copy_strbuff;
 
-        buff.ptr = text;
+        buff.readonly_ptr = text;
         buff.len = strlen(text);
         buff.pos = 0;
         gmio_stream_set_buffer(&stream, &buff);

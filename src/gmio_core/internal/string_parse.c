@@ -21,22 +21,22 @@
 
 void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
 {
-    /* Trick: declaring the buffer exhausted will actually trigger the first call to
-   * gmio_stream_read() inside gmio_next_char()
-   */
+    /* Trick: declaring the buffer exhausted will actually trigger the first
+     * call to gmio_stream_read() inside gmio_next_char()
+     */
     it->buffer.len = 0;
     it->buffer_pos = it->buffer.max_len;
     gmio_next_char(it);
 }
 
-char *gmio_current_char(const gmio_string_stream_fwd_iterator_t *it)
+const char *gmio_current_char(const gmio_string_stream_fwd_iterator_t *it)
 {
     if (it != NULL && it->buffer_pos < it->buffer.len)
         return it->buffer.ptr + it->buffer_pos;
     return NULL;
 }
 
-char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
+const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
 {
     if (it == NULL)
         return NULL;
@@ -51,7 +51,9 @@ char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
 
         /* Read next chunk of data */
         it->buffer_pos = 0;
-        it->buffer.len = gmio_stream_read(it->stream, it->buffer.ptr, sizeof(char), it->buffer.max_len);
+        it->buffer.len = gmio_stream_read(it->stream,
+                                          it->buffer.ptr,
+                                          sizeof(char), it->buffer.max_len);
         if (gmio_stream_error(it->stream) == 0) {
             if (it->stream_read_hook != NULL)
                 it->stream_read_hook(it->cookie, &it->buffer);
