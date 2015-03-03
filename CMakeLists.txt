@@ -32,6 +32,7 @@ option(BUILD_WITH_LIBSTL  "Build the libSTL module" ON)
 file(GLOB  ALL_SRC_FILES  src/gmio_core/*  src/gmio_core/internal/*)
 set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 
+# Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
 
 if(NOT BUILD_STRICT_C90)
@@ -69,6 +70,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
     endif()
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -fstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Winline -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
+
     # Force PIC for GCC, see : https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
@@ -77,15 +79,20 @@ endif()
 if(MSVC)
     # Treat all files a C source files
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TC")
+
     # Set warning level to /W4
     string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
     endif()
+
+    # Disable deprecation warnings about "non-secure" CRT functions
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+# Enable DLL generation (export symbols)
 if(BUILD_SHARED_LIBS)
     add_definitions(-DGMIO_LIB_DLL
                     -DGMIO_LIB_MAKE_DLL)
