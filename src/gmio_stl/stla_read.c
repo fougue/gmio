@@ -135,11 +135,11 @@ GMIO_INLINE static const char* current_token_as_identifier(const gmio_stla_parse
     return data->token == ID_token ? data->string_buffer.ptr : "";
 }
 
-GMIO_INLINE static int get_current_token_as_real32(const gmio_stla_parse_data_t* data,
-                                                   gmio_real32_t* value_ptr)
+GMIO_INLINE static int get_current_token_as_float32(const gmio_stla_parse_data_t* data,
+                                                   gmio_float32_t* value_ptr)
 {
     if (data->token == FLOAT_token)
-        return gmio_get_real32(data->string_buffer.ptr, value_ptr);
+        return gmio_get_float32(data->string_buffer.ptr, value_ptr);
     return -3;
 }
 
@@ -336,13 +336,13 @@ static void parse_xyz_coords(gmio_stla_parse_data_t* data, gmio_stl_coords_t* co
 
     switch (data->token) {
     case FLOAT_token: {
-        if (get_current_token_as_real32(data, &coords->x) != 0)
+        if (get_current_token_as_float32(data, &coords->x) != 0)
             parsing_error(data);
         parsing_eat_token(FLOAT_token, data);
-        if (get_current_token_as_real32(data, &coords->y) != 0)
+        if (get_current_token_as_float32(data, &coords->y) != 0)
             parsing_error(data);
         parsing_eat_token(FLOAT_token, data);
-        if (get_current_token_as_real32(data, &coords->z) != 0)
+        if (get_current_token_as_float32(data, &coords->z) != 0)
             parsing_error(data);
         parsing_eat_token(FLOAT_token, data);
         break;

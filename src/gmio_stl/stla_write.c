@@ -96,7 +96,7 @@ static char* gmio_write_stdio_format(char* buffer, uint8_t prec)
     return buffer + 3 + prec_len;
 }
 
-/*static char* gmio_write_real32_string(char* buffer, const char* format, gmio_real32_t val)
+/*static char* gmio_write_float32_string(char* buffer, const char* format, gmio_float32_t val)
 {
   return buffer + sprintf(buffer, format, val);
 }*/
@@ -118,7 +118,7 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
                     const gmio_stla_write_options_t* options)
 {
     const char* solid_name = options != NULL ? options->solid_name : NULL;
-    const uint8_t real32_prec = options != NULL ? options->real32_prec : 9;
+    const uint8_t float32_prec = options != NULL ? options->float32_prec : 9;
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const uint32_t buffer_facet_count =
             trsf != NULL ?
@@ -131,7 +131,7 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
     /* Check validity of input parameters */
     gmio_check_transfer(&error, trsf);
     gmio_stl_check_mesh(&error, mesh);
-    if (real32_prec == 0 || real32_prec > 9)
+    if (float32_prec == 0 || float32_prec > 9)
         error = GMIO_STLA_WRITE_INVALID_REAL32_PREC_ERROR;
     if (trsf->buffer_size < GMIO_STLA_FACET_SIZE_P2)
         error = GMIO_INVALID_BUFFER_SIZE_ERROR;
@@ -140,11 +140,11 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
 
     { /* Create XYZ coords format string (for normal and vertex coords) */
         char* coords_format_iterator = coords_format;
-        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, real32_prec);
+        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, float32_prec);
         coords_format_iterator = gmio_write_nspaces(coords_format_iterator, 2);
-        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, real32_prec);
+        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, float32_prec);
         coords_format_iterator = gmio_write_nspaces(coords_format_iterator, 2);
-        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, real32_prec);
+        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, float32_prec);
         *coords_format_iterator = 0; /* Write terminating null byte */
         /* TODO: check the "format" string can contain the given precision */
     }

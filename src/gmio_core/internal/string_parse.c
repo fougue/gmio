@@ -103,14 +103,14 @@ int gmio_eat_word(gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *b
     return -3;
 }
 
-int gmio_get_real32(const char *str, gmio_real32_t *value_ptr)
+int gmio_get_float32(const char *str, gmio_float32_t *value_ptr)
 {
     char* end_ptr; /* for strtod() */
 
 #ifdef GMIO_HAVE_STRTOF_FUNC
     *value_ptr = strtof(str, &end_ptr); /* Requires C99 */
 #else
-    *value_ptr = (gmio_real32_t)strtod(str, &end_ptr);
+    *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
 #endif
 
     if (end_ptr == str || errno == ERANGE)

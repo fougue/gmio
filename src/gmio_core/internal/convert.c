@@ -17,16 +17,16 @@
 
 #include "convert.h"
 
-gmio_real32_t gmio_convert_real32(uint32_t val)
+gmio_float32_t gmio_convert_float32(uint32_t val)
 {
-    gmio_uint32_float_t conv;
+    gmio_uint_float_32_t conv;
     conv.as_uint32 = val;
-    return conv.as_float;
+    return conv.as_float32;
 }
 
-uint32_t gmio_convert_uint32(gmio_real32_t val)
+uint32_t gmio_convert_uint32(gmio_float32_t val)
 {
-    gmio_uint32_float_t conv;
-    conv.as_float = val;
+    gmio_uint_float_32_t conv;
+    conv.as_float32 = val;
     return conv.as_uint32;
 }

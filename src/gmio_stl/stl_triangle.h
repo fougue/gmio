@@ -25,9 +25,9 @@
  */
 struct gmio_stl_coords
 {
-    gmio_real32_t x;
-    gmio_real32_t y;
-    gmio_real32_t z;
+    gmio_float32_t x;
+    gmio_float32_t y;
+    gmio_float32_t z;
 };
 
 typedef struct gmio_stl_coords gmio_stl_coords_t;
@@ -47,7 +47,7 @@ struct gmio_stl_triangle
 typedef struct gmio_stl_triangle gmio_stl_triangle_t;
 
 /*! Compact size of a gmio_stl_coords_t object */
-enum { GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(gmio_real32_t)) };
+enum { GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(gmio_float32_t)) };
 
 /*! Compact size of a gmio_stl_triangle_t object for STL ascii format */
 enum { GMIO_STLA_TRIANGLE_RAWSIZE = (4 * GMIO_STL_COORDS_RAWSIZE) };

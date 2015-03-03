@@ -20,14 +20,14 @@
 
 #include "../global.h"
 
-union gmio_uint32_float
+union gmio_uint_float_32
 {
-    uint32_t as_uint32;
-    float    as_float;
+    uint32_t       as_uint32;
+    gmio_float32_t as_float32;
 };
-typedef union gmio_uint32_float  gmio_uint32_float_t;
+typedef union gmio_uint_float_32  gmio_uint_float_32_t;
 
-gmio_real32_t gmio_convert_real32(uint32_t val);
-uint32_t      gmio_convert_uint32(gmio_real32_t val);
+gmio_float32_t gmio_convert_float32(uint32_t val);
+uint32_t       gmio_convert_uint32(gmio_float32_t val);
 
 #endif /* GMIO_INTERNAL_CONVERT_H */

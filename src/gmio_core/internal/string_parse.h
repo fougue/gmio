@@ -47,12 +47,12 @@ char* gmio_current_char(const gmio_string_stream_fwd_iterator_t* it);
 void  gmio_skip_spaces(gmio_string_stream_fwd_iterator_t* it);
 int   gmio_eat_word(gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
 
-/*! \brief Converts the string pointed to by \p str to gmio_real32_t representation
+/*! \brief Converts the string pointed to by \p str to gmio_float32_t representation
  *
  *  \retval 0  On success
  *  \retval -1 On error(check \c errno to see what happened)
  */
-int   gmio_get_real32(const char* str, gmio_real32_t* value_ptr);
+int   gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
 
 char*       gmio_next_char(gmio_string_stream_fwd_iterator_t* it);
 gmio_bool_t gmio_checked_next_chars(gmio_string_stream_fwd_iterator_t* it, const char* str);

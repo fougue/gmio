@@ -60,7 +60,7 @@ struct gmio_stla_write_options
     const char* solid_name;
 
     /*! The maximum number of significant digits(set to 9 if options == NULL) */
-    uint8_t     real32_prec;
+    uint8_t     float32_prec;
 };
 typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
 
