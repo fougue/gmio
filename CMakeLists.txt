@@ -34,6 +34,8 @@ option(BUILD_WITH_LIBSTL  "Build the libSTL module" ON)
 file(GLOB  ALL_SRC_FILES  src/gmio_core/*  src/gmio_core/internal/*)
 set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 
+math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
+
 if(NOT BUILD_STRICT_C90)
     # Have <stdint.h> ?
     check_include_files(stdint.h GMIO_HAVE_STDINT_H)

@@ -29,4 +29,16 @@
 
 #cmakedefine GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC
 
+#if defined(__APPLE__)
+#  if defined(__i386__) || defined(__ppc__)
+#    define GMIO_TARGET_ARCH_BIT_SIZE  32
+#  elif defined(__x86_64__) || defined(__ppc64__)
+#    define GMIO_TARGET_ARCH_BIT_SIZE  64
+#  else
+#    error "Unknown architecture!"
+#  endif
+#else
+#  define GMIO_TARGET_ARCH_BIT_SIZE  @GMIO_TARGET_ARCH_BIT_SIZE@
+#endif
+
 #endif /* GMIO_CONFIG_H_CMAKE */
