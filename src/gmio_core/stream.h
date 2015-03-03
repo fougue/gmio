@@ -37,11 +37,11 @@ GMIO_C_LINKAGE_BEGIN
  */
 struct gmio_stream
 {
-  /*! \brief Opaque pointer on the user stream, passed as first argument to
+    /*! \brief Opaque pointer on the user stream, passed as first argument to
    *         hook functions */
-  void* cookie;
+    void* cookie;
 
-  /*! \brief Pointer on a function that checks end-of-stream indicator
+    /*! \brief Pointer on a function that checks end-of-stream indicator
    *
    *  Checks whether the end-of-stream indicator associated with stream
    *  pointed by \p cookie is set, returning GMIO_TRUE if is.
@@ -49,9 +49,9 @@ struct gmio_stream
    *  The function should behaves like C standard [feof()]
    *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/feof.html)
    */
-  gmio_bool_t (*at_end_func)(void* cookie);
+    gmio_bool_t (*at_end_func)(void* cookie);
 
-  /*! \brief Pointer on a function that checks error indicator
+    /*! \brief Pointer on a function that checks error indicator
    *
    *  Checks if the error indicator associated with stream pointed by \p cookie
    *  is set, returning a value different from zero if it is.
@@ -59,9 +59,9 @@ struct gmio_stream
    *  The function should behaves like C standard [ferror()]
    *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/ferror.html)
    */
-  int (*error_func)(void* cookie);
+    int (*error_func)(void* cookie);
 
-  /*! \brief Pointer on a function that reads block of data from stream
+    /*! \brief Pointer on a function that reads block of data from stream
    *
    *  \details Reads an array of \p count elements, each one with a size of \p size
    *  bytes, from the stream pointed by \p cookie and stores them in the block
@@ -72,9 +72,9 @@ struct gmio_stream
    *
    *  \returns The total number of elements successfully read
    */
-  size_t (*read_func)(void* cookie, void* ptr, size_t size, size_t count);
+    size_t (*read_func)(void* cookie, void* ptr, size_t size, size_t count);
 
-  /*! \brief Pointer on a function that writes block of data to stream
+    /*! \brief Pointer on a function that writes block of data to stream
    *
    *  \details Writes an array of \p count elements, each one with a size of \p size
    *  bytes, from the block of memory pointed by \p ptr to the current position
@@ -85,7 +85,7 @@ struct gmio_stream
    *
    *  \returns The total number of elements successfully written
    */
-  size_t (*write_func)(void* cookie, const void* ptr, size_t size, size_t count);
+    size_t (*write_func)(void* cookie, const void* ptr, size_t size, size_t count);
 };
 
 typedef struct gmio_stream gmio_stream_t;

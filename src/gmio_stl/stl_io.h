@@ -39,7 +39,7 @@ GMIO_C_LINKAGE_BEGIN
  */
 struct gmio_stla_read_options
 {
-  void* dummy; /*!< Structs must have at least one member in strict ISO-C90 */
+    void* dummy; /*!< Structs must have at least one member in strict ISO-C90 */
 };
 typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 
@@ -56,11 +56,11 @@ int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
  */
 struct gmio_stla_write_options
 {
-  /*! May be NULL to generate default name */
-  const char* solid_name;
+    /*! May be NULL to generate default name */
+    const char* solid_name;
 
-  /*! The maximum number of significant digits(set to 9 if options == NULL) */
-  uint8_t     real32_prec;
+    /*! The maximum number of significant digits(set to 9 if options == NULL) */
+    uint8_t     real32_prec;
 };
 typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
 
@@ -89,8 +89,8 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
  */
 struct gmio_stlb_read_options
 {
-  /*! Set to host byte order if not specified (ie. options == NULL) */
-  gmio_endianness_t byte_order;
+    /*! Set to host byte order if not specified (ie. options == NULL) */
+    gmio_endianness_t byte_order;
 };
 typedef struct gmio_stlb_read_options  gmio_stlb_read_options_t;
 
@@ -106,11 +106,11 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t* creator,
  */
 struct gmio_stlb_write_options
 {
-  /*! Header data consisting of 80 bytes */
-  const uint8_t* header_data;
+    /*! Header data consisting of 80 bytes */
+    const uint8_t* header_data;
 
-  /*! Set to host byte order if not specified (ie. options == NULL) */
-  gmio_endianness_t byte_order;
+    /*! Set to host byte order if not specified (ie. options == NULL) */
+    gmio_endianness_t byte_order;
 };
 typedef struct gmio_stlb_write_options  gmio_stlb_write_options_t;
 

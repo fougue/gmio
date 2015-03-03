@@ -80,8 +80,8 @@ typedef int    gmio_bool_t;
 /*! This enum defines true/false boolean values */
 enum gmio_bool_value
 {
-  GMIO_FALSE = 0,
-  GMIO_TRUE = 1
+    GMIO_FALSE = 0,
+    GMIO_TRUE = 1
 };
 
 #endif /* GMIO_HAVE_STDBOOL_H */

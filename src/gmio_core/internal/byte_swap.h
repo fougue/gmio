@@ -30,11 +30,11 @@
 GMIO_INLINE static uint16_t gmio_uint16_bswap(uint16_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
-  return __builtin_bswap16(val);
+    return __builtin_bswap16(val);
 #elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
-  return _byteswap_ushort(val);
+    return _byteswap_ushort(val);
 #else
-  return ((val & 0x00FF) << 8) | ((val >> 8) & 0x00FF);
+    return ((val & 0x00FF) << 8) | ((val >> 8) & 0x00FF);
 #endif
 }
 
@@ -42,14 +42,14 @@ GMIO_INLINE static uint16_t gmio_uint16_bswap(uint16_t val)
 GMIO_INLINE static uint32_t gmio_uint32_bswap(uint32_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC
-  return __builtin_bswap32(val);
+    return __builtin_bswap32(val);
 #elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
-  return _byteswap_ulong(val);
+    return _byteswap_ulong(val);
 #else
-  return
-      ((val & 0x000000FF) << 24)
-      | ((val & 0x0000FF00) << 8)
-      | ((val >> 8) & 0x0000FF00)
-      | ((val >> 24) & 0x000000FF);
+    return
+            ((val & 0x000000FF) << 24)
+            | ((val & 0x0000FF00) << 8)
+            | ((val >> 8) & 0x0000FF00)
+            | ((val >> 24) & 0x000000FF);
 #endif
 }

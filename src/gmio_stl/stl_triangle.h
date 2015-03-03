@@ -25,9 +25,9 @@
  */
 struct gmio_stl_coords
 {
-  gmio_real32_t x;
-  gmio_real32_t y;
-  gmio_real32_t z;
+    gmio_real32_t x;
+    gmio_real32_t y;
+    gmio_real32_t z;
 };
 
 typedef struct gmio_stl_coords gmio_stl_coords_t;
@@ -37,11 +37,11 @@ typedef struct gmio_stl_coords gmio_stl_coords_t;
  */
 struct gmio_stl_triangle
 {
-  gmio_stl_coords_t normal;
-  gmio_stl_coords_t v1;
-  gmio_stl_coords_t v2;
-  gmio_stl_coords_t v3;
-  uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
+    gmio_stl_coords_t normal;
+    gmio_stl_coords_t v1;
+    gmio_stl_coords_t v2;
+    gmio_stl_coords_t v3;
+    uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
 };
 
 typedef struct gmio_stl_triangle gmio_stl_triangle_t;

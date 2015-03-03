@@ -25,10 +25,10 @@ GMIO_C_LINKAGE_BEGIN
 /*! This enum identifies common endianness (byte order) of computer memory */
 enum gmio_endianness
 {
-  GMIO_LITTLE_ENDIAN,
-  GMIO_BIG_ENDIAN,
-  GMIO_MIDDLE_ENDIAN,
-  GMIO_OTHER_ENDIAN
+    GMIO_LITTLE_ENDIAN,
+    GMIO_BIG_ENDIAN,
+    GMIO_MIDDLE_ENDIAN,
+    GMIO_OTHER_ENDIAN
 };
 
 typedef enum gmio_endianness gmio_endianness_t;
