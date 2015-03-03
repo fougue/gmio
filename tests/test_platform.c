@@ -22,6 +22,11 @@
 
 #include <stddef.h>
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4127) /* "conditional expression is constant" */
+#endif
+
 const char* test_platform__alignment()
 {
     UTEST_ASSERT(offsetof(gmio_stl_coords_t, x) == 0);
@@ -55,6 +60,10 @@ const char* test_platform__global_h()
 
     return NULL;
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 const char* all_tests()
 {

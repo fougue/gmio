@@ -75,7 +75,14 @@ endif()
 
 # Specific flags for Visual C++
 if(MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -TC")
+    # Treat all files a C source files
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TC")
+    # Set warning level to /W4
+    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
+    if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
+    endif()
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
