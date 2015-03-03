@@ -38,7 +38,7 @@ PROJECT_NUMBER = 0.1.0
 # for a project that appears at the top of each page and should give viewer 
 # a quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "Fast, portable geometry input/output"
+PROJECT_BRIEF          = "Fast, portable geometry input/output C library"
 
 # With the PROJECT_LOGO tag one can specify an logo or icon that is 
 # included in the documentation. The maximum height of the logo should not 
@@ -248,6 +248,8 @@ EXTENSION_MAPPING      =
 # Disable only in case of backward compatibilities issues.
 
 MARKDOWN_SUPPORT       = YES
+
+USE_MDFILE_AS_MAINPAGE  = ../README.md
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
@@ -655,7 +657,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../src  main_page.cpp
+INPUT                  = ../src
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 

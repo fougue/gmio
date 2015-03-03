@@ -1,27 +1,35 @@
-/*!
+GeomIO: C library for geometry input/output
+==============================
 
-\mainpage
+This is GeomIO v0.1dev
 
-
-\section intro_sec Introduction
-
-This is GeomIO library v0.1
-
-Check source code at : https://github.com/fougsys/gmio
-
-GeomIO is a fast and portable C library for reading and writing geometry data.
+GeomIO is a reusable ANSI C library whose purpose is to provide complete
+I/O support for various CAD file formats (eg. STL)
 
 
-\section build_sec BUILDING GeomIO library
+Building GeomIO
+==================
 
-The GeomIO library can be built with cmake.
-Once makefiles are generated, init tests can be run with "make check"
+GeomIO can be built with CMake, by default a shared library is generated.
+    1. For an out-of-source build, create a directory where the build will take
+         place (say build/)
+    2. Call cmake, passing as argument the directory where is located
+         CMakeLists.txt
+    3. (n)make
+    4. (n)make install
 
-\section reportbug_sec HOW TO REPORT A BUG
+Read CMakeLists.txt to figure out how to build debug and release libraries.
+
+For the first use of GeomIO, you should run unit tests:
+    (n)make check
+
+
+How to report a bug
+===================
 
 If you think you have found a bug in GeomIO, we would like to hear
 about it so that we can fix it. The GeomIO bug tracking system is
-open to the public at https://github.com/fougsys/gmio/issues.
+open to the public at https://github.com/fougsys/fougtools/issues.
 
 Before reporting a bug, please use the bug-tracker's search functions
 to see if the issue is already known.
@@ -34,12 +42,13 @@ what configure options it was compiled with.
 If the problem you are reporting is only visible at run-time, try to
 create a small test program that shows the problem when run.
 
-       
-\section license_sec LICENSE
 
-This software is governed by the CeCILL-C license under French law and
+License
+=======
+
+This software is governed by the CeCILL-B license under French law and
 abiding by the rules of distribution of free software.  You can  use,
-modify and/ or redistribute the software under the terms of the CeCILL-C
+modify and/ or redistribute the software under the terms of the CeCILL-B
 license as circulated by CEA, CNRS and INRIA at the following URL
 http://www.cecill.info
 
@@ -61,6 +70,4 @@ data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
-knowledge of the CeCILL-C license and that you accept its terms.
-
-*/
+knowledge of the CeCILL-B license and that you accept its terms.
