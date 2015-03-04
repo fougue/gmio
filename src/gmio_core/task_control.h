@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file task_control.h
+ *  Declaration of gmio_task_control and utility functions
+ */
+
 #ifndef GMIO_TASK_CONTROL_H
 #define GMIO_TASK_CONTROL_H
 

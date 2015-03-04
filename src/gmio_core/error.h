@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file error.h
+ *  List of common errors, reported by I/O functions
+ */
+
 #ifndef GMIO_ERROR_H
 #define GMIO_ERROR_H
 

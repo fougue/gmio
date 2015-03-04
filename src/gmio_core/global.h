@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file global.h
+ *  Fundamental global declarations, included by almost all other header files
+ */
+
 #ifndef GMIO_GLOBAL_H
 #define GMIO_GLOBAL_H
 
@@ -22,7 +26,9 @@
 #  define GMIO_DECL_EXPORT __declspec(dllexport)
 #  define GMIO_DECL_IMPORT __declspec(dllimport)
 #else
+/*! Expands to the C compiler extension to export functions to a DLL */
 #  define GMIO_DECL_EXPORT
+/*! Expands to the C compiler extension to import functions from a DLL */
 #  define GMIO_DECL_IMPORT
 #endif /* WIN */
 
@@ -33,6 +39,8 @@
 #    define GMIO_LIB_EXPORT GMIO_DECL_IMPORT
 #  endif /* GMIO_LIB_MAKE_DLL */
 #else
+/*! Expands either to GMIO_DECL_EXPORT or GMIO_DECL_IMPORT when respectively
+ *  compiling/using the DLL */
 #  define GMIO_LIB_EXPORT
 #endif /* GMIO_LIB_DLL */
 
@@ -68,23 +76,31 @@ typedef unsigned long long uint64_t;
 #ifdef GMIO_HAVE_STDBOOL_H
 #  include <stdbool.h>
 
-/*! Typedef for boolean type */
 typedef bool gmio_bool_t;
 
 #  define GMIO_FALSE false
 #  define GMIO_TRUE  true
+#elif !defined(DOXYGEN)
+typedef int gmio_bool_t;
 
-#else
-/*! Typedef for boolean type */
-typedef int    gmio_bool_t;
-
-/*! This enum defines true/false boolean values */
 enum gmio_bool_value
 {
     GMIO_FALSE = 0,
     GMIO_TRUE = 1
 };
-
+#else
+/* For documentation only */
+/*! Boolean type alias
+ *
+ *  If strict ISO-C90 or if \c <stdbool.h> does not exists then:
+ *      \li \c gmio_bool_t is an alias of \c int
+ *      \li <tt>GMIO_FALSE == 0</tt> and <tt>GMIO_TRUE == 1</tt>
+ *
+ *  Otherwise:
+ *      \li \c gmio_bool_t is an alias of \c bool
+ *      \li \c GMIO_FALSE expands to \c false and \c GMIO_TRUE to \c true
+ */
+typedef int_or_bool gmio_bool_t;
 #endif /* GMIO_HAVE_STDBOOL_H */
 
 /*! Typedef for 32bit real type (float) */
@@ -102,6 +118,7 @@ typedef double gmio_float64_t;
 #  elif defined(_MSC_VER)
 #    define GMIO_INLINE __inline
 #  else
+/*! Expands to the C compiler specific inline keyword (if any) */
 #    define GMIO_INLINE
 #  endif
 #endif /* !GMIO_INLINE */
@@ -110,7 +127,9 @@ typedef double gmio_float64_t;
 #  define GMIO_C_LINKAGE_BEGIN extern "C" {
 #  define GMIO_C_LINKAGE_END   }
 #else
+/*! Expands to <tt>extern "C" {</tt> when building with a C++ compiler */
 #  define GMIO_C_LINKAGE_BEGIN
+/*! Expands to \c } when building with a C++ compiler */
 #  define GMIO_C_LINKAGE_END
 #endif /* __cplusplus */
 

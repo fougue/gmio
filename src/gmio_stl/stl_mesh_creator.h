@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stl_mesh_creator.h
+ *  Declaration of gmio_stl_mesh_creator
+ */
+
 #ifndef GMIO_LIBSTL_STL_MESH_CREATOR_H
 #define GMIO_LIBSTL_STL_MESH_CREATOR_H
 

@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stl_io.h
+ *  STL read/write functions
+ */
+
 #ifndef GMIO_LIBSTL_STL_IO_H
 #define GMIO_LIBSTL_STL_IO_H
 

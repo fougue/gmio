@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stl_global.h
+ *  Global declarations for the STL module
+ */
+
 #ifndef GMIO_LIBSTL_GLOBAL_H
 #define GMIO_LIBSTL_GLOBAL_H
 

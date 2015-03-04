@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stream.h
+ *  Declaration of gmio_stream and utility functions
+ */
+
 #ifndef GMIO_STREAM_H
 #define GMIO_STREAM_H
 

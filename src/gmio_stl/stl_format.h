@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stl_format.h
+ *  Detection of STL format from input stream
+ */
+
 #ifndef GMIO_LIBSTL_FORMAT_H
 #define GMIO_LIBSTL_FORMAT_H
 

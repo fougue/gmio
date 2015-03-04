@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file endian.h
+ *  Architecture endianness
+ */
+
 #ifndef GMIO_ENDIAN_H
 #define GMIO_ENDIAN_H
 

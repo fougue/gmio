@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stl_error.h
+ *  List of errors specific to STL I/O functions
+ */
+
 #ifndef GMIO_LIBSTL_STL_ERROR_H
 #define GMIO_LIBSTL_STL_ERROR_H
 

@@ -13,6 +13,8 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/* TODO : documentation */
+
 #ifndef GMIO_INTERNAL_STL_RW_COMMON_H
 #define GMIO_INTERNAL_STL_RW_COMMON_H
 

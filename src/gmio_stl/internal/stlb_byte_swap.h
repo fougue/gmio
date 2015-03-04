@@ -19,6 +19,11 @@
 #include "../../gmio_core/global.h"
 #include "../stl_triangle.h"
 
+/*! Specific byte-swap of the memory occupied by a gmio_stl_triangle object
+ *
+ *  Each XYZ coord (float32) is individually reversed (byte-swap) as well as
+ *  the "attribute byte count" member.
+ */
 void gmio_stl_triangle_bswap(gmio_stl_triangle_t* triangle);
 
 #endif /* GMIO_INTERNAL_STLB_BYTE_SWAP_H */

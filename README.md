@@ -1,27 +1,50 @@
 GeomIO: C library for geometry input/output
-==============================
+===========================================
 
 This is GeomIO v0.1dev
 
-GeomIO is a reusable ANSI C library whose purpose is to provide complete
-I/O support for various CAD file formats (eg. STL)
+GeomIO is a reusable C library whose purpose is to provide complete I/O
+support for various CAD file formats (eg. STL)
+
+GeomIO aims to be fast, portable (ISO-C90 conformance) and feature-rich.
+Main highlights:
+    * "Abstract" streams that does not tie the user to C stream (`FILE*`).        
+      GeomIO provides a general stream structure based on callbacks, so that
+      any kind of device can be used (memory, file, socket, ...)
+    * Operations can be easily aborted
+    * Buffering of input/ouput for efficient device usage
+    * Available under the CeCILL-B license, which is fully BSD compatible
+
+Current version only supports STL file format (STereoLithgraphy). Support of
+STL is complete:
+    * Binary(little/big endian) and ASCII formats
+    * Header data and "attribute byte count" for binary format
+    * Name of solid for ASCII format
+    * Detection of the input data format
+
+In addition, the STL module has the following advatanges:
+    * The user keeps its own geometry data structures, no conversion needed.
+      This reduces the effort so that the user just specifies callbacks for
+      retrieval/creation of geometry data
+    * No dynamic memory allocations
+    * Extended support of OpenCascade's `StlMesh_Mesh`
 
 
 Building GeomIO
-==================
+===============
 
 GeomIO can be built with CMake, by default a shared library is generated.
     1. For an out-of-source build, create a directory where the build will take
-         place (say build/)
-    2. Call cmake, passing as argument the directory where is located
+         place (say `build/`)
+    2. Call `cmake`, passing as argument the directory where is located
          CMakeLists.txt
-    3. (n)make
-    4. (n)make install
+    3. `(n)make`
+    4. `(n)make install`
 
 Read CMakeLists.txt to figure out how to build debug and release libraries.
 
 For the first use of GeomIO, you should run unit tests:
-    (n)make check
+    `(n)make check`
 
 
 How to report a bug

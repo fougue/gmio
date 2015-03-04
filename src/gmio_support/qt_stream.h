@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file qt_stream.h
+ *  Support of Qt's QIODevice (requires at least Qt4)
+ */
+
 #ifndef GMIO_SUPPORT_QT_STREAM_H
 #define GMIO_SUPPORT_QT_STREAM_H
 
@@ -20,8 +24,7 @@
 struct gmio_stream;
 class QIODevice;
 
-/*! \brief Configures \p stream for \c QIODevice* (cookie will hold \p device)
- */
+/*! Configures \p stream for \c QIODevice* (cookie will hold \p device) */
 GMIO_LIBSUPPORT_EXPORT
 void gmio_stream_set_qiodevice(struct gmio_stream* stream, QIODevice* device);
 

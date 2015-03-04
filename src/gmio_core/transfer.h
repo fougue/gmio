@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file transfer.h
+ *  Declaration of gmio_transfer
+ */
+
 #ifndef GMIO_TRANSFER_H
 #define GMIO_TRANSFER_H
 

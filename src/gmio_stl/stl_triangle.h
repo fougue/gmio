@@ -13,6 +13,10 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
+/*! \file stl_triangle.h
+ *  Declaration of gmio_stl_coords and gmio_stl_triangle
+ */
+
 #ifndef GMIO_LIBSTL_TRIANGLE_H
 #define GMIO_LIBSTL_TRIANGLE_H
 
