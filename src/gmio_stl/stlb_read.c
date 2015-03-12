@@ -124,8 +124,8 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
         if (gmio_no_error(error)) {
             gmio_stlb_read_facets(creator, trsf->buffer, &rparams);
             rparams.i_facet_offset += rparams.facet_count;
-            if (gmio_task_control_is_stop_requested(&trsf->task_control))
-                error = GMIO_TASK_STOPPED_ERROR;
+            if (gmio_transfer_is_stop_requested(trsf))
+                error = GMIO_TRANSFER_STOPPED_ERROR;
         }
     } /* end while */
 

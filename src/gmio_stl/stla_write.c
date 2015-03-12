@@ -194,8 +194,8 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
             error = GMIO_STREAM_ERROR;
 
         /* Task control */
-        if (gmio_no_error(error) && gmio_task_control_is_stop_requested(&trsf->task_control))
-            error = GMIO_TASK_STOPPED_ERROR;
+        if (gmio_no_error(error) && gmio_transfer_is_stop_requested(trsf))
+            error = GMIO_TRANSFER_STOPPED_ERROR;
     } /* end for (ifacet) */
 
     /* Write end of solid */

@@ -78,9 +78,9 @@
 /* gmio_stream_fwd_iterator_stla_cookie */
 typedef struct
 {
-    gmio_task_control_t* task_control;
-    size_t               stream_offset;
-    gmio_bool_t          is_stop_requested;
+    gmio_transfer_t* transfer;
+    size_t           stream_offset;
+    gmio_bool_t      is_stop_requested;
 } gmio_string_stream_fwd_iterator_cookie_t;
 
 /* gmio_stla_token */
@@ -117,9 +117,9 @@ static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
 {
     gmio_string_stream_fwd_iterator_cookie_t* tcookie =
             (gmio_string_stream_fwd_iterator_cookie_t*)(cookie);
-    const gmio_task_control_t* ctrl = tcookie != NULL ? tcookie->task_control : NULL;
-    if (ctrl != NULL)
-        tcookie->is_stop_requested = gmio_task_control_is_stop_requested(ctrl);
+    const gmio_transfer_t* trsf = tcookie != NULL ? tcookie->transfer : NULL;
+    if (trsf != NULL)
+        tcookie->is_stop_requested = gmio_transfer_is_stop_requested(trsf);
     if (tcookie != NULL)
         tcookie->stream_offset += buffer->len;
 }
@@ -420,7 +420,7 @@ int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
     parse_data.token = unknown_token;
     parse_data.error = GMIO_FALSE;
 
-    parse_data.stream_iterator_cookie.task_control = &trsf->task_control;
+    parse_data.stream_iterator_cookie.transfer = trsf;
     parse_data.stream_iterator_cookie.stream_offset = 0;
     parse_data.stream_iterator_cookie.is_stop_requested = GMIO_FALSE;
 
@@ -442,6 +442,7 @@ int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
 
     if (parse_data.error)
         return GMIO_STLA_READ_PARSE_ERROR;
-    return parse_data.stream_iterator_cookie.is_stop_requested ? GMIO_TASK_STOPPED_ERROR :
-                                                                 GMIO_NO_ERROR;
+    if (parse_data.stream_iterator_cookie.is_stop_requested)
+        return GMIO_TRANSFER_STOPPED_ERROR;
+    return GMIO_NO_ERROR;
 }

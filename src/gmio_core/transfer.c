@@ -13,13 +13,13 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
-#include "task_control.h"
+#include "transfer.h"
 
 #include <stddef.h>
 
-gmio_bool_t gmio_task_control_is_stop_requested(const gmio_task_control_t* task_ctrl)
+gmio_bool_t gmio_transfer_is_stop_requested(const gmio_transfer_t* trsf)
 {
-    if (task_ctrl != NULL && task_ctrl->is_stop_requested_func != NULL)
-        return task_ctrl->is_stop_requested_func(task_ctrl->cookie);
+    if (trsf != NULL && trsf->is_stop_requested_func != NULL)
+        return trsf->is_stop_requested_func(trsf->cookie);
     return GMIO_FALSE;
 }

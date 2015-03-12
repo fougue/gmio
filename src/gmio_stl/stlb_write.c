@@ -114,15 +114,19 @@ int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
         wparams.i_facet_offset += wparams.facet_count;
 
         /* Write buffer to stream */
-        if (gmio_stream_write(&trsf->stream, trsf->buffer, GMIO_STLB_TRIANGLE_RAWSIZE, wparams.facet_count)
+        if (gmio_stream_write(
+                    &trsf->stream,
+                    trsf->buffer,
+                    GMIO_STLB_TRIANGLE_RAWSIZE,
+                    wparams.facet_count)
                 != wparams.facet_count)
         {
             error = GMIO_STREAM_ERROR;
         }
 
-        /* Task control */
-        if (gmio_no_error(error) && gmio_task_control_is_stop_requested(&trsf->task_control))
-            error = GMIO_TASK_STOPPED_ERROR;
+        /* Handle stop request */
+        if (gmio_no_error(error) && gmio_transfer_is_stop_requested(trsf))
+            error = GMIO_TRANSFER_STOPPED_ERROR;
     } /* end for */
 
     return error;

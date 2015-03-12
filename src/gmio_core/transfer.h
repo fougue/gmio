@@ -22,24 +22,40 @@
 
 #include "global.h"
 #include "stream.h"
-#include "task_control.h"
+
+GMIO_C_LINKAGE_BEGIN
 
 /*! Defines objects required for any transfer(read/write) operation */
 struct gmio_transfer
 {
+    /*! Optional opaque pointer on a user task object, passed as first
+     *  argument to hook functions */
+    void* cookie;
+
+    /*! Optional pointer on a function that says if the currently running
+     *  operation must stop
+     *
+     *  If GMIO_TRUE is returned then the current transfer should abort as
+     *  soon as possible, otherwise it can continue execution.
+     */
+    gmio_bool_t (*is_stop_requested_func)(void* cookie);
+
     /*! The stream object to be used for I/O */
-    gmio_stream_t       stream;
+    gmio_stream_t stream;
 
-    /*! The optional object used to control execution of the transfer */
-    gmio_task_control_t task_control;
-
-    /*! Pointer on a memory buffer used by the transfer for stream operations */
-    void*               buffer;
+    /*! Pointer on a memory buffer used by the transfer for stream
+     *  operations */
+    void* buffer;
 
     /*! Size (in bytes) of the memory buffer */
-    size_t              buffer_size;
+    size_t buffer_size;
 };
 
 typedef struct gmio_transfer gmio_transfer_t;
+
+GMIO_LIB_EXPORT
+gmio_bool_t gmio_transfer_is_stop_requested(const gmio_transfer_t* trsf);
+
+GMIO_C_LINKAGE_END
 
 #endif /* GMIO_TRANSFER_H */

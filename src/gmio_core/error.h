@@ -42,9 +42,9 @@ enum gmio_error
     /*! An error occurred with the argument gmio_stream_t */
     GMIO_STREAM_ERROR = -4,
 
-    /*! Operation was stopped by user, that is to say
-     *  gmio_task_control::is_stop_requested_func() returned GMIO_FALSE */
-    GMIO_TASK_STOPPED_ERROR = -5
+    /*! Transfer was stopped by user, that is to say
+     *  gmio_transfer::is_stop_requested_func() returned GMIO_TRUE */
+    GMIO_TRANSFER_STOPPED_ERROR = -5
 };
 
 typedef enum gmio_error gmio_error_t;
