@@ -78,8 +78,13 @@
 /* gmio_stream_fwd_iterator_stla_cookie */
 typedef struct
 {
+    /* Copy of gmio_stla_read() corresponding argument */
     gmio_transfer_t* transfer;
+    /* Copy of gmio_stla_read_options::stream_size */
+    size_t           stream_size;
+    /* Offset (in bytes) from beginning of stream : current position */
     size_t           stream_offset;
+    /* Cache for gmio_transfer::is_stop_requested_func */
     gmio_bool_t      is_stop_requested;
 } gmio_string_stream_fwd_iterator_cookie_t;
 
@@ -118,10 +123,12 @@ static void gmio_stream_fwd_iterator_stla_read_hook(void* cookie,
     gmio_string_stream_fwd_iterator_cookie_t* tcookie =
             (gmio_string_stream_fwd_iterator_cookie_t*)(cookie);
     const gmio_transfer_t* trsf = tcookie != NULL ? tcookie->transfer : NULL;
-    if (trsf != NULL)
-        tcookie->is_stop_requested = gmio_transfer_is_stop_requested(trsf);
-    if (tcookie != NULL)
+    if (tcookie != NULL) {
         tcookie->stream_offset += buffer->len;
+        tcookie->is_stop_requested = gmio_transfer_is_stop_requested(trsf);
+        gmio_transfer_handle_progress(
+                    trsf, tcookie->stream_offset, tcookie->stream_size);
+    }
 }
 
 GMIO_INLINE static gmio_bool_t parsing_can_continue(const gmio_stla_parse_data_t* data)
@@ -294,8 +301,9 @@ static void parse_beginsolid(gmio_stla_parse_data_t* data)
                 && data->creator != NULL
                 && data->creator->ascii_begin_solid_func != NULL)
         {
-            data->creator->ascii_begin_solid_func(data->creator->cookie,
-                                                  current_token_as_identifier(data));
+            data->creator->ascii_begin_solid_func(
+                        data->creator->cookie,
+                        current_token_as_identifier(data));
         }
         if (data->token == ID_token)
             parsing_eat_token(ID_token, data);
@@ -377,10 +385,12 @@ static void parse_facets(gmio_stla_parse_data_t* data)
 {
     uint32_t i_facet_offset = 0;
     gmio_stl_triangle_t facet;
+    const gmio_bool_t is_add_triangle_available =
+            data->creator != NULL && data->creator->add_triangle_func != NULL;
 
     while (data->token == FACET_token && parsing_can_continue(data)) {
         parse_facet(data, &facet);
-        if (data->creator != NULL && data->creator->add_triangle_func != NULL)
+        if (is_add_triangle_available)
             data->creator->add_triangle_func(data->creator->cookie, i_facet_offset, &facet);
         ++i_facet_offset;
     }

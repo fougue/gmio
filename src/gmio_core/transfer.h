@@ -35,10 +35,19 @@ struct gmio_transfer
     /*! Optional pointer on a function that says if the currently running
      *  operation must stop
      *
-     *  If GMIO_TRUE is returned then the current transfer should abort as
+     *  If \c GMIO_TRUE is returned then the current transfer should abort as
      *  soon as possible, otherwise it can continue execution.
      */
     gmio_bool_t (*is_stop_requested_func)(void* cookie);
+
+    /*! Optional pointer on a function that is called anytime some progress
+     *  was done during transfer
+     *
+     *  \param cookie The cookie set inside the gmio_transfer object
+     *  \param value Current value of the transfer progress (<= \p max_value )
+     *  \param max_value Maximum value of the transfer progress
+     */
+    void (*handle_progress_func)(void* cookie, size_t value, size_t max_value);
 
     /*! The stream object to be used for I/O */
     gmio_stream_t stream;
@@ -53,8 +62,24 @@ struct gmio_transfer
 
 typedef struct gmio_transfer gmio_transfer_t;
 
+/*! Safe and convenient function for gmio_transfer::is_stop_requested_func()
+ *
+ *  Same as: \code trsf->is_stop_requested_func(trsf->cookie) \endcode
+ *
+ *  TODO: don't export, move to gmio_core/internal
+ */
 GMIO_LIB_EXPORT
 gmio_bool_t gmio_transfer_is_stop_requested(const gmio_transfer_t* trsf);
+
+/*! Safe and convenient function for gmio_transfer::handle_progress_func()
+ *
+ *  Same as: \code trsf->handle_progress_func(trsf->cookie, v, maxv) \endcode
+ *
+ *  TODO: don't export, move to gmio_core/internal
+ */
+GMIO_LIB_EXPORT
+gmio_bool_t gmio_transfer_handle_progress(
+        const gmio_transfer_t* trsf, size_t value, size_t max_value);
 
 GMIO_C_LINKAGE_END
 

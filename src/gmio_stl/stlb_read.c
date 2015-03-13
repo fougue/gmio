@@ -107,6 +107,9 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
     while (gmio_no_error(error)
            && rparams.i_facet_offset < total_facet_count)
     {
+        gmio_transfer_handle_progress(
+                    trsf, rparams.i_facet_offset, total_facet_count);
+
         rparams.facet_count =
                 gmio_size_to_uint32(
                     gmio_stream_read(

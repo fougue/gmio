@@ -106,6 +106,8 @@ int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
          i_facet < facet_count && gmio_no_error(error);
          i_facet += wparams.facet_count)
     {
+        gmio_transfer_handle_progress(trsf, i_facet, facet_count);
+
         /* Write to buffer */
         wparams.facet_count = GMIO_MIN(wparams.facet_count,
                                        facet_count - wparams.i_facet_offset);

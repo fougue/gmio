@@ -23,3 +23,10 @@ gmio_bool_t gmio_transfer_is_stop_requested(const gmio_transfer_t* trsf)
         return trsf->is_stop_requested_func(trsf->cookie);
     return GMIO_FALSE;
 }
+
+gmio_bool_t gmio_transfer_handle_progress(
+        const gmio_transfer_t* trsf, size_t value, size_t max_value)
+{
+    if (trsf != NULL && trsf->handle_progress_func != NULL)
+        trsf->handle_progress_func(trsf->cookie, value, max_value);
+}

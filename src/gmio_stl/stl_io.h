@@ -34,13 +34,22 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! Options for gmio_stla_read()
  *
- *  No options yet, it just exists for future needs, which could possibly be:
+ *  Possible other options in the future:
  *     - flag to force locale ?
  *     - case sensitive/insensitive ?
  */
 struct gmio_stla_read_options
 {
-    void* dummy; /*!< Structs must have at least one member in strict ISO-C90 */
+    /*! Hint about the total size (in bytes) of the STL ascii data to be read
+     *  from stream
+     *
+     *  \p stream_size is passed to gmio_transfer::handle_progress_func() as
+     *  the \p max_value argument.
+     *
+     *  It's defaulted to \c 0 if options argument is set to NULL (when
+     *  calling gmio_stla_read())
+     */
+    size_t stream_size;
 };
 typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 
@@ -51,7 +60,7 @@ typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 GMIO_LIBSTL_EXPORT
 int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
                    gmio_transfer_t* trsf,
-                   const gmio_stla_read_options_t* options /* NULL */);
+                   const gmio_stla_read_options_t* options);
 
 /*! Options for gmio_stla_write() */
 struct gmio_stla_write_options

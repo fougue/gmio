@@ -167,6 +167,8 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
         gmio_stl_triangle_t tri;
         uint32_t ibuffer_facet;
 
+        gmio_transfer_handle_progress(trsf, ifacet, total_facet_count);
+
         /* Writing of facets is buffered */
         buffer_iterator = trsf->buffer;
         for (ibuffer_facet = ifacet; ibuffer_facet < clamped_facet_count; ++ibuffer_facet) {
