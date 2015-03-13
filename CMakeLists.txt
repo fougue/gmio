@@ -83,6 +83,9 @@ if(MSVC)
     # Set warning level to /W4
     string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
 
+    # Treat warnings as errors
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
