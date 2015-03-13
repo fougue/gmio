@@ -23,8 +23,6 @@
 #include "global.h"
 #include <stdio.h>
 
-GMIO_C_LINKAGE_BEGIN
-
 /*! Stream that can get input from an arbitrary data source or can write
  *  output to an arbitrary data sink.
  *
@@ -93,6 +91,8 @@ struct gmio_stream
 
 typedef struct gmio_stream gmio_stream_t;
 
+GMIO_C_LINKAGE_BEGIN
+
 /* Initialization */
 
 /*! Installs a null stream */
@@ -100,38 +100,6 @@ GMIO_LIB_EXPORT void gmio_stream_set_null(gmio_stream_t* stream);
 
 /*! Configures \p stream for standard FILE* (cookie will hold \p file) */
 GMIO_LIB_EXPORT void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file);
-
-/* Services */
-
-/*! Safe and convenient function for gmio_stream::at_end_func()
- *
- *  Same as: \code stream->at_end_func(stream->cookie) \endcode
- */
-GMIO_LIB_EXPORT gmio_bool_t gmio_stream_at_end(gmio_stream_t* stream);
-
-/*! Safe and convenient function for gmio_stream::error_func()
- *
- *  Same as: \code stream->error_func(stream->cookie) \endcode
- */
-GMIO_LIB_EXPORT int gmio_stream_error(gmio_stream_t* stream);
-
-/*! Safe and convenient function for gmio_stream::read_func()
- *
- *  Same as: \code stream->read_func(stream->cookie) \endcode
- */
-GMIO_LIB_EXPORT size_t gmio_stream_read(gmio_stream_t* stream,
-                                        void* ptr,
-                                        size_t size,
-                                        size_t count);
-
-/*! Safe and convenient function for gmio_stream::write_func()
- *
- *  Same as: \code stream->write_func(stream->cookie) \endcode
- */
-GMIO_LIB_EXPORT size_t gmio_stream_write(gmio_stream_t* stream,
-                                         const void* ptr,
-                                         size_t size,
-                                         size_t count);
 
 GMIO_C_LINKAGE_END
 

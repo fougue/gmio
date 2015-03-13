@@ -20,6 +20,7 @@
 #include "../gmio_core/endian.h"
 #include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/byte_swap.h"
+#include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/min_max.h"
 
 #include <ctype.h>

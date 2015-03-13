@@ -13,18 +13,27 @@
 ** "http://www.cecill.info".
 ****************************************************************************/
 
-#include "transfer.h"
+/* WARNING :
+ *     this header has no multi-inclusion guard. It must be included only once
+ *     in the translation unit of use. The reason is that all functions
+ *     defined here are meant to be inlined for performance purpose
+ */
+
+#include "../transfer.h"
 
 #include <stddef.h>
 
-gmio_bool_t gmio_transfer_is_stop_requested(const gmio_transfer_t* trsf)
+/*! Safe and convenient function for gmio_transfer::is_stop_requested_func() */
+GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
+        const gmio_transfer_t* trsf)
 {
     if (trsf != NULL && trsf->is_stop_requested_func != NULL)
         return trsf->is_stop_requested_func(trsf->cookie);
     return GMIO_FALSE;
 }
 
-gmio_bool_t gmio_transfer_handle_progress(
+/*! Safe and convenient function for gmio_transfer::handle_progress_func() */
+GMIO_INLINE void gmio_transfer_handle_progress(
         const gmio_transfer_t* trsf, size_t value, size_t max_value)
 {
     if (trsf != NULL && trsf->handle_progress_func != NULL)

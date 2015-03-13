@@ -21,6 +21,8 @@
 #include "stl_error.h"
 
 #include "../gmio_core/error.h"
+#include "../gmio_core/internal/helper_stream.h"
+#include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/safe_cast.h"
 

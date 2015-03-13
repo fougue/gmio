@@ -15,6 +15,8 @@
 
 #include "string_parse.h"
 
+#include "helper_stream.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>

@@ -21,6 +21,7 @@
 #include "internal/stl_rw_common.h"
 
 #include "../gmio_core/error.h"
+#include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/string_parse.h"
 
 #include <ctype.h>

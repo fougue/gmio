@@ -23,8 +23,6 @@
 #include "global.h"
 #include "stream.h"
 
-GMIO_C_LINKAGE_BEGIN
-
 /*! Defines objects required for any transfer(read/write) operation */
 struct gmio_transfer
 {
@@ -61,26 +59,5 @@ struct gmio_transfer
 };
 
 typedef struct gmio_transfer gmio_transfer_t;
-
-/*! Safe and convenient function for gmio_transfer::is_stop_requested_func()
- *
- *  Same as: \code trsf->is_stop_requested_func(trsf->cookie) \endcode
- *
- *  TODO: don't export, move to gmio_core/internal
- */
-GMIO_LIB_EXPORT
-gmio_bool_t gmio_transfer_is_stop_requested(const gmio_transfer_t* trsf);
-
-/*! Safe and convenient function for gmio_transfer::handle_progress_func()
- *
- *  Same as: \code trsf->handle_progress_func(trsf->cookie, v, maxv) \endcode
- *
- *  TODO: don't export, move to gmio_core/internal
- */
-GMIO_LIB_EXPORT
-gmio_bool_t gmio_transfer_handle_progress(
-        const gmio_transfer_t* trsf, size_t value, size_t max_value);
-
-GMIO_C_LINKAGE_END
 
 #endif /* GMIO_TRANSFER_H */
