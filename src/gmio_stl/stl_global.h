@@ -23,17 +23,25 @@
 #include "../gmio_core/global.h"
 
 #ifdef GMIO_LIBSTL_DLL
-# ifdef GMIO_LIBSTL_MAKE_DLL
-#  define GMIO_LIBSTL_EXPORT GMIO_DECL_EXPORT
-# else
-#  define GMIO_LIBSTL_EXPORT GMIO_DECL_IMPORT
-# endif /* GMIO_DATAX_LIBSTL_MAKE_DLL */
+#  ifdef GMIO_LIBSTL_MAKE_DLL
+#    define GMIO_LIBSTL_EXPORT GMIO_DECL_EXPORT
+#  else
+#    define GMIO_LIBSTL_EXPORT GMIO_DECL_IMPORT
+#  endif /* GMIO_DATAX_LIBSTL_MAKE_DLL */
 #else
-# define GMIO_LIBSTL_EXPORT
+/*! Expands either to GMIO_DECL_EXPORT or GMIO_DECL_IMPORT when respectively
+ *  compiling/using the DLL */
+#   define GMIO_LIBSTL_EXPORT
 #endif /* GMIO_LIBSTL_DLL */
 
-/* STLB */
-enum { GMIO_STLB_HEADER_SIZE = 80 };
-enum { GMIO_STLB_MIN_CONTENTS_SIZE = 284 };
+/*! Constants for the STL binary format */
+enum {
+    /*! Size(in bytes) of the header data for STL binary */
+    GMIO_STLB_HEADER_SIZE = 80,
+
+    /*! Size(in bytes) of the minimum contents possible with the STL binary
+     *  format */
+    GMIO_STLB_MIN_CONTENTS_SIZE = 284
+};
 
 #endif /* GMIO_LIBSTL_GLOBAL_H */
