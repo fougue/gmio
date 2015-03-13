@@ -23,8 +23,6 @@
 #include "stl_global.h"
 #include "../gmio_core/stream.h"
 
-GMIO_C_LINKAGE_BEGIN
-
 /*! This enums defines the various STL formats */
 enum gmio_stl_format
 {
@@ -35,6 +33,8 @@ enum gmio_stl_format
 };
 
 typedef enum gmio_stl_format gmio_stl_format_t;
+
+GMIO_C_LINKAGE_BEGIN
 
 /*! Returns the format of the STL data in \p stream
  *

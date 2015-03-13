@@ -22,8 +22,6 @@
 
 #include "global.h"
 
-GMIO_C_LINKAGE_BEGIN
-
 /*! This enum identifies common endianness (byte order) of computer memory */
 enum gmio_endianness
 {
@@ -34,6 +32,8 @@ enum gmio_endianness
 };
 
 typedef enum gmio_endianness gmio_endianness_t;
+
+GMIO_C_LINKAGE_BEGIN
 
 /*! Returns endianness (byte order) of the host's CPU architecture */
 GMIO_LIB_EXPORT gmio_endianness_t gmio_host_endianness();
