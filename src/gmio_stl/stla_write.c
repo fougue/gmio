@@ -93,7 +93,7 @@ static char* gmio_write_stdio_format(char* buffer, uint8_t prec)
 
     buffer[0] = '%';
     buffer[1] = '.';
-    prec_len = sprintf(buffer + 2, "%i", prec);
+    prec_len = sprintf(buffer + 2, "%u", prec);
     buffer[2 + prec_len] = 'E';
     return buffer + 3 + prec_len;
 }
@@ -131,14 +131,14 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
     int error = GMIO_NO_ERROR;
 
     /* Check validity of input parameters */
-    gmio_check_transfer(&error, trsf);
-    gmio_stl_check_mesh(&error, mesh);
-    if (float32_prec == 0 || float32_prec > 9)
-        error = GMIO_STLA_WRITE_INVALID_REAL32_PREC_ERROR;
-    if (trsf->buffer_size < GMIO_STLA_FACET_SIZE_P2)
-        error = GMIO_INVALID_BUFFER_SIZE_ERROR;
-    if (gmio_error(error))
+    if (!gmio_check_transfer(&error, trsf))
         return error;
+    if (!gmio_stl_check_mesh(&error, mesh))
+        return error;
+    if (float32_prec == 0 || float32_prec > 9)
+        return GMIO_STLA_WRITE_INVALID_REAL32_PREC_ERROR;
+    if (trsf->buffer_size < GMIO_STLA_FACET_SIZE_P2)
+        return GMIO_INVALID_BUFFER_SIZE_ERROR;
 
     { /* Create XYZ coords format string (for normal and vertex coords) */
         char* coords_format_iterator = coords_format;
