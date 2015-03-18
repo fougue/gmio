@@ -20,6 +20,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
 
+QT_USE_NAMESPACE
+
 static gmio_bool_t gmio_stream_qiodevice_at_end(void* cookie)
 {
   return static_cast<QIODevice*>(cookie)->atEnd();
