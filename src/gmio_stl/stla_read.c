@@ -85,7 +85,7 @@ typedef struct
     size_t stream_size;
     /* Offset (in bytes) from beginning of stream : current position */
     size_t stream_offset;
-    /* Cache for gmio_transfer::is_stop_requested_func */
+    /* Cache for gmio_transfer::is_stop_requested_func() */
     gmio_bool_t is_stop_requested;
 } gmio_string_stream_fwd_iterator_cookie_t;
 
@@ -429,7 +429,6 @@ int gmio_stla_read(
 {
     char fixed_buffer[GMIO_STLA_READ_STRING_BUFFER_LEN];
     gmio_stla_parse_data_t parse_data;
-    GMIO_UNUSED(options);
 
     { /* Check validity of input parameters */
         int error = GMIO_NO_ERROR;
@@ -442,6 +441,8 @@ int gmio_stla_read(
 
     parse_data.stream_iterator_cookie.transfer = trsf;
     parse_data.stream_iterator_cookie.stream_offset = 0;
+    parse_data.stream_iterator_cookie.stream_size =
+            options != NULL ? options->stream_size : 0;
     parse_data.stream_iterator_cookie.is_stop_requested = GMIO_FALSE;
 
     parse_data.stream_iterator.stream = &trsf->stream;
