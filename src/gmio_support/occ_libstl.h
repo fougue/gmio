@@ -35,17 +35,17 @@ struct gmio_stl_mesh_creator;
 class GMIO_LIBSUPPORT_EXPORT gmio_OccStlMeshDomain
 {
 public:
-  gmio_OccStlMeshDomain(const Handle_StlMesh_Mesh& stlMesh, int domId = 1);
+    gmio_OccStlMeshDomain(const Handle_StlMesh_Mesh& stlMesh, int domId = 1);
 
-  const Handle_StlMesh_Mesh& mesh() const;
-  void setMesh(const Handle_StlMesh_Mesh& stlMesh);
+    const Handle_StlMesh_Mesh& mesh() const;
+    void setMesh(const Handle_StlMesh_Mesh& stlMesh);
 
-  int domainId() const;
-  void setDomainId(int domId);
+    int domainId() const;
+    void setDomainId(int domId);
 
 private:
-  Handle_StlMesh_Mesh m_mesh;
-  int m_domainId;
+    Handle_StlMesh_Mesh m_mesh;
+    int m_domainId;
 };
 
 /*! Initializes \p mesh so it maps to a domain in StlMesh_Mesh

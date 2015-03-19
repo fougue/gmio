@@ -48,8 +48,11 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
         return it->buffer.ptr + it->buffer_pos;
     }
     else {
-        if (gmio_stream_error(it->stream) != 0 || gmio_stream_at_end(it->stream))
+        if (gmio_stream_error(it->stream) != 0
+                || gmio_stream_at_end(it->stream))
+        {
             return NULL;
+        }
 
         /* Read next chunk of data */
         it->buffer_pos = 0;
@@ -73,7 +76,8 @@ void gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
         curr_char = gmio_next_char(it);
 }
 
-int gmio_eat_word(gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *buffer)
+int gmio_eat_word(
+        gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *buffer)
 {
     const char* stream_curr_char = NULL;
     int isspace_res = 0;
@@ -86,7 +90,10 @@ int gmio_eat_word(gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *b
     gmio_skip_spaces(it);
     stream_curr_char = gmio_current_char(it);
 
-    while (i < buffer->max_len && stream_curr_char != NULL && isspace_res == 0) {
+    while (i < buffer->max_len
+           && stream_curr_char != NULL
+           && isspace_res == 0)
+    {
         isspace_res = isspace(*stream_curr_char);
         if (isspace_res == 0) {
             buffer->ptr[i] = *stream_curr_char;
@@ -121,7 +128,8 @@ int gmio_get_float32(const char *str, gmio_float32_t *value_ptr)
     return 0;
 }
 
-gmio_bool_t gmio_checked_next_chars(gmio_string_stream_fwd_iterator_t *it, const char *str)
+gmio_bool_t gmio_checked_next_chars(
+        gmio_string_stream_fwd_iterator_t *it, const char *str)
 {
     size_t pos = 0;
     const char* curr_char = gmio_current_char(it);

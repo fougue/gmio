@@ -22,7 +22,6 @@
 
 #include "global.h"
 
-
 /*! This enum defines common errors */
 enum gmio_error
 {

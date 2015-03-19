@@ -44,15 +44,22 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
     /* Binary STL ? */
     if (read_size >= (GMIO_STLB_HEADER_SIZE + 4)) {
         /* Try with little-endian format */
-        uint32_t facet_count = gmio_decode_uint32_le((const uint8_t*)fixed_buffer + 80);
+        uint32_t facet_count =
+                gmio_decode_uint32_le((const uint8_t*)fixed_buffer + 80);
 
-        if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE) == data_size)
+        if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
+                == data_size)
+        {
             return GMIO_STL_BINARY_LE_FORMAT;
+        }
 
         /* Try with byte-reverted facet count */
         facet_count = gmio_uint32_bswap(facet_count);
-        if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE) == data_size)
+        if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
+                == data_size)
+        {
             return GMIO_STL_BINARY_BE_FORMAT;
+        }
     }
 
     /* ASCII STL ? */

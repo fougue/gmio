@@ -31,13 +31,12 @@ struct gmio_stl_mesh
     const void* cookie;
 
     /*! Number of triangles in the mesh */
-    uint32_t    triangle_count;
+    uint32_t triangle_count;
 
     /*! Pointer on a function that stores the mesh triangle of index \p tri_id
      *  into \p triangle */
-    void      (*get_triangle_func)(const void* cookie,
-                                   uint32_t tri_id,
-                                   gmio_stl_triangle_t* triangle);
+    void (*get_triangle_func)(
+            const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle);
 };
 
 typedef struct gmio_stl_mesh gmio_stl_mesh_t;

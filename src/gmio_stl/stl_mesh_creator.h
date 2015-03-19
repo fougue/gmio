@@ -47,9 +47,8 @@ struct gmio_stl_mesh_creator
      *
      *  The argument \p header contains the header data(80 bytes)
      */
-    void (*binary_begin_solid_func)(void* cookie,
-                                    uint32_t tri_count,
-                                    const uint8_t* header);
+    void (*binary_begin_solid_func)(
+            void* cookie, uint32_t tri_count, const uint8_t* header);
 
     /*! Pointer on a function that adds a triangle to the user mesh
      *
@@ -58,9 +57,8 @@ struct gmio_stl_mesh_creator
      *
      *  The argument \p tri_id is the index of the mesh triangle
      */
-    void (*add_triangle_func)(void* cookie,
-                              uint32_t tri_id,
-                              const gmio_stl_triangle_t* triangle);
+    void (*add_triangle_func)(
+            void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle);
 
     /*! Pointer on a function that finalizes creation of the user mesh
      *

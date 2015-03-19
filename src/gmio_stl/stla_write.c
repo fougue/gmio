@@ -98,16 +98,13 @@ static char* gmio_write_stdio_format(char* buffer, uint8_t prec)
     return buffer + 3 + prec_len;
 }
 
-/*static char* gmio_write_float32_string(char* buffer, const char* format, gmio_float32_t val)
+static char* gmio_write_coords(
+        char* buffer,
+        const char* coords_format,
+        const gmio_stl_coords_t* coords)
 {
-  return buffer + sprintf(buffer, format, val);
-}*/
-
-static char* gmio_write_coords(char* buffer,
-                               const char* coords_format,
-                               const gmio_stl_coords_t* coords)
-{
-    return buffer + sprintf(buffer, coords_format, coords->x, coords->y, coords->z);
+    return buffer + sprintf(buffer,
+                            coords_format, coords->x, coords->y, coords->z);
 }
 
 static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
@@ -115,18 +112,22 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
     return gmio_stream_write(&trsf->stream, trsf->buffer, sizeof(char), n) == n;
 }
 
-int gmio_stla_write(const gmio_stl_mesh_t* mesh,
-                    gmio_transfer_t* trsf,
-                    const gmio_stla_write_options_t* options)
+int gmio_stla_write(
+        const gmio_stl_mesh_t* mesh,
+        gmio_transfer_t* trsf,
+        const gmio_stla_write_options_t* options)
 {
+    /* Constants */
     const char* solid_name = options != NULL ? options->solid_name : NULL;
     const uint8_t float32_prec = options != NULL ? options->float32_prec : 9;
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const uint32_t buffer_facet_count =
             trsf != NULL ?
-                gmio_size_to_uint32(trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2) : 0;
+                gmio_size_to_uint32(trsf->buffer_size / GMIO_STLA_FACET_SIZE_P2)
+              : 0;
+    /* Variables */
     uint32_t ifacet = 0;
-    char* buffer_iterator = trsf != NULL ? trsf->buffer : NULL;
+    char* buff_it = trsf != NULL ? trsf->buffer : NULL;
     char coords_format[64];
     int error = GMIO_NO_ERROR;
 
@@ -141,21 +142,21 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
         return GMIO_INVALID_BUFFER_SIZE_ERROR;
 
     { /* Create XYZ coords format string (for normal and vertex coords) */
-        char* coords_format_iterator = coords_format;
-        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, float32_prec);
-        coords_format_iterator = gmio_write_nspaces(coords_format_iterator, 2);
-        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, float32_prec);
-        coords_format_iterator = gmio_write_nspaces(coords_format_iterator, 2);
-        coords_format_iterator = gmio_write_stdio_format(coords_format_iterator, float32_prec);
-        *coords_format_iterator = 0; /* Write terminating null byte */
+        char* it = coords_format;
+        it = gmio_write_stdio_format(it, float32_prec);
+        it = gmio_write_nspaces(it, 2);
+        it = gmio_write_stdio_format(it, float32_prec);
+        it = gmio_write_nspaces(it, 2);
+        it = gmio_write_stdio_format(it, float32_prec);
+        *it = 0; /* Write terminating null byte */
         /* TODO: check the "format" string can contain the given precision */
     }
 
     /* Write solid declaration */
     {
-        buffer_iterator = gmio_write_string(buffer_iterator, "solid ");
-        buffer_iterator = gmio_write_string_eol(buffer_iterator, solid_name);
-        if (!gmio_transfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
+        buff_it = gmio_write_string(buff_it, "solid ");
+        buff_it = gmio_write_string_eol(buff_it, solid_name);
+        if (!gmio_transfer_flush_buffer(trsf, buff_it - (char*)trsf->buffer))
             return GMIO_STREAM_ERROR;
     }
 
@@ -164,37 +165,40 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
          ifacet < total_facet_count && gmio_no_error(error);
          ifacet += buffer_facet_count)
     {
-        const uint32_t clamped_facet_count = GMIO_MIN(ifacet + buffer_facet_count,
-                                                      total_facet_count);
+        const uint32_t clamped_facet_count =
+                GMIO_MIN(ifacet + buffer_facet_count, total_facet_count);
         gmio_stl_triangle_t tri;
         uint32_t ibuffer_facet;
 
         gmio_transfer_handle_progress(trsf, ifacet, total_facet_count);
 
         /* Writing of facets is buffered */
-        buffer_iterator = trsf->buffer;
-        for (ibuffer_facet = ifacet; ibuffer_facet < clamped_facet_count; ++ibuffer_facet) {
+        buff_it = trsf->buffer;
+        for (ibuffer_facet = ifacet;
+             ibuffer_facet < clamped_facet_count;
+             ++ibuffer_facet)
+        {
             mesh->get_triangle_func(mesh->cookie, ibuffer_facet, &tri);
-            buffer_iterator = gmio_write_string(buffer_iterator, "facet normal  ");
-            buffer_iterator = gmio_write_coords(buffer_iterator, coords_format, &tri.normal);
-            buffer_iterator = gmio_write_eol(buffer_iterator);
+            buff_it = gmio_write_string(buff_it, "facet normal  ");
+            buff_it = gmio_write_coords(buff_it, coords_format, &tri.normal);
+            buff_it = gmio_write_eol(buff_it);
 
-            buffer_iterator = gmio_write_string_eol(buffer_iterator, " outer loop");
-            buffer_iterator = gmio_write_string(buffer_iterator, "  vertex  ");
-            buffer_iterator = gmio_write_coords(buffer_iterator, coords_format, &tri.v1);
-            buffer_iterator = gmio_write_eol(buffer_iterator);
-            buffer_iterator = gmio_write_string(buffer_iterator, "  vertex  ");
-            buffer_iterator = gmio_write_coords(buffer_iterator, coords_format, &tri.v2);
-            buffer_iterator = gmio_write_eol(buffer_iterator);
-            buffer_iterator = gmio_write_string(buffer_iterator, "  vertex  ");
-            buffer_iterator = gmio_write_coords(buffer_iterator, coords_format, &tri.v3);
-            buffer_iterator = gmio_write_eol(buffer_iterator);
-            buffer_iterator = gmio_write_string_eol(buffer_iterator, " endloop");
+            buff_it = gmio_write_string_eol(buff_it, " outer loop");
+            buff_it = gmio_write_string(buff_it, "  vertex  ");
+            buff_it = gmio_write_coords(buff_it, coords_format, &tri.v1);
+            buff_it = gmio_write_eol(buff_it);
+            buff_it = gmio_write_string(buff_it, "  vertex  ");
+            buff_it = gmio_write_coords(buff_it, coords_format, &tri.v2);
+            buff_it = gmio_write_eol(buff_it);
+            buff_it = gmio_write_string(buff_it, "  vertex  ");
+            buff_it = gmio_write_coords(buff_it, coords_format, &tri.v3);
+            buff_it = gmio_write_eol(buff_it);
+            buff_it = gmio_write_string_eol(buff_it, " endloop");
 
-            buffer_iterator = gmio_write_string_eol(buffer_iterator, "endfacet");
+            buff_it = gmio_write_string_eol(buff_it, "endfacet");
         } /* end for (ibuffer_facet) */
 
-        if (!gmio_transfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
+        if (!gmio_transfer_flush_buffer(trsf, buff_it - (char*)trsf->buffer))
             error = GMIO_STREAM_ERROR;
 
         /* Task control */
@@ -204,9 +208,9 @@ int gmio_stla_write(const gmio_stl_mesh_t* mesh,
 
     /* Write end of solid */
     if (gmio_no_error(error)) {
-        buffer_iterator = gmio_write_string(trsf->buffer, "endsolid ");
-        buffer_iterator = gmio_write_string_eol(buffer_iterator, solid_name);
-        if (!gmio_transfer_flush_buffer(trsf, buffer_iterator - (char*)trsf->buffer))
+        buff_it = gmio_write_string(trsf->buffer, "endsolid ");
+        buff_it = gmio_write_string_eol(buff_it, solid_name);
+        if (!gmio_transfer_flush_buffer(trsf, buff_it - (char*)trsf->buffer))
             error = GMIO_STREAM_ERROR;
     }
 

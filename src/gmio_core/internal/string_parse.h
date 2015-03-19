@@ -26,8 +26,8 @@
  */
 struct gmio_string_buffer
 {
-    char*  ptr;     /*!< Buffer contents */
-    size_t len;     /*!< Size(length) of current contents */
+    char*  ptr; /*!< Buffer contents */
+    size_t len; /*!< Size(length) of current contents */
     size_t max_len; /*!< Maximum contents size(length) */
 };
 
@@ -41,20 +41,29 @@ typedef struct gmio_string_buffer  gmio_string_buffer_t;
  */
 struct gmio_string_stream_fwd_iterator
 {
-    gmio_stream_t*       stream;
+    gmio_stream_t* stream;
     gmio_string_buffer_t buffer;
-    size_t               buffer_pos; /*!< Position indicator in buffer */
+    size_t buffer_pos; /*!< Position indicator in buffer */
 
     void* cookie;
-    void (*stream_read_hook)(void* cookie, const gmio_string_buffer_t* str_buffer);
+    void (*stream_read_hook)(void* cookie,
+                             const gmio_string_buffer_t* str_buffer);
 };
 
-typedef struct gmio_string_stream_fwd_iterator  gmio_string_stream_fwd_iterator_t;
+typedef struct gmio_string_stream_fwd_iterator
+        gmio_string_stream_fwd_iterator_t;
 
-void  gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t* it);
-const char* gmio_current_char(const gmio_string_stream_fwd_iterator_t* it);
-void  gmio_skip_spaces(gmio_string_stream_fwd_iterator_t* it);
-int   gmio_eat_word(gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
+void gmio_string_stream_fwd_iterator_init(
+        gmio_string_stream_fwd_iterator_t* it);
+
+const char* gmio_current_char(
+        const gmio_string_stream_fwd_iterator_t* it);
+
+void gmio_skip_spaces(
+        gmio_string_stream_fwd_iterator_t* it);
+
+int gmio_eat_word(
+        gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
 
 /*! Move on next char in stream */
 const char* gmio_next_char(gmio_string_stream_fwd_iterator_t* it);
@@ -63,7 +72,8 @@ const char* gmio_next_char(gmio_string_stream_fwd_iterator_t* it);
  *
  *  Returns GMIO_TRUE if \p str was fully matched
  */
-gmio_bool_t gmio_checked_next_chars(gmio_string_stream_fwd_iterator_t* it, const char* str);
+gmio_bool_t gmio_checked_next_chars(
+        gmio_string_stream_fwd_iterator_t* it, const char* str);
 
 /*! Converts the string pointed to by \p str to gmio_float32_t representation
  *

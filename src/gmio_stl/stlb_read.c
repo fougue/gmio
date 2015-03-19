@@ -31,16 +31,17 @@
 
 #include <string.h>
 
-GMIO_INLINE static void read_triangle_memcpy(const uint8_t* buffer,
-                                             gmio_stl_triangle_t* triangle)
+GMIO_INLINE static void read_triangle_memcpy(
+        const uint8_t* buffer, gmio_stl_triangle_t* triangle)
 {
     /* *triangle = *((gmio_stl_triangle_t*)(buffer)); */
     memcpy(triangle, buffer, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
-static void gmio_stlb_read_facets(gmio_stl_mesh_creator_t* creator,
-                                  const uint8_t* buffer,
-                                  const gmio_stlb_readwrite_helper_t* rparams)
+static void gmio_stlb_read_facets(
+        gmio_stl_mesh_creator_t* creator,
+        const uint8_t* buffer,
+        const gmio_stlb_readwrite_helper_t* rparams)
 {
     const uint32_t facet_count = rparams->facet_count;
     const uint32_t i_facet_offset = rparams->i_facet_offset;
@@ -60,15 +61,19 @@ static void gmio_stlb_read_facets(gmio_stl_mesh_creator_t* creator,
             rparams->fix_endian_func(&triangle);
 
         /* Declare triangle */
-        creator->add_triangle_func(creator->cookie, i_facet_offset + i_facet, &triangle);
+        creator->add_triangle_func(
+                    creator->cookie, i_facet_offset + i_facet, &triangle);
     }
 }
 
-int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
-                   gmio_transfer_t* trsf,
-                   const gmio_stlb_read_options_t* options)
+int gmio_stlb_read(
+        gmio_stl_mesh_creator_t *creator,
+        gmio_transfer_t* trsf,
+        const gmio_stlb_read_options_t* options)
 {
-    const gmio_endianness_t host_byte_order = gmio_host_endianness();
+    /* Constants */
+    const gmio_endianness_t host_byte_order =
+            gmio_host_endianness();
     const gmio_endianness_t byte_order =
             options != NULL ? options->byte_order : host_byte_order;
     const uint32_t max_facet_count_per_read =
@@ -76,10 +81,11 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
                 gmio_size_to_uint32(
                     trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE)
               : 0;
+    /* Variables */
     gmio_stlb_readwrite_helper_t rparams = {0};
-    uint8_t  header_data[GMIO_STLB_HEADER_SIZE];
-    uint32_t total_facet_count = 0; /* Count of facets as declared in the stream */
-    int error = GMIO_NO_ERROR; /* Helper variable to store function result error code  */
+    uint8_t header_data[GMIO_STLB_HEADER_SIZE];
+    uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
+    int error = GMIO_NO_ERROR; /* Helper  to store function result error code */
 
     /* Check validity of input parameters */
     if (!gmio_stlb_check_params(&error, trsf, byte_order))
@@ -105,8 +111,10 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
     /* Callback to notify triangle count and header data */
-    if (creator != NULL && creator->binary_begin_solid_func != NULL)
-        creator->binary_begin_solid_func(creator->cookie, total_facet_count, header_data);
+    if (creator != NULL && creator->binary_begin_solid_func != NULL) {
+        creator->binary_begin_solid_func(
+                    creator->cookie, total_facet_count, header_data);
+    }
 
     /* Read triangles */
     while (gmio_no_error(error)
