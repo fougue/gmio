@@ -19,6 +19,7 @@
 
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
+#include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/string_parse.h"
 
 #include "stream_buffer.h"
@@ -53,6 +54,17 @@ const char* test_internal__byte_codec()
         UTEST_ASSERT(data[3] == 0x44 && data[2] == 0x33 && data[1] == 0x22 && data[0] == 0x11);
     }
 
+    return NULL;
+}
+
+const char* test_internal__safe_cast()
+{
+#if GMIO_TARGET_ARCH_BIT_SIZE > 32
+    const size_t maxUInt32 = 0xFFFFFFFF;
+    UTEST_ASSERT(gmio_size_to_uint32(maxUInt32 + 1) == 0xFFFFFFFF);
+    UTEST_ASSERT(gmio_size_to_uint32(0xFFFFFFFF) == 0xFFFFFFFF);
+    UTEST_ASSERT(gmio_size_to_uint32(100) == 100);
+#endif
     return NULL;
 }
 
@@ -127,6 +139,7 @@ const char* all_tests()
     UTEST_SUITE_START();
     UTEST_RUN(test_internal__byte_swap);
     UTEST_RUN(test_internal__byte_codec);
+    UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__string_parse);
     return NULL;
 }
