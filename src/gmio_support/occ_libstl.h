@@ -21,6 +21,9 @@
 #define GMIO_SUPPORT_OCC_LIBSTL_H
 
 #include "support_global.h"
+#include "../gmio_stl/stl_mesh.h"
+#include "../gmio_stl/stl_mesh_creator.h"
+
 #include <Handle_StlMesh_Mesh.hxx>
 struct gmio_stl_mesh;
 struct gmio_stl_mesh_creator;
@@ -50,13 +53,32 @@ private:
  *  \c mesh->cookie will point to \p meshCookie
  */
 GMIO_LIBSUPPORT_EXPORT
-void gmio_stl_occmesh(gmio_stl_mesh* mesh, const gmio_OccStlMeshDomain& meshCookie);
+void gmio_stl_set_occmesh(
+        gmio_stl_mesh* mesh, const gmio_OccStlMeshDomain& meshCookie);
+
+/*! Returns a gmio_stl_mesh mapped to domain in StlMesh_Mesh
+ *
+ *  The mesh's cookie will point to \p meshCookie
+ */
+GMIO_LIBSUPPORT_EXPORT
+gmio_stl_mesh gmio_stl_occmesh(const gmio_OccStlMeshDomain& meshCookie);
 
 /*! Initializes \p creator to build a new domain in a StlMesh_Mesh object
  *
- *  \c creator->cookie will point to the internal data(ie. StlMesh_Mesh*) of handle \p mesh
+ *  \c creator->cookie will point to the internal data(ie StlMesh_Mesh*) of
+ *  handle \p mesh
  */
 GMIO_LIBSUPPORT_EXPORT
-void gmio_stl_occmesh_creator(gmio_stl_mesh_creator* creator, const Handle_StlMesh_Mesh& mesh);
+void gmio_stl_set_occmesh_creator(
+        gmio_stl_mesh_creator* creator, const Handle_StlMesh_Mesh& mesh);
+
+/*! Returns a gmio_stl_mesh_creator that will build a new domain in a
+ *  StlMesh_Mesh object
+ *
+ *  The creator's cookie will point to the internal data(ie StlMesh_Mesh*) of
+ *  handle \p mesh
+ */
+GMIO_LIBSUPPORT_EXPORT
+gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& mesh);
 
 #endif /* GMIO_SUPPORT_OCC_LIBSTL_H */

@@ -21,9 +21,9 @@
 #define GMIO_SUPPORT_QT_STREAM_H
 
 #include "support_global.h"
+#include "../gmio_core/stream.h"
 #include <QtCore/QtGlobal>
 
-struct gmio_stream;
 QT_BEGIN_NAMESPACE
 class QIODevice;
 QT_END_NAMESPACE
@@ -31,6 +31,10 @@ QT_END_NAMESPACE
 /*! Configures \p stream for \c QIODevice* (cookie will hold \p device) */
 GMIO_LIBSUPPORT_EXPORT
 void gmio_stream_set_qiodevice(
-        struct gmio_stream* stream, QT_PREPEND_NAMESPACE(QIODevice)* device);
+        gmio_stream_t* stream, QT_PREPEND_NAMESPACE(QIODevice)* device);
+
+/*! Returns a gmio_stream for \c QIODevice* (cookie will hold \p device) */
+GMIO_LIBSUPPORT_EXPORT
+gmio_stream_t gmio_stream_qiodevice(QT_PREPEND_NAMESPACE(QIODevice)* device);
 
 #endif /* GMIO_SUPPORT_QT_STREAM_H */

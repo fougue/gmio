@@ -15,8 +15,6 @@
 
 #include <gmio_support/qt_stream.h>
 
-#include <gmio_core/stream.h>
-
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
 
@@ -68,4 +66,11 @@ void gmio_stream_set_qiodevice(gmio_stream_t* stream, QIODevice* device)
   stream->error_func = gmio_stream_qiodevice_error;
   stream->read_func = gmio_stream_qiodevice_read;
   stream->write_func = gmio_stream_qiodevice_write;
+}
+
+gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
+{
+    gmio_stream_t qtstream = { 0 };
+    gmio_stream_set_qiodevice(&qtstream, device);
+    return qtstream;
 }

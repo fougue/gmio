@@ -24,6 +24,12 @@ void gmio_stream_set_null(gmio_stream_t* stream)
     memset(stream, 0, sizeof(gmio_stream_t));
 }
 
+gmio_stream_t gmio_stream_null()
+{
+    gmio_stream_t null_stream = { 0 };
+    return null_stream;
+}
+
 static gmio_bool_t gmio_stream_stdio_at_end(void* cookie)
 {
     return feof((FILE*) cookie);
@@ -53,4 +59,11 @@ void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file)
     stream->error_func = gmio_stream_stdio_error;
     stream->read_func = gmio_stream_stdio_read;
     stream->write_func = gmio_stream_stdio_write;
+}
+
+gmio_stream_t gmio_stream_stdio(FILE* file)
+{
+    gmio_stream_t stdio_stream = { 0 };
+    gmio_stream_set_stdio(&stdio_stream, file);
+    return stdio_stream;
 }

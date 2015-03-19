@@ -98,8 +98,14 @@ GMIO_C_LINKAGE_BEGIN
 /*! Installs a null stream */
 GMIO_LIB_EXPORT void gmio_stream_set_null(gmio_stream_t* stream);
 
+/*! Returns a null stream */
+GMIO_LIB_EXPORT gmio_stream_t gmio_stream_null();
+
 /*! Configures \p stream for standard FILE* (cookie will hold \p file) */
 GMIO_LIB_EXPORT void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file);
+
+/*! Returns a stream for standard FILE* (cookie will hold \p file) */
+GMIO_LIB_EXPORT gmio_stream_t gmio_stream_stdio(FILE* file);
 
 GMIO_C_LINKAGE_END
 
