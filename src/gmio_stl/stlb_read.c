@@ -72,7 +72,10 @@ int gmio_stlb_read(gmio_stl_mesh_creator_t *creator,
     const gmio_endianness_t byte_order =
             options != NULL ? options->byte_order : host_byte_order;
     const uint32_t max_facet_count_per_read =
-            gmio_size_to_uint32(trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE);
+            trsf != NULL ?
+                gmio_size_to_uint32(
+                    trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE)
+              : 0;
     gmio_stlb_readwrite_helper_t rparams = {0};
     uint8_t  header_data[GMIO_STLB_HEADER_SIZE];
     uint32_t total_facet_count = 0; /* Count of facets as declared in the stream */
