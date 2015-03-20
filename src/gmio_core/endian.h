@@ -33,6 +33,14 @@ enum gmio_endianness
 
 typedef enum gmio_endianness gmio_endianness_t;
 
+enum {
+#ifdef GMIO_HOST_IS_BIG_ENDIAN
+    GMIO_HOST_ENDIANNESS = GMIO_BIG_ENDIAN
+#else
+    GMIO_HOST_ENDIANNESS = GMIO_LITTLE_ENDIAN
+#endif
+};
+
 GMIO_C_LINKAGE_BEGIN
 
 /*! Returns endianness (byte order) of the host's CPU architecture */

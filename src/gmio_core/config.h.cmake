@@ -27,6 +27,8 @@
 
 #cmakedefine GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC
 
+#cmakedefine GMIO_HOST_IS_BIG_ENDIAN
+
 #if defined(__APPLE__)
 #  if defined(__i386__) || defined(__ppc__)
 #    define GMIO_TARGET_ARCH_BIT_SIZE  32

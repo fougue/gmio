@@ -35,6 +35,11 @@ set(ALL_SRC_FILES  ${ALL_SRC_FILES})
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
 
+# Test if host's architecture is big-endian
+include(TestBigEndian)
+test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
+
+# Find available C99 features
 if(NOT BUILD_STRICT_C90)
     # Have <stdint.h> ?
     check_include_files(stdint.h GMIO_HAVE_STDINT_H)

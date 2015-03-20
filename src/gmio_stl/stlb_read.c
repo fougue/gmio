@@ -72,10 +72,8 @@ int gmio_stlb_read(
         const gmio_stlb_read_options_t* options)
 {
     /* Constants */
-    const gmio_endianness_t host_byte_order =
-            gmio_host_endianness();
     const gmio_endianness_t byte_order =
-            options != NULL ? options->byte_order : host_byte_order;
+            options != NULL ? options->byte_order : GMIO_HOST_ENDIANNESS;
     const uint32_t max_facet_count_per_read =
             trsf != NULL ?
                 gmio_size_to_uint32(
@@ -92,7 +90,7 @@ int gmio_stlb_read(
         return error;
 
     /* Initialize rparams */
-    if (host_byte_order != byte_order)
+    if (byte_order != GMIO_HOST_ENDIANNESS)
         rparams.fix_endian_func = gmio_stl_triangle_bswap;
 
     /* Read header */
@@ -107,7 +105,7 @@ int gmio_stlb_read(
         return GMIO_STLB_READ_FACET_COUNT_ERROR;
 
     memcpy(&total_facet_count, trsf->buffer, sizeof(uint32_t));
-    if (host_byte_order != byte_order)
+    if (byte_order != GMIO_HOST_ENDIANNESS)
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
     /* Callback to notify triangle count and header data */
