@@ -72,7 +72,7 @@ int gmio_stlb_read(
         const gmio_stlb_read_options_t* options)
 {
     /* Constants */
-    const gmio_endianness_t byte_order =
+    const int byte_order =
             options != NULL ? options->byte_order : GMIO_HOST_ENDIANNESS;
     const uint32_t max_facet_count_per_read =
             trsf != NULL ?

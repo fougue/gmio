@@ -73,7 +73,7 @@ int gmio_stlb_write(
         const gmio_stlb_write_options_t* options)
 {
     /* Constants */
-    const gmio_endianness_t byte_order =
+    const int byte_order =
             options != NULL ? options->byte_order : GMIO_HOST_ENDIANNESS;
     const uint8_t* header_data =
             options != NULL ? options->header_data : NULL;
