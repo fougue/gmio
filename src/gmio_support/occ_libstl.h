@@ -28,7 +28,7 @@
 struct gmio_stl_mesh;
 struct gmio_stl_mesh_creator;
 
-/*! Domain in a StlMesh_Mesh object
+/*! Domain in a OpenCascade \c StlMesh_Mesh object
  *
  *  The domain is indicated with its index within the STL mesh
  */

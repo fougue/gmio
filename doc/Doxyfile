@@ -1473,13 +1473,13 @@ ENABLE_PREPROCESSING   = YES
 # compilation will be performed. Macro expansion can be done in a controlled 
 # way by setting EXPAND_ONLY_PREDEF to YES.
 
-MACRO_EXPANSION        = NO
+MACRO_EXPANSION        = YES
 
 # If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES 
 # then the macro expansion is limited to the macros specified with the 
 # PREDEFINED and EXPAND_AS_DEFINED tags.
 
-EXPAND_ONLY_PREDEF     = YES
+EXPAND_ONLY_PREDEF     = NO
 
 # If the SEARCH_INCLUDES tag is set to YES (the default) the includes files 
 # pointed to by INCLUDE_PATH will be searched when a #include is found.
@@ -1511,6 +1511,8 @@ PREDEFINED             = GMIO_LIB_EXPORT= \
                          GMIO_LIBSUPPORT_EXPORT= \
                          GMIO_LIBSTL_EXPORT= \
                          GMIO_HAVE_STDINT_H=1 \
+                         GMIO_C_LINKAGE_BEGIN= \
+                         GMIO_C_LINKAGE_END= \
                          DOXYGEN
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
