@@ -54,3 +54,18 @@ GMIO_INLINE size_t gmio_stream_write(
         return stream->write_func(stream->cookie, ptr, size, count);
     return 0;
 }
+
+/*! Safe and convenient function for gmio_stream::size_func() */
+GMIO_INLINE size_t gmio_stream_size(gmio_stream_t* stream)
+{
+    if (stream != NULL && stream->size_func != NULL)
+        return stream->size_func(stream->cookie);
+    return 0;
+}
+
+/*! Safe and convenient function for gmio_stream::rewind_func() */
+GMIO_INLINE void gmio_stream_rewind(gmio_stream_t* stream)
+{
+    if (stream != NULL && stream->rewind_func != NULL)
+        stream->rewind_func(stream->cookie);
+}

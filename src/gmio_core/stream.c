@@ -19,6 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 void gmio_stream_set_null(gmio_stream_t* stream)
 {
     memset(stream, 0, sizeof(gmio_stream_t));
@@ -52,6 +55,18 @@ static size_t gmio_stream_stdio_write(
     return fwrite(ptr, item_size, item_count, (FILE*) cookie);
 }
 
+static size_t gmio_stream_stdio_size(void* cookie)
+{
+    struct stat stat_buf;
+    fstat(fileno((FILE*) cookie), &stat_buf);
+    return stat_buf.st_size;
+}
+
+static void gmio_stream_stdio_rewind(void* cookie)
+{
+    rewind((FILE*) cookie);
+}
+
 void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file)
 {
     stream->cookie = file;
@@ -59,6 +74,8 @@ void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file)
     stream->error_func = gmio_stream_stdio_error;
     stream->read_func = gmio_stream_stdio_read;
     stream->write_func = gmio_stream_stdio_write;
+    stream->size_func = gmio_stream_stdio_size;
+    stream->rewind_func = gmio_stream_stdio_rewind;
 }
 
 gmio_stream_t gmio_stream_stdio(FILE* file)

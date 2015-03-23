@@ -87,6 +87,13 @@ struct gmio_stream
      *  \returns The total number of elements successfully written
      */
     size_t (*write_func)(void* cookie, const void* ptr, size_t size, size_t count);
+
+    /*! Pointer on function that returns the size(in bytes) of the stream */
+    size_t (*size_func)(void* cookie);
+
+    /*! Pointer on function that moves the position indicator within the stream
+     *  to the beginning */
+    void (*rewind_func)(void* cookie);
 };
 
 typedef struct gmio_stream gmio_stream_t;
