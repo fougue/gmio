@@ -37,12 +37,15 @@ enum gmio_error
     /*! Argument buffer's size is too small */
     GMIO_INVALID_BUFFER_SIZE_ERROR = -3,
 
-    /*! An error occurred with the argument gmio_stream_t */
+    /*! An error occurred with the gmio_stream */
     GMIO_STREAM_ERROR = -4,
 
     /*! Transfer was stopped by user, that is to say
      *  gmio_transfer::is_stop_requested_func() returned GMIO_TRUE */
-    GMIO_TRANSFER_STOPPED_ERROR = -5
+    GMIO_TRANSFER_STOPPED_ERROR = -5,
+
+    /*! Unknown error */
+    GMIO_UNKNOWN_ERROR = -6
 };
 
 typedef enum gmio_error gmio_error_t;
