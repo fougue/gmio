@@ -41,14 +41,10 @@ GMIO_C_LINKAGE_BEGIN
  *  It will try to read 512 bytes from \p stream into a buffer and then
  *  analyses this data to guess the format.
  *
- *  Parameter \p data_size must provide the total size (in bytes) of the
- *  stream data (e.g. file size), it is required to guess endianness in case
- *  of binary format.
- *
  *  \retval GMIO_STL_UNKNOWN_FORMAT in case of error.
  */
 GMIO_LIBSTL_EXPORT
-gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream, size_t data_size);
+gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream);
 
 GMIO_C_LINKAGE_END
 

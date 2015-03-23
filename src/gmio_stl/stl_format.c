@@ -28,12 +28,12 @@
 
 enum { GMIO_FIXED_BUFFER_SIZE = 512 };
 
-gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
+gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
 {
     char fixed_buffer[GMIO_FIXED_BUFFER_SIZE];
     size_t read_size = 0;
 
-    if (stream == NULL || data_size == 0)
+    if (stream == NULL)
         return GMIO_STL_UNKNOWN_FORMAT;
 
     /* Read a chunk of bytes from stream, then try to find format from that */
@@ -41,14 +41,18 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
     read_size = gmio_stream_read(stream, &fixed_buffer, 1, GMIO_FIXED_BUFFER_SIZE);
     read_size = GMIO_MIN(read_size, GMIO_FIXED_BUFFER_SIZE);
 
+    gmio_stream_rewind(stream);
+
     /* Binary STL ? */
     if (read_size >= (GMIO_STLB_HEADER_SIZE + 4)) {
+        const size_t stream_size = gmio_stream_size(stream);
+
         /* Try with little-endian format */
         uint32_t facet_count =
                 gmio_decode_uint32_le((const uint8_t*)fixed_buffer + 80);
 
         if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
-                == data_size)
+                == stream_size)
         {
             return GMIO_STL_BINARY_LE_FORMAT;
         }
@@ -56,7 +60,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream, size_t data_size)
         /* Try with byte-reverted facet count */
         facet_count = gmio_uint32_bswap(facet_count);
         if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
-                == data_size)
+                == stream_size)
         {
             return GMIO_STL_BINARY_BE_FORMAT;
         }
