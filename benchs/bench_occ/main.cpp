@@ -1,38 +1,47 @@
-extern "C" {
-#include "../commons/bench_tools.h"
-}
-
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
 #include <StlMesh_Mesh.hxx>
 #include <StlAPI_Reader.hxx>
-#include <TopoDS_Shape.hxx>
 
-static void occ_RWStl_ReadBinary(const char* filepath)
+#include <gmio_core/error.h>
+#include <gmio_stl/stl_io.h>
+#include <gmio_support/occ_libstl.h>
+
+#include "../commons/bench_tools.h"
+
+static void bench_occ_RWStl_ReadFile(const char* filepath)
 {
-  /*Handle_StlMesh_Mesh stlMesh = */RWStl::ReadBinary(OSD_Path(filepath));
+  RWStl::ReadFile(OSD_Path(filepath));
 }
 
-static void occ_StlAPI_Reader(const char* filepath)
+static void bench_gmio_stl_read(const char* filepath)
 {
-  StlAPI_Reader reader;
-  TopoDS_Shape shape;
-  reader.Read(shape, filepath);
+//    void* mbuffer = std::malloc(512 * 1024);
+//    gmio_buffer_t buffer = gmio_buffer(mbuffer, 512 * 1024);
+    char mbuffer[256 * 1024];
+    gmio_buffer_t buffer = gmio_buffer(&mbuffer[0], sizeof(mbuffer));
+
+    Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
+    gmio_stl_mesh_creator_t mesh_creator = gmio_stl_occmesh_creator(mesh);
+
+    int error = gmio_stl_read_file(filepath, &mesh_creator, &buffer);
+    if (error != GMIO_NO_ERROR)
+        printf("GeomIO error: 0x%X\n", error);
+
+    //std::free(mbuffer);
 }
 
 int main(int argc, char** argv)
 {
-  if (argc > 1)
-    benchmark(&occ_RWStl_ReadBinary, "RWStl::ReadBinary()", argc - 1, argv + 1);
+  if (argc > 1) {
+    benchmark(&bench_occ_RWStl_ReadFile,
+              "RWStl::ReadFile()",
+              argc - 1, argv + 1);
 
-//  startTick = std::clock();
-//  std::cout << "Read with StlAPI_Reader::Read() ..." << std::endl;
-//  for (int iarg = 1; iarg < argc; ++iarg) {
-//    StlAPI_Reader reader;
-//    TopoDS_Shape shape;
-//    reader.Read(shape, argv[iarg]);
-//  }
-//  std::cout << "  StlAPI_Reader::Read() read time: " << elapsed_secs(startTick) << "s" << std::endl;
+    benchmark(&bench_gmio_stl_read,
+              "gmio_stl_read()",
+              argc - 1, argv + 1);
+  }
 
   return 0;
 }

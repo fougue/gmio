@@ -7,7 +7,8 @@ float elapsed_secs(clock_t start_tick)
   return (float)((clock() - start_tick) / (float)CLOCKS_PER_SEC);
 }
 
-void benchmark(void (*func)(const char*), const char* title, int argc, char** argv)
+void benchmark(
+        void (*func)(const char*), const char* title, int argc, char** argv)
 {
   const clock_t start_tick = clock();
   int iarg;
