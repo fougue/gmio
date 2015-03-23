@@ -20,6 +20,7 @@
 #ifndef GMIO_TRANSFER_H
 #define GMIO_TRANSFER_H
 
+#include "buffer.h"
 #include "global.h"
 #include "stream.h"
 
@@ -50,12 +51,8 @@ struct gmio_transfer
     /*! The stream object to be used for I/O */
     gmio_stream_t stream;
 
-    /*! Pointer on a memory buffer used by the transfer for stream
-     *  operations */
-    void* buffer;
-
-    /*! Size (in bytes) of the memory buffer */
-    size_t buffer_size;
+    /*! The memory buffer used by the transfer for stream operations */
+    gmio_buffer_t buffer;
 };
 
 typedef struct gmio_transfer gmio_transfer_t;

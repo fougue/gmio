@@ -23,6 +23,8 @@
 #include "stl_global.h"
 #include "stl_triangle.h"
 
+#include <stddef.h>
+
 /*! Provides an interface for the creation of the underlying(hidden)
  *  user mesh */
 struct gmio_stl_mesh_creator
@@ -38,7 +40,8 @@ struct gmio_stl_mesh_creator
      *
      *  Optional function useful only with STL ascii (ie. gmio_stla_read())
      */
-    void (*ascii_begin_solid_func)(void* cookie, const char* solid_name);
+    void (*ascii_begin_solid_func)(
+            void* cookie, size_t stream_size, const char* solid_name);
 
     /*! Pointer on a function that handles declaration of a mesh with
      *  \p tri_count number of triangles

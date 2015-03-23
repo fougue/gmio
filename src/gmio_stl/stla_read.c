@@ -21,6 +21,7 @@
 #include "internal/stl_rw_common.h"
 
 #include "../gmio_core/error.h"
+#include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/string_parse.h"
 
@@ -308,6 +309,7 @@ static void parse_beginsolid(gmio_stla_parse_data_t* data)
         {
             data->creator->ascii_begin_solid_func(
                         data->creator->cookie,
+                        data->stream_iterator_cookie.stream_size,
                         current_token_as_identifier(data));
         }
         if (data->token == ID_token)
@@ -423,13 +425,14 @@ static void parse_solid(gmio_stla_parse_data_t* data)
 enum { GMIO_STLA_READ_STRING_BUFFER_LEN = 512 };
 
 int gmio_stla_read(
-        gmio_stl_mesh_creator_t* creator,
         gmio_transfer_t* trsf,
+        gmio_stl_mesh_creator_t* creator,
         const gmio_stla_read_options_t* options)
 {
     char fixed_buffer[GMIO_STLA_READ_STRING_BUFFER_LEN];
     gmio_stla_parse_data_t parse_data;
 
+    GMIO_UNUSED(options);
     { /* Check validity of input parameters */
         int error = GMIO_NO_ERROR;
         if (!gmio_check_transfer(&error, trsf))
@@ -442,12 +445,12 @@ int gmio_stla_read(
     parse_data.stream_iterator_cookie.transfer = trsf;
     parse_data.stream_iterator_cookie.stream_offset = 0;
     parse_data.stream_iterator_cookie.stream_size =
-            options != NULL ? options->stream_size : 0;
+            gmio_stream_size(&trsf->stream);
     parse_data.stream_iterator_cookie.is_stop_requested = GMIO_FALSE;
 
     parse_data.stream_iterator.stream = &trsf->stream;
-    parse_data.stream_iterator.buffer.ptr = trsf->buffer;
-    parse_data.stream_iterator.buffer.max_len = trsf->buffer_size;
+    parse_data.stream_iterator.buffer.ptr = trsf->buffer.ptr;
+    parse_data.stream_iterator.buffer.max_len = trsf->buffer.size;
     parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
     parse_data.stream_iterator.stream_read_hook =
             gmio_stream_fwd_iterator_stla_read_hook;

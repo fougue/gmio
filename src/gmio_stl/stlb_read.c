@@ -67,8 +67,8 @@ static void gmio_stlb_read_facets(
 }
 
 int gmio_stlb_read(
-        gmio_stl_mesh_creator_t *creator,
         gmio_transfer_t* trsf,
+        gmio_stl_mesh_creator_t *creator,
         const gmio_stlb_read_options_t* options)
 {
     /* Constants */
@@ -77,7 +77,7 @@ int gmio_stlb_read(
     const uint32_t max_facet_count_per_read =
             trsf != NULL ?
                 gmio_size_to_uint32(
-                    trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE)
+                    trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE)
               : 0;
     /* Variables */
     gmio_stlb_readwrite_helper_t rparams = {0};
@@ -101,10 +101,13 @@ int gmio_stlb_read(
     }
 
     /* Read facet count */
-    if (gmio_stream_read(&trsf->stream, trsf->buffer, sizeof(uint32_t), 1) != 1)
+    if (gmio_stream_read(&trsf->stream, trsf->buffer.ptr, sizeof(uint32_t), 1)
+            != 1)
+    {
         return GMIO_STLB_READ_FACET_COUNT_ERROR;
+    }
 
-    memcpy(&total_facet_count, trsf->buffer, sizeof(uint32_t));
+    memcpy(&total_facet_count, trsf->buffer.ptr, sizeof(uint32_t));
     if (byte_order != GMIO_HOST_ENDIANNESS)
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
@@ -125,7 +128,7 @@ int gmio_stlb_read(
                 gmio_size_to_uint32(
                     gmio_stream_read(
                         &trsf->stream,
-                        trsf->buffer,
+                        trsf->buffer.ptr,
                         GMIO_STLB_TRIANGLE_RAWSIZE,
                         max_facet_count_per_read));
         if (gmio_stream_error(&trsf->stream) != 0)
@@ -136,7 +139,7 @@ int gmio_stlb_read(
             break; /* Exit if no facet to read */
 
         if (gmio_no_error(error)) {
-            gmio_stlb_read_facets(creator, trsf->buffer, &rparams);
+            gmio_stlb_read_facets(creator, trsf->buffer.ptr, &rparams);
             rparams.i_facet_offset += rparams.facet_count;
             if (gmio_transfer_is_stop_requested(trsf))
                 error = GMIO_TRANSFER_STOPPED_ERROR;

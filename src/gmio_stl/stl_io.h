@@ -23,10 +23,36 @@
 #include "stl_global.h"
 #include "stl_mesh.h"
 #include "stl_mesh_creator.h"
+#include "../gmio_core/buffer.h"
 #include "../gmio_core/endian.h"
 #include "../gmio_core/transfer.h"
 
 GMIO_C_LINKAGE_BEGIN
+
+/*! Reads STL file, format is automatically guessed
+ *
+ *  \param filepath Path to the STL file. A stream is opened with fopen() so
+ *         the string has to be encoded using the system's charset (locale-8bit)
+ *  \param creator Defines the callbacks for the mesh creation
+ *  \param buffer The memory block used by stream operations
+ *
+ *  \return Error code (see error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT int gmio_stl_read_file(
+        const char* filepath,
+        gmio_stl_mesh_creator_t* creator,
+        gmio_buffer_t* buffer);
+
+/*! Reads STL file, format is automatically guessed
+ *
+ *  \param trsf Defines needed objects for the read operation
+ *  \param creator Defines the callbacks for the mesh creation
+ *
+ *  \return Error code (see error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT int gmio_stl_read(
+        gmio_transfer_t* trsf,
+        gmio_stl_mesh_creator_t* creator);
 
 /* ========================================================================
  *  STL ascii
@@ -40,30 +66,25 @@ GMIO_C_LINKAGE_BEGIN
  */
 struct gmio_stla_read_options
 {
-    /*! Hint about the total size (in bytes) of the STL ascii data to be read
-     *  from stream
-     *
-     *  \p stream_size is passed to gmio_transfer::handle_progress_func() as
-     *  the \p max_value argument.
-     *
-     *  Defaulted to \c 0 when calling gmio_stla_read() with \c options==NULL
-     */
-    size_t stream_size;
+    void* dummy; /* Empty structs are forbidden with ISO-C90 */
 };
 typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 
 /*! Reads geometry from STL ascii stream
  *
- *  \param mesh Defines the callbacks for the mesh creation
+ *  \param creator Defines the callbacks for the mesh creation
  *  \param trsf Defines needed objects for the read operation
- *  \param options Options for the operation, can be \c NULL to use default
- *                 values
+ *  \param options Options for the operation, shoul be set to NULL (just here
+ *                 for future use)
+ *
+ *  Stream size is passed to gmio_transfer::handle_progress_func() as the
+ *  \p max_value argument.
  *
  *  \return Error code (see error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stla_read(gmio_stl_mesh_creator_t* creator,
-                   gmio_transfer_t* trsf,
+int gmio_stla_read(gmio_transfer_t* trsf,
+                   gmio_stl_mesh_creator_t* creator,
                    const gmio_stla_read_options_t* options);
 
 
@@ -97,8 +118,8 @@ typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
  *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR if \c trs->buffer_size < 512
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stla_write(const gmio_stl_mesh_t* mesh,
-                    gmio_transfer_t* trsf,
+int gmio_stla_write(gmio_transfer_t* trsf,
+                    const gmio_stl_mesh_t* mesh,
                     const gmio_stla_write_options_t* options);
 
 /* ========================================================================
@@ -129,8 +150,8 @@ typedef struct gmio_stlb_read_options  gmio_stlb_read_options_t;
  *          if \c trs->buffer_size < GMIO_STLB_MIN_CONTENTS_SIZE
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stlb_read(gmio_stl_mesh_creator_t* creator,
-                   gmio_transfer_t* trsf,
+int gmio_stlb_read(gmio_transfer_t* trsf,
+                   gmio_stl_mesh_creator_t* creator,
                    const gmio_stlb_read_options_t* options);
 
 
@@ -166,8 +187,8 @@ typedef struct gmio_stlb_write_options  gmio_stlb_write_options_t;
  *          if \c trs->buffer_size < GMIO_STLB_MIN_CONTENTS_SIZE
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stlb_write(const gmio_stl_mesh_t* mesh,
-                    gmio_transfer_t* trsf,
+int gmio_stlb_write(gmio_transfer_t* trsf,
+                    const gmio_stl_mesh_t* mesh,
                     const gmio_stlb_write_options_t* options);
 
 GMIO_C_LINKAGE_END

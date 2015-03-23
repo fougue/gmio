@@ -27,10 +27,13 @@ enum { GMIO_STL_ERROR_TAG = 0x11000000 };
  *  functions */
 enum gmio_stl_error
 {
+    /*! STL format could not be guessed in read function */
+    GMIO_STL_UNKNOWN_FORMAT_ERROR = GMIO_STL_ERROR_TAG + 1,
+
     /*! Common STL write error indicating gmio_stl_mesh::get_triangle_func()
      *  pointer is NULL
      */
-    GMIO_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = GMIO_STL_ERROR_TAG + 1,
+    GMIO_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = GMIO_STL_ERROR_TAG + 2,
 
     /* Specific error codes returned by STL_ascii read function */
 

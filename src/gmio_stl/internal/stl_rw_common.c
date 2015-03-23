@@ -24,9 +24,9 @@ gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
         *error = GMIO_NULL_TRANSFER_ERROR;
     }
     else {
-        if (trsf->buffer == NULL)
+        if (trsf->buffer.ptr == NULL)
             *error = GMIO_NULL_BUFFER_ERROR;
-        else if (trsf->buffer_size == 0)
+        else if (trsf->buffer.size == 0)
             *error = GMIO_INVALID_BUFFER_SIZE_ERROR;
     }
 
@@ -51,7 +51,7 @@ gmio_bool_t gmio_stlb_check_params(int *error,
     if (!gmio_check_transfer(error, trsf))
         return GMIO_FALSE;
 
-    if (trsf->buffer_size < GMIO_STLB_MIN_CONTENTS_SIZE)
+    if (trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE)
         *error = GMIO_INVALID_BUFFER_SIZE_ERROR;
     if (byte_order != GMIO_LITTLE_ENDIAN && byte_order != GMIO_BIG_ENDIAN)
         *error = GMIO_STLB_UNSUPPORTED_BYTE_ORDER_ERROR;

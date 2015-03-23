@@ -68,8 +68,8 @@ static void gmio_stlb_write_facets(
 }
 
 int gmio_stlb_write(
-        const gmio_stl_mesh_t* mesh,
         gmio_transfer_t* trsf,
+        const gmio_stl_mesh_t* mesh,
         const gmio_stlb_write_options_t* options)
 {
     /* Constants */
@@ -94,13 +94,13 @@ int gmio_stlb_write(
     if (byte_order != GMIO_HOST_ENDIANNESS)
         wparams.fix_endian_func = gmio_stl_triangle_bswap;
     wparams.facet_count = gmio_size_to_uint32(
-                trsf->buffer_size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     /* Write header */
     if (header_data == NULL) {
         /* Use buffer to store an empty header (filled with zeroes) */
-        memset(trsf->buffer, 0, GMIO_STLB_HEADER_SIZE);
-        header_data = (const uint8_t*)trsf->buffer;
+        memset(trsf->buffer.ptr, 0, GMIO_STLB_HEADER_SIZE);
+        header_data = (const uint8_t*)trsf->buffer.ptr;
     }
     if (gmio_stream_write(&trsf->stream, header_data, GMIO_STLB_HEADER_SIZE, 1)
             != 1)
@@ -110,11 +110,14 @@ int gmio_stlb_write(
 
     /* Write facet count */
     if (byte_order == GMIO_LITTLE_ENDIAN)
-        gmio_encode_uint32_le(facet_count, trsf->buffer);
+        gmio_encode_uint32_le(facet_count, trsf->buffer.ptr);
     else
-        gmio_encode_uint32_be(facet_count, trsf->buffer);
-    if (gmio_stream_write(&trsf->stream, trsf->buffer, sizeof(uint32_t), 1) != 1)
+        gmio_encode_uint32_be(facet_count, trsf->buffer.ptr);
+    if (gmio_stream_write(&trsf->stream, trsf->buffer.ptr, sizeof(uint32_t), 1)
+            != 1)
+    {
         return GMIO_STREAM_ERROR;
+    }
 
     /* Write triangles */
     for (i_facet = 0;
@@ -127,13 +130,13 @@ int gmio_stlb_write(
         wparams.facet_count = GMIO_MIN(wparams.facet_count,
                                        facet_count - wparams.i_facet_offset);
 
-        gmio_stlb_write_facets(mesh, trsf->buffer, &wparams);
+        gmio_stlb_write_facets(mesh, trsf->buffer.ptr, &wparams);
         wparams.i_facet_offset += wparams.facet_count;
 
         /* Write buffer to stream */
         if (gmio_stream_write(
                     &trsf->stream,
-                    trsf->buffer,
+                    trsf->buffer.ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     wparams.facet_count)
                 != wparams.facet_count)
