@@ -76,7 +76,7 @@ const char* test_internal__string_parse()
             "pi : 3.1415926535897932384626433832795";
 
     {
-        gmio_buffer_t buff = {0};
+        gmio_stream_buffer_t buff = {0};
         gmio_stream_t stream = {0};
 
         char small_fwd_it_str[4];
