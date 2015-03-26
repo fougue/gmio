@@ -47,6 +47,9 @@ if(NOT BUILD_STRICT_C90)
     # Have strtof() ?
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 
+    # Have powf() ?
+    check_function_exists(powf GMIO_HAVE_POWF_FUNC)
+
     # Have <stdbool.h> ?
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
 endif()
