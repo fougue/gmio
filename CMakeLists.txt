@@ -101,7 +101,7 @@ if(MSVC)
     endif()
 
     # Disable deprecation warnings about "non-secure" CRT functions
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 # Enable DLL generation (export symbols)
