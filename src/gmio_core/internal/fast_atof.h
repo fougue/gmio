@@ -1,7 +1,10 @@
 /* Copyright (C) 2002-2012 Nikolaus Gebhardt
  * This file is part of the "Irrlicht Engine" and the "irrXML" project.
- * For conditions of distribution and use, see copyright notice in irrlicht.h and irrXML.h
+ * For conditions of distribution and use, see copyright notice in irrlicht.h
+ * and irrXML.h
  */
+
+/* Adapted to ISO-C90 */
 
 #include "../global.h"
 
@@ -160,7 +163,7 @@ GMIO_INLINE uint32_t strtoul16(const char* in, const char** out)
             *out = in;
         return 0;
     }
-    while (GMIO_TRUE)
+    for (;;)
     {
         uint32_t tmp = 0;
         if ((*in >= '0') && (*in <= '9'))
@@ -204,7 +207,7 @@ GMIO_INLINE uint32_t strtoul8(const char* in, const char** out)
             *out = in;
         return 0;
     }
-    while (GMIO_TRUE)
+    for (;;)
     {
         uint32_t tmp = 0;
         if ((*in >= '0') && (*in <= '7'))
