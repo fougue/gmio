@@ -10,34 +10,31 @@
 
 static void bench_occ_RWStl_ReadFile(const char* filepath)
 {
-  RWStl::ReadFile(OSD_Path(filepath));
+    RWStl::ReadFile(OSD_Path(filepath));
 }
 
 static void bench_gmio_stl_read(const char* filepath)
 {
     gmio_buffer_t buffer = gmio_buffer_malloc(256 * 1024);
-
     Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
     gmio_stl_mesh_creator_t mesh_creator = gmio_stl_occmesh_creator(mesh);
-
     int error = gmio_stl_read_file(filepath, &buffer, &mesh_creator);
     if (error != GMIO_NO_ERROR)
         printf("GeomIO error: 0x%X\n", error);
-
     gmio_buffer_deallocate(&buffer);
 }
 
 int main(int argc, char** argv)
 {
-  if (argc > 1) {
-    benchmark(&bench_occ_RWStl_ReadFile,
-              "RWStl::ReadFile()",
-              argc - 1, argv + 1);
+    if (argc > 1) {
+        benchmark(&bench_occ_RWStl_ReadFile,
+                  "RWStl::ReadFile()",
+                  argc - 1, argv + 1);
 
-    benchmark(&bench_gmio_stl_read,
-              "gmio_stl_read()",
-              argc - 1, argv + 1);
-  }
+        benchmark(&bench_gmio_stl_read,
+                  "gmio_stl_read()",
+                  argc - 1, argv + 1);
+    }
 
-  return 0;
+    return 0;
 }

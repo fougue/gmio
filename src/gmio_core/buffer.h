@@ -35,7 +35,6 @@ struct gmio_buffer
 
     /*! Optional pointer on function that deallocates the memory block \p ptr */
     void (*deallocate_func)(void* ptr);
-
 };
 typedef struct gmio_buffer gmio_buffer_t;
 
