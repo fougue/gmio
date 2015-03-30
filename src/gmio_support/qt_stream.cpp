@@ -62,26 +62,21 @@ static size_t gmio_stream_qiodevice_size(void* cookie)
     return device->size();
 }
 
-static size_t gmio_stream_qiodevice_rewind(void* cookie)
+static void gmio_stream_qiodevice_rewind(void* cookie)
 {
     QIODevice* device = static_cast<QIODevice*>(cookie);
     device->seek(0);
 }
 
-void gmio_stream_set_qiodevice(gmio_stream_t* stream, QIODevice* device)
-{
-    stream->cookie = device;
-    stream->at_end_func = gmio_stream_qiodevice_at_end;
-    stream->error_func = gmio_stream_qiodevice_error;
-    stream->read_func = gmio_stream_qiodevice_read;
-    stream->write_func = gmio_stream_qiodevice_write;
-    stream->size_func = gmio_stream_qiodevice_size;
-    stream->rewind_func = gmio_stream_qiodevice_rewind;
-}
-
 gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
 {
-    gmio_stream_t qtstream = { 0 };
-    gmio_stream_set_qiodevice(&qtstream, device);
-    return qtstream;
+    gmio_stream_t stream = { 0 };
+    stream.cookie = device;
+    stream.at_end_func = gmio_stream_qiodevice_at_end;
+    stream.error_func = gmio_stream_qiodevice_error;
+    stream.read_func = gmio_stream_qiodevice_read;
+    stream.write_func = gmio_stream_qiodevice_write;
+    stream.size_func = gmio_stream_qiodevice_size;
+    stream.rewind_func = gmio_stream_qiodevice_rewind;
+    return stream;
 }

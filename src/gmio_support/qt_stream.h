@@ -28,11 +28,6 @@ QT_BEGIN_NAMESPACE
 class QIODevice;
 QT_END_NAMESPACE
 
-/*! Configures \p stream for \c QIODevice* (cookie will hold \p device) */
-GMIO_LIBSUPPORT_EXPORT
-void gmio_stream_set_qiodevice(
-        gmio_stream_t* stream, QT_PREPEND_NAMESPACE(QIODevice)* device);
-
 /*! Returns a gmio_stream for \c QIODevice* (cookie will hold \p device) */
 GMIO_LIBSUPPORT_EXPORT
 gmio_stream_t gmio_stream_qiodevice(QT_PREPEND_NAMESPACE(QIODevice)* device);
