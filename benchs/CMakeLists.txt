@@ -30,18 +30,22 @@ set(GMIO_DIR ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the GeomIO library 
 # List source files in commons/
 file(GLOB COMMONS_FILES commons/*)
 set(COMMONS_FILES  ${COMMONS_FILES})
-#add_definitions(-DGMIO_HAVE_STDINT_H)
+# TODO: check if GMIO_HAVE_STDINT_H is required or not
+add_definitions(-DGMIO_HAVE_STDINT_H)
+
+include_directories(${GMIO_DIR}/include)
+link_libraries(${GMIO_DIR}/lib/gmio.lib)
+
+add_executable(bench_gmio bench_gmio/main.c ${COMMONS_FILES})
 
 if(BENCHMARK_ASSIMP)
     add_executable(bench_assimp bench_assimp/main.cpp ${COMMONS_FILES})
     target_include_directories(
         bench_assimp
-        PUBLIC ${ASSIMP_DIR}/include
-        PUBLIC ${GMIO_DIR}/include)
+        PUBLIC ${ASSIMP_DIR}/include)
     target_link_libraries(
         bench_assimp
-        ${ASSIMP_DIR}/lib64/assimp.lib
-        ${GMIO_DIR}/lib/gmio.lib)
+        ${ASSIMP_DIR}/lib64/assimp.lib)
 endif()
 
 if(BENCHMARK_OPENCASCADE)
@@ -49,17 +53,18 @@ if(BENCHMARK_OPENCASCADE)
         bench_occ/main.cpp
         ${GMIO_DIR}/src/gmio_support/occ_libstl.cpp
         ${COMMONS_FILES})
-    add_definitions(-D_OCC64 -DWNT)
+    target_compile_definitions(
+       bench_occ
+       PUBLIC _OCC64 # TODO: define only if target arch is 64b
+       PUBLIC WNT)   # TODO: define only if target OS is Windows
     target_include_directories(
         bench_occ
-        PUBLIC ${OPENCASCADE_DIR}/inc
-        PUBLIC ${GMIO_DIR}/include)
+        PUBLIC ${OPENCASCADE_DIR}/inc)
     target_link_libraries(
         bench_occ
         ${OPENCASCADE_DIR}/win64/vc11/lib/TKernel.lib
         ${OPENCASCADE_DIR}/win64/vc11/lib/TKMath.lib
-        ${OPENCASCADE_DIR}/win64/vc11/lib/TKSTL.lib
-        ${GMIO_DIR}/lib/gmio.lib)
+        ${OPENCASCADE_DIR}/win64/vc11/lib/TKSTL.lib)
 endif()
 
 

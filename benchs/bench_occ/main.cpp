@@ -15,10 +15,7 @@ static void bench_occ_RWStl_ReadFile(const char* filepath)
 
 static void bench_gmio_stl_read(const char* filepath)
 {
-//    void* mbuffer = std::malloc(512 * 1024);
-//    gmio_buffer_t buffer = gmio_buffer(mbuffer, 512 * 1024);
-    char mbuffer[256 * 1024];
-    gmio_buffer_t buffer = gmio_buffer(&mbuffer[0], sizeof(mbuffer));
+    gmio_buffer_t buffer = gmio_buffer_malloc(256 * 1024);
 
     Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
     gmio_stl_mesh_creator_t mesh_creator = gmio_stl_occmesh_creator(mesh);
@@ -27,7 +24,7 @@ static void bench_gmio_stl_read(const char* filepath)
     if (error != GMIO_NO_ERROR)
         printf("GeomIO error: 0x%X\n", error);
 
-    //std::free(mbuffer);
+    gmio_buffer_deallocate(&buffer);
 }
 
 int main(int argc, char** argv)
