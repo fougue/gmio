@@ -155,7 +155,7 @@ static void bench_gmio_stl_read(const char* filepath)
     mesh_creator.add_triangle_func = gmio_assimp_add_triangle;
     mesh_creator.end_solid_func = gmio_assimp_end_solid;
 
-    int error = gmio_stl_read_file(filepath, &mesh_creator, &buffer);
+    int error = gmio_stl_read_file(filepath, &buffer, &mesh_creator);
     if (error != GMIO_NO_ERROR)
         printf("GeomIO error: 0x%X\n", error);
 

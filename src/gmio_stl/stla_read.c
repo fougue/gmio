@@ -424,15 +424,11 @@ static void parse_solid(gmio_stla_parse_data_t* data)
 
 enum { GMIO_STLA_READ_STRING_BUFFER_LEN = 512 };
 
-int gmio_stla_read(
-        gmio_transfer_t* trsf,
-        gmio_stl_mesh_creator_t* creator,
-        const gmio_stla_read_options_t* options)
+int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
 {
     char fixed_buffer[GMIO_STLA_READ_STRING_BUFFER_LEN];
     gmio_stla_parse_data_t parse_data;
 
-    GMIO_UNUSED(options);
     { /* Check validity of input parameters */
         int error = GMIO_NO_ERROR;
         if (!gmio_check_transfer(&error, trsf))

@@ -69,11 +69,9 @@ static void gmio_stlb_read_facets(
 int gmio_stlb_read(
         gmio_transfer_t* trsf,
         gmio_stl_mesh_creator_t *creator,
-        const gmio_stlb_read_options_t* options)
+        gmio_endianness_t byte_order)
 {
     /* Constants */
-    const gmio_endianness_t byte_order =
-            options != NULL ? options->byte_order : GMIO_HOST_ENDIANNESS;
     const uint32_t max_facet_count_per_read =
             trsf != NULL ?
                 gmio_size_to_uint32(

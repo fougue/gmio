@@ -1,7 +1,6 @@
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
 #include <StlMesh_Mesh.hxx>
-#include <StlAPI_Reader.hxx>
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
@@ -24,7 +23,7 @@ static void bench_gmio_stl_read(const char* filepath)
     Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
     gmio_stl_mesh_creator_t mesh_creator = gmio_stl_occmesh_creator(mesh);
 
-    int error = gmio_stl_read_file(filepath, &mesh_creator, &buffer);
+    int error = gmio_stl_read_file(filepath, &buffer, &mesh_creator);
     if (error != GMIO_NO_ERROR)
         printf("GeomIO error: 0x%X\n", error);
 

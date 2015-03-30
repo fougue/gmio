@@ -38,37 +38,27 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  \return Error code (see error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT int gmio_stl_read_file(
+GMIO_LIBSTL_EXPORT
+int gmio_stl_read_file(
         const char* filepath,
-        gmio_stl_mesh_creator_t* creator,
-        gmio_buffer_t* buffer);
+        gmio_buffer_t* buffer,
+        gmio_stl_mesh_creator_t* creator);
 
-/*! Reads STL file, format is automatically guessed
+/*! Reads STL data from stream, format is automatically guessed
  *
  *  \param trsf Defines needed objects for the read operation
  *  \param creator Defines the callbacks for the mesh creation
  *
  *  \return Error code (see error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT int gmio_stl_read(
+GMIO_LIBSTL_EXPORT
+int gmio_stl_read(
         gmio_transfer_t* trsf,
         gmio_stl_mesh_creator_t* creator);
 
 /* ========================================================================
  *  STL ascii
  * ======================================================================== */
-
-/*! Options for gmio_stla_read()
- *
- *  Possible other options in the future:
- *     - flag to force locale ?
- *     - case sensitive/insensitive ?
- */
-struct gmio_stla_read_options
-{
-    void* dummy; /* Empty structs are forbidden with ISO-C90 */
-};
-typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
 
 /*! Reads geometry from STL ascii stream
  *
@@ -80,12 +70,16 @@ typedef struct gmio_stla_read_options  gmio_stla_read_options_t;
  *  Stream size is passed to gmio_transfer::handle_progress_func() as the
  *  \p max_value argument.
  *
+ *  Possible options in a future version could be:
+ *     - flag to force locale ?
+ *     - case sensitive/insensitive ?
+ *
  *  \return Error code (see error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stla_read(gmio_transfer_t* trsf,
-                   gmio_stl_mesh_creator_t* creator,
-                   const gmio_stla_read_options_t* options);
+int gmio_stla_read(
+        gmio_transfer_t* trsf,
+        gmio_stl_mesh_creator_t* creator);
 
 
 /*! Options for gmio_stla_write() */
@@ -103,7 +97,7 @@ struct gmio_stla_write_options
      *
      *  Defaulted to \c 9 when calling gmio_stla_write() with \c options==NULL
      */
-    uint8_t     float32_prec;
+    uint8_t float32_prec;
 };
 typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
 
@@ -118,41 +112,30 @@ typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
  *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR if \c trs->buffer_size < 512
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stla_write(gmio_transfer_t* trsf,
-                    const gmio_stl_mesh_t* mesh,
-                    const gmio_stla_write_options_t* options);
+int gmio_stla_write(
+        gmio_transfer_t* trsf,
+        const gmio_stl_mesh_t* mesh,
+        const gmio_stla_write_options_t* options);
 
 /* ========================================================================
  *  STL binary
  * ======================================================================== */
 
-/*! Options for gmio_stlb_read() */
-struct gmio_stlb_read_options
-{
-    /*! Byte order of the input STL binary data
-     *
-     *  Defaulted to host's endianness when calling gmio_stlb_read()
-     *  with \c options==NULL
-     */
-    gmio_endianness_t byte_order;
-};
-typedef struct gmio_stlb_read_options  gmio_stlb_read_options_t;
-
 /*! Reads geometry from STL binary stream
  *
  *  \param mesh Defines the callbacks for the mesh creation
  *  \param trsf Defines needed objects for the read operation
- *  \param options Options for the operation, can be \c NULL to use default
- *                 values
+ *  \param options Byte order of the input STL binary data
  *
  *  \return Error code (see error.h and stl_error.h)
  *  \retval GMIO_INVALID_BUFFER_SIZE_ERRO
  *          if \c trs->buffer_size < GMIO_STLB_MIN_CONTENTS_SIZE
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stlb_read(gmio_transfer_t* trsf,
-                   gmio_stl_mesh_creator_t* creator,
-                   const gmio_stlb_read_options_t* options);
+int gmio_stlb_read(
+        gmio_transfer_t* trsf,
+        gmio_stl_mesh_creator_t* creator,
+        gmio_endianness_t byte_order);
 
 
 /*! Options for gmio_stlb_write() */
@@ -183,13 +166,14 @@ typedef struct gmio_stlb_write_options  gmio_stlb_write_options_t;
  *                 values
  *
  *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_INVALID_BUFFER_SIZE_ERRO
+ *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR
  *          if \c trs->buffer_size < GMIO_STLB_MIN_CONTENTS_SIZE
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stlb_write(gmio_transfer_t* trsf,
-                    const gmio_stl_mesh_t* mesh,
-                    const gmio_stlb_write_options_t* options);
+int gmio_stlb_write(
+        gmio_transfer_t* trsf,
+        const gmio_stl_mesh_t* mesh,
+        const gmio_stlb_write_options_t* options);
 
 GMIO_C_LINKAGE_END
 

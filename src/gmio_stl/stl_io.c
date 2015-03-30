@@ -24,8 +24,8 @@
 
 int gmio_stl_read_file(
         const char* filepath,
-        gmio_stl_mesh_creator_t* creator,
-        gmio_buffer_t* buffer)
+        gmio_buffer_t* buffer,
+        gmio_stl_mesh_creator_t* creator)
 {
     int error = GMIO_NO_ERROR;
     FILE* file = NULL;
@@ -57,17 +57,15 @@ int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
 
         switch (stl_format) {
         case GMIO_STL_ASCII_FORMAT: {
-            error = gmio_stla_read(trsf, creator, NULL);
+            error = gmio_stla_read(trsf, creator);
             break;
         }
         case GMIO_STL_BINARY_BE_FORMAT: {
-            const gmio_stlb_read_options_t opts = { GMIO_BIG_ENDIAN };
-            error = gmio_stlb_read(trsf, creator, &opts);
+            error = gmio_stlb_read(trsf, creator, GMIO_BIG_ENDIAN);
             break;
         }
         case GMIO_STL_BINARY_LE_FORMAT: {
-            const gmio_stlb_read_options_t opts = { GMIO_LITTLE_ENDIAN };
-            error = gmio_stlb_read(trsf, creator, &opts);
+            error = gmio_stlb_read(trsf, creator, GMIO_LITTLE_ENDIAN);
             break;
         }
         case GMIO_STL_UNKNOWN_FORMAT: {
