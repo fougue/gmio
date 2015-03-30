@@ -31,36 +31,39 @@ GMIO_INLINE static gmio_buffer_t gmio_buffer_null()
     return buff;
 }
 
-gmio_buffer_t gmio_buffer(void* ptr, size_t size)
+gmio_buffer_t gmio_buffer(
+        void* ptr, size_t size, void (*deallocate_func)(void*))
 {
     gmio_buffer_t buff;
     buff.ptr = ptr;
     buff.size = ptr != NULL ? size : 0;
-    buff.deallocate_func = NULL;
+    buff.deallocate_func = deallocate_func;
     return buff;
 }
 
 gmio_buffer_t gmio_buffer_malloc(size_t size)
 {
-    gmio_buffer_t buff = gmio_buffer(malloc(size), size);
-    buff.deallocate_func = &free;
-    return buff;
+    return gmio_buffer(malloc(size), size, &free);
 }
 
 gmio_buffer_t gmio_buffer_calloc(size_t num, size_t size)
 {
-    gmio_buffer_t buff = gmio_buffer(calloc(num, size), num * size);
-    buff.deallocate_func = &free;
-    return buff;
+    return gmio_buffer(calloc(num, size), num * size, &free);
+}
+
+gmio_buffer_t gmio_buffer_realloc(void* ptr, size_t size)
+{
+    return gmio_buffer(realloc(ptr, size), size, &free);
 }
 
 gmio_buffer_t gmio_buffer_alloca(size_t size)
 {
 #if defined(GMIO_HAVE_BSD_ALLOCA_FUNC)
-    return gmio_buffer(alloca(size), size);
+    return gmio_buffer(alloca(size), size, NULL);
 #elif defined(GMIO_HAVE_WIN_ALLOCA_FUNC)
+#  ifdef _MSC_VER
     __try {
-        return gmio_buffer(_alloca(size), size);
+        return gmio_buffer(_alloca(size), size, NULL);
     }
     __except(GetExceptionCode() == STATUS_STACK_OVERFLOW) {
         /* The stack overflowed */
@@ -68,6 +71,9 @@ gmio_buffer_t gmio_buffer_alloca(size_t size)
             exit(GMIO_UNKNOWN_ERROR);
         return gmio_buffer_null();
     }
+#  else
+    return gmio_buffer(_alloca(size), size, NULL);
+#  endif /* _MSC_VER */
 #else
     return gmio_buffer_null();
 #endif
