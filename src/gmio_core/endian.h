@@ -25,26 +25,31 @@
 /*! This enum identifies common endianness (byte order) of computer memory */
 enum gmio_endianness
 {
+    /*! The least significant byte is stored at the lowest address. The other
+     *  bytes follow in increasing order of significance */
     GMIO_LITTLE_ENDIAN,
+
+    /*! The most significant byte is stored at the lowest address. The other
+     *  bytes follow in decreasing order of significance */
     GMIO_BIG_ENDIAN,
-    GMIO_OTHER_ENDIAN
-};
 
-typedef enum gmio_endianness gmio_endianness_t;
+    /*! Other (unknown) byte-order */
+    GMIO_OTHER_ENDIAN,
 
-/*! Constants for host endianness */
-enum {
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
     GMIO_HOST_ENDIANNESS = GMIO_BIG_ENDIAN
 #else
-    /*! Defines the endianness(byte order) used by the host computer for storing
-     *  data in memory.
+    /*! Defines the endianness(byte order) used by the host computer for
+     *  storing data in memory.
      *
-     * It is set at configure-time to one of the value of gmio_endianness
+     *  It is set at configure-time to either GMIO_LITTLE_ENDIAN or
+     *  GMIO_BIG_ENDIAN
      */
     GMIO_HOST_ENDIANNESS = GMIO_LITTLE_ENDIAN
 #endif
 };
+
+typedef enum gmio_endianness gmio_endianness_t;
 
 GMIO_C_LINKAGE_BEGIN
 
