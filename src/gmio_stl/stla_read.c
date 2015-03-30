@@ -18,6 +18,7 @@
 #include "stl_io.h"
 
 #include "stl_error.h"
+#include "internal/helper_stl_mesh_creator.h"
 #include "internal/stl_rw_common.h"
 
 #include "../gmio_core/error.h"
@@ -303,12 +304,9 @@ static void parse_beginsolid(gmio_stla_parse_data_t* data)
     case SOLID_token: {
         parsing_eat_token(SOLID_token, data);
         parse_solidname_beg(data);
-        if (parsing_can_continue(data)
-                && data->creator != NULL
-                && data->creator->ascii_begin_solid_func != NULL)
-        {
-            data->creator->ascii_begin_solid_func(
-                        data->creator->cookie,
+        if (parsing_can_continue(data)) {
+            gmio_stl_mesh_creator_ascii_begin_solid(
+                        data->creator,
                         data->stream_iterator_cookie.stream_size,
                         current_token_as_identifier(data));
         }
@@ -330,12 +328,8 @@ static void parse_endsolid(gmio_stla_parse_data_t* data)
     case ENDSOLID_token: {
         parsing_eat_token(ENDSOLID_token, data);
         parse_solidname_end(data);
-        if (parsing_can_continue(data)
-                && data->creator != NULL
-                && data->creator->end_solid_func != NULL)
-        {
-            data->creator->end_solid_func(data->creator->cookie/*, current_token_as_identifier(data)*/);
-        }
+        if (parsing_can_continue(data))
+            gmio_stl_mesh_creator_end_solid(data->creator);
         if (data->token == ID_token)
             parsing_eat_token(ID_token, data);
         break;
@@ -392,18 +386,13 @@ static void parse_facet(
 
 static void parse_facets(gmio_stla_parse_data_t* data)
 {
-    uint32_t i_facet_offset = 0;
+    uint32_t i_facet = 0;
     gmio_stl_triangle_t facet;
-    const gmio_bool_t is_add_triangle_available =
-            data->creator != NULL && data->creator->add_triangle_func != NULL;
 
     while (data->token == FACET_token && parsing_can_continue(data)) {
         parse_facet(data, &facet);
-        if (is_add_triangle_available) {
-            data->creator->add_triangle_func(
-                        data->creator->cookie, i_facet_offset, &facet);
-        }
-        ++i_facet_offset;
+        gmio_stl_mesh_creator_add_triangle(data->creator, i_facet, &facet);
+        ++i_facet;
     }
 }
 

@@ -18,6 +18,7 @@
 #include "stl_io.h"
 
 #include "stl_error.h"
+#include "internal/helper_stl_mesh_creator.h"
 #include "internal/stl_rw_common.h"
 #include "internal/stlb_byte_swap.h"
 
@@ -111,10 +112,8 @@ int gmio_stlb_read(
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
     /* Callback to notify triangle count and header data */
-    if (creator != NULL && creator->binary_begin_solid_func != NULL) {
-        creator->binary_begin_solid_func(
-                    creator->cookie, total_facet_count, header_data);
-    }
+    gmio_stl_mesh_creator_binary_begin_solid(
+                creator, total_facet_count, header_data);
 
     /* Read triangles */
     while (gmio_no_error(error)
@@ -145,12 +144,8 @@ int gmio_stlb_read(
         }
     } /* end while */
 
-    if (gmio_no_error(error)
-            && creator != NULL
-            && creator->end_solid_func != NULL)
-    {
-        creator->end_solid_func(creator->cookie);
-    }
+    if (gmio_no_error(error))
+        gmio_stl_mesh_creator_end_solid(creator);
 
     if (gmio_no_error(error) && rparams.i_facet_offset != total_facet_count)
         error = GMIO_STLB_READ_FACET_COUNT_ERROR;
