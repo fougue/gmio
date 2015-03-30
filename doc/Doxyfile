@@ -691,7 +691,6 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = \
-    ../src/gmio_core/memory.h \ # Not used
     ../src/gmio_support/support_global.h \
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or 
