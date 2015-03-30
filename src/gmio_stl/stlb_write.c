@@ -80,6 +80,7 @@ int gmio_stlb_write(
     const uint32_t facet_count =
             mesh != NULL ? mesh->triangle_count : 0;
     /* Variables */
+    void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
     gmio_stlb_readwrite_helper_t wparams = {0};
     uint32_t i_facet = 0;
     int error = GMIO_NO_ERROR;
@@ -99,8 +100,8 @@ int gmio_stlb_write(
     /* Write header */
     if (header_data == NULL) {
         /* Use buffer to store an empty header (filled with zeroes) */
-        memset(trsf->buffer.ptr, 0, GMIO_STLB_HEADER_SIZE);
-        header_data = (const uint8_t*)trsf->buffer.ptr;
+        memset(buffer_ptr, 0, GMIO_STLB_HEADER_SIZE);
+        header_data = (const uint8_t*)buffer_ptr;
     }
     if (gmio_stream_write(&trsf->stream, header_data, GMIO_STLB_HEADER_SIZE, 1)
             != 1)
@@ -110,14 +111,11 @@ int gmio_stlb_write(
 
     /* Write facet count */
     if (byte_order == GMIO_LITTLE_ENDIAN)
-        gmio_encode_uint32_le(facet_count, trsf->buffer.ptr);
+        gmio_encode_uint32_le(facet_count, buffer_ptr);
     else
-        gmio_encode_uint32_be(facet_count, trsf->buffer.ptr);
-    if (gmio_stream_write(&trsf->stream, trsf->buffer.ptr, sizeof(uint32_t), 1)
-            != 1)
-    {
+        gmio_encode_uint32_be(facet_count, buffer_ptr);
+    if (gmio_stream_write(&trsf->stream, buffer_ptr, sizeof(uint32_t), 1) != 1)
         return GMIO_STREAM_ERROR;
-    }
 
     /* Write triangles */
     for (i_facet = 0;
@@ -130,13 +128,13 @@ int gmio_stlb_write(
         wparams.facet_count = GMIO_MIN(wparams.facet_count,
                                        facet_count - wparams.i_facet_offset);
 
-        gmio_stlb_write_facets(mesh, trsf->buffer.ptr, &wparams);
+        gmio_stlb_write_facets(mesh, buffer_ptr, &wparams);
         wparams.i_facet_offset += wparams.facet_count;
 
         /* Write buffer to stream */
         if (gmio_stream_write(
                     &trsf->stream,
-                    trsf->buffer.ptr,
+                    buffer_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     wparams.facet_count)
                 != wparams.facet_count)
