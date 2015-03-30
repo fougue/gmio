@@ -19,13 +19,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* TODO: add cmake step to check availability of <sys/xxx.h> header files */
 #include <sys/types.h>
 #include <sys/stat.h>
-
-void gmio_stream_set_null(gmio_stream_t* stream)
-{
-    memset(stream, 0, sizeof(gmio_stream_t));
-}
 
 gmio_stream_t gmio_stream_null()
 {
@@ -67,20 +63,15 @@ static void gmio_stream_stdio_rewind(void* cookie)
     rewind((FILE*) cookie);
 }
 
-void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file)
-{
-    stream->cookie = file;
-    stream->at_end_func = gmio_stream_stdio_at_end;
-    stream->error_func = gmio_stream_stdio_error;
-    stream->read_func = gmio_stream_stdio_read;
-    stream->write_func = gmio_stream_stdio_write;
-    stream->size_func = gmio_stream_stdio_size;
-    stream->rewind_func = gmio_stream_stdio_rewind;
-}
-
 gmio_stream_t gmio_stream_stdio(FILE* file)
 {
-    gmio_stream_t stdio_stream = { 0 };
-    gmio_stream_set_stdio(&stdio_stream, file);
-    return stdio_stream;
+    gmio_stream_t stream = { 0 };
+    stream.cookie = file;
+    stream.at_end_func = gmio_stream_stdio_at_end;
+    stream.error_func = gmio_stream_stdio_error;
+    stream.read_func = gmio_stream_stdio_read;
+    stream.write_func = gmio_stream_stdio_write;
+    stream.size_func = gmio_stream_stdio_size;
+    stream.rewind_func = gmio_stream_stdio_rewind;
+    return stream;
 }

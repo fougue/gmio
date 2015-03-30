@@ -88,11 +88,11 @@ struct gmio_stream
      */
     size_t (*write_func)(void* cookie, const void* ptr, size_t size, size_t count);
 
-    /*! Pointer on function that returns the size(in bytes) of the stream */
+    /*! Pointer on a function that returns the size(in bytes) of the stream */
     size_t (*size_func)(void* cookie);
 
-    /*! Pointer on function that moves the position indicator within the stream
-     *  to the beginning */
+    /*! Pointer on a function that moves the position indicator within the
+     *  stream to the beginning */
     void (*rewind_func)(void* cookie);
 };
 
@@ -102,14 +102,8 @@ GMIO_C_LINKAGE_BEGIN
 
 /* Initialization */
 
-/*! Installs a null stream */
-GMIO_LIB_EXPORT void gmio_stream_set_null(gmio_stream_t* stream);
-
 /*! Returns a null stream */
 GMIO_LIB_EXPORT gmio_stream_t gmio_stream_null();
-
-/*! Configures \p stream for standard FILE* (cookie will hold \p file) */
-GMIO_LIB_EXPORT void gmio_stream_set_stdio(gmio_stream_t* stream, FILE* file);
 
 /*! Returns a stream for standard FILE* (cookie will hold \p file) */
 GMIO_LIB_EXPORT gmio_stream_t gmio_stream_stdio(FILE* file);
