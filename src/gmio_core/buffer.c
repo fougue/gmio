@@ -35,7 +35,7 @@ gmio_buffer_t gmio_buffer(void* ptr, size_t size)
 {
     gmio_buffer_t buff;
     buff.ptr = ptr;
-    buff.size = size;
+    buff.size = ptr != NULL ? size : 0;
     buff.deallocate_func = NULL;
     return buff;
 }

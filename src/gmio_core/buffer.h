@@ -40,7 +40,10 @@ typedef struct gmio_buffer gmio_buffer_t;
 
 GMIO_C_LINKAGE_BEGIN
 
-/*! Returns an initialized gmio_buffer object */
+/*! Returns an initialized gmio_buffer object
+ *
+ *  If \p ptr is NULL then gmio_buffer::size is forced to \c 0
+ */
 GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer(void* ptr, size_t size);
 
 /*! Returns a gmio_buffer object allocated with standard malloc() */
