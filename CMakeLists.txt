@@ -13,7 +13,7 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -54,18 +54,32 @@ if(NOT BUILD_STRICT_C90)
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
 endif()
 
+# Have alloca()-like function ?
+check_c_source_compiles(
+    "#include <alloca.h>
+     int main() { void* ptr = alloca(256); return 0; }"
+    GMIO_HAVE_BSD_ALLOCA_FUNC)
+
+check_c_source_compiles(
+    "#include <malloc.h>
+     int main() { void* ptr = _alloca(256); return 0; }"
+    GMIO_HAVE_WIN_ALLOCA_FUNC)
+
 # Have builtin byte swap functions ?
 if(CMAKE_COMPILER_IS_GNUCC)
     # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
     # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
-    check_c_source_compiles("int main() { return (int)__builtin_bswap16(0x1122); }"
-                             GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
-    check_c_source_compiles("int main() { return (int)__builtin_bswap32(0x11223344); }"
-                             GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
+    check_c_source_compiles(
+        "int main() { return (int)__builtin_bswap16(0x1122); }"
+        GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
+    check_c_source_compiles(
+        "int main() { return (int)__builtin_bswap32(0x11223344); }"
+        GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
 elseif(MSVC)
-    check_c_source_compiles("#include <stdlib.h>
-                             int main() { return (int)_byteswap_ulong(0x11223344); }"
-                            GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+    check_c_source_compiles(
+        "#include <stdlib.h>
+         int main() { return (int)_byteswap_ulong(0x11223344); }"
+        GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
 endif()
 
 configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
