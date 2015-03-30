@@ -92,7 +92,11 @@ struct gmio_stream
     size_t (*size_func)(void* cookie);
 
     /*! Pointer on a function that moves the position indicator within the
-     *  stream to the beginning */
+     *  stream to the beginning
+     *
+     *  The function should behaves like C standard [rewind()]
+     *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/rewind.html)
+     */
     void (*rewind_func)(void* cookie);
 };
 
