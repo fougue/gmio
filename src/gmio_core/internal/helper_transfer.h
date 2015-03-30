@@ -24,7 +24,7 @@
 #include <stddef.h>
 
 /*! Safe and convenient function for gmio_transfer::is_stop_requested_func() */
-GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
+GMIO_INLINE static gmio_bool_t gmio_transfer_is_stop_requested(
         const gmio_transfer_t* trsf)
 {
     if (trsf != NULL && trsf->is_stop_requested_func != NULL)
@@ -33,7 +33,7 @@ GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
 }
 
 /*! Safe and convenient function for gmio_transfer::handle_progress_func() */
-GMIO_INLINE void gmio_transfer_handle_progress(
+GMIO_INLINE static void gmio_transfer_handle_progress(
         const gmio_transfer_t* trsf, size_t value, size_t max_value)
 {
     if (trsf != NULL && trsf->handle_progress_func != NULL)

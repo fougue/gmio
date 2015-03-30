@@ -22,13 +22,13 @@
 #include "../error.h"
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
-GMIO_INLINE gmio_bool_t gmio_no_error(int code)
+GMIO_INLINE static gmio_bool_t gmio_no_error(int code)
 {
     return code == GMIO_NO_ERROR;
 }
 
 /*! Returns true if <tt>code != GMIO_NO_ERROR</tt> */
-GMIO_INLINE gmio_bool_t gmio_error(int code)
+GMIO_INLINE static gmio_bool_t gmio_error(int code)
 {
     return code != GMIO_NO_ERROR;
 }

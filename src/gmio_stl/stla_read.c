@@ -239,7 +239,7 @@ static gmio_stla_token_t parsing_find_token(
     return ID_token;
 }
 
-static void parsing_advance(gmio_stla_parse_data_t* data)
+GMIO_INLINE static void parsing_advance(gmio_stla_parse_data_t* data)
 {
     if (!parsing_can_continue(data))
         return;
@@ -253,7 +253,7 @@ static void parsing_advance(gmio_stla_parse_data_t* data)
         parsing_error(data);
 }
 
-static void parsing_eat_token(
+GMIO_INLINE static void parsing_eat_token(
         gmio_stla_token_t token, gmio_stla_parse_data_t* data)
 {
     if (!parsing_can_continue(data))
