@@ -50,14 +50,4 @@ enum gmio_error
 
 typedef enum gmio_error gmio_error_t;
 
-GMIO_C_LINKAGE_BEGIN
-
-/*! Returns true if \p code == GMIO_NO_ERROR */
-GMIO_LIB_EXPORT gmio_bool_t gmio_no_error(int code);
-
-/*! Returns true if \p code != GMIO_NO_ERROR */
-GMIO_LIB_EXPORT gmio_bool_t gmio_error(int code);
-
-GMIO_C_LINKAGE_END
-
 #endif /* GMIO_ERROR_H */

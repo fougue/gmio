@@ -25,9 +25,10 @@
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/min_max.h"
-#include "../gmio_core/internal/safe_cast.h"
+#include "../gmio_core/internal/helper_error.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_transfer.h"
+#include "../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 

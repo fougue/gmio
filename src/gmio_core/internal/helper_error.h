@@ -13,14 +13,22 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "error.h"
+/* WARNING :
+ *     this header has no multi-inclusion guard. It must be included only once
+ *     in the translation unit of use. The reason is that all functions
+ *     defined here are meant to be inlined for performance purpose
+ */
 
-gmio_bool_t gmio_no_error(int code)
+#include "../error.h"
+
+/*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
+GMIO_INLINE gmio_bool_t gmio_no_error(int code)
 {
     return code == GMIO_NO_ERROR;
 }
 
-gmio_bool_t gmio_error(int code)
+/*! Returns true if <tt>code != GMIO_NO_ERROR</tt> */
+GMIO_INLINE gmio_bool_t gmio_error(int code)
 {
     return code != GMIO_NO_ERROR;
 }
