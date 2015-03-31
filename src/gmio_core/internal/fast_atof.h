@@ -13,6 +13,7 @@
 
 #include <float.h>
 #include <limits.h>
+#include <math.h>
 
 GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
 {
