@@ -134,7 +134,7 @@ static void gmio_stream_fwd_iterator_stla_read_hook(
     }
 }
 
-GMIO_INLINE static gmio_bool_t parsing_can_continue(
+GMIO_INLINE gmio_bool_t parsing_can_continue(
         const gmio_stla_parse_data_t* data)
 {
     if (!data->error && !data->stream_iterator_cookie.is_stop_requested)
@@ -142,13 +142,13 @@ GMIO_INLINE static gmio_bool_t parsing_can_continue(
     return GMIO_FALSE;
 }
 
-GMIO_INLINE static const char* current_token_as_identifier(
+GMIO_INLINE const char* current_token_as_identifier(
         const gmio_stla_parse_data_t* data)
 {
     return data->token == ID_token ? data->string_buffer.ptr : "";
 }
 
-GMIO_INLINE static int get_current_token_as_float32(
+GMIO_INLINE int get_current_token_as_float32(
         const gmio_stla_parse_data_t* data, gmio_float32_t* value_ptr)
 {
     if (data->token == FLOAT_token)
@@ -156,7 +156,7 @@ GMIO_INLINE static int get_current_token_as_float32(
     return -3;
 }
 
-GMIO_INLINE static void parsing_error(gmio_stla_parse_data_t* data)
+GMIO_INLINE void parsing_error(gmio_stla_parse_data_t* data)
 {
     data->error = GMIO_TRUE;
     data->token = unknown_token;
@@ -239,7 +239,7 @@ static gmio_stla_token_t parsing_find_token(
     return ID_token;
 }
 
-GMIO_INLINE static void parsing_advance(gmio_stla_parse_data_t* data)
+GMIO_INLINE void parsing_advance(gmio_stla_parse_data_t* data)
 {
     if (!parsing_can_continue(data))
         return;
@@ -253,7 +253,7 @@ GMIO_INLINE static void parsing_advance(gmio_stla_parse_data_t* data)
         parsing_error(data);
 }
 
-GMIO_INLINE static void parsing_eat_token(
+GMIO_INLINE void parsing_eat_token(
         gmio_stla_token_t token, gmio_stla_parse_data_t* data)
 {
     if (!parsing_can_continue(data))

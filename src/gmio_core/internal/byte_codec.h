@@ -13,16 +13,13 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/* WARNING :
- *     this header has no multi-inclusion guard. It must be included only once
- *     in the translation unit of use. The reason is that all functions
- *     defined here are meant to be inlined for performance purpose
- */
+#ifndef GMIO_INTERNAL_BYTE_CODEC_H
+#define GMIO_INTERNAL_BYTE_CODEC_H
 
 #include "../global.h"
 
 /*! Reads a 16bit integer from memory-location \p bytes (little-endian) */
-GMIO_INLINE static uint16_t gmio_decode_uint16_le(const uint8_t* bytes)
+GMIO_INLINE uint16_t gmio_decode_uint16_le(const uint8_t* bytes)
 {
     /* |0 |1 | */
     /* |BB|AA| -> 0xAABB */
@@ -30,7 +27,7 @@ GMIO_INLINE static uint16_t gmio_decode_uint16_le(const uint8_t* bytes)
 }
 
 /*! Reads a 16bit integer from memory-location \p bytes (big-endian) */
-GMIO_INLINE static uint16_t gmio_decode_uint16_be(const uint8_t* bytes)
+GMIO_INLINE uint16_t gmio_decode_uint16_be(const uint8_t* bytes)
 {
     /* |0 |1 | */
     /* |AA|BB| -> 0xAABB */
@@ -39,28 +36,28 @@ GMIO_INLINE static uint16_t gmio_decode_uint16_be(const uint8_t* bytes)
 
 /*! Writes 16bit integer \p val to the memory location at \p bytes in
  *  little-endian */
-GMIO_INLINE static void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes)
+GMIO_INLINE void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes)
 {
     bytes[0] = val & 0xFF;
     bytes[1] = (val >> 8) & 0xFF;
 }
 
 /*! Reads a 32bit integer from memory-location \p bytes (little-endian) */
-GMIO_INLINE static uint32_t gmio_decode_uint32_le(const uint8_t* bytes)
+GMIO_INLINE uint32_t gmio_decode_uint32_le(const uint8_t* bytes)
 {
     /* |DD|CC|BB|AA| -> 0xAABBCCDD */
     return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
 /*! Reads a 32bit integer from memory-location \p bytes (mixed-endian) */
-GMIO_INLINE static uint32_t gmio_decode_uint32_me(const uint8_t* bytes)
+GMIO_INLINE uint32_t gmio_decode_uint32_me(const uint8_t* bytes)
 {
     /* |DD|CC|BB|AA| -> 0xCCDDAABB */
     return (bytes[0] << 16) | (bytes[1] << 24) | (bytes[3] << 8) | bytes[2];
 }
 
 /*! Reads a 32bit integer from memory-location \p bytes (big-endian) */
-GMIO_INLINE static uint32_t gmio_decode_uint32_be(const uint8_t* bytes)
+GMIO_INLINE uint32_t gmio_decode_uint32_be(const uint8_t* bytes)
 {
     /* |DD|CC|BB|AA| -> 0xDDCCBBAA */
     return bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
@@ -68,7 +65,7 @@ GMIO_INLINE static uint32_t gmio_decode_uint32_be(const uint8_t* bytes)
 
 /*! Writes 32bit integer \p val to the memory location at \p bytes in
  *  little-endian */
-GMIO_INLINE static void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes)
+GMIO_INLINE void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes)
 {
     bytes[0] = val & 0xFF;
     bytes[1] = (val >> 8) & 0xFF;
@@ -78,10 +75,12 @@ GMIO_INLINE static void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes)
 
 /*! Writes 32bit integer \p val to the memory location at \p bytes in
  *  big-endian */
-GMIO_INLINE static void gmio_encode_uint32_be(uint32_t val, uint8_t* bytes)
+GMIO_INLINE void gmio_encode_uint32_be(uint32_t val, uint8_t* bytes)
 {
     bytes[0] = (val >> 24) & 0xFF;
     bytes[1] = (val >> 16) & 0xFF;
     bytes[2] = (val >> 8) & 0xFF;
     bytes[3] = val & 0xFF;
 }
+
+#endif /* GMIO_INTERNAL_BYTE_CODEC_H */

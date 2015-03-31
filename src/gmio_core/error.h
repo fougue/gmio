@@ -50,4 +50,12 @@ enum gmio_error
 
 typedef enum gmio_error gmio_error_t;
 
+/*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
+GMIO_INLINE gmio_bool_t gmio_no_error(int code)
+{ return code == GMIO_NO_ERROR; }
+
+/*! Returns true if <tt>code != GMIO_NO_ERROR</tt> */
+GMIO_INLINE gmio_bool_t gmio_error(int code)
+{ return code != GMIO_NO_ERROR; }
+
 #endif /* GMIO_ERROR_H */

@@ -13,18 +13,15 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/* WARNING :
- *     this header has no multi-inclusion guard. It must be included only once
- *     in the translation unit of use. The reason is that all functions
- *     defined here are meant to be inlined for performance purpose
- */
+#ifndef GMIO_INTERNAL_SAFE_CAST_H
+#define GMIO_INTERNAL_SAFE_CAST_H
 
 #include "../global.h"
 
 #include <stddef.h>
 
 /*! Returns \p val safely casted to unsigned 32b integer */
-GMIO_INLINE static uint32_t gmio_size_to_uint32(size_t val)
+GMIO_INLINE uint32_t gmio_size_to_uint32(size_t val)
 {
 #if GMIO_TARGET_ARCH_BIT_SIZE > 32
     return val > 0xFFFFFFFF ? 0xFFFFFFFF : (uint32_t)val;
@@ -32,3 +29,5 @@ GMIO_INLINE static uint32_t gmio_size_to_uint32(size_t val)
     return val;
 #endif
 }
+
+#endif /* GMIO_INTERNAL_SAFE_CAST_H */

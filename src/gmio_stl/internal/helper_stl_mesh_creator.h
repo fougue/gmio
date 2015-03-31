@@ -13,17 +13,14 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/* WARNING :
- *     this header has no multi-inclusion guard. It must be included only once
- *     in the translation unit of use. The reason is that all functions
- *     defined here are meant to be inlined for performance purpose
- */
+#ifndef GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H
+#define GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H
 
 #include "../stl_mesh_creator.h"
 
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::ascii_begin_solid_func() */
-GMIO_INLINE static void gmio_stl_mesh_creator_ascii_begin_solid(
+GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
         gmio_stl_mesh_creator_t* creator,
         size_t stream_size,
         const char* solid_name)
@@ -36,7 +33,7 @@ GMIO_INLINE static void gmio_stl_mesh_creator_ascii_begin_solid(
 
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::binary_begin_solid_func() */
-GMIO_INLINE static void gmio_stl_mesh_creator_binary_begin_solid(
+GMIO_INLINE void gmio_stl_mesh_creator_binary_begin_solid(
         gmio_stl_mesh_creator_t* creator,
         uint32_t tri_count,
         const uint8_t* header)
@@ -47,7 +44,7 @@ GMIO_INLINE static void gmio_stl_mesh_creator_binary_begin_solid(
 
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::add_triangle_func() */
-GMIO_INLINE static void gmio_stl_mesh_creator_add_triangle(
+GMIO_INLINE void gmio_stl_mesh_creator_add_triangle(
         gmio_stl_mesh_creator_t* creator,
         uint32_t tri_id,
         const gmio_stl_triangle_t* triangle)
@@ -58,9 +55,11 @@ GMIO_INLINE static void gmio_stl_mesh_creator_add_triangle(
 
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::end_solid_func() */
-GMIO_INLINE static void gmio_stl_mesh_creator_end_solid(
+GMIO_INLINE void gmio_stl_mesh_creator_end_solid(
         gmio_stl_mesh_creator_t* creator)
 {
     if (creator != NULL && creator->end_solid_func != NULL)
         creator->end_solid_func(creator->cookie);
 }
+
+#endif /* GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H */

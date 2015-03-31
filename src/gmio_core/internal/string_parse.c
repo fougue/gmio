@@ -16,6 +16,10 @@
 #include "string_parse.h"
 
 #include "helper_stream.h"
+/*#define GMIO_USE_FAST_ATOF*/
+#ifdef GMIO_USE_FAST_ATOF
+#  include "fast_atof.h"
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -116,8 +120,10 @@ int gmio_get_float32(const char *str, gmio_float32_t *value_ptr)
 {
     char* end_ptr; /* for strtod() */
 
-#ifdef GMIO_HAVE_STRTOF_FUNC
-    *value_ptr = strtof(str, &end_ptr); /* Requires C99 */
+#if defined(GMIO_USE_FAST_ATOF)
+    *value_ptr = fast_atof(str, &end_ptr);
+#elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
+    *value_ptr = strtof(str, &end_ptr);
 #else
     *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
 #endif

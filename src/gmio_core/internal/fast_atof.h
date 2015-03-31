@@ -4,20 +4,17 @@
  * and irrXML.h
  */
 
-/* Adapted to ISO-C90.
- *
- * WARNING :
- *     this header has no multi-inclusion guard. It must be included only once
- *     in the translation unit of use. The reason is that all functions
- *     defined here are meant to be inlined for performance purpose
- */
+/* Adapted to ISO-C90 */
+
+#ifndef GMIO_INTERNAL_FAST_ATOF_H
+#define GMIO_INTERNAL_FAST_ATOF_H
 
 #include "../global.h"
 
 #include <float.h>
 #include <limits.h>
 
-GMIO_INLINE static gmio_bool_t is_local_decimal_point(char in)
+GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
 {
     /*! Selection of characters which count as decimal point in fast_atof
      * TODO: This should probably also be used in irr::core::string, but
@@ -60,7 +57,7 @@ const float fast_atof_table[17] = {
  * \return The unsigned integer value of the digits. If the string specifies
  * too many digits to encode in an uint32_t then INT_MAX will be returned.
  */
-GMIO_INLINE static uint32_t strtoul10(const char* in, const char** out)
+GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
 {
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
@@ -99,7 +96,7 @@ GMIO_INLINE static uint32_t strtoul10(const char* in, const char** out)
  * too many digits to encode in an int32_t then +INT_MAX or -INT_MAX will be
  * returned.
  */
-GMIO_INLINE static int32_t strtol10(const char* in, const char** out)
+GMIO_INLINE int32_t strtol10(const char* in, const char** out)
 {
     const gmio_bool_t negative = ('-' == *in);
     uint32_t unsignedValue = 0;
@@ -136,7 +133,7 @@ GMIO_INLINE static int32_t strtol10(const char* in, const char** out)
  * \return The unsigned integer value of the digit. 0xffffffff if the input is
  * not hex
  */
-GMIO_INLINE static uint32_t ctoul16(char in)
+GMIO_INLINE uint32_t ctoul16(char in)
 {
     if (in >= '0' && in <= '9')
         return in - '0';
@@ -158,7 +155,7 @@ GMIO_INLINE static uint32_t ctoul16(char in)
  * \return The unsigned integer value of the digits. If the string specifies
  * too many digits to encode in an uint32_t then INT_MAX will be returned.
  */
-GMIO_INLINE static uint32_t strtoul16(const char* in, const char** out)
+GMIO_INLINE uint32_t strtoul16(const char* in, const char** out)
 {
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
@@ -203,7 +200,7 @@ GMIO_INLINE static uint32_t strtoul16(const char* in, const char** out)
  * \return The unsigned integer value of the digits. If the string specifies
  * too many digits to encode in an uint32_t then INT_MAX will be returned.
  */
-GMIO_INLINE static uint32_t strtoul8(const char* in, const char** out)
+GMIO_INLINE uint32_t strtoul8(const char* in, const char** out)
 {
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
@@ -245,7 +242,7 @@ GMIO_INLINE static uint32_t strtoul8(const char* in, const char** out)
  * \return The unsigned integer value of the digits. If the string specifies
  * too many digits to encode in an uint32_t then INT_MAX will be returned.
  */
-GMIO_INLINE static uint32_t strtoul_prefix(const char* in, const char** out)
+GMIO_INLINE uint32_t strtoul_prefix(const char* in, const char** out)
 {
     if (!in)
     {
@@ -268,7 +265,7 @@ GMIO_INLINE static uint32_t strtoul_prefix(const char* in, const char** out)
  * \return The whole positive floating point representation of the digit
  * sequence.
  */
-GMIO_INLINE static gmio_float32_t strtof10(const char* in, const char** out)
+GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
 {
     const uint32_t MAX_SAFE_U32_VALUE = UINT_MAX / 10 - 10;
     uint32_t intValue = 0;
@@ -315,7 +312,7 @@ GMIO_INLINE static gmio_float32_t strtof10(const char* in, const char** out)
  * \return Pointer to the first character in the string that wasn't used
  * to create the float value.
  */
-GMIO_INLINE static const char* fast_atof_move(
+GMIO_INLINE const char* fast_atof_move(
         const char* in, gmio_float32_t* result)
 {
     const gmio_bool_t negative = ('-' == *in);
@@ -360,7 +357,7 @@ GMIO_INLINE static const char* fast_atof_move(
  * wasn't used to create the float value.
  * \result Float value parsed from the input string
  */
-GMIO_INLINE static float fast_atof(const char* floatAsString, const char** out)
+GMIO_INLINE float fast_atof(const char* floatAsString, const char** out)
 {
     float ret;
     if (out)
@@ -369,3 +366,5 @@ GMIO_INLINE static float fast_atof(const char* floatAsString, const char** out)
         fast_atof_move(floatAsString, &ret);
     return ret;
 }
+
+#endif /* GMIO_INTERNAL_FAST_ATOF_H */

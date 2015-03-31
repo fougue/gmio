@@ -13,11 +13,8 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/* WARNING :
- *     this header has no multi-inclusion guard. It must be included only once
- *     in the translation unit of use. The reason is that all functions
- *     defined here are meant to be inlined for performance purpose
- */
+#ifndef GMIO_INTERNAL_BYTE_SWAP_H
+#define GMIO_INTERNAL_BYTE_SWAP_H
 
 #include "../global.h"
 
@@ -27,7 +24,7 @@
 
 /*! Returns \p val with the order of bytes reversed, uses compiler builtin
  *  functions if available */
-GMIO_INLINE static uint16_t gmio_uint16_bswap(uint16_t val)
+GMIO_INLINE uint16_t gmio_uint16_bswap(uint16_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
     return __builtin_bswap16(val);
@@ -40,7 +37,7 @@ GMIO_INLINE static uint16_t gmio_uint16_bswap(uint16_t val)
 
 /*! Returns \p val with the order of bytes reversed, uses compiler builtin
  *  functions if available */
-GMIO_INLINE static uint32_t gmio_uint32_bswap(uint32_t val)
+GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC
     return __builtin_bswap32(val);
@@ -54,3 +51,5 @@ GMIO_INLINE static uint32_t gmio_uint32_bswap(uint32_t val)
             | ((val >> 24) & 0x000000FF);
 #endif
 }
+
+#endif /* GMIO_INTERNAL_BYTE_SWAP_H */

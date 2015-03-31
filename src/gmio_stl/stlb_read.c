@@ -26,14 +26,13 @@
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_swap.h"
 #include "../gmio_core/internal/convert.h"
-#include "../gmio_core/internal/helper_error.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 
-GMIO_INLINE static void read_triangle_memcpy(
+GMIO_INLINE void read_triangle_memcpy(
         const uint8_t* buffer, gmio_stl_triangle_t* triangle)
 {
     /* *triangle = *((gmio_stl_triangle_t*)(buffer)); */

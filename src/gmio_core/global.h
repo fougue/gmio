@@ -114,9 +114,11 @@ typedef double gmio_float64_t;
 
 #ifndef GMIO_INLINE
 #  if defined(__GNUC__)
-#    define GMIO_INLINE __inline__  /* Compatible with C90 */
+#    define GMIO_INLINE __inline__ static  /* Compatible with C90 */
 #  elif defined(_MSC_VER)
-#    define GMIO_INLINE __inline
+#    define GMIO_INLINE __inline static
+#  elif !defined(DOXYGEN)
+#    define GMIO_INLINE
 #  else
 /*! Expands to the C compiler specific inline keyword (if any) */
 #    define GMIO_INLINE

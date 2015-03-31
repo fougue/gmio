@@ -13,18 +13,15 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/* WARNING :
- *     this header has no multi-inclusion guard. It must be included only once
- *     in the translation unit of use. The reason is that all functions
- *     defined here are meant to be inlined for performance purpose
- */
+#ifndef GMIO_INTERNAL_HELPER_TRANSFER_H
+#define GMIO_INTERNAL_HELPER_TRANSFER_H
 
 #include "../transfer.h"
 
 #include <stddef.h>
 
 /*! Safe and convenient function for gmio_transfer::is_stop_requested_func() */
-GMIO_INLINE static gmio_bool_t gmio_transfer_is_stop_requested(
+GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
         const gmio_transfer_t* trsf)
 {
     if (trsf != NULL && trsf->is_stop_requested_func != NULL)
@@ -33,9 +30,11 @@ GMIO_INLINE static gmio_bool_t gmio_transfer_is_stop_requested(
 }
 
 /*! Safe and convenient function for gmio_transfer::handle_progress_func() */
-GMIO_INLINE static void gmio_transfer_handle_progress(
+GMIO_INLINE void gmio_transfer_handle_progress(
         const gmio_transfer_t* trsf, size_t value, size_t max_value)
 {
     if (trsf != NULL && trsf->handle_progress_func != NULL)
         trsf->handle_progress_func(trsf->cookie, value, max_value);
 }
+
+#endif /* GMIO_INTERNAL_HELPER_TRANSFER_H */

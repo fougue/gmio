@@ -25,7 +25,7 @@
 #  include <malloc.h>
 #endif
 
-GMIO_INLINE static gmio_buffer_t gmio_buffer_null()
+GMIO_INLINE gmio_buffer_t gmio_buffer_null()
 {
     gmio_buffer_t buff = { 0 };
     return buff;

@@ -25,14 +25,13 @@
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/min_max.h"
-#include "../gmio_core/internal/helper_error.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 
-GMIO_INLINE static void write_triangle_memcpy(
+GMIO_INLINE void write_triangle_memcpy(
         const gmio_stl_triangle_t* triangle, uint8_t* buffer)
 {
     memcpy(buffer, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
