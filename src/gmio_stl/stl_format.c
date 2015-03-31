@@ -22,8 +22,8 @@
 #include "../gmio_core/internal/byte_swap.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/min_max.h"
+#include "../gmio_core/internal/string_utils.h"
 
-#include <ctype.h>
 #include <string.h>
 
 enum { GMIO_FIXED_BUFFER_SIZE = 512 };
@@ -70,12 +70,13 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
     {
         /* Skip spaces at beginning */
         size_t pos = 0;
-        while (pos < read_size && isspace(fixed_buffer[pos]))
+        while (pos < read_size && gmio_clocale_isspace(fixed_buffer[pos]))
             ++pos;
 
-        /* Next token (if exists) must match "solid " */
-        if (pos < GMIO_FIXED_BUFFER_SIZE
-                && strncmp(fixed_buffer + pos, "solid ", 6) == 0)
+        /* Next token (if exists) must match "solid\s" */
+        if ((pos + 6) < read_size
+                && gmio_istarts_with(fixed_buffer + pos, "solid")
+                && gmio_clocale_isspace(fixed_buffer[pos + 5]))
         {
             return GMIO_STL_ASCII_FORMAT;
         }
