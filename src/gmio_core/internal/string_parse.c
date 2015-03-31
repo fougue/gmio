@@ -37,16 +37,13 @@ void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
 
 const char *gmio_current_char(const gmio_string_stream_fwd_iterator_t *it)
 {
-    if (it != NULL && it->buffer_pos < it->buffer.len)
+    if (it->buffer_pos < it->buffer.len)
         return it->buffer.ptr + it->buffer_pos;
     return NULL;
 }
 
 const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
 {
-    if (it == NULL)
-        return NULL;
-
     if ((it->buffer_pos + 1) < it->buffer.len) {
         ++(it->buffer_pos);
         return it->buffer.ptr + it->buffer_pos;
@@ -55,6 +52,7 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
         if (gmio_stream_error(it->stream) != 0
                 || gmio_stream_at_end(it->stream))
         {
+            it->buffer_pos = it->buffer.len;
             return NULL;
         }
 
@@ -62,7 +60,8 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
         it->buffer_pos = 0;
         it->buffer.len = gmio_stream_read(it->stream,
                                           it->buffer.ptr,
-                                          sizeof(char), it->buffer.max_len);
+                                          sizeof(char),
+                                          it->buffer.max_len);
         if (gmio_stream_error(it->stream) == 0) {
             if (it->stream_read_hook != NULL)
                 it->stream_read_hook(it->cookie, &it->buffer);
@@ -73,10 +72,21 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
     return NULL;
 }
 
+GMIO_INLINE int gmio_clocale_isspace(char c)
+{
+    return c == 0x20      /* space (SPC) */
+            || c == 0x09  /* horizontal tab (TAB) */
+            || c == 0x0a  /* newline (LF) */
+            || c == 0x0b  /* vertical tab (VT) */
+            || c == 0x0c  /* feed (FF) */
+            || c == 0x0d  /* carriage return (CR) */
+            ;
+}
+
 void gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
 {
     const char* curr_char = gmio_current_char(it);
-    while (curr_char != NULL && isspace(*curr_char))
+    while (curr_char != NULL && gmio_clocale_isspace(*curr_char))
         curr_char = gmio_next_char(it);
 }
 
@@ -93,12 +103,17 @@ int gmio_eat_word(
     buffer->len = 0;
     gmio_skip_spaces(it);
     stream_curr_char = gmio_current_char(it);
+    if (stream_curr_char == NULL) { /* Empty word */
+        buffer->ptr[0] = 0;
+        buffer->len = 0;
+        return 0;
+    }
 
     while (i < buffer->max_len
            && stream_curr_char != NULL
            && isspace_res == 0)
     {
-        isspace_res = isspace(*stream_curr_char);
+        isspace_res = gmio_clocale_isspace(*stream_curr_char);
         if (isspace_res == 0) {
             buffer->ptr[i] = *stream_curr_char;
             stream_curr_char = gmio_next_char(it);
@@ -111,20 +126,21 @@ int gmio_eat_word(
         buffer->len = i;
         if (stream_curr_char != NULL || gmio_stream_at_end(it->stream))
             return 0;
-        return -2;
+        return -3;
     }
-    return -3;
+    return -4;
 }
 
 int gmio_get_float32(const char *str, gmio_float32_t *value_ptr)
 {
-    char* end_ptr; /* for strtod() */
-
 #if defined(GMIO_USE_FAST_ATOF)
+    const char* end_ptr = NULL;
     *value_ptr = fast_atof(str, &end_ptr);
 #elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
+    char* end_ptr = NULL;
     *value_ptr = strtof(str, &end_ptr);
 #else
+    char* end_ptr = NULL;
     *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
 #endif
 
