@@ -156,13 +156,89 @@ GMIO_INLINE int get_current_token_as_float32(
     return -3;
 }
 
-GMIO_INLINE void parsing_error(gmio_stla_parse_data_t* data)
+GMIO_INLINE const char* token_to_string(gmio_stla_token_t token)
 {
+    switch (token) {
+    case ENDFACET_token: return "endfacet";
+    case ENDLOOP_token: return "endloop";
+    case ENDSOLID_token: return "endsolid";
+    case FACET_token: return "facet";
+    case ID_token: return "ID";
+    /*case FLOAT_token: return "FLOAT";*/
+    case LOOP_token: return "loop";
+    case NORMAL_token: return "normal";
+    case OUTER_token: return "outer";
+    case SOLID_token: return "solid";
+    case VERTEX_token: return "vertex";
+    case empty_token:
+    case unknown_token: return "";
+    }
+    return "";
+}
+
+GMIO_INLINE void parsing_error_msg(
+        gmio_stla_parse_data_t* data, const char* msg)
+{
+    fprintf(stderr,
+            "\n"
+            "gmio_stla_read() parsing error: %s\n"
+            "                 current token: <%s>\n"
+            "                 current token string: \"%s\"\n",
+            msg,
+            token_to_string(data->token),
+            data->string_buffer.ptr);
     data->error = GMIO_TRUE;
     data->token = unknown_token;
-    fprintf(stderr,
-            "\n[gmio_stla_read()] parsing_error, token: \"%s\"\n",
-            data->string_buffer.ptr);
+}
+
+GMIO_INLINE void parsing_error(gmio_stla_parse_data_t* data)
+{
+    parsing_error_msg(data, "unknown");
+}
+
+GMIO_INLINE void parsing_error_token_expected(
+        gmio_stla_parse_data_t* data, gmio_stla_token_t token)
+{
+    char msg[256] = { 0 };
+    sprintf(msg,
+            "token <%s> expected, got <%s>",
+            token_to_string(token),
+            token_to_string(data->token));
+    parsing_error_msg(data, msg);
+}
+
+GMIO_INLINE gmio_bool_t gmio_clocale_char_iequals(char c1, char c2)
+{
+    return c1 == c2 || c1 == (c2 - 32) ? GMIO_TRUE : GMIO_FALSE;
+}
+
+/*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise
+ *
+ *  It assumes that <tt>len(str1) >= len(str2)</tt>
+ */
+GMIO_INLINE int gmio_stricmp(const char* str1, const char* str2)
+{
+    while (*str1 != 0 && *str2 != 0) {
+        if (gmio_clocale_char_iequals(*str1, *str2) == GMIO_FALSE)
+            return 1;
+        ++str1;
+        ++str2;
+    }
+    return *str1 == 0 && *str2 == 0 ? 0 : 1;
+}
+
+GMIO_INLINE gmio_bool_t gmio_istarts_with(const char* str, const char* begin)
+{
+    while (*begin != 0) {
+        if (*str == 0
+                || gmio_clocale_char_iequals(*str, *begin) == GMIO_FALSE)
+        {
+            return GMIO_FALSE;
+        }
+        ++str;
+        ++begin;
+    }
+    return GMIO_TRUE;
 }
 
 static gmio_stla_token_t parsing_find_token(
@@ -180,32 +256,32 @@ static gmio_stla_token_t parsing_find_token(
         switch (word[0]) {
         case 'f':
         case 'F':
-            if (strcmp(word + 1, "acet") == 0)
+            if (gmio_stricmp(word + 1, "acet") == 0)
                 return FACET_token;
             break;
         case 'l':
         case 'L':
-            if (strcmp(word + 1, "oop") == 0)
+            if (gmio_stricmp(word + 1, "oop") == 0)
                 return LOOP_token;
             break;
         case 'n':
         case 'N':
-            if (strcmp(word + 1, "ormal") == 0)
+            if (gmio_stricmp(word + 1, "ormal") == 0)
                 return NORMAL_token;
             break;
         case 'o':
         case 'O':
-            if (strcmp(word + 1, "uter") == 0)
+            if (gmio_stricmp(word + 1, "uter") == 0)
                 return OUTER_token;
             break;
         case 's':
         case 'S':
-            if (strcmp(word + 1, "olid") == 0)
+            if (gmio_stricmp(word + 1, "olid") == 0)
                 return SOLID_token;
             break;
         case 'v':
         case 'V':
-            if (strcmp(word + 1, "ertex") == 0)
+            if (gmio_stricmp(word + 1, "ertex") == 0)
                 return VERTEX_token;
             break;
         default:
@@ -214,21 +290,21 @@ static gmio_stla_token_t parsing_find_token(
     }
 
     /* Might be "end..." token */
-    if (word_len >= 7 && strncmp(word, "end", 3) == 0) {
+    if (word_len >= 7 && gmio_istarts_with(word, "end") == GMIO_TRUE) {
         switch (word[3]) {
         case 'f':
         case 'F':
-            if (strcmp(word + 4, "acet") == 0)
+            if (gmio_stricmp(word + 4, "acet") == 0)
                 return ENDFACET_token;
             break;
         case 'l':
         case 'L':
-            if (strcmp(word + 4, "oop") == 0)
+            if (gmio_stricmp(word + 4, "oop") == 0)
                 return ENDLOOP_token;
             break;
         case 's':
         case 'S':
-            if (strcmp(word + 4, "olid") == 0)
+            if (gmio_stricmp(word + 4, "olid") == 0)
                 return ENDSOLID_token;
             break;
         default:
@@ -262,7 +338,7 @@ GMIO_INLINE void parsing_eat_token(
     if (data->token == token)
         parsing_advance(data);
     else
-        parsing_error(data);
+        parsing_error_token_expected(data, token);
 }
 
 static void parse_solidname_beg(gmio_stla_parse_data_t* data)
@@ -276,7 +352,7 @@ static void parse_solidname_beg(gmio_stla_parse_data_t* data)
     case ID_token:
         break;
     default:
-        parsing_error(data);
+        parsing_error_msg(data, "unexpected token for 'solid <name>'");
     }
 }
 
@@ -291,7 +367,7 @@ static void parse_solidname_end(gmio_stla_parse_data_t* data)
     case empty_token:
         break;
     default:
-        parsing_error(data);
+        parsing_error_msg(data, "unexpected token for 'endsolid <name>'");
     }
 }
 
@@ -315,7 +391,7 @@ static void parse_beginsolid(gmio_stla_parse_data_t* data)
         break;
     }
     default:
-        parsing_error(data);
+        parsing_error_token_expected(data, SOLID_token);
     } /* end switch */
 }
 
@@ -335,7 +411,7 @@ static void parse_endsolid(gmio_stla_parse_data_t* data)
         break;
     }
     default:
-        parsing_error(data);
+        parsing_error_token_expected(data, ENDSOLID_token);
     } /* end switch */
 }
 
@@ -348,13 +424,13 @@ static void parse_xyz_coords(
     switch (data->token) {
     case FLOAT_token: {
         if (get_current_token_as_float32(data, &coords->x) != 0)
-            parsing_error(data);
+            parsing_error_msg(data, "failed to get X coord");
         parsing_eat_token(FLOAT_token, data);
         if (get_current_token_as_float32(data, &coords->y) != 0)
-            parsing_error(data);
+            parsing_error_msg(data, "failed to get Y coord");
         parsing_eat_token(FLOAT_token, data);
         if (get_current_token_as_float32(data, &coords->z) != 0)
-            parsing_error(data);
+            parsing_error_msg(data, "failed to get Z coord");
         parsing_eat_token(FLOAT_token, data);
         break;
     }
