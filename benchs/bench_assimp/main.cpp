@@ -2,6 +2,7 @@
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
+#include <assimp/cimport.h>
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
@@ -13,6 +14,8 @@ static void bench_assimp_Importer(const char* filepath)
 {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filepath, 0);
+    if (aiGetErrorString() != NULL)
+        std::cerr << aiGetErrorString() << std::endl;
     if (scene == NULL || scene->mNumMeshes <= 0) {
         std::cerr << "Failed to read file " << filepath << std::endl;
     }
@@ -144,9 +147,9 @@ static void bench_gmio_stl_read(const char* filepath)
 {
     gmio_buffer_t buffer = gmio_buffer_malloc(256 * 1024);
 
-    aiScene scene;
+    aiScene* scene = new aiScene;
     gmio_stl_mesh_creator_t mesh_creator = { 0 };
-    mesh_creator.cookie = &scene;
+    mesh_creator.cookie = scene;
     mesh_creator.ascii_begin_solid_func = gmio_assimp_ascii_begin_solid_func;
     mesh_creator.binary_begin_solid_func = gmio_assimp_binary_begin_solid;
     mesh_creator.add_triangle_func = gmio_assimp_add_triangle;
