@@ -25,6 +25,7 @@
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/string_parse.h"
+#include "../gmio_core/internal/string_utils.h"
 
 #include <ctype.h>
 #include <stdlib.h>
@@ -205,40 +206,6 @@ GMIO_INLINE void parsing_error_token_expected(
             token_to_string(token),
             token_to_string(data->token));
     parsing_error_msg(data, msg);
-}
-
-GMIO_INLINE gmio_bool_t gmio_clocale_char_iequals(char c1, char c2)
-{
-    return c1 == c2 || c1 == (c2 - 32) ? GMIO_TRUE : GMIO_FALSE;
-}
-
-/*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise
- *
- *  It assumes that <tt>len(str1) >= len(str2)</tt>
- */
-GMIO_INLINE int gmio_stricmp(const char* str1, const char* str2)
-{
-    while (*str1 != 0 && *str2 != 0) {
-        if (gmio_clocale_char_iequals(*str1, *str2) == GMIO_FALSE)
-            return 1;
-        ++str1;
-        ++str2;
-    }
-    return *str1 == 0 && *str2 == 0 ? 0 : 1;
-}
-
-GMIO_INLINE gmio_bool_t gmio_istarts_with(const char* str, const char* begin)
-{
-    while (*begin != 0) {
-        if (*str == 0
-                || gmio_clocale_char_iequals(*str, *begin) == GMIO_FALSE)
-        {
-            return GMIO_FALSE;
-        }
-        ++str;
-        ++begin;
-    }
-    return GMIO_TRUE;
 }
 
 static gmio_stla_token_t parsing_find_token(

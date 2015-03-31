@@ -16,6 +16,7 @@
 #include "string_parse.h"
 
 #include "helper_stream.h"
+#include "string_utils.h"
 /*#define GMIO_USE_FAST_ATOF*/
 #ifdef GMIO_USE_FAST_ATOF
 #  include "fast_atof.h"
@@ -70,17 +71,6 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
     }
 
     return NULL;
-}
-
-GMIO_INLINE int gmio_clocale_isspace(char c)
-{
-    return c == 0x20      /* space (SPC) */
-            || c == 0x09  /* horizontal tab (TAB) */
-            || c == 0x0a  /* newline (LF) */
-            || c == 0x0b  /* vertical tab (VT) */
-            || c == 0x0c  /* feed (FF) */
-            || c == 0x0d  /* carriage return (CR) */
-            ;
 }
 
 void gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
