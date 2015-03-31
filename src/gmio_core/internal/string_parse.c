@@ -22,7 +22,6 @@
 #  include "fast_atof.h"
 #endif
 
-#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 
@@ -43,34 +42,49 @@ const char *gmio_current_char(const gmio_string_stream_fwd_iterator_t *it)
     return NULL;
 }
 
-const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
+GMIO_INLINE gmio_bool_t gmio_is_next_char_buffered(
+        const gmio_string_stream_fwd_iterator_t *it)
 {
-    if ((it->buffer_pos + 1) < it->buffer.len) {
-        ++(it->buffer_pos);
-        return it->buffer.ptr + it->buffer_pos;
-    }
-    else {
-        if (gmio_stream_error(it->stream) != 0
-                || gmio_stream_at_end(it->stream))
-        {
-            it->buffer_pos = it->buffer.len;
-            return NULL;
-        }
+    return (it->buffer_pos + 1) < it->buffer.len ? GMIO_TRUE : GMIO_FALSE;
+}
 
-        /* Read next chunk of data */
-        it->buffer_pos = 0;
-        it->buffer.len = gmio_stream_read(it->stream,
-                                          it->buffer.ptr,
-                                          sizeof(char),
-                                          it->buffer.max_len);
-        if (gmio_stream_error(it->stream) == 0) {
-            if (it->stream_read_hook != NULL)
-                it->stream_read_hook(it->cookie, &it->buffer);
-            return it->buffer.ptr;
-        }
+GMIO_INLINE const char* gmio_next_char_from_buffer(
+        gmio_string_stream_fwd_iterator_t *it)
+{
+    ++(it->buffer_pos);
+    return it->buffer.ptr + it->buffer_pos;
+}
+
+GMIO_INLINE const char* gmio_next_char_from_stream(
+        gmio_string_stream_fwd_iterator_t *it)
+{
+    if (gmio_stream_error(it->stream) != 0
+            || gmio_stream_at_end(it->stream) == GMIO_TRUE)
+    {
+        it->buffer_pos = it->buffer.len;
+        return NULL;
+    }
+
+    /* Read next chunk of data */
+    it->buffer_pos = 0;
+    it->buffer.len = gmio_stream_read(it->stream,
+                                      it->buffer.ptr,
+                                      sizeof(char),
+                                      it->buffer.max_len);
+    if (gmio_stream_error(it->stream) == 0) {
+        if (it->stream_read_hook != NULL)
+            it->stream_read_hook(it->cookie, &it->buffer);
+        return it->buffer.ptr;
     }
 
     return NULL;
+}
+
+const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
+{
+    if (gmio_is_next_char_buffered(it) == GMIO_TRUE)
+        return gmio_next_char_from_buffer(it);
+    return gmio_next_char_from_stream(it);
 }
 
 void gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
@@ -114,8 +128,11 @@ int gmio_eat_word(
     if (i < buffer->max_len) {
         buffer->ptr[i] = 0; /* End string with terminating null byte */
         buffer->len = i;
-        if (stream_curr_char != NULL || gmio_stream_at_end(it->stream))
+        if (stream_curr_char != NULL
+                || gmio_stream_at_end(it->stream) == GMIO_TRUE)
+        {
             return 0;
+        }
         return -3;
     }
     return -4;
