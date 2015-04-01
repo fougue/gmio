@@ -37,7 +37,7 @@
 #cmakedefine GMIO_HOST_IS_BIG_ENDIAN
 
 #cmakedefine GMIO_HAVE_BSD_ALLOCA_FUNC
-#cmakedefine GMIO_HAVE_WIN_ALLOCA_FUNC
+#cmakedefine GMIO_HAVE_WIN__ALLOCA_FUNC
 
 #if defined(__APPLE__)
 #  if defined(__i386__) || defined(__ppc__)

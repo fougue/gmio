@@ -19,7 +19,7 @@
 
 #if defined(GMIO_HAVE_BSD_ALLOCA_FUNC)
 #  include <alloca.h>
-#elif defined(GMIO_HAVE_WIN_ALLOCA_FUNC)
+#elif defined(GMIO_HAVE_WIN__ALLOCA_FUNC)
 #  include "error.h"
 #  include <windows.h>
 #  include <malloc.h>
@@ -60,7 +60,7 @@ gmio_buffer_t gmio_buffer_alloca(size_t size)
 {
 #if defined(GMIO_HAVE_BSD_ALLOCA_FUNC)
     return gmio_buffer(alloca(size), size, NULL);
-#elif defined(GMIO_HAVE_WIN_ALLOCA_FUNC)
+#elif defined(GMIO_HAVE_WIN__ALLOCA_FUNC)
 #  ifdef _MSC_VER
     __try {
         return gmio_buffer(_alloca(size), size, NULL);

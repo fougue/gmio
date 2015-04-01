@@ -62,7 +62,7 @@ if(WIN32)
     check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
 endif()
 
-# Find available C99 and compiler/OS specific features
+# Check available C99 and compiler/OS specific features
 if(NOT BUILD_STRICT_C90)
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
     check_function_exists(powf GMIO_HAVE_POWF_FUNC)
@@ -79,7 +79,7 @@ if(NOT BUILD_STRICT_C90)
         check_c_source_compiles(
             "#include <malloc.h>
              int main() { void* ptr = _alloca(256); return 0; }"
-            GMIO_HAVE_WIN_ALLOCA_FUNC) # TODO: rename to GMIO_HAVE_WIN__ALLOCA_FUNC
+            GMIO_HAVE_WIN__ALLOCA_FUNC)
     endif() # WIN32
 endif()
 
