@@ -75,6 +75,7 @@ gmio_buffer_t gmio_buffer_alloca(size_t size)
     return gmio_buffer(_alloca(size), size, NULL);
 #  endif /* _MSC_VER */
 #else
+    GMIO_UNUSED(size);
     return gmio_buffer_null();
 #endif
 }
