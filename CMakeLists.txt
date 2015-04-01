@@ -24,7 +24,7 @@ project(gmio C)
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Options
-option(BUILD_SHARED_LIBS  "Build shared libraries (DLL)" ON)
+option(BUILD_SHARED_LIBS  "Build shared libraries (DLL)" OFF)
 option(BUILD_STRICT_C90   "Build with strict conformance to C90 standard" OFF)
 option(BUILD_WITH_LIBSTL  "Build the libSTL module" ON)
 
