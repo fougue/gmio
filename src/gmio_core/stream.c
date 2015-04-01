@@ -19,9 +19,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* TODO: add cmake step to check availability of <sys/xxx.h> header files */
-#include <sys/types.h>
-#include <sys/stat.h>
+#if defined(GMIO_HAVE_SYS_TYPES_H) && defined(GMIO_HAVE_SYS_STAT_H)
+
+/* Activate 64bit variants of stat(), fstat(), ...
+ * See:
+ *   http://linux.die.net/man/2/fstat64
+ *   https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
+ */
+#  ifdef GMIO_OS_LINUX
+#    if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS != 64
+#      undef _FILE_OFFSET_BITS
+#    endif
+#    if !defined(_FILE_OFFSET_BITS)
+#      define _FILE_OFFSET_BITS=64
+#    endif
+#    if !defined(_POSIX_C_SOURCE)
+       /* This enables fileno() */
+#      define _POSIX_C_SOURCE
+#    endif
+#    define GMIO_FSTAT64_OVERRIDE
+#  endif /* Linux */
+
+#  ifdef GMIO_OS_MAC
+#    if !defined(_DARWIN_USE_64_BIT_INODE)
+#      define _DARWIN_USE_64_BIT_INODE
+#    endif
+#    define GMIO_FSTAT64_OVERRIDE
+#  endif /* Apple */
+
+#  include <sys/types.h>
+#  include <sys/stat.h>
+
+/* Define wrapper around the stat structure and the fstat() function */
+#  ifdef GMIO_HAVE_WIN__FSTAT64_FUNC
+typedef struct __stat64 gmio_stat_t;
+GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
+{ return _fstat64(fd, buf); }
+#  elif defined(GMIO_FSTAT64_OVERRIDE) || !defined(GMIO_HAVE_POSIX_FSTAT64_FUNC)
+typedef struct stat gmio_stat_t;
+GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
+{ return fstat(fd, buf); }
+#  elif defined(GMIO_HAVE_POSIX_FSTAT64_FUNC)
+typedef struct stat64 gmio_stat_t;
+GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
+{ return fstat64(fd, buf); }
+#  endif
+
+#endif /* GMIO_HAVE_SYS_TYPES_H && GMIO_HAVE_SYS_STAT_H */
 
 gmio_stream_t gmio_stream_null()
 {
@@ -53,9 +97,58 @@ static size_t gmio_stream_stdio_write(
 
 static size_t gmio_stream_stdio_size(void* cookie)
 {
-    struct stat stat_buf;
-    fstat(fileno((FILE*) cookie), &stat_buf);
-    return stat_buf.st_size;
+    FILE* file = (FILE*) cookie;
+
+#if defined(GMIO_HAVE_SYS_TYPES_H) \
+    && defined(GMIO_HAVE_SYS_STAT_H) \
+    && defined(GMIO_HAVE_POSIX_FILENO_FUNC)
+
+    const int fd = fileno(file);
+    if (fd != -1) {
+        gmio_stat_t buf;
+        if (gmio_fstat(fd, &buf) == 0)
+            return buf.st_size;
+    }
+    return 0;
+
+#else
+
+    /* Excerpted from: https://www.securecoding.cert.org
+     *                 item FIO19-C
+     *
+     * Subclause 7.21.9.2 of the C Standard [ISO/IEC 9899:2011] specifies the
+     * following behavior for fseek() when opening a binary file in binary mode:
+     *     A binary stream need not meaningfully support fseek calls with a
+     *     whence value of SEEK_END.
+     *
+     * In addition, footnote 268 of subclause 7.21.3 says:
+     *     Setting the file position indicator to end-of-file, as with
+     *     fseek(file, 0, SEEK_END), has undefined behavior for a binary stream
+     *     (because of possible trailing null characters) or for any stream with
+     *     state-dependent encoding that does not assuredly end in the initial
+     *     shift state.
+     *
+     * Subclause 7.21.9.4 of the C Standard [ISO/IEC 9899:2011] specifies the
+     * following behavior for ftell() when opening a text file in text mode:
+     *     For a text stream, its file position indicator contains unspecified
+     *     information, usable by the fseek function for returning the file
+     *     position indicator for the stream to its position at the time of the
+     *     ftell call.
+     * Consequently, the return value of ftell() for streams opened in text mode
+     * should never be used for offset calculations other than in calls to
+     * fseek().
+     */
+
+    long size = 0L;
+    const long old_pos = ftell(file);
+
+    fseek(file, 0L, SEEK_END);
+    size = ftell(file);
+    fseek(file, old_pos, SEEK_SET);
+
+    return size;
+
+#endif
 }
 
 static void gmio_stream_stdio_rewind(void* cookie)

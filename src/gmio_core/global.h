@@ -23,6 +23,18 @@
 #if defined(WIN64) || defined(_WIN64) || defined(__WIN64__) \
       || defined(WIN32) || defined(_WIN32) || defined(__WIN32__) \
       || defined(__NT__)
+#  define GMIO_OS_WIN
+#endif /* Windows */
+
+#if defined(__linux) || defined(__linux__) || defined(linux)
+#  define GMIO_OS_LINUX
+#endif /* Linux */
+
+#if defined(__APPLE__)
+#  define GMIO_OS_MAC
+#endif /* Apple */
+
+#ifdef GMIO_OS_WIN
 #  define GMIO_DECL_EXPORT __declspec(dllexport)
 #  define GMIO_DECL_IMPORT __declspec(dllimport)
 #else
@@ -118,7 +130,7 @@ typedef double gmio_float64_t;
 #  elif defined(_MSC_VER)
 #    define GMIO_INLINE __inline static
 #  elif !defined(DOXYGEN)
-#    define GMIO_INLINE
+#    define GMIO_INLINE static
 #  else
 /*! Expands to the C compiler specific inline keyword (if any) */
 #    define GMIO_INLINE
