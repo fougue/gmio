@@ -84,7 +84,7 @@ int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
 int gmio_stl_write_file(
         gmio_stl_format_t format,
         const char *filepath,
-        gmio_stl_mesh_t *mesh,
+        const gmio_stl_mesh_t *mesh,
         gmio_task_iface_t *task_iface)
 {
     int error = GMIO_ERROR_OK;
@@ -112,7 +112,7 @@ int gmio_stl_write_file(
 int gmio_stl_write(
         gmio_stl_format_t format,
         gmio_transfer_t *trsf,
-        gmio_stl_mesh_t *mesh)
+        const gmio_stl_mesh_t *mesh)
 {
     int error = GMIO_ERROR_OK;
 

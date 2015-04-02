@@ -84,7 +84,7 @@ GMIO_LIBSTL_EXPORT
 int gmio_stl_write_file(
         gmio_stl_format_t format,
         const char* filepath,
-        gmio_stl_mesh_t* mesh,
+        const gmio_stl_mesh_t* mesh,
         gmio_task_iface_t* task_iface);
 
 /*! Writes STL mesh to stream
@@ -99,7 +99,7 @@ GMIO_LIBSTL_EXPORT
 int gmio_stl_write(
         gmio_stl_format_t format,
         gmio_transfer_t* trsf,
-        gmio_stl_mesh_t* mesh);
+        const gmio_stl_mesh_t* mesh);
 
 /* ========================================================================
  *  STL ascii
