@@ -49,26 +49,24 @@ enum { GMIO_STLA_FACET_SIZE = 321 };
 enum { GMIO_STLA_FACET_SIZE_P2 = 512 };
 enum { GMIO_STLA_SOLID_NAME_MAX_LEN = 512 };
 
-static char* gmio_write_string(char* buffer, const char* str)
-{
-    const char* safe_str = str != NULL ? str : "";
-    strcpy(buffer, safe_str);
-    return buffer + strlen(safe_str);
-}
-
-static char* gmio_write_string_eol(char* buffer, const char* str)
+GMIO_INLINE char* gmio_write_string(char* buffer, const char* str)
 {
     const char* safe_str = str != NULL ? str : "";
     const size_t len = strlen(safe_str);
     strncpy(buffer, safe_str, len);
-    buffer[len] = '\n';
-    return buffer + len + 1;
+    return buffer + len;
 }
 
-static char* gmio_write_eol(char* buffer)
+GMIO_INLINE char* gmio_write_eol(char* buffer)
 {
     *buffer = '\n';
     return buffer + 1;
+}
+
+GMIO_INLINE char* gmio_write_string_eol(char* buffer, const char* str)
+{
+    buffer = gmio_write_string(buffer, str);
+    return gmio_write_eol(buffer);
 }
 
 /*static char* gmio_write_space(char* buffer)
@@ -77,7 +75,7 @@ static char* gmio_write_eol(char* buffer)
   return buffer + 1;
 }*/
 
-static char* gmio_write_nspaces(char* buffer, int n)
+GMIO_INLINE char* gmio_write_nspaces(char* buffer, int n)
 {
     const int offset = n;
     while (n > 0)
@@ -85,7 +83,7 @@ static char* gmio_write_nspaces(char* buffer, int n)
     return buffer + offset;
 }
 
-static char* gmio_write_stdio_format(char* buffer, uint8_t prec)
+GMIO_INLINE char* gmio_write_stdio_format(char* buffer, uint8_t prec)
 {
     int prec_len = 0;
 
@@ -96,7 +94,7 @@ static char* gmio_write_stdio_format(char* buffer, uint8_t prec)
     return buffer + 3 + prec_len;
 }
 
-static char* gmio_write_coords(
+GMIO_INLINE char* gmio_write_coords(
         char* buffer,
         const char* coords_format,
         const gmio_stl_coords_t* coords)
@@ -180,21 +178,21 @@ int gmio_stla_write(
              ++ibuffer_facet)
         {
             mesh->get_triangle_func(mesh->cookie, ibuffer_facet, &tri);
-            buffc = gmio_write_string(buffc, "facet normal  ");
+            buffc = gmio_write_string(buffc, "facet normal ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.normal);
             buffc = gmio_write_eol(buffc);
 
-            buffc = gmio_write_string_eol(buffc, " outer loop");
-            buffc = gmio_write_string(buffc, "  vertex  ");
+            buffc = gmio_write_string_eol(buffc, "outer loop");
+            buffc = gmio_write_string(buffc, " vertex ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.v1);
             buffc = gmio_write_eol(buffc);
-            buffc = gmio_write_string(buffc, "  vertex  ");
+            buffc = gmio_write_string(buffc, " vertex ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.v2);
             buffc = gmio_write_eol(buffc);
-            buffc = gmio_write_string(buffc, "  vertex  ");
+            buffc = gmio_write_string(buffc, " vertex ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.v3);
             buffc = gmio_write_eol(buffc);
-            buffc = gmio_write_string_eol(buffc, " endloop");
+            buffc = gmio_write_string_eol(buffc, "endloop");
 
             buffc = gmio_write_string_eol(buffc, "endfacet");
         } /* end for (ibuffer_facet) */
