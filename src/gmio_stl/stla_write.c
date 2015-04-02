@@ -132,7 +132,7 @@ int gmio_stla_write(
     void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
     char* buffc = buffer_ptr;
     char coords_format[64];
-    int error = GMIO_NO_ERROR;
+    int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
     if (!gmio_check_transfer(&error, trsf))
@@ -140,9 +140,9 @@ int gmio_stla_write(
     if (!gmio_stl_check_mesh(&error, mesh))
         return error;
     if (float32_prec == 0 || float32_prec > 9)
-        return GMIO_STLA_WRITE_INVALID_REAL32_PREC_ERROR;
+        return GMIO_STL_ERROR_INVALID_REAL32_PREC;
     if (trsf->buffer.size < GMIO_STLA_FACET_SIZE_P2)
-        return GMIO_INVALID_BUFFER_SIZE_ERROR;
+        return GMIO_ERROR_INVALID_BUFFER_SIZE;
 
     { /* Create XYZ coords format string (for normal and vertex coords) */
         char* it = coords_format;
@@ -160,7 +160,7 @@ int gmio_stla_write(
         buffc = gmio_write_string(buffc, "solid ");
         buffc = gmio_write_string_eol(buffc, solid_name);
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)buffer_ptr))
-            return GMIO_STREAM_ERROR;
+            return GMIO_ERROR_STREAM;
     }
 
     /* Write solid's facets */
@@ -202,11 +202,11 @@ int gmio_stla_write(
         } /* end for (ibuffer_facet) */
 
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)buffer_ptr))
-            error = GMIO_STREAM_ERROR;
+            error = GMIO_ERROR_STREAM;
 
         /* Task control */
         if (gmio_no_error(error) && gmio_transfer_is_stop_requested(trsf))
-            error = GMIO_TRANSFER_STOPPED_ERROR;
+            error = GMIO_ERROR_TRANSFER_STOPPED;
     } /* end for (ifacet) */
 
     /* Write end of solid */
@@ -214,7 +214,7 @@ int gmio_stla_write(
         buffc = gmio_write_string(trsf->buffer.ptr, "endsolid ");
         buffc = gmio_write_string_eol(buffc, solid_name);
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)buffer_ptr))
-            error = GMIO_STREAM_ERROR;
+            error = GMIO_ERROR_STREAM;
     }
 
     return error;

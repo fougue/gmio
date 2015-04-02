@@ -22,13 +22,13 @@ static void bench_gmio_stl_read(const char* filepath)
     gmio_buffer_t buffer = gmio_buffer_malloc(512 * 1024);
     my_igeom_t cookie = { 0 };
     gmio_stl_mesh_creator_t mesh_creator = { 0 };
-    int error = GMIO_NO_ERROR;
+    int error = GMIO_ERROR_OK;
 
     mesh_creator.cookie = &cookie;
     mesh_creator.add_triangle_func = dummy_process_triangle;
 
     error = gmio_stl_read_file(filepath, &buffer, &mesh_creator);
-    if (error != GMIO_NO_ERROR)
+    if (error != GMIO_ERROR_OK)
         printf("GeomIO error: 0x%X\n", error);
 
     gmio_buffer_deallocate(&buffer);

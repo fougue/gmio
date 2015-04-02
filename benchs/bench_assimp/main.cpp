@@ -156,7 +156,7 @@ static void bench_gmio_stl_read(const char* filepath)
     mesh_creator.end_solid_func = gmio_assimp_end_solid;
 
     int error = gmio_stl_read_file(filepath, &buffer, &mesh_creator);
-    if (error != GMIO_NO_ERROR)
+    if (error != GMIO_ERROR_OK)
         printf("GeomIO error: 0x%X\n", error);
 
     gmio_buffer_deallocate(&buffer);

@@ -27,7 +27,7 @@ int gmio_stl_read_file(
         gmio_buffer_t* buffer,
         gmio_stl_mesh_creator_t* creator)
 {
-    int error = GMIO_NO_ERROR;
+    int error = GMIO_ERROR_OK;
     FILE* file = NULL;
 
     file = fopen(filepath, "rb");
@@ -42,7 +42,7 @@ int gmio_stl_read_file(
         fclose(file);
     }
     else {
-        error = GMIO_UNKNOWN_ERROR;
+        error = GMIO_ERROR_UNKNOWN;
     }
 
     return error;
@@ -50,7 +50,7 @@ int gmio_stl_read_file(
 
 int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
 {
-    int error = GMIO_NO_ERROR;
+    int error = GMIO_ERROR_OK;
 
     if (trsf != NULL) {
         const gmio_stl_format_t stl_format = gmio_stl_get_format(&trsf->stream);
@@ -69,12 +69,12 @@ int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
             break;
         }
         case GMIO_STL_UNKNOWN_FORMAT: {
-            error = GMIO_STL_UNKNOWN_FORMAT_ERROR;
+            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
         }
         } /* end switch() */
     }
     else {
-        error = GMIO_NULL_TRANSFER_ERROR;
+        error = GMIO_ERROR_NULL_TRANSFER;
     }
 
     return error;

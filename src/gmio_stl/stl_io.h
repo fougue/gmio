@@ -109,7 +109,7 @@ typedef struct gmio_stla_write_options  gmio_stla_write_options_t;
  *                 values
  *
  *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR
+ *  \retval GMIO_ERROR_INVALID_BUFFER_SIZE
  *          if <tt>trsf->buffer.size < 512</tt>
  */
 GMIO_LIBSTL_EXPORT
@@ -129,7 +129,7 @@ int gmio_stla_write(
  *  \param options Byte order of the input STL binary data
  *
  *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR
+ *  \retval GMIO_ERROR_INVALID_BUFFER_SIZE
  *          if <tt>trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 GMIO_LIBSTL_EXPORT

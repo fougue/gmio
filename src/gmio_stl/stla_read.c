@@ -462,7 +462,7 @@ int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
     gmio_stla_parse_data_t parse_data;
 
     { /* Check validity of input parameters */
-        int error = GMIO_NO_ERROR;
+        int error = GMIO_ERROR_OK;
         if (!gmio_check_transfer(&error, trsf))
             return error;
     }
@@ -494,8 +494,8 @@ int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
     parse_solid(&parse_data);
 
     if (parse_data.error)
-        return GMIO_STLA_READ_PARSE_ERROR;
+        return GMIO_STL_ERROR_PARSING;
     if (parse_data.stream_iterator_cookie.is_stop_requested)
-        return GMIO_TRANSFER_STOPPED_ERROR;
-    return GMIO_NO_ERROR;
+        return GMIO_ERROR_TRANSFER_STOPPED;
+    return GMIO_ERROR_OK;
 }

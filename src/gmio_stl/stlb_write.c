@@ -83,7 +83,7 @@ int gmio_stlb_write(
     void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
     gmio_stlb_readwrite_helper_t wparams = {0};
     uint32_t i_facet = 0;
-    int error = GMIO_NO_ERROR;
+    int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
     gmio_stl_check_mesh(&error, mesh);
@@ -106,7 +106,7 @@ int gmio_stlb_write(
     if (gmio_stream_write(&trsf->stream, header_data, GMIO_STLB_HEADER_SIZE, 1)
             != 1)
     {
-        return GMIO_STREAM_ERROR;
+        return GMIO_ERROR_STREAM;
     }
 
     /* Write facet count */
@@ -115,7 +115,7 @@ int gmio_stlb_write(
     else
         gmio_encode_uint32_be(facet_count, buffer_ptr);
     if (gmio_stream_write(&trsf->stream, buffer_ptr, sizeof(uint32_t), 1) != 1)
-        return GMIO_STREAM_ERROR;
+        return GMIO_ERROR_STREAM;
 
     /* Write triangles */
     for (i_facet = 0;
@@ -139,12 +139,12 @@ int gmio_stlb_write(
                     wparams.facet_count)
                 != wparams.facet_count)
         {
-            error = GMIO_STREAM_ERROR;
+            error = GMIO_ERROR_STREAM;
         }
 
         /* Handle stop request */
         if (gmio_no_error(error) && gmio_transfer_is_stop_requested(trsf))
-            error = GMIO_TRANSFER_STOPPED_ERROR;
+            error = GMIO_ERROR_TRANSFER_STOPPED;
     } /* end for */
 
     return error;

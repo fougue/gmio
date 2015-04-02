@@ -68,7 +68,7 @@ gmio_buffer_t gmio_buffer_alloca(size_t size)
     __except(GetExceptionCode() == STATUS_STACK_OVERFLOW) {
         /* The stack overflowed */
         if (_resetstkoflw() == 0)
-            exit(GMIO_UNKNOWN_ERROR);
+            exit(GMIO_ERROR_UNKNOWN);
         return gmio_buffer_null();
     }
 #  else

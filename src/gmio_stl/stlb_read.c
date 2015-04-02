@@ -83,7 +83,7 @@ int gmio_stlb_read(
     gmio_stlb_readwrite_helper_t rparams = {0};
     uint8_t header_data[GMIO_STLB_HEADER_SIZE];
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
-    int error = GMIO_NO_ERROR; /* Helper  to store function result error code */
+    int error = GMIO_ERROR_OK; /* Helper  to store function result error code */
 
     /* Check validity of input parameters */
     if (!gmio_stlb_check_params(&error, trsf, byte_order))
@@ -97,14 +97,14 @@ int gmio_stlb_read(
     if (gmio_stream_read(&trsf->stream, header_data, 1, GMIO_STLB_HEADER_SIZE)
             != GMIO_STLB_HEADER_SIZE)
     {
-        return GMIO_STLB_READ_HEADER_WRONG_SIZE_ERROR;
+        return GMIO_STL_ERROR_HEADER_WRONG_SIZE;
     }
 
     /* Read facet count */
     if (gmio_stream_read(&trsf->stream, buffer_ptr, sizeof(uint32_t), 1)
             != 1)
     {
-        return GMIO_STLB_READ_FACET_COUNT_ERROR;
+        return GMIO_STL_ERROR_FACET_COUNT;
     }
 
     memcpy(&total_facet_count, buffer_ptr, sizeof(uint32_t));
@@ -130,9 +130,9 @@ int gmio_stlb_read(
                         GMIO_STLB_TRIANGLE_RAWSIZE,
                         max_facet_count_per_read));
         if (gmio_stream_error(&trsf->stream) != 0)
-            error = GMIO_STREAM_ERROR;
+            error = GMIO_ERROR_STREAM;
         else if (rparams.facet_count > 0)
-            error = GMIO_NO_ERROR;
+            error = GMIO_ERROR_OK;
         else
             break; /* Exit if no facet to read */
 
@@ -140,7 +140,7 @@ int gmio_stlb_read(
             gmio_stlb_read_facets(creator, buffer_ptr, &rparams);
             rparams.i_facet_offset += rparams.facet_count;
             if (gmio_transfer_is_stop_requested(trsf))
-                error = GMIO_TRANSFER_STOPPED_ERROR;
+                error = GMIO_ERROR_TRANSFER_STOPPED;
         }
     } /* end while */
 
@@ -148,6 +148,6 @@ int gmio_stlb_read(
         gmio_stl_mesh_creator_end_solid(creator);
 
     if (gmio_no_error(error) && rparams.i_facet_offset != total_facet_count)
-        error = GMIO_STLB_READ_FACET_COUNT_ERROR;
+        error = GMIO_STL_ERROR_FACET_COUNT;
     return error;
 }

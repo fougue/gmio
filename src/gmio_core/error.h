@@ -26,36 +26,36 @@
 enum gmio_error
 {
     /*! No error occurred, success */
-    GMIO_NO_ERROR = 0,
+    GMIO_ERROR_OK = 0,
 
     /*! Pointer on argument gmio_transfer_t is NULL */
-    GMIO_NULL_TRANSFER_ERROR = -1,
+    GMIO_ERROR_NULL_TRANSFER = -1,
 
     /*! Pointer on argument buffer is NULL */
-    GMIO_NULL_BUFFER_ERROR = -2,
+    GMIO_ERROR_NULL_BUFFER = -2,
 
     /*! Argument buffer's size is too small */
-    GMIO_INVALID_BUFFER_SIZE_ERROR = -3,
+    GMIO_ERROR_INVALID_BUFFER_SIZE = -3,
 
-    /*! An error occurred with the gmio_stream */
-    GMIO_STREAM_ERROR = -4,
+    /*! An error occurred with gmio_stream */
+    GMIO_ERROR_STREAM = -4,
 
     /*! Transfer was stopped by user, that is to say
      *  gmio_transfer::is_stop_requested_func() returned GMIO_TRUE */
-    GMIO_TRANSFER_STOPPED_ERROR = -5,
+    GMIO_ERROR_TRANSFER_STOPPED = -5,
 
     /*! Unknown error */
-    GMIO_UNKNOWN_ERROR = -6
+    GMIO_ERROR_UNKNOWN = -6
 };
 
 typedef enum gmio_error gmio_error_t;
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
 GMIO_INLINE gmio_bool_t gmio_no_error(int code)
-{ return code == GMIO_NO_ERROR; }
+{ return code == GMIO_ERROR_OK ? GMIO_TRUE : GMIO_FALSE; }
 
 /*! Returns true if <tt>code != GMIO_NO_ERROR</tt> */
 GMIO_INLINE gmio_bool_t gmio_error(int code)
-{ return code != GMIO_NO_ERROR; }
+{ return code != GMIO_ERROR_OK ? GMIO_TRUE : GMIO_FALSE; }
 
 #endif /* GMIO_ERROR_H */

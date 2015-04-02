@@ -28,34 +28,34 @@ enum { GMIO_STL_ERROR_TAG = 0x11000000 };
 enum gmio_stl_error
 {
     /*! STL format could not be guessed in read function */
-    GMIO_STL_UNKNOWN_FORMAT_ERROR = GMIO_STL_ERROR_TAG + 1,
+    GMIO_STL_ERROR_UNKNOWN_FORMAT = GMIO_STL_ERROR_TAG + 1,
 
     /*! Common STL write error indicating gmio_stl_mesh::get_triangle_func()
      *  pointer is NULL
      */
-    GMIO_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR = GMIO_STL_ERROR_TAG + 2,
+    GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC = GMIO_STL_ERROR_TAG + 2,
 
     /* Specific error codes returned by STL_ascii read function */
 
     /*! Parsing error occured in gmio_stla_read() due to malformed STL ascii
      *  input */
-    GMIO_STLA_READ_PARSE_ERROR = GMIO_STL_ERROR_TAG + 100,
+    GMIO_STL_ERROR_PARSING = GMIO_STL_ERROR_TAG + 100,
 
     /*! Invalid max number of decimal significants digits for
      *  gmio_stla_write(), must be in [1..9] */
-    GMIO_STLA_WRITE_INVALID_REAL32_PREC_ERROR = GMIO_STL_ERROR_TAG + 101,
+    GMIO_STL_ERROR_INVALID_REAL32_PREC = GMIO_STL_ERROR_TAG + 101,
 
     /* Specific error codes returned by STL_binary read/write functions */
 
     /*! The byte order argument supplied is not supported, must be little or
      *  big endian */
-    GMIO_STLB_UNSUPPORTED_BYTE_ORDER_ERROR = GMIO_STL_ERROR_TAG + 300,
+    GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER = GMIO_STL_ERROR_TAG + 300,
 
     /*! Error occured when reading header data in gmio_stlb_read() */
-    GMIO_STLB_READ_HEADER_WRONG_SIZE_ERROR = GMIO_STL_ERROR_TAG + 301,
+    GMIO_STL_ERROR_HEADER_WRONG_SIZE = GMIO_STL_ERROR_TAG + 301,
 
     /*! Error occured when reading facet count in gmio_stlb_read() */
-    GMIO_STLB_READ_FACET_COUNT_ERROR = GMIO_STL_ERROR_TAG + 302
+    GMIO_STL_ERROR_FACET_COUNT = GMIO_STL_ERROR_TAG + 302
 };
 
 typedef enum gmio_stl_error  gmio_stl_error_t;

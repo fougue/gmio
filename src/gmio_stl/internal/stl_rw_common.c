@@ -21,13 +21,13 @@
 gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
 {
     if (trsf == NULL) {
-        *error = GMIO_NULL_TRANSFER_ERROR;
+        *error = GMIO_ERROR_NULL_TRANSFER;
     }
     else {
         if (trsf->buffer.ptr == NULL)
-            *error = GMIO_NULL_BUFFER_ERROR;
+            *error = GMIO_ERROR_NULL_BUFFER;
         else if (trsf->buffer.size == 0)
-            *error = GMIO_INVALID_BUFFER_SIZE_ERROR;
+            *error = GMIO_ERROR_INVALID_BUFFER_SIZE;
     }
 
     return gmio_no_error(*error);
@@ -38,7 +38,7 @@ gmio_bool_t gmio_stl_check_mesh(int *error, const gmio_stl_mesh_t* mesh)
     if (mesh == NULL
             || (mesh->triangle_count > 0 && mesh->get_triangle_func == NULL))
     {
-        *error = GMIO_STL_WRITE_NULL_GET_TRIANGLE_FUNC_ERROR;
+        *error = GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC;
     }
 
     return gmio_no_error(*error);
@@ -52,11 +52,11 @@ gmio_bool_t gmio_stlb_check_params(int *error,
         return GMIO_FALSE;
 
     if (trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE)
-        *error = GMIO_INVALID_BUFFER_SIZE_ERROR;
+        *error = GMIO_ERROR_INVALID_BUFFER_SIZE;
     if (byte_order != GMIO_ENDIANNESS_LITTLE
             && byte_order != GMIO_ENDIANNESS_BIG)
     {
-        *error = GMIO_STLB_UNSUPPORTED_BYTE_ORDER_ERROR;
+        *error = GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER;
     }
 
     return gmio_no_error(*error);
