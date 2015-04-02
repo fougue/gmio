@@ -58,20 +58,11 @@ GMIO_INLINE const char* gmio_next_char_from_buffer(
 GMIO_INLINE const char* gmio_next_char_from_stream(
         gmio_string_stream_fwd_iterator_t *it)
 {
-    if (gmio_stream_error(it->stream) != 0
-            || gmio_stream_at_end(it->stream) == GMIO_TRUE)
-    {
-        it->buffer_pos = it->buffer.len;
-        return NULL;
-    }
-
     /* Read next chunk of data */
     it->buffer_pos = 0;
-    it->buffer.len = gmio_stream_read(it->stream,
-                                      it->buffer.ptr,
-                                      sizeof(char),
-                                      it->buffer.max_len);
-    if (gmio_stream_error(it->stream) == 0) {
+    it->buffer.len = gmio_stream_read(
+                it->stream, it->buffer.ptr, sizeof(char), it->buffer.max_len);
+    if (it->buffer.len > 0) {
         if (it->stream_read_hook != NULL)
             it->stream_read_hook(it->cookie, &it->buffer);
         return it->buffer.ptr;
