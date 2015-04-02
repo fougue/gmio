@@ -18,26 +18,37 @@
 #ifndef GMIO_CONFIG_H_CMAKE
 #define GMIO_CONFIG_H_CMAKE
 
+/* C99 */
+#ifndef GMIO_HAVE_STDINT_H
 #cmakedefine GMIO_HAVE_STDINT_H
+#endif
+
+#ifndef GMIO_HAVE_STDBOOL_H
 #cmakedefine GMIO_HAVE_STDBOOL_H
+#endif
+
 #cmakedefine GMIO_HAVE_STRTOF_FUNC
 #cmakedefine GMIO_HAVE_POWF_FUNC
 
+/* POSIX */
 #cmakedefine GMIO_HAVE_SYS_TYPES_H
 #cmakedefine GMIO_HAVE_SYS_STAT_H
 #cmakedefine GMIO_HAVE_POSIX_FILENO_FUNC
 #cmakedefine GMIO_HAVE_POSIX_FSTAT64_FUNC
 #cmakedefine GMIO_HAVE_WIN__FSTAT64_FUNC
 
+/* alloca()-like */
+#cmakedefine GMIO_HAVE_BSD_ALLOCA_FUNC
+#cmakedefine GMIO_HAVE_WIN__ALLOCA_FUNC
+
+/* Compiler byte-swap functions */
 #cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
 #cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC
 
 #cmakedefine GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC
 
+/* Target architecture */
 #cmakedefine GMIO_HOST_IS_BIG_ENDIAN
-
-#cmakedefine GMIO_HAVE_BSD_ALLOCA_FUNC
-#cmakedefine GMIO_HAVE_WIN__ALLOCA_FUNC
 
 #if defined(__APPLE__)
 #  if defined(__i386__) || defined(__ppc__)
