@@ -56,19 +56,19 @@ int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
         const gmio_stl_format_t stl_format = gmio_stl_get_format(&trsf->stream);
 
         switch (stl_format) {
-        case GMIO_STL_ASCII_FORMAT: {
+        case GMIO_STL_FORMAT_ASCII: {
             error = gmio_stla_read(trsf, creator);
             break;
         }
-        case GMIO_STL_BINARY_BE_FORMAT: {
+        case GMIO_STL_FORMAT_BINARY_BE: {
             error = gmio_stlb_read(trsf, creator, GMIO_ENDIANNESS_BIG);
             break;
         }
-        case GMIO_STL_BINARY_LE_FORMAT: {
+        case GMIO_STL_FORMAT_BINARY_LE: {
             error = gmio_stlb_read(trsf, creator, GMIO_ENDIANNESS_LITTLE);
             break;
         }
-        case GMIO_STL_UNKNOWN_FORMAT: {
+        case GMIO_STL_FORMAT_UNKNOWN: {
             error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
         }
         } /* end switch() */

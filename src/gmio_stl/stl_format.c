@@ -34,7 +34,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
     size_t read_size = 0;
 
     if (stream == NULL)
-        return GMIO_STL_UNKNOWN_FORMAT;
+        return GMIO_STL_FORMAT_UNKNOWN;
 
     /* Read a chunk of bytes from stream, then try to find format from that */
     memset(fixed_buffer, 0, GMIO_FIXED_BUFFER_SIZE);
@@ -54,7 +54,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
         if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
                 == stream_size)
         {
-            return GMIO_STL_BINARY_LE_FORMAT;
+            return GMIO_STL_FORMAT_BINARY_LE;
         }
 
         /* Try with byte-reverted facet count */
@@ -62,7 +62,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
         if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
                 == stream_size)
         {
-            return GMIO_STL_BINARY_BE_FORMAT;
+            return GMIO_STL_FORMAT_BINARY_BE;
         }
     }
 
@@ -78,10 +78,10 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
                 && gmio_istarts_with(fixed_buffer + pos, "solid")
                 && gmio_clocale_isspace(fixed_buffer[pos + 5]))
         {
-            return GMIO_STL_ASCII_FORMAT;
+            return GMIO_STL_FORMAT_ASCII;
         }
     }
 
     /* Fallback case */
-    return GMIO_STL_UNKNOWN_FORMAT;
+    return GMIO_STL_FORMAT_UNKNOWN;
 }

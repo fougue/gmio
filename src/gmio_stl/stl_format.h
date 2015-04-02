@@ -26,10 +26,10 @@
 /*! This enums defines the various STL formats */
 enum gmio_stl_format
 {
-    GMIO_STL_ASCII_FORMAT,     /*!< STL ASCII (text) */
-    GMIO_STL_BINARY_LE_FORMAT, /*!< STL binary (little-endian) */
-    GMIO_STL_BINARY_BE_FORMAT, /*!< STL binary (big-endian) */
-    GMIO_STL_UNKNOWN_FORMAT
+    GMIO_STL_FORMAT_UNKNOWN = 0, /*!< Unknown STL format */
+    GMIO_STL_FORMAT_ASCII,       /*!< STL ASCII (text) */
+    GMIO_STL_FORMAT_BINARY_LE,   /*!< STL binary (little-endian) */
+    GMIO_STL_FORMAT_BINARY_BE    /*!< STL binary (big-endian) */
 };
 
 typedef enum gmio_stl_format gmio_stl_format_t;
@@ -41,7 +41,7 @@ GMIO_C_LINKAGE_BEGIN
  *  It will try to read 512 bytes from \p stream into a buffer and then
  *  analyses this data to guess the format.
  *
- *  \retval GMIO_STL_UNKNOWN_FORMAT in case of error.
+ *  \retval GMIO_STL_FORMAT_UNKNOWN in case of error.
  */
 GMIO_LIBSTL_EXPORT
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream);
