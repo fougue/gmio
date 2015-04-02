@@ -13,19 +13,18 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "stl_io.h"
+#include "stlb_write.h"
 
-#include "stl_error.h"
-#include "internal/stl_rw_common.h"
-#include "internal/stlb_byte_swap.h"
+#include "stl_rw_common.h"
+#include "stlb_byte_swap.h"
+#include "../stl_error.h"
 
-#include "../gmio_core/endian.h"
-#include "../gmio_core/error.h"
-#include "../gmio_core/internal/byte_codec.h"
-#include "../gmio_core/internal/min_max.h"
-#include "../gmio_core/internal/helper_stream.h"
-#include "../gmio_core/internal/helper_transfer.h"
-#include "../gmio_core/internal/safe_cast.h"
+#include "../../gmio_core/error.h"
+#include "../../gmio_core/internal/byte_codec.h"
+#include "../../gmio_core/internal/min_max.h"
+#include "../../gmio_core/internal/helper_stream.h"
+#include "../../gmio_core/internal/helper_transfer.h"
+#include "../../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 
@@ -68,13 +67,11 @@ static void gmio_stlb_write_facets(
 int gmio_stlb_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        const gmio_stlb_write_options_t* options)
+        /* Options */
+        const uint8_t* header_data,
+        gmio_endianness_t byte_order)
 {
     /* Constants */
-    const gmio_endianness_t byte_order =
-            options != NULL ? options->byte_order : GMIO_ENDIANNESS_HOST;
-    const uint8_t* header_data =
-            options != NULL ? options->header_data : NULL;
     const uint32_t facet_count =
             mesh != NULL ? mesh->triangle_count : 0;
     /* Variables */

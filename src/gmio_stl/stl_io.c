@@ -17,6 +17,8 @@
 
 #include "stl_error.h"
 #include "stl_format.h"
+#include "internal/stla_write.h"
+#include "internal/stlb_write.h"
 #include "../gmio_core/error.h"
 #include "../gmio_core/stream.h"
 #include "../gmio_core/transfer.h"
@@ -85,7 +87,8 @@ int gmio_stl_write_file(
         gmio_stl_format_t format,
         const char *filepath,
         const gmio_stl_mesh_t *mesh,
-        gmio_task_iface_t *task_iface)
+        gmio_task_iface_t *task_iface,
+        const gmio_stl_write_options_t *options)
 {
     int error = GMIO_ERROR_OK;
     FILE* file = NULL;
@@ -98,7 +101,7 @@ int gmio_stl_write_file(
         if (task_iface != NULL)
             trsf.task_iface = *task_iface;
 
-        error = gmio_stl_write(format, &trsf, mesh);
+        error = gmio_stl_write(format, &trsf, mesh, options);
         fclose(file);
         gmio_buffer_deallocate(&trsf.buffer);
     }
@@ -112,26 +115,31 @@ int gmio_stl_write_file(
 int gmio_stl_write(
         gmio_stl_format_t format,
         gmio_transfer_t *trsf,
-        const gmio_stl_mesh_t *mesh)
+        const gmio_stl_mesh_t *mesh,
+        const gmio_stl_write_options_t *options)
 {
+    const uint8_t* header_data =
+            options != NULL ? options->stlb_header_data : NULL;
     int error = GMIO_ERROR_OK;
 
     if (trsf != NULL) {
         switch (format) {
         case GMIO_STL_FORMAT_ASCII: {
-            error = gmio_stla_write(trsf, mesh, NULL);
+            const char* solid_name =
+                    options != NULL ? options->stla_solid_name : NULL;
+            const uint8_t float32_prec =
+                    options != NULL ? options->stla_float32_prec : 9;
+            error = gmio_stla_write(trsf, mesh, solid_name, float32_prec);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_BE: {
-            const gmio_stlb_write_options_t opts = { NULL,
-                                                     GMIO_ENDIANNESS_BIG };
-            error = gmio_stlb_write(trsf, mesh, &opts);
+            error = gmio_stlb_write(
+                        trsf, mesh, header_data, GMIO_ENDIANNESS_BIG);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_LE: {
-            const gmio_stlb_write_options_t opts = { NULL,
-                                                     GMIO_ENDIANNESS_LITTLE };
-            error = gmio_stlb_write(trsf, mesh, &opts);
+            error = gmio_stlb_write(
+                        trsf, mesh, header_data, GMIO_ENDIANNESS_LITTLE);
             break;
         }
         case GMIO_STL_FORMAT_UNKNOWN: {

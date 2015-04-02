@@ -37,7 +37,7 @@ GMIO_C_LINKAGE_BEGIN
  *         the string has to be encoded using the system's charset (locale-8bit)
  *  \param creator Defines the callbacks for the mesh creation
  *  \param task_iface The interface object by which the read operation can be
- *                    controlled. Optional, can be safely set to NULL
+ *         controlled. Optional, can be safely set to NULL
  *
  *  Internally, it uses:
  *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
@@ -71,7 +71,9 @@ int gmio_stl_read(
  *         the string has to be encoded using the system's charset (locale-8bit)
  *  \param mesh Defines the mesh to output
  *  \param task_iface The interface object by which the write operation can be
- *                    controlled. Optional, can be safely set to NULL
+ *         controlled. Optional, can be safely set to NULL
+ *  \param options Options for the write operation, can be safely set to NULL
+ *         to use default values
  *
  *  Internally, it uses:
  *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
@@ -85,13 +87,16 @@ int gmio_stl_write_file(
         gmio_stl_format_t format,
         const char* filepath,
         const gmio_stl_mesh_t* mesh,
-        gmio_task_iface_t* task_iface);
+        gmio_task_iface_t* task_iface,
+        const gmio_stl_write_options_t* options);
 
 /*! Writes STL mesh to stream
  *
  *  \param format STL format of the output
  *  \param trsf Defines needed objects for the write operation
  *  \param mesh Defines the mesh to output
+ *  \param options Options for the write operation, can be safely set to NULL
+ *         to use default values
  *
  *  \return Error code (see error.h and stl_error.h)
  */
@@ -99,18 +104,15 @@ GMIO_LIBSTL_EXPORT
 int gmio_stl_write(
         gmio_stl_format_t format,
         gmio_transfer_t* trsf,
-        const gmio_stl_mesh_t* mesh);
-
-/* ========================================================================
- *  STL ascii
- * ======================================================================== */
+        const gmio_stl_mesh_t* mesh,
+        const gmio_stl_write_options_t* options);
 
 /*! Reads geometry from STL ascii stream
  *
  *  \param trsf Defines needed objects for the read operation
  *  \param creator Defines the callbacks for the mesh creation
  *
- *  Stream size is passed to gmio_transfer::handle_progress_func() as the
+ *  Stream size is passed to gmio_task_iface::handle_progress_func() as the
  *  \p max_value argument.
  *
  *  Possible options in a future version could be:
@@ -123,27 +125,6 @@ GMIO_LIBSTL_EXPORT
 int gmio_stla_read(
         gmio_transfer_t* trsf,
         gmio_stl_mesh_creator_t* creator);
-
-/*! Writes geometry in the STL ascii format
- *
- *  \param mesh Defines the mesh to write
- *  \param trsf Defines needed objects for the write operation
- *  \param options Options for the operation, can be \c NULL to use default
- *                 values
- *
- *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_ERROR_INVALID_BUFFER_SIZE
- *          if <tt>trsf->buffer.size < 512</tt>
- */
-GMIO_LIBSTL_EXPORT
-int gmio_stla_write(
-        gmio_transfer_t* trsf,
-        const gmio_stl_mesh_t* mesh,
-        const gmio_stla_write_options_t* options);
-
-/* ========================================================================
- *  STL binary
- * ======================================================================== */
 
 /*! Reads geometry from STL binary stream
  *
@@ -160,23 +141,6 @@ int gmio_stlb_read(
         gmio_transfer_t* trsf,
         gmio_stl_mesh_creator_t* creator,
         gmio_endianness_t byte_order);
-
-/*! Writes geometry in the STL binary format
- *
- *  \param mesh Defines the mesh to write
- *  \param trsf Defines needed objects for the write operation
- *  \param options Options for the operation, can be \c NULL to use default
- *                 values
- *
- *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR
- *          if <tt>trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
- */
-GMIO_LIBSTL_EXPORT
-int gmio_stlb_write(
-        gmio_transfer_t* trsf,
-        const gmio_stl_mesh_t* mesh,
-        const gmio_stlb_write_options_t* options);
 
 GMIO_C_LINKAGE_END
 

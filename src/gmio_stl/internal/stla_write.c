@@ -13,16 +13,16 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "stl_io.h"
+#include "stla_write.h"
 
-#include "internal/stl_rw_common.h"
-#include "stl_error.h"
+#include "stl_rw_common.h"
+#include "../stl_error.h"
 
-#include "../gmio_core/error.h"
-#include "../gmio_core/internal/helper_stream.h"
-#include "../gmio_core/internal/helper_transfer.h"
-#include "../gmio_core/internal/min_max.h"
-#include "../gmio_core/internal/safe_cast.h"
+#include "../../gmio_core/error.h"
+#include "../../gmio_core/internal/helper_stream.h"
+#include "../../gmio_core/internal/helper_transfer.h"
+#include "../../gmio_core/internal/min_max.h"
+#include "../../gmio_core/internal/safe_cast.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -113,11 +113,11 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 int gmio_stla_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        const gmio_stla_write_options_t* options)
+        /* Options */
+        const char* solid_name,
+        uint8_t float32_prec)
 {
     /* Constants */
-    const char* solid_name = options != NULL ? options->solid_name : NULL;
-    const uint8_t float32_prec = options != NULL ? options->float32_prec : 9;
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const uint32_t buffer_facet_count =
             trsf != NULL ?
