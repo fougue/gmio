@@ -4,7 +4,7 @@
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
-#include <gmio_support/occ_libstl.h>
+#include <gmio_support/stl_occ.h>
 
 #include "../commons/bench_tools.h"
 

@@ -13,12 +13,12 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/*! \file occ_libstl.h
+/*! \file stl_occ.h
  *  Support of OpenCascade's StlMesh_Mesh
  */
 
-#ifndef GMIO_SUPPORT_OCC_LIBSTL_H
-#define GMIO_SUPPORT_OCC_LIBSTL_H
+#ifndef GMIO_SUPPORT_STL_OCC_H
+#define GMIO_SUPPORT_STL_OCC_H
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
@@ -81,4 +81,4 @@ void gmio_stl_set_occmesh_creator(
 GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& mesh);
 
-#endif /* GMIO_SUPPORT_OCC_LIBSTL_H */
+#endif /* GMIO_SUPPORT_STL_OCC_H */

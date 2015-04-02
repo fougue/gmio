@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include <gmio_support/qt_stream.h>
+#include <gmio_support/stream_qt.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>

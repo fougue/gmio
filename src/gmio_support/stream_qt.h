@@ -13,12 +13,12 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/*! \file qt_stream.h
+/*! \file stream_qt.h
  *  Support of Qt's QIODevice (requires at least Qt4)
  */
 
-#ifndef GMIO_SUPPORT_QT_STREAM_H
-#define GMIO_SUPPORT_QT_STREAM_H
+#ifndef GMIO_SUPPORT_STREAM_QT_H
+#define GMIO_SUPPORT_STREAM_QT_H
 
 #include "support_global.h"
 #include "../gmio_core/stream.h"
@@ -32,4 +32,4 @@ QT_END_NAMESPACE
 GMIO_LIBSUPPORT_EXPORT
 gmio_stream_t gmio_stream_qiodevice(QT_PREPEND_NAMESPACE(QIODevice)* device);
 
-#endif /* GMIO_SUPPORT_QT_STREAM_H */
+#endif /* GMIO_SUPPORT_STREAM_QT_H */

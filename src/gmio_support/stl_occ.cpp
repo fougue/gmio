@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include <gmio_support/occ_libstl.h>
+#include <gmio_support/stl_occ.h>
 
 #include <cstring>
 #include <StlMesh_Mesh.hxx>

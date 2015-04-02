@@ -166,12 +166,12 @@ install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/gmio_stl)
 install(FILES src/gmio_support/support_global.h DESTINATION include/gmio_support)
 
 # Qt support
-install(FILES src/gmio_support/qt_stream.h   DESTINATION include/gmio_support)
-install(FILES src/gmio_support/qt_stream.cpp DESTINATION src/gmio_support)
+install(FILES src/gmio_support/stream_qt.h   DESTINATION include/gmio_support)
+install(FILES src/gmio_support/stream_qt.cpp DESTINATION src/gmio_support)
 
 # OpenCASCADE support
-install(FILES src/gmio_support/occ_libstl.h   DESTINATION include/gmio_support)
-install(FILES src/gmio_support/occ_libstl.cpp DESTINATION src/gmio_support)
+install(FILES src/gmio_support/stl_occ.h   DESTINATION include/gmio_support)
+install(FILES src/gmio_support/stl_occ.cpp DESTINATION src/gmio_support)
 
 # Installs for target
 add_library(gmio ${ALL_SRC_FILES})
