@@ -17,8 +17,8 @@
  *  Declaration of gmio_stl_mesh
  */
 
-#ifndef GMIO_LIBSTL_STL_MESH_H
-#define GMIO_LIBSTL_STL_MESH_H
+#ifndef GMIO_STL_MESH_H
+#define GMIO_STL_MESH_H
 
 #include "stl_global.h"
 #include "stl_triangle.h"
@@ -41,4 +41,4 @@ struct gmio_stl_mesh
 
 typedef struct gmio_stl_mesh gmio_stl_mesh_t;
 
-#endif /* GMIO_LIBSTL_STL_MESH_H */
+#endif /* GMIO_STL_MESH_H */

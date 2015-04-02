@@ -17,8 +17,8 @@
  *  Declaration of gmio_stl_mesh_creator
  */
 
-#ifndef GMIO_LIBSTL_STL_MESH_CREATOR_H
-#define GMIO_LIBSTL_STL_MESH_CREATOR_H
+#ifndef GMIO_STL_MESH_CREATOR_H
+#define GMIO_STL_MESH_CREATOR_H
 
 #include "stl_global.h"
 #include "stl_triangle.h"
@@ -73,4 +73,4 @@ struct gmio_stl_mesh_creator
 
 typedef struct gmio_stl_mesh_creator gmio_stl_mesh_creator_t;
 
-#endif /* GMIO_LIBSTL_STL_MESH_CREATOR_H */
+#endif /* GMIO_STL_MESH_CREATOR_H */

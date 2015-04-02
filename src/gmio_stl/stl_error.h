@@ -17,8 +17,8 @@
  *  List of errors specific to STL I/O functions
  */
 
-#ifndef GMIO_LIBSTL_STL_ERROR_H
-#define GMIO_LIBSTL_STL_ERROR_H
+#ifndef GMIO_STL_ERROR_H
+#define GMIO_STL_ERROR_H
 
 /*! A byte-mask to tag(identify) STL-specific error codes */
 enum { GMIO_STL_ERROR_TAG = 0x11000000 };
@@ -60,4 +60,4 @@ enum gmio_stl_error
 
 typedef enum gmio_stl_error  gmio_stl_error_t;
 
-#endif /* GMIO_LIBSTL_STL_ERROR_H */
+#endif /* GMIO_STL_ERROR_H */

@@ -17,8 +17,8 @@
  *  Detection of STL format from input stream
  */
 
-#ifndef GMIO_LIBSTL_FORMAT_H
-#define GMIO_LIBSTL_FORMAT_H
+#ifndef GMIO_STL_FORMAT_H
+#define GMIO_STL_FORMAT_H
 
 #include "stl_global.h"
 #include "../gmio_core/stream.h"
@@ -48,4 +48,4 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream);
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_LIBSTL_FORMAT_H */
+#endif /* GMIO_STL_FORMAT_H */

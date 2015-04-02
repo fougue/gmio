@@ -17,8 +17,8 @@
  *  Declaration of gmio_stl_coords and gmio_stl_triangle
  */
 
-#ifndef GMIO_LIBSTL_TRIANGLE_H
-#define GMIO_LIBSTL_TRIANGLE_H
+#ifndef GMIO_STL_TRIANGLE_H
+#define GMIO_STL_TRIANGLE_H
 
 #include "stl_global.h"
 
@@ -58,4 +58,4 @@ enum {
     GMIO_STLB_TRIANGLE_RAWSIZE = (GMIO_STLA_TRIANGLE_RAWSIZE + sizeof(uint16_t))
 };
 
-#endif /* GMIO_LIBSTL_TRIANGLE_H */
+#endif /* GMIO_STL_TRIANGLE_H */

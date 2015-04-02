@@ -13,8 +13,8 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#ifndef GMIO_C_SUPPORT_GLOBAL_H
-#define GMIO_C_SUPPORT_GLOBAL_H
+#ifndef GMIO_SUPPORT_GLOBAL_H
+#define GMIO_SUPPORT_GLOBAL_H
 
 #include "../gmio_core/global.h"
 
@@ -28,4 +28,4 @@
 #  define GMIO_LIBSUPPORT_EXPORT
 #endif /* GMIO_LIBSUPPORT_DLL */
 
-#endif /* GMIO_C_SUPPORT_GLOBAL_H */
+#endif /* GMIO_SUPPORT_GLOBAL_H */

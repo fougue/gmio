@@ -17,8 +17,8 @@
  *  STL read/write functions
  */
 
-#ifndef GMIO_LIBSTL_STL_IO_H
-#define GMIO_LIBSTL_STL_IO_H
+#ifndef GMIO_STL_IO_H
+#define GMIO_STL_IO_H
 
 #include "stl_global.h"
 #include "stl_mesh.h"
@@ -176,4 +176,4 @@ int gmio_stlb_write(
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_LIBSTL_STL_IO_H */
+#endif /* GMIO_STL_IO_H */

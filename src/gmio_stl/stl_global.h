@@ -17,8 +17,8 @@
  *  Global declarations for the STL module
  */
 
-#ifndef GMIO_LIBSTL_GLOBAL_H
-#define GMIO_LIBSTL_GLOBAL_H
+#ifndef GMIO_STL_GLOBAL_H
+#define GMIO_STL_GLOBAL_H
 
 #include "../gmio_core/global.h"
 
@@ -44,4 +44,4 @@ enum {
     GMIO_STLB_MIN_CONTENTS_SIZE = 284
 };
 
-#endif /* GMIO_LIBSTL_GLOBAL_H */
+#endif /* GMIO_STL_GLOBAL_H */
