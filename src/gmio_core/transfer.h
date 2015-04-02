@@ -23,36 +23,19 @@
 #include "buffer.h"
 #include "global.h"
 #include "stream.h"
+#include "task_iface.h"
 
 /*! Defines objects required for any transfer(read/write) operation */
 struct gmio_transfer
 {
-    /*! Optional opaque pointer on a user task object, passed as first
-     *  argument to hook functions */
-    void* cookie;
-
-    /*! Optional pointer on a function that says if the currently running
-     *  operation must stop
-     *
-     *  If \c GMIO_TRUE is returned then the current transfer should abort as
-     *  soon as possible, otherwise it can continue execution.
-     */
-    gmio_bool_t (*is_stop_requested_func)(void* cookie);
-
-    /*! Optional pointer on a function that is called anytime some progress
-     *  was done during transfer
-     *
-     *  \param cookie The cookie set inside the gmio_transfer object
-     *  \param value Current value of the transfer progress (<= \p max_value )
-     *  \param max_value Maximum value of the transfer progress
-     */
-    void (*handle_progress_func)(void* cookie, size_t value, size_t max_value);
-
     /*! The stream object to be used for I/O */
     gmio_stream_t stream;
 
-    /*! The memory buffer used by the transfer for stream operations */
+    /*! The memory block used by the transfer for stream buffering */
     gmio_buffer_t buffer;
+
+    /*! The interface object by which the transfer task can be controlled */
+    gmio_task_iface_t task_iface;
 };
 
 typedef struct gmio_transfer gmio_transfer_t;
