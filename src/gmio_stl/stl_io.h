@@ -30,7 +30,7 @@
 
 GMIO_C_LINKAGE_BEGIN
 
-/*! Reads STL file, format is automatically guessed
+/*! Reads STL mesh from file, format is automatically guessed
  *
  *  \param filepath Path to the STL file. A stream is opened with fopen() so
  *         the string has to be encoded using the system's charset (locale-8bit)
@@ -51,7 +51,7 @@ int gmio_stl_read_file(
         gmio_stl_mesh_creator_t* creator,
         gmio_task_iface_t* task_iface);
 
-/*! Reads STL data from stream, format is automatically guessed
+/*! Reads STL mesh from stream, format is automatically guessed
  *
  *  \param trsf Defines needed objects for the read operation
  *  \param creator Defines the callbacks for the mesh creation
@@ -62,6 +62,43 @@ GMIO_LIBSTL_EXPORT
 int gmio_stl_read(
         gmio_transfer_t* trsf,
         gmio_stl_mesh_creator_t* creator);
+
+/*! Writes STL mesh to file
+ *
+ *  \param format STL format of the output file
+ *  \param filepath Path to the STL file. A stream is opened with fopen() so
+ *         the string has to be encoded using the system's charset (locale-8bit)
+ *  \param mesh Defines the mesh to output
+ *  \param task_iface The interface object by which the write operation can be
+ *                    controlled. Optional, can be safely set to NULL
+ *
+ *  Internally, it uses:
+ *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
+ *    \li the global default function to construct a temporary gmio_buffer
+ *        object (see gmio_buffer_default())
+ *
+ *  \return Error code (see error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT
+int gmio_stl_write_file(
+        gmio_stl_format_t format,
+        const char* filepath,
+        gmio_stl_mesh_t* mesh,
+        gmio_task_iface_t* task_iface);
+
+/*! Writes STL mesh to stream
+ *
+ *  \param format STL format of the output
+ *  \param trsf Defines needed objects for the write operation
+ *  \param mesh Defines the mesh to output
+ *
+ *  \return Error code (see error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT
+int gmio_stl_write(
+        gmio_stl_format_t format,
+        gmio_transfer_t* trsf,
+        gmio_stl_mesh_t* mesh);
 
 /* ========================================================================
  *  STL ascii

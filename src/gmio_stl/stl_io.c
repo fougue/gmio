@@ -80,3 +80,68 @@ int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
 
     return error;
 }
+
+int gmio_stl_write_file(
+        gmio_stl_format_t format,
+        const char *filepath,
+        gmio_stl_mesh_t *mesh,
+        gmio_task_iface_t *task_iface)
+{
+    int error = GMIO_ERROR_OK;
+    FILE* file = NULL;
+
+    file = fopen(filepath, "wb");
+    if (file != NULL) {
+        gmio_transfer_t trsf = { 0 };
+        trsf.stream = gmio_stream_stdio(file);
+        trsf.buffer = gmio_buffer_default();
+        if (task_iface != NULL)
+            trsf.task_iface = *task_iface;
+
+        error = gmio_stl_write(format, &trsf, mesh);
+        fclose(file);
+        gmio_buffer_deallocate(&trsf.buffer);
+    }
+    else {
+        error = GMIO_ERROR_UNKNOWN;
+    }
+
+    return error;
+}
+
+int gmio_stl_write(
+        gmio_stl_format_t format,
+        gmio_transfer_t *trsf,
+        gmio_stl_mesh_t *mesh)
+{
+    int error = GMIO_ERROR_OK;
+
+    if (trsf != NULL) {
+        switch (format) {
+        case GMIO_STL_FORMAT_ASCII: {
+            error = gmio_stla_write(trsf, mesh, NULL);
+            break;
+        }
+        case GMIO_STL_FORMAT_BINARY_BE: {
+            const gmio_stlb_write_options_t opts = { NULL,
+                                                     GMIO_ENDIANNESS_BIG };
+            error = gmio_stlb_write(trsf, mesh, &opts);
+            break;
+        }
+        case GMIO_STL_FORMAT_BINARY_LE: {
+            const gmio_stlb_write_options_t opts = { NULL,
+                                                     GMIO_ENDIANNESS_LITTLE };
+            error = gmio_stlb_write(trsf, mesh, &opts);
+            break;
+        }
+        case GMIO_STL_FORMAT_UNKNOWN: {
+            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
+        }
+        } /* end switch() */
+    }
+    else {
+        error = GMIO_ERROR_NULL_TRANSFER;
+    }
+
+    return error;
+}
