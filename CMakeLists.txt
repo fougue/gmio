@@ -43,7 +43,7 @@ test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 #    It must be done before checking of C99 and POSIX features
 if(BUILD_STRICT_C90)
     if(CMAKE_COMPILER_IS_GNUCC)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
     elseif(MSVC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Za")
     endif()
@@ -54,19 +54,21 @@ set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
 # Some compilers (like GCC v4.9) don't disable <stdint.h> in STRICT_ANSI mode
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
-check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
-check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
-check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
-check_function_exists(fstat64 GMIO_HAVE_POSIX_FSTAT64_FUNC)
-if(WIN32)
-    check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
-endif()
-
-# Check available C99 and compiler/OS specific features
+# Check non-ANSI available features
 if(NOT BUILD_STRICT_C90)
+    # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
     check_function_exists(powf GMIO_HAVE_POWF_FUNC)
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
+
+    # Check POSIX features
+    check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
+    check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
+    check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
+    check_function_exists(fstat64 GMIO_HAVE_POSIX_FSTAT64_FUNC)
+    if(WIN32)
+        check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
+    endif()
 
     # Have BSD-like alloca() function ?
     check_c_source_compiles(
@@ -74,38 +76,38 @@ if(NOT BUILD_STRICT_C90)
          int main() { void* ptr = alloca(256); return 0; }"
         GMIO_HAVE_BSD_ALLOCA_FUNC)
 
+    # Have Win32 _alloca() function ?
     if(WIN32)
-        # Have Win32 _alloca() function ?
         check_c_source_compiles(
             "#include <malloc.h>
              int main() { void* ptr = _alloca(256); return 0; }"
             GMIO_HAVE_WIN__ALLOCA_FUNC)
-    endif() # WIN32
-endif()
+    endif()
 
-# Have builtin byte swap functions ?
-if(CMAKE_COMPILER_IS_GNUCC)
-    # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
-    # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
-    check_c_source_compiles(
-        "int main() { return (int)__builtin_bswap16(0x1122); }"
-        GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
-    check_c_source_compiles(
-        "int main() { return (int)__builtin_bswap32(0x11223344); }"
-        GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
-elseif(MSVC)
-    check_c_source_compiles(
-        "#include <stdlib.h>
-         int main() { return (int)_byteswap_ulong(0x11223344); }"
-        GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
-endif()
+    # Have builtin byte swap functions ?
+    if(CMAKE_COMPILER_IS_GNUCC)
+        # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
+        # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
+        check_c_source_compiles(
+            "int main() { return (int)__builtin_bswap16(0x1122); }"
+            GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
+        check_c_source_compiles(
+            "int main() { return (int)__builtin_bswap32(0x11223344); }"
+            GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
+    elseif(MSVC)
+        check_c_source_compiles(
+            "#include <stdlib.h>
+             int main() { return (int)_byteswap_ulong(0x11223344); }"
+            GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+    endif()
+endif() # !BUILD_STRICT_C90
 
 configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 
 # Specific flags for GCC
 if(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic-errors -fstrict-aliasing")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Winline -Wextra -Wstrict-aliasing -Wcast-align -Wlogical-op -Wfloat-equal")
 
     # Force PIC for GCC, see : https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
