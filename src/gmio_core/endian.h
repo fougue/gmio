@@ -27,25 +27,25 @@ enum gmio_endianness
 {
     /*! The least significant byte is stored at the lowest address. The other
      *  bytes follow in increasing order of significance */
-    GMIO_LITTLE_ENDIAN,
+    GMIO_ENDIANNESS_LITTLE,
 
     /*! The most significant byte is stored at the lowest address. The other
      *  bytes follow in decreasing order of significance */
-    GMIO_BIG_ENDIAN,
+    GMIO_ENDIANNESS_BIG,
 
     /*! Other (unknown) byte-order */
-    GMIO_OTHER_ENDIAN,
+    GMIO_ENDIANNESS_OTHER,
 
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
-    GMIO_HOST_ENDIANNESS = GMIO_BIG_ENDIAN
+    GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_BIG
 #else
     /*! Defines the endianness(byte order) used by the host computer for
      *  storing data in memory.
      *
-     *  It is set at configure-time to either GMIO_LITTLE_ENDIAN or
-     *  GMIO_BIG_ENDIAN
+     *  It is set at configure-time to either GMIO_ENDIANNESS_LITTLE or
+     *  GMIO_ENDIANNESS_BIG
      */
-    GMIO_HOST_ENDIANNESS = GMIO_LITTLE_ENDIAN
+    GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_LITTLE
 #endif
 };
 

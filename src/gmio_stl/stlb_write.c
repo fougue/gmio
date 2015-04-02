@@ -74,7 +74,7 @@ int gmio_stlb_write(
 {
     /* Constants */
     const gmio_endianness_t byte_order =
-            options != NULL ? options->byte_order : GMIO_HOST_ENDIANNESS;
+            options != NULL ? options->byte_order : GMIO_ENDIANNESS_HOST;
     const uint8_t* header_data =
             options != NULL ? options->header_data : NULL;
     const uint32_t facet_count =
@@ -92,7 +92,7 @@ int gmio_stlb_write(
         return error;
 
     /* Initialize wparams */
-    if (byte_order != GMIO_HOST_ENDIANNESS)
+    if (byte_order != GMIO_ENDIANNESS_HOST)
         wparams.fix_endian_func = gmio_stl_triangle_bswap;
     wparams.facet_count = gmio_size_to_uint32(
                 trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE);
@@ -110,7 +110,7 @@ int gmio_stlb_write(
     }
 
     /* Write facet count */
-    if (byte_order == GMIO_LITTLE_ENDIAN)
+    if (byte_order == GMIO_ENDIANNESS_LITTLE)
         gmio_encode_uint32_le(facet_count, buffer_ptr);
     else
         gmio_encode_uint32_be(facet_count, buffer_ptr);

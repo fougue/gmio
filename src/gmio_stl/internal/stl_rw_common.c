@@ -53,8 +53,11 @@ gmio_bool_t gmio_stlb_check_params(int *error,
 
     if (trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE)
         *error = GMIO_INVALID_BUFFER_SIZE_ERROR;
-    if (byte_order != GMIO_LITTLE_ENDIAN && byte_order != GMIO_BIG_ENDIAN)
+    if (byte_order != GMIO_ENDIANNESS_LITTLE
+            && byte_order != GMIO_ENDIANNESS_BIG)
+    {
         *error = GMIO_STLB_UNSUPPORTED_BYTE_ORDER_ERROR;
+    }
 
     return gmio_no_error(*error);
 }

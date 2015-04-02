@@ -90,7 +90,7 @@ int gmio_stlb_read(
         return error;
 
     /* Initialize rparams */
-    if (byte_order != GMIO_HOST_ENDIANNESS)
+    if (byte_order != GMIO_ENDIANNESS_HOST)
         rparams.fix_endian_func = gmio_stl_triangle_bswap;
 
     /* Read header */
@@ -108,7 +108,7 @@ int gmio_stlb_read(
     }
 
     memcpy(&total_facet_count, buffer_ptr, sizeof(uint32_t));
-    if (byte_order != GMIO_HOST_ENDIANNESS)
+    if (byte_order != GMIO_ENDIANNESS_HOST)
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
     /* Callback to notify triangle count and header data */

@@ -61,11 +61,11 @@ int gmio_stl_read(gmio_transfer_t *trsf, gmio_stl_mesh_creator_t *creator)
             break;
         }
         case GMIO_STL_BINARY_BE_FORMAT: {
-            error = gmio_stlb_read(trsf, creator, GMIO_BIG_ENDIAN);
+            error = gmio_stlb_read(trsf, creator, GMIO_ENDIANNESS_BIG);
             break;
         }
         case GMIO_STL_BINARY_LE_FORMAT: {
-            error = gmio_stlb_read(trsf, creator, GMIO_LITTLE_ENDIAN);
+            error = gmio_stlb_read(trsf, creator, GMIO_ENDIANNESS_LITTLE);
             break;
         }
         case GMIO_STL_UNKNOWN_FORMAT: {
