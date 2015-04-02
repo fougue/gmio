@@ -21,49 +21,36 @@
 
 #if defined(GMIO_HAVE_SYS_TYPES_H) && defined(GMIO_HAVE_SYS_STAT_H)
 
-/* Activate 64bit variants of stat(), fstat(), ...
- * See:
+/* For some platforms maybe it's better to override stat(), fstat(), etc. with
+ * 64bit variants. See:
  *   http://linux.die.net/man/2/fstat64
+ *       #define _FILE_OFFSET_BITS 64
  *   https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
+ *       #define _DARWIN_USE_64_BIT_INODE
  */
-#  ifdef GMIO_OS_LINUX
-#    if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS != 64
-#      undef _FILE_OFFSET_BITS
-#    endif
-#    if !defined(_FILE_OFFSET_BITS)
-#      define _FILE_OFFSET_BITS=64
-#    endif
-#    if !defined(_POSIX_C_SOURCE)
-       /* This enables fileno() */
-#      define _POSIX_C_SOURCE
-#    endif
-#    define GMIO_FSTAT64_OVERRIDE
-#  endif /* Linux */
-
-#  ifdef GMIO_OS_MAC
-#    if !defined(_DARWIN_USE_64_BIT_INODE)
-#      define _DARWIN_USE_64_BIT_INODE
-#    endif
-#    define GMIO_FSTAT64_OVERRIDE
-#  endif /* Apple */
 
 #  include <sys/types.h>
 #  include <sys/stat.h>
 
-/* Define wrapper around the stat structure and the fstat() function */
-#  ifdef GMIO_HAVE_WIN__FSTAT64_FUNC
+/* gmio_stat_t: type alias on the stat structure
+ * GMIO_FSTAT_FUNC_NAME: alias on the fstat() function
+ */
+#  if defined(GMIO_HAVE_WIN__FSTAT64_FUNC)
 typedef struct __stat64 gmio_stat_t;
-GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
-{ return _fstat64(fd, buf); }
-#  elif defined(GMIO_FSTAT64_OVERRIDE) || !defined(GMIO_HAVE_POSIX_FSTAT64_FUNC)
-typedef struct stat gmio_stat_t;
-GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
-{ return fstat(fd, buf); }
+#    define GMIO_FSTAT_FUNC_NAME _fstat64
 #  elif defined(GMIO_HAVE_POSIX_FSTAT64_FUNC)
 typedef struct stat64 gmio_stat_t;
-GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
-{ return fstat64(fd, buf); }
+#    define GMIO_FSTAT_FUNC_NAME fstat64
+#  else
+typedef struct stat gmio_stat_t;
+#    define GMIO_FSTAT_FUNC_NAME fstat
 #  endif
+
+/* Define wrapper around the fstat() function */
+GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
+{
+    return GMIO_FSTAT_FUNC_NAME(fd, buf);
+}
 
 #endif /* GMIO_HAVE_SYS_TYPES_H && GMIO_HAVE_SYS_STAT_H */
 
