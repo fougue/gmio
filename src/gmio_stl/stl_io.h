@@ -62,10 +62,8 @@ int gmio_stl_read(
 
 /*! Reads geometry from STL ascii stream
  *
- *  \param creator Defines the callbacks for the mesh creation
  *  \param trsf Defines needed objects for the read operation
- *  \param options Options for the operation, shoul be set to NULL (just here
- *                 for future use)
+ *  \param creator Defines the callbacks for the mesh creation
  *
  *  Stream size is passed to gmio_transfer::handle_progress_func() as the
  *  \p max_value argument.
@@ -124,9 +122,9 @@ int gmio_stla_write(
 
 /*! Reads geometry from STL binary stream
  *
- *  \param mesh Defines the callbacks for the mesh creation
  *  \param trsf Defines needed objects for the read operation
- *  \param options Byte order of the input STL binary data
+ *  \param creator Defines the callbacks for the mesh creation
+ *  \param byte_order Byte order of the input STL binary data
  *
  *  \return Error code (see error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_BUFFER_SIZE
