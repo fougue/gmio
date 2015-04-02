@@ -85,3 +85,28 @@ void gmio_buffer_deallocate(gmio_buffer_t *buffer)
     if (buffer != NULL && buffer->deallocate_func != NULL)
         buffer->deallocate_func(buffer->ptr);
 }
+
+static gmio_buffer_t gmio_buffer_default_internal_ctor()
+{
+    return gmio_buffer_malloc(128 * 1024); /* 128 KB */
+}
+
+/* Warning: global variable ... */
+static gmio_buffer_constructor_func_t gmio_global_buffer_ctor =
+        gmio_buffer_default_internal_ctor;
+
+void gmio_buffer_set_default_constructor(gmio_buffer_constructor_func_t ctor)
+{
+    if (ctor != NULL)
+        gmio_global_buffer_ctor = ctor;
+}
+
+gmio_buffer_constructor_func_t gmio_buffer_default_constructor()
+{
+    return gmio_global_buffer_ctor;
+}
+
+gmio_buffer_t gmio_buffer_default()
+{
+    return gmio_global_buffer_ctor();
+}

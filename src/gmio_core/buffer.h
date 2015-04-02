@@ -63,6 +63,33 @@ GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_alloca(size_t size);
 /*! Safe and convenient call to gmio_buffer::deallocate_func() */
 GMIO_LIB_EXPORT void gmio_buffer_deallocate(gmio_buffer_t* buffer);
 
+/*! Typedef for a pointer to a function that creates an allocated buffer
+ *
+ *  Signature:
+ *  \code gmio_buffer_t buffer_ctor(); \endcode
+ */
+typedef gmio_buffer_t (*gmio_buffer_constructor_func_t)();
+
+/*! Installs a global function to construct gmio_buffer objects
+ *
+ *  The constructor function allocates a gmio_buffer object on demand, to be
+ *  used when a temporary buffer is needed.
+ *
+ *  This function is not thread-safe.
+ */
+GMIO_LIB_EXPORT void gmio_buffer_set_default_constructor(
+        gmio_buffer_constructor_func_t ctor);
+
+/*! Returns the currently installed function to construct gmio_buffer objects
+ *
+ *  It is initialized to <tt>gmio_buffer_malloc(128KB)</tt>
+ */
+GMIO_LIB_EXPORT gmio_buffer_constructor_func_t gmio_buffer_default_constructor();
+
+/*! Returns a gmio_buffer object created using the function
+ *  gmio_buffer_default_constructor() */
+GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_default();
+
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_BUFFER_H */
