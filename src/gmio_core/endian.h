@@ -25,6 +25,9 @@
 /*! This enum identifies common endianness (byte order) of computer memory */
 enum gmio_endianness
 {
+    /*! Other (unknown) byte-order */
+    GMIO_ENDIANNESS_UNKNOWN = 0,
+
     /*! The least significant byte is stored at the lowest address. The other
      *  bytes follow in increasing order of significance */
     GMIO_ENDIANNESS_LITTLE,
@@ -32,9 +35,6 @@ enum gmio_endianness
     /*! The most significant byte is stored at the lowest address. The other
      *  bytes follow in decreasing order of significance */
     GMIO_ENDIANNESS_BIG,
-
-    /*! Other (unknown) byte-order */
-    GMIO_ENDIANNESS_OTHER,
 
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
     GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_BIG

@@ -34,6 +34,6 @@ gmio_endianness_t gmio_host_endianness()
         return GMIO_ENDIANNESS_LITTLE;
     if (conv.bytes[0] == 0x01 && conv.bytes[3] == 0x08)
         return GMIO_ENDIANNESS_BIG;
-    return GMIO_ENDIANNESS_OTHER;
+    return GMIO_ENDIANNESS_UNKNOWN;
 }
 
