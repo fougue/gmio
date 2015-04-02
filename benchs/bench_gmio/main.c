@@ -25,7 +25,7 @@ static void bench_gmio_stl_read(const char* filepath)
 
     mesh_creator.cookie = &cookie;
     mesh_creator.add_triangle_func = dummy_process_triangle;
-    error = gmio_stl_read_file(filepath, &mesh_creator);
+    error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
         printf("GeomIO error: 0x%X\n", error);
 }

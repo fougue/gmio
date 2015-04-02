@@ -24,7 +24,8 @@
 
 int gmio_stl_read_file(
         const char* filepath,
-        gmio_stl_mesh_creator_t* creator)
+        gmio_stl_mesh_creator_t* creator,
+        gmio_task_iface_t* task_iface)
 {
     int error = GMIO_ERROR_OK;
     FILE* file = NULL;
@@ -34,6 +35,8 @@ int gmio_stl_read_file(
         gmio_transfer_t trsf = { 0 };
         trsf.stream = gmio_stream_stdio(file);
         trsf.buffer = gmio_buffer_default();
+        if (task_iface != NULL)
+            trsf.task_iface = *task_iface;
 
         error = gmio_stl_read(&trsf, creator);
         fclose(file);
