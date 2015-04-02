@@ -21,6 +21,7 @@
 #define GMIO_STL_IO_H
 
 #include "stl_global.h"
+#include "stl_format.h"
 #include "stl_mesh.h"
 #include "stl_mesh_creator.h"
 #include "../gmio_core/buffer.h"
@@ -34,14 +35,17 @@ GMIO_C_LINKAGE_BEGIN
  *  \param filepath Path to the STL file. A stream is opened with fopen() so
  *         the string has to be encoded using the system's charset (locale-8bit)
  *  \param creator Defines the callbacks for the mesh creation
- *  \param buffer The memory block used by stream operations
+ *
+ *  Internally, it uses:
+ *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
+ *    \li the global default function to construct a temporary gmio_buffer
+ *        object (see gmio_buffer_default())
  *
  *  \return Error code (see error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_read_file(
         const char* filepath,
-        gmio_buffer_t* buffer,
         gmio_stl_mesh_creator_t* creator);
 
 /*! Reads STL data from stream, format is automatically guessed
