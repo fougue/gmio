@@ -59,7 +59,13 @@ check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 if(NOT BUILD_STRICT_C90)
     # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
+
+    if(CMAKE_COMPILER_IS_GNUCC)
+        list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
+    endif()
     check_function_exists(powf GMIO_HAVE_POWF_FUNC)
+    set(CMAKE_REQUIRED_LIBRARIES)
+
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
 
     # Check POSIX features
