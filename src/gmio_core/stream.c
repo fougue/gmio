@@ -20,15 +20,6 @@
 #include <stdlib.h>
 
 #if defined(GMIO_HAVE_SYS_TYPES_H) && defined(GMIO_HAVE_SYS_STAT_H)
-
-/* For some platforms maybe it's better to override stat(), fstat(), etc. with
- * 64bit variants. See:
- *   http://linux.die.net/man/2/fstat64
- *       #define _FILE_OFFSET_BITS 64
- *   https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
- *       #define _DARWIN_USE_64_BIT_INODE
- */
-
 #  include <sys/types.h>
 #  include <sys/stat.h>
 

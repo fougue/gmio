@@ -57,9 +57,6 @@ GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_calloc(size_t num, size_t size);
 /*! Returns a gmio_buffer object allocated with standard \c realloc() */
 GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_realloc(void* ptr, size_t size);
 
-/*! Returns a gmio_buffer object allocated with OS-specific \c alloca() */
-GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_alloca(size_t size);
-
 /*! Safe and convenient call to gmio_buffer::deallocate_func() */
 GMIO_LIB_EXPORT void gmio_buffer_deallocate(gmio_buffer_t* buffer);
 
