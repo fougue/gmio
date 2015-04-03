@@ -37,10 +37,6 @@
 #cmakedefine GMIO_HAVE_POSIX_FSTAT64_FUNC
 #cmakedefine GMIO_HAVE_WIN__FSTAT64_FUNC
 
-/* alloca()-like */
-#cmakedefine GMIO_HAVE_BSD_ALLOCA_FUNC
-#cmakedefine GMIO_HAVE_WIN__ALLOCA_FUNC
-
 /* Compiler byte-swap functions */
 #cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
 #cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC

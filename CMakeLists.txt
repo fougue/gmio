@@ -103,20 +103,6 @@ if(NOT BUILD_STRICT_C90)
         message(WARNING "<sys/stat.h> does not provide 64b variant of fstat(), you may encounter problems with files > 2GB")
     endif()
 
-    # Have BSD-like alloca() function ?
-    check_c_source_compiles(
-        "#include <alloca.h>
-         int main() { void* ptr = alloca(256); return 0; }"
-        GMIO_HAVE_BSD_ALLOCA_FUNC)
-
-    # Have Win32 _alloca() function ?
-    if(WIN32)
-        check_c_source_compiles(
-            "#include <malloc.h>
-             int main() { void* ptr = _alloca(256); return 0; }"
-            GMIO_HAVE_WIN__ALLOCA_FUNC)
-    endif()
-
     # Have builtin byte swap functions ?
     if(CMAKE_COMPILER_IS_GNUCC)
         # __builtin_bswap16() is missing in x86 GCC version prior to v4.7

@@ -17,14 +17,6 @@
 
 #include <stdlib.h>
 
-#if defined(GMIO_HAVE_BSD_ALLOCA_FUNC)
-#  include <alloca.h>
-#elif defined(GMIO_HAVE_WIN__ALLOCA_FUNC)
-#  include "error.h"
-#  include <windows.h>
-#  include <malloc.h>
-#endif
-
 GMIO_INLINE gmio_buffer_t gmio_buffer_null()
 {
     gmio_buffer_t buff = { 0 };
@@ -54,30 +46,6 @@ gmio_buffer_t gmio_buffer_calloc(size_t num, size_t size)
 gmio_buffer_t gmio_buffer_realloc(void* ptr, size_t size)
 {
     return gmio_buffer(realloc(ptr, size), size, &free);
-}
-
-gmio_buffer_t gmio_buffer_alloca(size_t size)
-{
-#if defined(GMIO_HAVE_BSD_ALLOCA_FUNC)
-    return gmio_buffer(alloca(size), size, NULL);
-#elif defined(GMIO_HAVE_WIN__ALLOCA_FUNC)
-#  ifdef _MSC_VER
-    __try {
-        return gmio_buffer(_alloca(size), size, NULL);
-    }
-    __except(GetExceptionCode() == STATUS_STACK_OVERFLOW) {
-        /* The stack overflowed */
-        if (_resetstkoflw() == 0)
-            exit(GMIO_ERROR_UNKNOWN);
-        return gmio_buffer_null();
-    }
-#  else
-    return gmio_buffer(_alloca(size), size, NULL);
-#  endif /* _MSC_VER */
-#else
-    GMIO_UNUSED(size);
-    return gmio_buffer_null();
-#endif
 }
 
 void gmio_buffer_deallocate(gmio_buffer_t *buffer)
