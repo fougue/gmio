@@ -25,7 +25,6 @@
 #include "stl_mesh.h"
 #include "stl_mesh_creator.h"
 #include "stl_io_options.h"
-#include "../gmio_core/buffer.h"
 #include "../gmio_core/endian.h"
 #include "../gmio_core/transfer.h"
 
