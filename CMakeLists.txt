@@ -65,20 +65,23 @@ if(NOT BUILD_STRICT_C90)
     # Check POSIX features
     if(UNIX)
         # See:
-        #     http://linux.die.net/man/2/fstat64
-        #     https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
-        #     https://www.gnu.org/software/libc/manual/html_mono/libc.html#Feature-Test-Macros
+        #   http://linux.die.net/man/2/fstat64
+        #   https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
+        #   https://www.gnu.org/software/libc/manual/html_mono/libc.html#Feature-Test-Macros
         if(APPLE)
             add_definitions(-D_DARWIN_USE_64_BIT_INODE)
+            list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_DARWIN_USE_64_BIT_INODE)
         else()
-            add_definitions(-D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE)
+            add_definitions(-D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1)
+            list(APPEND CMAKE_REQUIRED_DEFINITIONS
+                        -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1)
         endif()
     endif()
 
     check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
     check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
     check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
-    # Have POSIX fstat64() ?
+    # Have fstat64() ?
     check_c_source_compiles(
         "#include <sys/stat.h>
          int main() { fstat64(0, NULL); return 0; }"
@@ -87,7 +90,7 @@ if(NOT BUILD_STRICT_C90)
         check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
     endif()
 
-    # Check sizeof(struct stat[64])
+    # Check size(in bytes) of stat::st_size
     set(CMAKE_EXTRA_INCLUDE_FILES sys/stat.h)
     if(GMIO_HAVE_WIN__FSTAT64_FUNC)
         check_type_size("((struct _stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
@@ -97,7 +100,9 @@ if(NOT BUILD_STRICT_C90)
         check_type_size("((struct stat*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
     endif()
     set(CMAKE_EXTRA_INCLUDE_FILES)
+    set(CMAKE_REQUIRED_DEFINITIONS)
 
+    # Verify large file support
     if(GMIO_HAVE_SYS_STAT_H
            AND NOT(GMIO_SIZEOF_STRUCT_STAT_ST_SIZE STREQUAL "0") # Not arch-dependent size
            AND NOT(GMIO_SIZEOF_STRUCT_STAT_ST_SIZE EQUAL 8))
