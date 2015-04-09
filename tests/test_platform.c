@@ -18,9 +18,11 @@
 #include "utest_lib.h"
 
 #include "../src/gmio_core/global.h"
+#include "../src/gmio_core/transfer.h"
 #include "../src/gmio_stl/stl_triangle.h"
 
 #include <stddef.h>
+#include <string.h>
 
 #ifdef _MSC_VER
 #  pragma warning(push)
@@ -61,6 +63,30 @@ const char* test_platform__global_h()
     return NULL;
 }
 
+const char* test_platform__compiler()
+{
+    /* Check that initialization with { 0 } works as expected */
+    const gmio_transfer_t trsf_null_bracket0 = { 0 };
+    gmio_transfer_t trsf_null_memset0;
+
+    memset(&trsf_null_memset0, 0, sizeof(gmio_transfer_t));
+
+    UTEST_ASSERT(memcmp(
+                     &trsf_null_bracket0,
+                     &trsf_null_memset0,
+                     sizeof(gmio_transfer_t))
+                 == 0);
+
+    UTEST_ASSERT(sizeof(gmio_transfer_t) >= (sizeof(gmio_stream_t)
+                                             + sizeof(gmio_buffer_t)
+                                             + sizeof(gmio_task_iface_t)));
+
+    /* GeomIO doesn't support platforms where NULL != 0 */
+    UTEST_ASSERT(NULL == 0);
+
+    return NULL;
+}
+
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
@@ -70,6 +96,7 @@ const char* all_tests()
     UTEST_SUITE_START();
     UTEST_RUN(test_platform__alignment);
     UTEST_RUN(test_platform__global_h);
+    UTEST_RUN(test_platform__compiler);
     return NULL;
 }
 
