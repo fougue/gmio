@@ -224,6 +224,10 @@ add_executable(test_internal EXCLUDE_FROM_ALL tests/stream_buffer.c
                                               src/gmio_core/internal/string_parse.c)
 add_executable(test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
 
+if(CMAKE_COMPILER_IS_GNUCC)
+    target_link_libraries(test_internal m) # -lm
+endif()
+
 add_test(test_internal test_internal)
 add_test(test_platform test_platform)
 
