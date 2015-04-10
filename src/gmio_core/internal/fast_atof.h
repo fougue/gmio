@@ -29,7 +29,7 @@ GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
 }
 
 /* we write [17] here instead of [] to work around a swig bug */
-const float fast_atof_table[17] = {
+static const float fast_atof_table[17] = {
     0.f,
     0.1f,
     0.01f,
