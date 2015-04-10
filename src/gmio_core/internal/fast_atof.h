@@ -99,7 +99,7 @@ GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
  */
 GMIO_INLINE int32_t strtol10(const char* in, const char** out)
 {
-    const gmio_bool_t negative = ('-' == *in);
+    const gmio_bool_t negative = in != NULL ? ('-' == *in) : GMIO_FALSE;
     uint32_t unsignedValue = 0;
 
     if (!in)
@@ -316,7 +316,7 @@ GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
 GMIO_INLINE const char* fast_atof_move(
         const char* in, gmio_float32_t* result)
 {
-    const gmio_bool_t negative = ('-' == *in);
+    const gmio_bool_t negative = in != NULL ? ('-' == *in) : GMIO_FALSE;
     gmio_float32_t value = 0.f;
 
     /* Please run the regression test when making any modifications to this
