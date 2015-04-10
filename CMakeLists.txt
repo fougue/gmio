@@ -139,12 +139,13 @@ include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
 # Specific flags for GCC
 if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Winline -Wstrict-aliasing")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wlogical-op -Wfloat-equal")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-field-initializers")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-field-initializers")
 
     # Disable some warnings
-    # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
 
     # Force PIC for GCC, see : https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -160,7 +161,7 @@ if(MSVC)
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
 
     # Treat warnings as errors
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
 
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
