@@ -23,20 +23,39 @@ union gmio_uint_float_32
     uint32_t       as_uint32;
     gmio_float32_t as_float32;
 };
-typedef union gmio_uint_float_32  gmio_uint_float_32_t;
 
-GMIO_INLINE gmio_float32_t gmio_convert_float32(uint32_t val)
+union gmio_int_float_32
 {
-    gmio_uint_float_32_t conv;
+    int32_t        as_int32;
+    gmio_float32_t as_float32;
+};
+
+GMIO_INLINE gmio_float32_t gmio_convert_ufloat32(uint32_t val)
+{
+    union gmio_uint_float_32 conv;
     conv.as_uint32 = val;
     return conv.as_float32;
 }
 
 GMIO_INLINE uint32_t gmio_convert_uint32(gmio_float32_t val)
 {
-    gmio_uint_float_32_t conv;
+    union gmio_uint_float_32 conv;
     conv.as_float32 = val;
     return conv.as_uint32;
+}
+
+GMIO_INLINE gmio_float32_t gmio_convert_sfloat32(int32_t val)
+{
+    union gmio_int_float_32 conv;
+    conv.as_int32 = val;
+    return conv.as_float32;
+}
+
+GMIO_INLINE int32_t gmio_convert_int32(gmio_float32_t val)
+{
+    union gmio_int_float_32 conv;
+    conv.as_float32 = val;
+    return conv.as_int32;
 }
 
 #endif /* GMIO_INTERNAL_CONVERT_H */
