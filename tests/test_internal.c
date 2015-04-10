@@ -19,11 +19,15 @@
 
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
+#include "../src/gmio_core/internal/convert.h"
+#include "../src/gmio_core/internal/fast_atof.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/string_parse.h"
 
 #include "stream_buffer.h"
+#include "utils.h"
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -53,6 +57,70 @@ const char* test_internal__byte_codec()
         gmio_encode_uint32_be(0x11223344, data);
         UTEST_ASSERT(data[3] == 0x44 && data[2] == 0x33 && data[1] == 0x22 && data[0] == 0x11);
     }
+
+    return NULL;
+}
+
+static gmio_bool_t gmio_test_calculation_atof(const char* value_str)
+{
+    const gmio_float32_t fast_value = fast_atof(value_str, NULL);
+    const gmio_float32_t std_value = (gmio_float32_t)strtod(value_str, NULL);
+    const gmio_bool_t accurate =
+            gmio_float32_equals_by_ulp(fast_value, std_value, 1);
+    if (!accurate) {
+        fprintf(stderr,
+                "*** ERROR: fast_atof() less accurate than strtod()\n"
+                "    value_str : \"%s\"\n"
+                "    fast_value: %.12f (%s) as_int: 0x%x\n"
+                "    std_value : %.12f (%s) as_int: 0x%x\n"
+                "    ulp_diff  : %u\n",
+                value_str,
+                fast_value,
+                gmio_float32_sign(fast_value) > 0 ? "+" : "-",
+                gmio_convert_uint32(fast_value),
+                std_value,
+                gmio_float32_sign(std_value) > 0 ? "+" : "-",
+                gmio_convert_uint32(std_value),
+                gmio_float32_ulp_diff(fast_value, std_value));
+    }
+    return accurate;
+}
+
+const char* test_internal__fast_atof()
+{
+    gmio_bool_t accurate = GMIO_TRUE;
+
+    accurate &= gmio_test_calculation_atof("340282346638528859811704183484516925440.000000");
+    accurate &= gmio_test_calculation_atof("3.402823466e+38F");
+    accurate &= gmio_test_calculation_atof("3402823466e+29F");
+    accurate &= gmio_test_calculation_atof("-340282346638528859811704183484516925440.000000");
+    accurate &= gmio_test_calculation_atof("-3.402823466e+38F");
+    accurate &= gmio_test_calculation_atof("-3402823466e+29F");
+    accurate &= gmio_test_calculation_atof("34028234663852885981170418348451692544.000000");
+    accurate &= gmio_test_calculation_atof("3.402823466e+37F");
+    accurate &= gmio_test_calculation_atof("3402823466e+28F");
+    accurate &= gmio_test_calculation_atof("-34028234663852885981170418348451692544.000000");
+    accurate &= gmio_test_calculation_atof("-3.402823466e+37F");
+    accurate &= gmio_test_calculation_atof("-3402823466e+28F");
+    accurate &= gmio_test_calculation_atof(".00234567");
+    accurate &= gmio_test_calculation_atof("-.00234567");
+    accurate &= gmio_test_calculation_atof("0.00234567");
+    accurate &= gmio_test_calculation_atof("-0.00234567");
+    accurate &= gmio_test_calculation_atof("1.175494351e-38F");
+#if 0
+    /* This check fails */
+    accurate &= gmio_test_calculation_atof("1175494351e-47F");
+#endif
+    accurate &= gmio_test_calculation_atof("1.175494351e-37F");
+    accurate &= gmio_test_calculation_atof("1.175494351e-36F");
+    accurate &= gmio_test_calculation_atof("-1.175494351e-36F");
+    accurate &= gmio_test_calculation_atof("123456.789");
+    accurate &= gmio_test_calculation_atof("-123456.789");
+    accurate &= gmio_test_calculation_atof("0000123456.789");
+    accurate &= gmio_test_calculation_atof("-0000123456.789");
+    accurate &= gmio_test_calculation_atof("-0.0690462109446526");
+
+    UTEST_ASSERT(accurate == GMIO_TRUE);
 
     return NULL;
 }
@@ -139,6 +207,7 @@ const char* all_tests()
     UTEST_SUITE_START();
     UTEST_RUN(test_internal__byte_swap);
     UTEST_RUN(test_internal__byte_codec);
+    UTEST_RUN(test_internal__fast_atof);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__string_parse);
     return NULL;

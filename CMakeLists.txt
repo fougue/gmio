@@ -230,6 +230,7 @@ set(CMAKE_CTEST_COMMAND ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 add_executable(test_internal EXCLUDE_FROM_ALL tests/stream_buffer.c
+                                              tests/utils.c
                                               tests/test_internal.c
                                               src/gmio_core/stream.c
                                               src/gmio_core/internal/string_parse.c)
