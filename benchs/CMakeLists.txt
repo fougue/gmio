@@ -51,7 +51,7 @@ endif()
 if(BENCHMARK_OPENCASCADE)
     add_executable(bench_occ
         bench_occ/main.cpp
-        ${GMIO_DIR}/src/gmio_support/occ_libstl.cpp
+        ${GMIO_DIR}/src/gmio_support/stl_occ.cpp
         ${COMMONS_FILES})
     target_compile_definitions(
        bench_occ
