@@ -16,7 +16,7 @@ Main highlights:
   * Buffering of input/ouput for efficient device usage
   * Available under the CeCILL-B license, which is fully BSD compatible
 
-Current version only supports STL file format (STereoLithgraphy). Support of
+Current version only supports STL file format (STereoLithography). Support of
 STL is complete:
 
   * Binary(little/big endian) and ASCII formats
