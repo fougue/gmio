@@ -137,6 +137,19 @@ typedef double gmio_float64_t;
 #  endif
 #endif /* !GMIO_INLINE */
 
+#ifndef GMIO_RESTRICT
+#  if defined(__GNUC__)
+#    define GMIO_RESTRICT __restrict__  /* Compatible with C90 */
+#  elif defined(_MSC_VER)
+#    define GMIO_RESTRICT __restrict
+#  elif defined(GMIO_HAVE_C99_RESTRICT) /* TODO: add cmake detectection */
+#    define GMIO_RESTRICT restrict
+#  else
+/*! Expands to the C compiler specific restrict keyword (if any) */
+#    define GMIO_RESTRICT
+#  endif
+#endif /* !GMIO_RESTRICT */
+
 #ifdef __cplusplus
 #  define GMIO_C_LINKAGE_BEGIN extern "C" {
 #  define GMIO_C_LINKAGE_END   }
