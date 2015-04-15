@@ -25,13 +25,13 @@ static void bench_gmio_stl_read(const char* filepath)
 int main(int argc, char** argv)
 {
     if (argc > 1) {
-        benchmark(&bench_occ_RWStl_ReadFile,
-                  "RWStl::ReadFile()",
-                  argc - 1, argv + 1);
+        benchmark_list(&bench_occ_RWStl_ReadFile,
+                       "RWStl::ReadFile()",
+                       argc - 1, argv + 1);
 
-        benchmark(&bench_gmio_stl_read,
-                  "gmio_stl_read()",
-                  argc - 1, argv + 1);
+        benchmark_list(&bench_gmio_stl_read,
+                       "gmio_stl_read()",
+                       argc - 1, argv + 1);
     }
 
     return 0;
