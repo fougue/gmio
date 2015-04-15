@@ -83,14 +83,30 @@ GMIO_INLINE char* gmio_write_nspaces(char* buffer, int n)
     return buffer + offset;
 }
 
-GMIO_INLINE char* gmio_write_stdio_format(char* buffer, uint8_t prec)
+GMIO_INLINE char gmio_float_text_format_to_specifier(
+        gmio_float_text_format_t format)
+{
+    switch (format) {
+    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE: return 'f';
+    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE: return 'F';
+    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE: return 'e';
+    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE: return 'E';
+    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE: return 'g';
+    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE: return 'G';
+    }
+    /* Default, should not be here */
+    return GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
+}
+
+GMIO_INLINE char* gmio_write_stdio_format(
+        char* buffer, char format_specifier, uint8_t prec)
 {
     int prec_len = 0;
 
     buffer[0] = '%';
     buffer[1] = '.';
     prec_len = sprintf(buffer + 2, "%u", prec);
-    buffer[2 + prec_len] = 'E';
+    buffer[2 + prec_len] = format_specifier;
     return buffer + 3 + prec_len;
 }
 
@@ -115,6 +131,7 @@ int gmio_stla_write(
         const gmio_stl_mesh_t* mesh,
         /* Options */
         const char* solid_name,
+        gmio_float_text_format_t float32_format,
         uint8_t float32_prec)
 {
     /* Constants */
@@ -141,12 +158,14 @@ int gmio_stla_write(
         return GMIO_ERROR_INVALID_BUFFER_SIZE;
 
     { /* Create XYZ coords format string (for normal and vertex coords) */
+        const char float32_specifier =
+                gmio_float_text_format_to_specifier(float32_format);
         char* it = coords_format;
-        it = gmio_write_stdio_format(it, float32_prec);
+        it = gmio_write_stdio_format(it, float32_specifier, float32_prec);
         it = gmio_write_nspaces(it, 2);
-        it = gmio_write_stdio_format(it, float32_prec);
+        it = gmio_write_stdio_format(it, float32_specifier, float32_prec);
         it = gmio_write_nspaces(it, 2);
-        it = gmio_write_stdio_format(it, float32_prec);
+        it = gmio_write_stdio_format(it, float32_specifier, float32_prec);
         *it = 0; /* Write terminating null byte */
         /* TODO: check the "format" string can contain the given precision */
     }

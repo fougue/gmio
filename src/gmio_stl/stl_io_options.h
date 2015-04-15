@@ -22,6 +22,7 @@
 
 #include "stl_global.h"
 #include "../gmio_core/endian.h"
+#include "../gmio_core/text_format.h"
 
 /*! Options for gmio_stl_write() */
 struct gmio_stl_write_options
@@ -35,6 +36,15 @@ struct gmio_stl_write_options
      *    \li OR <tt>stla_solid_name == NULL</tt>
      */
     const char* stla_solid_name;
+
+    /*! The format used when writting float values as strings
+     *
+     *  Option useful only with STL ascii format (GMIO_STL_FORMAT_ASCII).
+     *
+     *  Defaulted to \c GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE when calling
+     *  gmio_stl_write() with \c options==NULL
+     */
+    gmio_float_text_format_t stla_float32_format;
 
     /*! The maximum number of significant digits when writting float values
      *

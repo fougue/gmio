@@ -17,6 +17,7 @@
 #define GMIO_INTERNAL_STLA_WRITE_H
 
 #include "../stl_mesh.h"
+#include "../../gmio_core/text_format.h"
 #include "../../gmio_core/transfer.h"
 
 /*! Writes geometry in the STL ascii format
@@ -30,6 +31,7 @@ int gmio_stla_write(
         const gmio_stl_mesh_t* mesh,
         /* Options */
         const char* solid_name,
+        gmio_float_text_format_t float32_format,
         uint8_t float32_prec);
 
 #endif /* GMIO_INTERNAL_STLA_WRITE_H */

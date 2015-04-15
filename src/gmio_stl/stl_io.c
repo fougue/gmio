@@ -127,9 +127,13 @@ int gmio_stl_write(
         case GMIO_STL_FORMAT_ASCII: {
             const char* solid_name =
                     options != NULL ? options->stla_solid_name : NULL;
-            const uint8_t float32_prec =
+            const gmio_float_text_format_t float_fmt =
+                    options != NULL ? options->stla_float32_format :
+                                      GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
+            const uint8_t float_prec =
                     options != NULL ? options->stla_float32_prec : 9;
-            error = gmio_stla_write(trsf, mesh, solid_name, float32_prec);
+            error = gmio_stla_write(
+                        trsf, mesh, solid_name, float_fmt, float_prec);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_BE: {
