@@ -153,7 +153,7 @@ int gmio_stla_write(
     if (!gmio_stl_check_mesh(&error, mesh))
         return error;
     if (float32_prec == 0 || float32_prec > 9)
-        return GMIO_STL_ERROR_INVALID_REAL32_PREC;
+        return GMIO_STL_ERROR_INVALID_FLOAT32_PREC;
     if (trsf->buffer.size < GMIO_STLA_FACET_SIZE_P2)
         return GMIO_ERROR_INVALID_BUFFER_SIZE;
 

@@ -43,7 +43,7 @@ enum gmio_stl_error
 
     /*! Invalid max number of decimal significants digits for
      *  gmio_stla_write(), must be in [1..9] */
-    GMIO_STL_ERROR_INVALID_REAL32_PREC = GMIO_STL_ERROR_TAG + 101,
+    GMIO_STL_ERROR_INVALID_FLOAT32_PREC = GMIO_STL_ERROR_TAG + 101,
 
     /* Specific error codes returned by STL_binary read/write functions */
 
