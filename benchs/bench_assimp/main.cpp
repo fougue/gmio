@@ -298,7 +298,10 @@ static void bmk_stl_write(const char* filepath, gmio_stl_format_t format)
     mesh.triangle_count = sceneMesh->mNumFaces;
     mesh.get_triangle_func = get_triangle;
 
-    const int error = gmio_stl_write_file(format, filepath, &mesh, NULL, NULL);
+    gmio_stl_write_options_t opts = { 0 };
+    opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
+    opts.stla_float32_prec = 7;
+    const int error = gmio_stl_write_file(format, filepath, &mesh, NULL, &opts);
     if (error != GMIO_ERROR_OK)
         printf("GeomIO error: 0x%X\n", error);
 }
