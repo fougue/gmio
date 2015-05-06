@@ -44,9 +44,10 @@ gmio_bool_t gmio_stl_check_mesh(int *error, const gmio_stl_mesh_t* mesh)
     return gmio_no_error(*error);
 }
 
-gmio_bool_t gmio_stlb_check_params(int *error,
-                                   const gmio_transfer_t *trsf,
-                                   gmio_endianness_t byte_order)
+gmio_bool_t gmio_stlb_check_params(
+        int *error,
+        const gmio_transfer_t *trsf,
+        gmio_endianness_t byte_order)
 {
     if (!gmio_check_transfer(error, trsf))
         return GMIO_FALSE;

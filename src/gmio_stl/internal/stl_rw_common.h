@@ -36,8 +36,9 @@ gmio_bool_t gmio_check_transfer(int* error, const gmio_transfer_t* trsf);
 
 gmio_bool_t gmio_stl_check_mesh(int* error, const gmio_stl_mesh_t *mesh);
 
-gmio_bool_t gmio_stlb_check_params(int* error,
-                                   const gmio_transfer_t* trsf,
-                                   gmio_endianness_t byte_order);
+gmio_bool_t gmio_stlb_check_params(
+        int* error,
+        const gmio_transfer_t* trsf,
+        gmio_endianness_t byte_order);
 
 #endif /* GMIO_INTERNAL_STLB_RW_COMMON_H */
