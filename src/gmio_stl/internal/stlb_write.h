@@ -26,7 +26,6 @@
  *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR
  *          if <tt>trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
-GMIO_LIBSTL_EXPORT
 int gmio_stlb_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
