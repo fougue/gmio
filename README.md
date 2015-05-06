@@ -56,7 +56,7 @@ How to report a bug
 
 If you think you have found a bug in GeomIO, we would like to hear
 about it so that we can fix it. The GeomIO bug tracking system is
-open to the public at https://github.com/fougsys/gmio/issues.
+open to the public at https://github.com/fougue/gmio/issues.
 
 Before reporting a bug, please use the bug-tracker's search functions
 to see if the issue is already known.

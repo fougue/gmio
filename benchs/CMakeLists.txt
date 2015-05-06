@@ -1,6 +1,6 @@
 #############################################################################
 ## GeomIO Library
-## Copyright FougSys (2 Mar. 2015)
+## Copyright Fougue (2 Mar. 2015)
 ## contact@fougsys.fr
 ##
 ## This software is a reusable library whose purpose is to provide complete
