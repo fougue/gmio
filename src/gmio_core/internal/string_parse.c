@@ -78,45 +78,39 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
     return gmio_next_char_from_stream(it);
 }
 
-void gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
+const char *gmio_skip_spaces(gmio_string_stream_fwd_iterator_t *it)
 {
     const char* curr_char = gmio_current_char(it);
     while (curr_char != NULL && gmio_clocale_isspace(*curr_char))
         curr_char = gmio_next_char(it);
+    return curr_char;
 }
 
 int gmio_eat_word(
         gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *buffer)
 {
+    const size_t buffer_capacity = buffer->max_len;
     const char* stream_curr_char = NULL;
-    int isspace_res = 0;
     size_t i = 0;
 
-    if (buffer == NULL || buffer->ptr == NULL)
-        return -1;
+    /* assert(buffer != NULL && buffer->ptr != NULL); */
 
     buffer->len = 0;
-    gmio_skip_spaces(it);
-    stream_curr_char = gmio_current_char(it);
+    stream_curr_char = gmio_skip_spaces(it);
     if (stream_curr_char == NULL) { /* Empty word */
         buffer->ptr[0] = 0;
-        buffer->len = 0;
         return 0;
     }
 
-    while (i < buffer->max_len
-           && stream_curr_char != NULL
-           && isspace_res == 0)
-    {
-        isspace_res = gmio_clocale_isspace(*stream_curr_char);
-        if (isspace_res == 0) {
-            buffer->ptr[i] = *stream_curr_char;
-            stream_curr_char = gmio_next_char(it);
-            ++i;
-        }
-    }
+    do {
+        buffer->ptr[i] = *stream_curr_char;
+        stream_curr_char = gmio_next_char(it);
+        ++i;
+    } while(i < buffer_capacity
+            && stream_curr_char != NULL
+            && !gmio_clocale_isspace(*stream_curr_char));
 
-    if (i < buffer->max_len) {
+    if (i < buffer_capacity) {
         buffer->ptr[i] = 0; /* End string with terminating null byte */
         buffer->len = i;
         if (stream_curr_char != NULL

@@ -59,7 +59,7 @@ void gmio_string_stream_fwd_iterator_init(
 const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it);
 
-void gmio_skip_spaces(
+const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it);
 
 int gmio_eat_word(
