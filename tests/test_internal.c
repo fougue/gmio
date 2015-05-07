@@ -23,6 +23,7 @@
 #include "../src/gmio_core/internal/fast_atof.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/string_parse.h"
+#include "../src/gmio_core/internal/string_utils.h"
 
 #include "stream_buffer.h"
 #include "utils.h"
@@ -202,6 +203,17 @@ const char* test_internal__string_parse()
     return NULL;
 }
 
+const char* test_internal__string_utils()
+{
+    UTEST_ASSERT(gmio_clocale_isspace(' '));
+    UTEST_ASSERT(gmio_clocale_isspace('\t'));
+    UTEST_ASSERT(gmio_clocale_isspace('\n'));
+    UTEST_ASSERT(gmio_clocale_isspace('\r'));
+    UTEST_ASSERT(!gmio_clocale_isspace('a'));
+    UTEST_ASSERT(!gmio_clocale_isspace('A'));
+    return NULL;
+}
+
 const char* all_tests()
 {
     UTEST_SUITE_START();
@@ -210,6 +222,7 @@ const char* all_tests()
     UTEST_RUN(test_internal__fast_atof);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__string_parse);
+    UTEST_RUN(test_internal__string_utils);
     return NULL;
 }
 
