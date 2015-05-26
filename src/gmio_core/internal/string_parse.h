@@ -19,6 +19,18 @@
 #include "../global.h"
 #include "../stream.h"
 
+/* For implementation section */
+#include "helper_stream.h"
+#include "string_utils.h"
+#define GMIO_USE_FAST_ATOF
+#ifdef GMIO_USE_FAST_ATOF
+#  include "fast_atof.h"
+#endif
+
+#include <errno.h>
+#include <stdlib.h>
+/* End for implementation section */
+
 /*! Stores traditional 8-bit strings
  *
  *  For faster length lookups, it knowns the length of its contents. It must
@@ -56,17 +68,18 @@ typedef struct gmio_string_stream_fwd_iterator
 void gmio_string_stream_fwd_iterator_init(
         gmio_string_stream_fwd_iterator_t* it);
 
-const char* gmio_current_char(
+GMIO_INLINE const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it);
 
-const char* gmio_skip_spaces(
+/*! Move on next char in stream */
+GMIO_INLINE const char *gmio_next_char(
+        gmio_string_stream_fwd_iterator_t *it);
+
+GMIO_INLINE const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it);
 
 int gmio_eat_word(
         gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
-
-/*! Move on next char in stream */
-const char* gmio_next_char(gmio_string_stream_fwd_iterator_t* it);
 
 /*! Iterate over stream while it matches input string \p str
  *
@@ -80,6 +93,66 @@ gmio_bool_t gmio_checked_next_chars(
  *  \retval 0  On success
  *  \retval -1 On error(check \c errno to see what happened)
  */
-int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
+GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
+
+
+
+/*
+ * -- Implementation
+ */
+
+const char* gmio_current_char(
+        const gmio_string_stream_fwd_iterator_t* it)
+{
+      if (it->buffer_pos < it->buffer.len)
+        return it->buffer.ptr + it->buffer_pos;
+    return NULL;
+}
+
+const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
+{
+    ++(it->buffer_pos);
+    if (it->buffer_pos < it->buffer.len)
+        return it->buffer.ptr + it->buffer_pos;
+    
+    /* Read next chunk of data */
+    it->buffer_pos = 0;
+    it->buffer.len = gmio_stream_read(
+                it->stream, it->buffer.ptr, sizeof(char), it->buffer.max_len);
+    if (it->buffer.len > 0) {
+        if (it->stream_read_hook != NULL)
+            it->stream_read_hook(it->cookie, &it->buffer);
+        return it->buffer.ptr;
+    }
+    return NULL;
+}
+
+const char* gmio_skip_spaces(
+        gmio_string_stream_fwd_iterator_t* it)
+{
+    const char* curr_char = gmio_current_char(it);
+    while (curr_char != NULL && gmio_clocale_isspace(*curr_char))
+        curr_char = gmio_next_char(it);
+    return curr_char;
+}
+
+int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
+{
+#if defined(GMIO_USE_FAST_ATOF)
+    const char* end_ptr = NULL;
+    *value_ptr = fast_atof(str, &end_ptr);
+#elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
+    char* end_ptr = NULL;
+    *value_ptr = strtof(str, &end_ptr);
+#else
+    char* end_ptr = NULL;
+    *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
+#endif
+
+    if (end_ptr == str || errno == ERANGE)
+        return -1;
+
+    return 0;
+}
 
 #endif /* GMIO_INTERNAL_STRING_PARSE_H */
