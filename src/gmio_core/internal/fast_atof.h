@@ -63,12 +63,6 @@ GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
 
-    if (!in)
-    {
-        if (out)
-            *out = in;
-        return 0;
-    }
     while ( ( *in >= '0') && ( *in <= '9' ))
     {
         const uint32_t tmp = ( unsignedValue * 10 ) + ( *in - '0' );
@@ -99,15 +93,9 @@ GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
  */
 GMIO_INLINE int32_t strtol10(const char* in, const char** out)
 {
-    const gmio_bool_t negative = in != NULL ? ('-' == *in) : GMIO_FALSE;
+    const gmio_bool_t negative = ('-' == *in);
     uint32_t unsignedValue = 0;
 
-    if (!in)
-    {
-        if (out)
-            *out = in;
-        return 0;
-    }
     if (negative || ('+' == *in))
         ++in;
     unsignedValue = strtoul10(in,out);
@@ -161,12 +149,6 @@ GMIO_INLINE uint32_t strtoul16(const char* in, const char** out)
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
 
-    if (!in)
-    {
-        if (out)
-            *out = in;
-        return 0;
-    }
     for (;;)
     {
         uint32_t tmp = 0;
@@ -205,12 +187,6 @@ GMIO_INLINE uint32_t strtoul8(const char* in, const char** out)
 {
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
-    if (!in)
-    {
-        if (out)
-            *out = in;
-        return 0;
-    }
     for (;;)
     {
         uint32_t tmp = 0;
@@ -245,12 +221,6 @@ GMIO_INLINE uint32_t strtoul8(const char* in, const char** out)
  */
 GMIO_INLINE uint32_t strtoul_prefix(const char* in, const char** out)
 {
-    if (!in)
-    {
-        if (out)
-            *out = in;
-        return 0;
-    }
     if ('0'==in[0])
         return ('x'==in[1] ? strtoul16(in+2,out) : strtoul8(in+1,out));
     return strtoul10(in,out);
@@ -272,12 +242,6 @@ GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
     uint32_t intValue = 0;
     gmio_float32_t floatValue = 0.f;
 
-    if (!in)
-    {
-        if (out)
-            *out = in;
-        return 0.f;
-    }
     /* Use integer arithmetic for as long as possible, for speed
      * and precision. */
     while ( ( *in >= '0') && ( *in <= '9' ) )
@@ -316,14 +280,12 @@ GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
 GMIO_INLINE const char* fast_atof_move(
         const char* in, gmio_float32_t* result)
 {
-    const gmio_bool_t negative = in != NULL ? ('-' == *in) : GMIO_FALSE;
+    const gmio_bool_t negative = ('-' == *in);
     gmio_float32_t value = 0.f;
 
     /* Please run the regression test when making any modifications to this
      * function. */
     *result = 0.f;
-    if (!in)
-        return 0;
     if (negative || ('+'==*in))
         ++in;
     value = strtof10(in, &in);
