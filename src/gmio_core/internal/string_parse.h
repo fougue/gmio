@@ -65,19 +65,27 @@ struct gmio_string_stream_fwd_iterator
 typedef struct gmio_string_stream_fwd_iterator
         gmio_string_stream_fwd_iterator_t;
 
+/*! Initializes iterator */
 void gmio_string_stream_fwd_iterator_init(
         gmio_string_stream_fwd_iterator_t* it);
 
+/*! Returns the char where the iterator is currently pointing at */
 GMIO_INLINE const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it);
 
-/*! Move on next char in stream */
+/*! Moves on next char in stream */
 GMIO_INLINE const char *gmio_next_char(
         gmio_string_stream_fwd_iterator_t *it);
 
+/*! Advances iterator until the next non-space char */
 GMIO_INLINE const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it);
 
+/*! Advances iterator so that next word is extracted into \p buffer
+ * 
+ *  \retval 0    On success
+ *  \retval <=-1 On error
+ */
 int gmio_eat_word(
         gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
 
