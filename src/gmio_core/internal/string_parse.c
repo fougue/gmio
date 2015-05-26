@@ -42,19 +42,6 @@ const char *gmio_current_char(const gmio_string_stream_fwd_iterator_t *it)
     return NULL;
 }
 
-GMIO_INLINE gmio_bool_t gmio_is_next_char_buffered(
-        const gmio_string_stream_fwd_iterator_t *it)
-{
-    return (it->buffer_pos + 1) < it->buffer.len ? GMIO_TRUE : GMIO_FALSE;
-}
-
-GMIO_INLINE const char* gmio_next_char_from_buffer(
-        gmio_string_stream_fwd_iterator_t *it)
-{
-    ++(it->buffer_pos);
-    return it->buffer.ptr + it->buffer_pos;
-}
-
 GMIO_INLINE const char* gmio_next_char_from_stream(
         gmio_string_stream_fwd_iterator_t *it)
 {
@@ -73,8 +60,9 @@ GMIO_INLINE const char* gmio_next_char_from_stream(
 
 const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
 {
-    if (gmio_is_next_char_buffered(it) == GMIO_TRUE)
-        return gmio_next_char_from_buffer(it);
+    ++(it->buffer_pos);
+    if (it->buffer_pos < it->buffer.len)
+        return it->buffer.ptr + it->buffer_pos;
     return gmio_next_char_from_stream(it);
 }
 
