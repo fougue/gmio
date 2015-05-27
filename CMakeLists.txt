@@ -21,6 +21,11 @@ include(CheckCSourceCompiles)
 include(CheckTypeSize)
 
 project(gmio C)
+set(GMIO_VERSION_MAJOR 0)
+set(GMIO_VERSION_MINOR 1)
+set(GMIO_VERSION_PATCH 0)
+set(GMIO_VERSION
+    ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -133,8 +138,9 @@ if(NOT BUILD_STRICT_C90)
     endif()
 endif() # !BUILD_STRICT_C90
 
+configure_file(src/gmio_core/version.h.cmake version.h @ONLY)
 configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
-include_directories(${CMAKE_BINARY_DIR}) # For generated "config.h"
+include_directories(${CMAKE_BINARY_DIR}) # For generated header files
 
 # Specific flags for GCC
 if(CMAKE_COMPILER_IS_GNUCC)
@@ -170,15 +176,23 @@ if(MSVC)
 
     # Disable deprecation warnings about "non-secure" CRT functions
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
+
+    # Enable "Generate Intrinsic Functions"
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
 endif()
 
 # Enable DLL generation (export symbols)
 if(BUILD_SHARED_LIBS)
     add_definitions(-DGMIO_LIB_DLL
                     -DGMIO_LIB_MAKE_DLL)
+    if(MSVC)
+        configure_file(src/gmio_core/gmio.rc.cmake gmio.rc @ONLY)
+        set(ALL_SRC_FILES ${ALL_SRC_FILES} ${CMAKE_BINARY_DIR}/gmio.rc)
+    endif()
 endif()
 
 # Declare installs
+install(FILES ${CMAKE_BINARY_DIR}/version.h DESTINATION include/gmio_core)
 install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/gmio_core)
 
 file(GLOB  C_CORE_HEADERS  src/gmio_core/*.h)
@@ -216,7 +230,6 @@ install(TARGETS gmio
           RUNTIME DESTINATION lib
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib)
-
 
 # Examples:
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
