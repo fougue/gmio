@@ -17,6 +17,7 @@
 #define GMIO_INTERNAL_STLA_WRITE_H
 
 #include "../stl_mesh.h"
+#include "../stl_io_options.h"
 #include "../../gmio_core/text_format.h"
 #include "../../gmio_core/transfer.h"
 
@@ -29,9 +30,6 @@
 int gmio_stla_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        /* Options */
-        const char* solid_name,
-        gmio_float_text_format_t float32_format,
-        uint8_t float32_prec);
+        const gmio_stl_write_options_t* options);
 
 #endif /* GMIO_INTERNAL_STLA_WRITE_H */

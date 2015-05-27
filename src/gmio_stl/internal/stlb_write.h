@@ -17,6 +17,7 @@
 #define GMIO_INTERNAL_STLB_WRITE_H
 
 #include "../stl_mesh.h"
+#include "../stl_io_options.h"
 #include "../../gmio_core/endian.h"
 #include "../../gmio_core/transfer.h"
 
@@ -29,8 +30,7 @@
 int gmio_stlb_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        /* Options */
-        const uint8_t* header_data,
+        const gmio_stl_write_options_t* options,
         gmio_endianness_t byte_order);
 
 #endif /* GMIO_INTERNAL_STLB_WRITE_H */

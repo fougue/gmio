@@ -27,6 +27,17 @@
 /*! Options for gmio_stl_write() */
 struct gmio_stl_write_options
 {
+    /*! Flag allowing to skip writting of any header/footer data, but just
+     *  triangles
+     *
+     *  If set to \c GMIO_TRUE then :
+     *    \li for STL ASCII format, <tt>"solid <name>"</tt> and
+     *        <tt>"endsolid"</tt> will no be written to output stream
+     *    \li for STL binary format, the 80 bytes header followed bt the mesh
+     *        facet count (4bytes) will no be written to output stream
+     */
+    gmio_bool_t stl_write_triangles_only;
+
     /*! Name of the solid to appear in "solid <name> \n facet normal ..."
      *
      *  Option useful only with STL ascii format (GMIO_STL_FORMAT_ASCII).
@@ -54,7 +65,7 @@ struct gmio_stl_write_options
      */
     uint8_t stla_float32_prec;
 
-    /*! Header data consisting of 80 bytes
+    /*! Header data whose first 80 bytes have to be written
      *
      *  Option useful only with STL binary formats (GMIO_STL_FORMAT_BINARY_LE
      *  or GMIO_STL_FORMAT_BINARY_BE).

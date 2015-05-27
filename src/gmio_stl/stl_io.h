@@ -141,6 +141,27 @@ int gmio_stlb_read(
         gmio_stl_mesh_creator_t* creator,
         gmio_endianness_t byte_order);
 
+/*! Writes STL binary header data to stream
+ *
+ *  This functions only writes the 80-bytes header array and the count of facets
+ *  in the mesh(with respect of the specified byte order).
+ *
+ *  \param stream Output stream where is written the header data
+ *  \param byte_order Byte order of the output STL data
+ *  \param header 80-bytes array of header data, can be safely set to NULL (to
+ *         generate an array of zeroes)
+ *  \param facet_count Total count of facets (triangles) in the mesh to be
+ *         written
+ *
+ *  \return Error code (see error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT
+int gmio_stlb_write_header(
+        gmio_stream_t* stream,
+        gmio_endianness_t byte_order,
+        const uint8_t* header,
+        uint32_t facet_count);
+
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_STL_IO_H */

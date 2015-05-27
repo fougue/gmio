@@ -22,6 +22,7 @@
 #include "../gmio_core/error.h"
 #include "../gmio_core/stream.h"
 #include "../gmio_core/transfer.h"
+#include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/helper_stream.h"
 
 int gmio_stl_read_file(
@@ -118,32 +119,20 @@ int gmio_stl_write(
         const gmio_stl_mesh_t *mesh,
         const gmio_stl_write_options_t *options)
 {
-    const uint8_t* header_data =
-            options != NULL ? options->stlb_header_data : NULL;
     int error = GMIO_ERROR_OK;
 
     if (trsf != NULL) {
         switch (format) {
         case GMIO_STL_FORMAT_ASCII: {
-            const char* solid_name =
-                    options != NULL ? options->stla_solid_name : NULL;
-            const gmio_float_text_format_t float_fmt =
-                    options != NULL ? options->stla_float32_format :
-                                      GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-            const uint8_t float_prec =
-                    options != NULL ? options->stla_float32_prec : 9;
-            error = gmio_stla_write(
-                        trsf, mesh, solid_name, float_fmt, float_prec);
+            error = gmio_stla_write(trsf, mesh, options);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_BE: {
-            error = gmio_stlb_write(
-                        trsf, mesh, header_data, GMIO_ENDIANNESS_BIG);
+            error = gmio_stlb_write(trsf, mesh, options, GMIO_ENDIANNESS_BIG);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_LE: {
-            error = gmio_stlb_write(
-                        trsf, mesh, header_data, GMIO_ENDIANNESS_LITTLE);
+            error = gmio_stlb_write(trsf, mesh, options, GMIO_ENDIANNESS_LITTLE);
             break;
         }
         case GMIO_STL_FORMAT_UNKNOWN: {
@@ -156,4 +145,37 @@ int gmio_stl_write(
     }
 
     return error;
+}
+
+static const uint8_t internal_stlb_zero_header[GMIO_STLB_HEADER_SIZE] = { 0 };
+
+int gmio_stlb_write_header(
+        gmio_stream_t *stream,
+        gmio_endianness_t byte_order,
+        const uint8_t *header,
+        uint32_t facet_count)
+{
+    uint8_t facet_count_bytes[sizeof(uint32_t)];
+    const uint8_t* non_null_header =
+            header != NULL ? header : &internal_stlb_zero_header[0];
+
+    /* Write 80-byte header */
+    if (gmio_stream_write(stream, non_null_header, GMIO_STLB_HEADER_SIZE, 1)
+            != 1)
+    {
+        return GMIO_ERROR_STREAM;
+    }
+
+    /* Write facet count */
+    if (byte_order == GMIO_ENDIANNESS_LITTLE)
+        gmio_encode_uint32_le(facet_count, &facet_count_bytes[0]);
+    else
+        gmio_encode_uint32_be(facet_count, &facet_count_bytes[0]);
+    if (gmio_stream_write(stream, &facet_count_bytes[0], sizeof(uint32_t), 1)
+            != 1)
+    {
+        return GMIO_ERROR_STREAM;
+    }
+
+    return GMIO_ERROR_OK;
 }

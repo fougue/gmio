@@ -129,10 +129,7 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 int gmio_stla_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        /* Options */
-        const char* solid_name,
-        gmio_float_text_format_t float32_format,
-        uint8_t float32_prec)
+        const gmio_stl_write_options_t *options)
 {
     /* Constants */
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
@@ -140,6 +137,16 @@ int gmio_stla_write(
             trsf != NULL ?
                 gmio_size_to_uint32(trsf->buffer.size / GMIO_STLA_FACET_SIZE_P2)
               : 0;
+    const char* solid_name =
+            options != NULL ? options->stla_solid_name : NULL;
+    const gmio_float_text_format_t float32_format =
+            options != NULL ?
+                options->stla_float32_format :
+                GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
+    const uint8_t float32_prec =
+            options != NULL ? options->stla_float32_prec : 9;
+    const gmio_bool_t write_triangles_only =
+            options != NULL ? options->stl_write_triangles_only : GMIO_FALSE;
     /* Variables */
     uint32_t ifacet = 0;
     void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
@@ -171,7 +178,7 @@ int gmio_stla_write(
     }
 
     /* Write solid declaration */
-    {
+    if (!write_triangles_only) {
         buffc = gmio_write_string(buffc, "solid ");
         buffc = gmio_write_string_eol(buffc, solid_name);
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)buffer_ptr))
@@ -225,7 +232,7 @@ int gmio_stla_write(
     } /* end for (ifacet) */
 
     /* Write end of solid */
-    if (gmio_no_error(error)) {
+    if (gmio_no_error(error) && !write_triangles_only) {
         buffc = gmio_write_string(trsf->buffer.ptr, "endsolid ");
         buffc = gmio_write_string_eol(buffc, solid_name);
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)buffer_ptr))

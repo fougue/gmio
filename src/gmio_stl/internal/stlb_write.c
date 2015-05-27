@@ -18,6 +18,7 @@
 #include "stl_rw_common.h"
 #include "stlb_byte_swap.h"
 #include "../stl_error.h"
+#include "../stl_io.h"
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_codec.h"
@@ -67,13 +68,14 @@ static void gmio_stlb_write_facets(
 int gmio_stlb_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        /* Options */
-        const uint8_t* header_data,
+        const gmio_stl_write_options_t* options,
         gmio_endianness_t byte_order)
 {
     /* Constants */
     const uint32_t facet_count =
             mesh != NULL ? mesh->triangle_count : 0;
+    const gmio_bool_t write_triangles_only =
+            options != NULL ? options->stl_write_triangles_only : GMIO_FALSE;
     /* Variables */
     void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
     gmio_stlb_readwrite_helper_t wparams = {0};
@@ -92,25 +94,15 @@ int gmio_stlb_write(
     wparams.facet_count = gmio_size_to_uint32(
                 trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
-    /* Write header */
-    if (header_data == NULL) {
-        /* Use buffer to store an empty header (filled with zeroes) */
-        memset(buffer_ptr, 0, GMIO_STLB_HEADER_SIZE);
-        header_data = (const uint8_t*)buffer_ptr;
+    if (!write_triangles_only) {
+        error = gmio_stlb_write_header(
+                    &trsf->stream,
+                    byte_order,
+                    options != NULL ? options->stlb_header_data : NULL,
+                    facet_count);
+        if (gmio_error(error))
+            return error;
     }
-    if (gmio_stream_write(&trsf->stream, header_data, GMIO_STLB_HEADER_SIZE, 1)
-            != 1)
-    {
-        return GMIO_ERROR_STREAM;
-    }
-
-    /* Write facet count */
-    if (byte_order == GMIO_ENDIANNESS_LITTLE)
-        gmio_encode_uint32_le(facet_count, buffer_ptr);
-    else
-        gmio_encode_uint32_be(facet_count, buffer_ptr);
-    if (gmio_stream_write(&trsf->stream, buffer_ptr, sizeof(uint32_t), 1) != 1)
-        return GMIO_ERROR_STREAM;
 
     /* Write triangles */
     for (i_facet = 0;
