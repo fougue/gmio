@@ -93,7 +93,7 @@ int gmio_stlb_read(
 
     /* Read header */
     if (gmio_stream_read(&trsf->stream, &header, GMIO_STLB_HEADER_SIZE, 1)
-            != GMIO_STLB_HEADER_SIZE)
+            != 1)
     {
         return GMIO_STL_ERROR_HEADER_WRONG_SIZE;
     }
