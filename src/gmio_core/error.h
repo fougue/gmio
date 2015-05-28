@@ -29,23 +29,23 @@ enum gmio_error
     GMIO_ERROR_OK = 0,
 
     /*! Pointer on argument gmio_transfer_t is NULL */
-    GMIO_ERROR_NULL_TRANSFER = -1,
+    GMIO_ERROR_NULL_TRANSFER,
 
     /*! Pointer on argument buffer is NULL */
-    GMIO_ERROR_NULL_BUFFER = -2,
+    GMIO_ERROR_NULL_BUFFER,
 
     /*! Argument buffer's size is too small */
-    GMIO_ERROR_INVALID_BUFFER_SIZE = -3,
+    GMIO_ERROR_INVALID_BUFFER_SIZE,
 
     /*! An error occurred with gmio_stream */
-    GMIO_ERROR_STREAM = -4,
+    GMIO_ERROR_STREAM,
 
     /*! Transfer was stopped by user, that is to say
      *  gmio_transfer::is_stop_requested_func() returned GMIO_TRUE */
-    GMIO_ERROR_TRANSFER_STOPPED = -5,
+    GMIO_ERROR_TRANSFER_STOPPED,
 
     /*! Unknown error */
-    GMIO_ERROR_UNKNOWN = -6
+    GMIO_ERROR_UNKNOWN
 };
 
 typedef enum gmio_error gmio_error_t;
