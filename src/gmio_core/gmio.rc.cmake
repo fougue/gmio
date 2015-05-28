@@ -9,11 +9,11 @@ VS_VERSION_INFO VERSIONINFO
    BEGIN
      BLOCK "04090000"
      BEGIN
-       VALUE "FileDescription", "GeomIO DLL"
+       VALUE "FileDescription", "gmio DLL"
        VALUE "FileVersion", "@GMIO_VERSION@"
        VALUE "InternalName", "gmio"
        VALUE "LegalCopyright", "Licensed under CeCILL-B v1.0"
-       VALUE "ProductName", "GeomIO library, by Fougue Ltd."
+       VALUE "ProductName", "gmio library, by Fougue Ltd."
        VALUE "ProductVersion", "@GMIO_VERSION@"
      END
    END

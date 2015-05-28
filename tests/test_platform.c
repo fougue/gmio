@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** GeomIO Library
+** gmio
 ** Copyright Fougue (2 Mar. 2015)
 ** contact@fougsys.fr
 **
@@ -81,7 +81,7 @@ const char* test_platform__compiler()
                                              + sizeof(gmio_buffer_t)
                                              + sizeof(gmio_task_iface_t)));
 
-    /* GeomIO doesn't support platforms where NULL != 0 */
+    /* gmio doesn't support platforms where NULL != 0 */
     UTEST_ASSERT(NULL == 0);
 
     return NULL;

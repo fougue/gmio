@@ -1,16 +1,14 @@
-GeomIO: C library for geometry input/output
+gmio: C library for geometry input/output
 ===========================================
 
-This is GeomIO v0.1dev
-
-GeomIO is a reusable C library whose purpose is to provide complete I/O
+gmio is a reusable C library whose purpose is to provide complete I/O
 support for various CAD file formats (eg. STL)
 
-GeomIO aims to be fast, portable (ISO-C90 conformance) and feature-rich.
+gmio aims to be fast, portable (ISO-C90 conformance) and feature-rich.
 Main highlights:
 
   * "Abstract" streams that does not tie the user to C stream (`FILE*`).
-    GeomIO provides a general stream structure based on callbacks, so that
+    gmio provides a general stream structure based on callbacks, so that
     any kind of device can be used (memory, file, socket, ...)
   * Operations can be easily aborted
   * Buffering of input/ouput for efficient device usage
@@ -33,10 +31,10 @@ In addition, the STL module has the following advatanges:
   * Extended support of OpenCascade's `StlMesh_Mesh`
 
 
-Building GeomIO
+Building gmio
 ===============
 
-GeomIO can be built with CMake, by default a static library is generated.
+gmio can be built with CMake, by default a static library is generated.
 
   1. For an out-of-source build, create a directory where the build will take
      place (say `build/`)
@@ -47,15 +45,15 @@ GeomIO can be built with CMake, by default a static library is generated.
 
 Read CMakeLists.txt to figure out how to build debug and release libraries.
 
-For the first use of GeomIO, you should run unit tests:
+For the first use of gmio, you should run unit tests:
     `(n)make check`
 
 
 How to report a bug
 ===================
 
-If you think you have found a bug in GeomIO, we would like to hear
-about it so that we can fix it. The GeomIO bug tracking system is
+If you think you have found a bug in gmio, we would like to hear
+about it so that we can fix it. The gmio bug tracking system is
 open to the public at https://github.com/fougue/gmio/issues.
 
 Before reporting a bug, please use the bug-tracker's search functions
@@ -63,7 +61,7 @@ to see if the issue is already known.
 
 Always include the following information in your bug report: the name
 and version number of your compiler; the name and version number of
-your operating system; the version of GeomIO you are using, and
+your operating system; the version of gmio you are using, and
 what configure options it was compiled with.
 
 If the problem you are reporting is only visible at run-time, try to
