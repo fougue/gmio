@@ -209,8 +209,56 @@ const char* test_internal__string_utils()
     UTEST_ASSERT(gmio_clocale_isspace('\t'));
     UTEST_ASSERT(gmio_clocale_isspace('\n'));
     UTEST_ASSERT(gmio_clocale_isspace('\r'));
-    UTEST_ASSERT(!gmio_clocale_isspace('a'));
-    UTEST_ASSERT(!gmio_clocale_isspace('A'));
+
+    for (char c = 0; c >= 0 && c <= 127; ++c) {
+        if (65 <= c && c <= 90) {
+            UTEST_ASSERT(gmio_clocale_isupper(c));
+        }
+        else if (97 <= c && c <= 122) {
+            UTEST_ASSERT(gmio_clocale_islower(c));
+        }
+        else if (c == 0x20 || (0x09 <= c && c <= 0x0d)) {
+            UTEST_ASSERT(gmio_clocale_isspace(c));
+        }
+        else {
+            UTEST_ASSERT(!gmio_clocale_isupper(c));
+            UTEST_ASSERT(!gmio_clocale_islower(c));
+            UTEST_ASSERT(!gmio_clocale_isspace(c));
+        }
+    }
+
+    UTEST_ASSERT(gmio_clocale_tolower('A') == 'a');
+    UTEST_ASSERT(gmio_clocale_tolower('Z') == 'z');
+    UTEST_ASSERT(gmio_clocale_tolower('(') == '(');
+    UTEST_ASSERT(gmio_clocale_toupper('a') == 'A');
+    UTEST_ASSERT(gmio_clocale_toupper('z') == 'Z');
+    UTEST_ASSERT(gmio_clocale_toupper('(') == '(');
+
+    UTEST_ASSERT(gmio_clocale_char_iequals('a', 'a'));
+    UTEST_ASSERT(gmio_clocale_char_iequals('a', 'A'));
+    UTEST_ASSERT(gmio_clocale_char_iequals('A', 'a'));
+    UTEST_ASSERT(gmio_clocale_char_iequals('{', '{'));
+    UTEST_ASSERT(!gmio_clocale_char_iequals('{', '['));
+
+    UTEST_ASSERT(gmio_stricmp("FACET", "facet") == 0);
+    UTEST_ASSERT(gmio_stricmp("facet", "FACET") == 0);
+    UTEST_ASSERT(gmio_stricmp("facet", "facet") == 0);
+    UTEST_ASSERT(gmio_stricmp("FACET", "FACET") == 0);
+    UTEST_ASSERT(gmio_stricmp("", "") == 0);
+    UTEST_ASSERT(gmio_stricmp("", "facet") != 0);
+    UTEST_ASSERT(gmio_stricmp("facet", "facet_") != 0);
+    UTEST_ASSERT(gmio_stricmp("facet_", "facet") != 0);
+
+    UTEST_ASSERT(gmio_istarts_with("facet", ""));
+    UTEST_ASSERT(gmio_istarts_with("facet", "f"));
+    UTEST_ASSERT(gmio_istarts_with("facet", "fa"));
+    UTEST_ASSERT(gmio_istarts_with("facet", "facet"));
+    UTEST_ASSERT(!gmio_istarts_with("facet", "a"));
+    UTEST_ASSERT(!gmio_istarts_with("facet", " facet"));
+    UTEST_ASSERT(gmio_istarts_with("facet", "F"));
+    UTEST_ASSERT(gmio_istarts_with("FACET", "f"));
+    UTEST_ASSERT(gmio_istarts_with("FACET", "fa"));
+
     return NULL;
 }
 

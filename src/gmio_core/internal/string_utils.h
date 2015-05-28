@@ -53,13 +53,87 @@ GMIO_INLINE int gmio_clocale_isspace(char c)
 #endif
 }
 
+/*! Returns non-zero if \p c is an uppercase letter (for C-locale), zero
+ *  otherwise */
+GMIO_INLINE int gmio_clocale_isupper(char c)
+{
+#if 0
+    return 65 <= c && c <= 90;
+#else
+    static const unsigned char upper_chars[] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+    return upper_chars[c];
+#endif
+}
+
+/*! Returns non-zero if \p c is a lowercase letter (for C-locale), zero
+ *  otherwise */
+GMIO_INLINE int gmio_clocale_islower(char c)
+{
+#if 0
+    return 97 <= c && c <= 122;
+#else
+    static const unsigned char lower_chars[] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+    return lower_chars[c];
+#endif
+}
+
+/*! Returns the lowercase letter converted to uppercase */
+GMIO_INLINE char gmio_clocale_toupper(char c)
+{
+    if (gmio_clocale_islower(c))
+        return c - 32;
+    return c;
+}
+
+/*! Returns the uppercase letter converted to lowercase */
+GMIO_INLINE char gmio_clocale_tolower(char c)
+{
+    if (gmio_clocale_isupper(c))
+        return c + 32;
+    return c;
+}
+
 /*! Returns true if \p c1 compare equals to \p c2
  *
  *  Comparison is case-insensitive
  */
 GMIO_INLINE gmio_bool_t gmio_clocale_char_iequals(char c1, char c2)
 {
-    return c1 == c2 || c1 == (c2 - 32) ? GMIO_TRUE : GMIO_FALSE;
+    return c1 == c2 || (gmio_clocale_toupper(c1) == gmio_clocale_toupper(c2));
 }
 
 /*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise
