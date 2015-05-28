@@ -25,6 +25,9 @@
 static void add_triangle(
         void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle)
 {
+    GMIO_UNUSED(cookie);
+    GMIO_UNUSED(tri_id);
+    GMIO_UNUSED(triangle);
 }
 
 struct filepath_errorcode
@@ -49,11 +52,12 @@ const char* test_stl_read()
     };
     const size_t expected_count =
             sizeof(expected) / sizeof(filepath_errorcode_t);
+    size_t i; /* for loop counter */
     gmio_stl_mesh_creator_t meshc = {0};
 
     meshc.add_triangle_func = &add_triangle;
 
-    for (size_t i = 0; i < expected_count; ++i) {
+    for (i = 0; i < expected_count; ++i) {
         const int err = gmio_stl_read_file(expected[i].filepath, &meshc, NULL);
         if (err != expected[i].errorcode) {
             printf("\nfilepath : %s\n"
