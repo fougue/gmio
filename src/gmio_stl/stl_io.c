@@ -46,7 +46,7 @@ int gmio_stl_read_file(
         gmio_buffer_deallocate(&trsf.buffer);
     }
     else {
-        error = GMIO_ERROR_UNKNOWN;
+        error = GMIO_ERROR_STDIO;
     }
 
     return error;
@@ -107,7 +107,7 @@ int gmio_stl_write_file(
         gmio_buffer_deallocate(&trsf.buffer);
     }
     else {
-        error = GMIO_ERROR_UNKNOWN;
+        error = GMIO_ERROR_STDIO;
     }
 
     return error;

@@ -44,6 +44,12 @@ enum gmio_error
      *  gmio_transfer::is_stop_requested_func() returned GMIO_TRUE */
     GMIO_ERROR_TRANSFER_STOPPED,
 
+    /*! An error occured after a call to a <stdio.h> function
+     *
+     *  The caller can check errno to get the real error number
+     */
+    GMIO_ERROR_STDIO,
+
     /*! Unknown error */
     GMIO_ERROR_UNKNOWN
 };
