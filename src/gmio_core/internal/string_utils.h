@@ -18,19 +18,26 @@
 
 #include "../global.h"
 
+#define GMIO_STRINGUTILS_C_ARRAYS
+/*#define GMIO_STRINGUTILS_CTYPE_H*/
+/*#define GMIO_STRINGUTILS_DIRECT_TESTS*/
+
+#ifdef GMIO_STRINGUTILS_CTYPE_H
+#  include <ctype.h>
+#endif
+
 /*! Returns non-zero if \p c is a space (for C-locale), zero otherwise */
 GMIO_INLINE int gmio_clocale_isspace(char c)
 {
-#if 0
-    return c == 0x20      /* space (SPC) */
-            || c == 0x09  /* horizontal tab (TAB) */
-            || c == 0x0a  /* newline (LF) */
-            || c == 0x0b  /* vertical tab (VT) */
-            || c == 0x0c  /* feed (FF) */
-            || c == 0x0d  /* carriage return (CR) */
-            ;
-    /* return c == 0x20 || ((uint8_t)(c - 0x09) < 5); */
-#else
+#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
+    /* 0x20 : space (SPC)
+     * 0x09 : horizontal tab (TAB)
+     * 0x0a : newline (LF)
+     * 0x0b : vertical tab (VT)
+     * 0x0c : feed (FF)
+     * 0x0d : carriage return (CR) */
+    return c == 0x20 || ((uint8_t)(c - 0x09) < 5);
+#elif defined(GMIO_STRINGUTILS_C_ARRAYS)
     static const unsigned char space_chars[] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -50,6 +57,8 @@ GMIO_INLINE int gmio_clocale_isspace(char c)
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     return space_chars[c];
+#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+    return isspace(c);
 #endif
 }
 
@@ -57,9 +66,9 @@ GMIO_INLINE int gmio_clocale_isspace(char c)
  *  otherwise */
 GMIO_INLINE int gmio_clocale_isupper(char c)
 {
-#if 0
+#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
     return 65 <= c && c <= 90;
-#else
+#elif defined(GMIO_STRINGUTILS_C_ARRAYS)
     static const unsigned char upper_chars[] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -79,6 +88,8 @@ GMIO_INLINE int gmio_clocale_isupper(char c)
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     return upper_chars[c];
+#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+    return isupper(c);
 #endif
 }
 
@@ -86,9 +97,9 @@ GMIO_INLINE int gmio_clocale_isupper(char c)
  *  otherwise */
 GMIO_INLINE int gmio_clocale_islower(char c)
 {
-#if 0
+#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
     return 97 <= c && c <= 122;
-#else
+#elif defined(GMIO_STRINGUTILS_C_ARRAYS)
     static const unsigned char lower_chars[] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -108,6 +119,8 @@ GMIO_INLINE int gmio_clocale_islower(char c)
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
     return lower_chars[c];
+#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+    return islower(c);
 #endif
 }
 
