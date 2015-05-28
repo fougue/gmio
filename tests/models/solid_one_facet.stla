@@ -1,0 +1,9 @@
+solid
+facet normal  0 0 1
+ outer loop
+  vertex  0  0 0
+  vertex  10 0 0
+  vertex  5 10 0
+ endloop
+endfacet
+endsolid

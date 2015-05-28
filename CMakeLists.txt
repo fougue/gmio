@@ -256,12 +256,35 @@ enable_testing()
 set(CMAKE_CTEST_COMMAND ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
-add_executable(test_internal EXCLUDE_FROM_ALL tests/stream_buffer.c
-                                              tests/utils.c
-                                              tests/test_internal.c
-                                              src/gmio_core/stream.c
-                                              src/gmio_core/internal/string_parse.c)
-add_executable(test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
+add_executable(
+    test_internal
+    EXCLUDE_FROM_ALL
+        tests/stream_buffer.c
+        tests/utils.c
+        tests/test_internal.c
+        src/gmio_core/stream.c
+        src/gmio_core/internal/string_parse.c)
+
+add_executable(
+    test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/models
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests)
+add_executable(
+    test_stl
+    EXCLUDE_FROM_ALL
+        tests/test_stl_io.c
+        src/gmio_core/buffer.c
+        src/gmio_core/stream.c
+        src/gmio_core/internal/string_parse.c
+        src/gmio_stl/stl_format.c
+        src/gmio_stl/stl_io.c
+        src/gmio_stl/stla_read.c
+        src/gmio_stl/stlb_read.c
+        src/gmio_stl/internal/stl_rw_common.c
+        src/gmio_stl/internal/stla_write.c
+        src/gmio_stl/internal/stlb_byte_swap.c
+        src/gmio_stl/internal/stlb_write.c)
 
 if(CMAKE_COMPILER_IS_GNUCC)
     target_link_libraries(test_internal m) # -lm
@@ -269,6 +292,10 @@ endif()
 
 add_test(test_internal test_internal)
 add_test(test_platform test_platform)
+add_test(test_stl test_stl)
 
-add_dependencies(check  test_internal
-                        test_platform)
+add_dependencies(
+    check
+        test_internal
+        test_platform
+        test_stl)
