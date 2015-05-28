@@ -26,13 +26,13 @@ DOXYFILE_ENCODING      = UTF-8
 # identify the project. Note that if you do not use Doxywizard you need 
 # to put quotes around the project name if it contains spaces.
 
-PROJECT_NAME           = GeomIO (Geometry Input/Output) Library
+PROJECT_NAME           = gmio
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
 # if some version control system is used.
 
-PROJECT_NUMBER = 0.1.0
+PROJECT_NUMBER = @GMIO_VERSION@
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description 
 # for a project that appears at the top of each page and should give viewer 
@@ -128,7 +128,7 @@ FULL_PATH_NAMES        = YES
 # If left blank the directory from which doxygen is run is used as the 
 # path to strip.
 
-STRIP_FROM_PATH        = ../src
+STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/src
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of 
 # the path mentioned in the documentation of a class, which tells 
@@ -249,7 +249,7 @@ EXTENSION_MAPPING      =
 
 MARKDOWN_SUPPORT       = YES
 
-USE_MDFILE_AS_MAINPAGE  = ../README.md
+USE_MDFILE_AS_MAINPAGE  = @CMAKE_CURRENT_SOURCE_DIR@/README.md
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
@@ -641,8 +641,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../README.md \
-                         ../src
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/README.md \
+                         @CMAKE_CURRENT_SOURCE_DIR@/src
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -675,7 +675,7 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = \
-    ../src/gmio_support/support_global.h \
+    @CMAKE_CURRENT_SOURCE_DIR@/src/gmio_support/support_global.h \
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or 
 # directories that are symbolic links (a Unix file system feature) are excluded 
@@ -1484,6 +1484,8 @@ PREDEFINED             = GMIO_LIB_EXPORT= \
                          GMIO_HAVE_STDINT_H=1 \
                          GMIO_C_LINKAGE_BEGIN= \
                          GMIO_C_LINKAGE_END= \
+                         QT_BEGIN_NAMESPACE= \
+                         QT_END_NAMESPACE= \
                          DOXYGEN
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 

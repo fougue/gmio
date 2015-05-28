@@ -30,6 +30,12 @@ QT_END_NAMESPACE
 
 /*! Returns a gmio_stream for \c QIODevice* (cookie will hold \p device) */
 GMIO_LIBSUPPORT_EXPORT
-gmio_stream_t gmio_stream_qiodevice(QT_PREPEND_NAMESPACE(QIODevice)* device);
+gmio_stream_t gmio_stream_qiodevice(
+#ifndef DOXYGEN
+        QT_PREPEND_NAMESPACE(QIODevice)* device
+#else
+        QIODevice* device
+#endif /* !DOXYGEN */
+        );
 
 #endif /* GMIO_SUPPORT_STREAM_QT_H */

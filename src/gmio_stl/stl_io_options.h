@@ -33,12 +33,12 @@ struct gmio_stl_write_options
      *  If set to \c GMIO_TRUE then :
      *    \li for STL ASCII format, <tt>"solid <name>"</tt> and
      *        <tt>"endsolid"</tt> will no be written to output stream
-     *    \li for STL binary format, the 80 bytes header followed bt the mesh
+     *    \li for STL binary format, the 80 bytes header followed by the mesh
      *        facet count (4bytes) will no be written to output stream
      */
     gmio_bool_t stl_write_triangles_only;
 
-    /*! Name of the solid to appear in "solid <name> \n facet normal ..."
+    /*! Name of the solid to appear in <tt>solid <name> facet normal ...</tt>
      *
      *  Option useful only with STL ascii format (GMIO_STL_FORMAT_ASCII).
      *

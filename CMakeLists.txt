@@ -231,6 +231,19 @@ install(TARGETS gmio
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib)
 
+# Add a target to generate API documentation with Doxygen
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
+    add_custom_target(
+        doc
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
+        COMMENT "Generating API documentation with Doxygen" VERBATIM)
+endif(DOXYGEN_FOUND)
+
 # Examples:
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_RELEASE_POSTFIX=.release
