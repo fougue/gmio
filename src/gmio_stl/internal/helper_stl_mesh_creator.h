@@ -36,7 +36,7 @@ GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
 GMIO_INLINE void gmio_stl_mesh_creator_binary_begin_solid(
         gmio_stl_mesh_creator_t* creator,
         uint32_t tri_count,
-        const uint8_t* header)
+        const gmio_stlb_header_t* header)
 {
     if (creator != NULL && creator->binary_begin_solid_func != NULL)
         creator->binary_begin_solid_func(creator->cookie, tri_count, header);

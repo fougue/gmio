@@ -125,6 +125,9 @@ int gmio_stla_read(
         gmio_transfer_t* trsf,
         gmio_stl_mesh_creator_t* creator);
 
+/*! Size(in bytes) of the minimum contents possible with the STL binary format */
+enum { GMIO_STLB_MIN_CONTENTS_SIZE = 284 };
+
 /*! Reads geometry from STL binary stream
  *
  *  \param trsf Defines needed objects for the read operation
@@ -159,7 +162,7 @@ GMIO_LIBSTL_EXPORT
 int gmio_stlb_write_header(
         gmio_stream_t* stream,
         gmio_endianness_t byte_order,
-        const uint8_t* header,
+        const gmio_stlb_header_t* header,
         uint32_t facet_count);
 
 GMIO_C_LINKAGE_END

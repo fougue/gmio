@@ -16,6 +16,7 @@
 #include "stl_format.h"
 
 #include "stl_triangle.h"
+#include "stlb_header.h"
 
 #include "../gmio_core/endian.h"
 #include "../gmio_core/internal/byte_codec.h"

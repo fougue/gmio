@@ -22,6 +22,7 @@
 
 #include "stl_global.h"
 #include "stl_triangle.h"
+#include "stlb_header.h"
 
 #include <stddef.h>
 
@@ -54,7 +55,7 @@ struct gmio_stl_mesh_creator
      *  The argument \p header contains the header data(80 bytes)
      */
     void (*binary_begin_solid_func)(
-            void* cookie, uint32_t tri_count, const uint8_t* header);
+            void* cookie, uint32_t tri_count, const gmio_stlb_header_t* header);
 
     /*! Pointer on a function that adds a triangle to the user mesh
      *

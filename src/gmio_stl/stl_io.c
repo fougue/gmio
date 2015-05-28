@@ -147,17 +147,17 @@ int gmio_stl_write(
     return error;
 }
 
-static const uint8_t internal_stlb_zero_header[GMIO_STLB_HEADER_SIZE] = { 0 };
+static const gmio_stlb_header_t internal_stlb_zero_header = {0};
 
 int gmio_stlb_write_header(
         gmio_stream_t *stream,
         gmio_endianness_t byte_order,
-        const uint8_t *header,
+        const gmio_stlb_header_t *header,
         uint32_t facet_count)
 {
     uint8_t facet_count_bytes[sizeof(uint32_t)];
-    const uint8_t* non_null_header =
-            header != NULL ? header : &internal_stlb_zero_header[0];
+    const gmio_stlb_header_t* non_null_header =
+            header != NULL ? header : &internal_stlb_zero_header;
 
     /* Write 80-byte header */
     if (gmio_stream_write(stream, non_null_header, GMIO_STLB_HEADER_SIZE, 1)

@@ -21,6 +21,7 @@
 #define GMIO_STL_IO_OPTIONS_H
 
 #include "stl_global.h"
+#include "stlb_header.h"
 #include "../gmio_core/endian.h"
 #include "../gmio_core/text_format.h"
 
@@ -65,7 +66,7 @@ struct gmio_stl_write_options
      */
     uint8_t stla_float32_prec;
 
-    /*! Header data whose first 80 bytes have to be written
+    /*! Header data(80-bytes)
      *
      *  Option useful only with STL binary formats (GMIO_STL_FORMAT_BINARY_LE
      *  or GMIO_STL_FORMAT_BINARY_BE).
@@ -74,7 +75,7 @@ struct gmio_stl_write_options
      *    \li calling gmio_stl_write() with <tt>options == NULL</tt>
      *    \li OR <tt>stlb_header_data == NULL</tt>
      */
-    const uint8_t* stlb_header_data;
+    const gmio_stlb_header_t* stlb_header_data;
 };
 typedef struct gmio_stl_write_options gmio_stl_write_options_t;
 

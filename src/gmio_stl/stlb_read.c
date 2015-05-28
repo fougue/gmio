@@ -79,7 +79,7 @@ int gmio_stlb_read(
     /* Variables */
     void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
     gmio_stlb_readwrite_helper_t rparams = {0};
-    uint8_t header_data[GMIO_STLB_HEADER_SIZE];
+    gmio_stlb_header_t header;
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
     int error = GMIO_ERROR_OK; /* Helper  to store function result error code */
 
@@ -92,7 +92,7 @@ int gmio_stlb_read(
         rparams.fix_endian_func = gmio_stl_triangle_bswap;
 
     /* Read header */
-    if (gmio_stream_read(&trsf->stream, header_data, 1, GMIO_STLB_HEADER_SIZE)
+    if (gmio_stream_read(&trsf->stream, &header, GMIO_STLB_HEADER_SIZE, 1)
             != GMIO_STLB_HEADER_SIZE)
     {
         return GMIO_STL_ERROR_HEADER_WRONG_SIZE;
@@ -111,7 +111,7 @@ int gmio_stlb_read(
 
     /* Callback to notify triangle count and header data */
     gmio_stl_mesh_creator_binary_begin_solid(
-                creator, total_facet_count, header_data);
+                creator, total_facet_count, &header);
 
     /* Read triangles */
     while (gmio_no_error(error)

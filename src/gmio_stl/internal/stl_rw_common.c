@@ -17,6 +17,7 @@
 
 #include "../../gmio_core/error.h"
 #include "../stl_error.h"
+#include "../stl_io.h"
 
 gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
 {
