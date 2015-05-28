@@ -39,6 +39,9 @@ struct gmio_stl_mesh_creator
      *  name \p solid_name
      *
      *  Optional function useful only with STL ascii (ie. gmio_stla_read())
+     *
+     *  The argument \p stream_size is the total size (in bytes) of the input
+     *  stream
      */
     void (*ascii_begin_solid_func)(
             void* cookie, size_t stream_size, const char* solid_name);

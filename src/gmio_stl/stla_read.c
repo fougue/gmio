@@ -82,7 +82,7 @@ typedef struct
 {
     /* Copy of gmio_stla_read() corresponding argument */
     gmio_transfer_t* transfer;
-    /* Copy of gmio_stla_read_options::stream_size */
+    /* Cache for gmio_stream_size(&transfer->stream) */
     size_t stream_size;
     /* Offset (in bytes) from beginning of stream : current position */
     size_t stream_offset;
