@@ -54,14 +54,9 @@ int gmio_eat_word(
     if (i < buffer_capacity) {
         buffer->ptr[i] = 0; /* End string with terminating null byte */
         buffer->len = i;
-        if (stream_curr_char != NULL
-                || gmio_stream_at_end(it->stream) == GMIO_TRUE)
-        {
-            return 0;
-        }
-        return -3;
+        return 0;
     }
-    return -4;
+    return -1;
 }
 
 gmio_bool_t gmio_checked_next_chars(
