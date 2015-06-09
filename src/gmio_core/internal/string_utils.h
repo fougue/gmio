@@ -18,9 +18,9 @@
 
 #include "../global.h"
 
-#define GMIO_STRINGUTILS_C_ARRAYS
+/*#define GMIO_STRINGUTILS_C_ARRAYS*/
 /*#define GMIO_STRINGUTILS_CTYPE_H*/
-/*#define GMIO_STRINGUTILS_DIRECT_TESTS*/
+#define GMIO_STRINGUTILS_DIRECT_TESTS
 
 #ifdef GMIO_STRINGUTILS_CTYPE_H
 #  include <ctype.h>
@@ -127,17 +127,13 @@ GMIO_INLINE int gmio_clocale_islower(char c)
 /*! Returns the lowercase letter converted to uppercase */
 GMIO_INLINE char gmio_clocale_toupper(char c)
 {
-    if (gmio_clocale_islower(c))
-        return c - 32;
-    return c;
+    return gmio_clocale_islower(c) ? c - 32 : c;
 }
 
 /*! Returns the uppercase letter converted to lowercase */
 GMIO_INLINE char gmio_clocale_tolower(char c)
 {
-    if (gmio_clocale_isupper(c))
-        return c + 32;
-    return c;
+    return gmio_clocale_isupper(c) ?  c + 32 : c;
 }
 
 /*! Returns true if \p c1 compare equals to \p c2
