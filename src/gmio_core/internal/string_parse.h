@@ -58,8 +58,8 @@ struct gmio_string_stream_fwd_iterator
     size_t buffer_pos; /*!< Position indicator in buffer */
 
     void* cookie;
-    void (*stream_read_hook)(void* cookie,
-                             const gmio_string_buffer_t* str_buffer);
+    void (*stream_read_hook)(
+            void* cookie, const gmio_string_buffer_t* str_buffer);
 };
 
 typedef struct gmio_string_stream_fwd_iterator
