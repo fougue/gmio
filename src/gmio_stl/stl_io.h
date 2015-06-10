@@ -33,7 +33,8 @@ GMIO_C_LINKAGE_BEGIN
 /*! Reads STL mesh from file, format is automatically guessed
  *
  *  \param filepath Path to the STL file. A stream is opened with fopen() so
- *         the string has to be encoded using the system's charset (locale-8bit)
+ *         the string shall follow the file name specifications of the running
+ *         environment
  *  \param creator Defines the callbacks for the mesh creation
  *  \param task_iface The interface object by which the read operation can be
  *         controlled. Optional, can be safely set to NULL
@@ -67,7 +68,8 @@ int gmio_stl_read(
  *
  *  \param format STL format of the output file
  *  \param filepath Path to the STL file. A stream is opened with fopen() so
- *         the string has to be encoded using the system's charset (locale-8bit)
+ *         the string shall follow the file name specifications of the running
+ *         environment
  *  \param mesh Defines the mesh to output
  *  \param task_iface The interface object by which the write operation can be
  *         controlled. Optional, can be safely set to NULL
