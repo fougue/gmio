@@ -1,5 +1,5 @@
 #############################################################################
-## GeomIO Library
+## gmio
 ## Copyright Fougue (2 Mar. 2015)
 ## contact@fougsys.fr
 ##
