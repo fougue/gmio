@@ -31,18 +31,15 @@ enum gmio_stl_error
     GMIO_STL_ERROR_UNKNOWN_FORMAT = GMIO_STL_ERROR_TAG + 0x01,
 
     /*! Common STL write error indicating gmio_stl_mesh::get_triangle_func()
-     *  pointer is NULL
-     */
+     *  pointer is NULL */
     GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC = GMIO_STL_ERROR_TAG + 0x02,
 
     /* Specific error codes returned by STL_ascii read function */
 
-    /*! Parsing error occured in gmio_stla_read() due to malformed STL ascii
-     *  input */
+    /*! Parsing error occured due to malformed STL ascii input */
     GMIO_STL_ERROR_PARSING = GMIO_STL_ERROR_TAG + 0x100,
 
-    /*! Invalid max number of decimal significants digits for
-     *  gmio_stla_write(), must be in [1..9] */
+    /*! Invalid max number of decimal significants digits must be in [1..9] */
     GMIO_STL_ERROR_INVALID_FLOAT32_PREC = GMIO_STL_ERROR_TAG + 0x101,
 
     /* Specific error codes returned by STL_binary read/write functions */
