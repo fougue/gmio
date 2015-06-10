@@ -64,20 +64,28 @@ const char* test_platform__global_h()
 const char* test_platform__compiler()
 {
     /* Check that initialization with { 0 } works as expected */
-    const gmio_transfer_t trsf_null_bracket0 = { 0 };
-    gmio_transfer_t trsf_null_memset0;
+    {
+        const gmio_transfer_t trsf_null_bracket0 = { 0 };
+        gmio_transfer_t trsf_null_memset0;
 
-    memset(&trsf_null_memset0, 0, sizeof(gmio_transfer_t));
+        memset(&trsf_null_memset0, 0, sizeof(gmio_transfer_t));
 
-    UTEST_ASSERT(memcmp(
-                     &trsf_null_bracket0,
-                     &trsf_null_memset0,
-                     sizeof(gmio_transfer_t))
-                 == 0);
+        UTEST_ASSERT(memcmp(
+                         &trsf_null_bracket0,
+                         &trsf_null_memset0,
+                         sizeof(gmio_transfer_t))
+                     == 0);
 
-    UTEST_ASSERT(sizeof(gmio_transfer_t) >= (sizeof(gmio_stream_t)
-                                             + sizeof(gmio_buffer_t)
-                                             + sizeof(gmio_task_iface_t)));
+        UTEST_ASSERT(sizeof(gmio_transfer_t) >= (sizeof(gmio_stream_t)
+                                                 + sizeof(gmio_buffer_t)
+                                                 + sizeof(gmio_task_iface_t)));
+    }
+
+    /* Check sizeof() operator with fixed-size arrays */
+    {
+        uint8_t buff[4 * 1024]; /* 4KB */
+        UTEST_ASSERT(sizeof(buff) == 4 * 1024);
+    }
 
     /* gmio doesn't support platforms where NULL != 0 */
     UTEST_ASSERT(NULL == 0);
