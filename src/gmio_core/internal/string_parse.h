@@ -22,7 +22,6 @@
 /* For implementation section */
 #include "helper_stream.h"
 #include "string_utils.h"
-#define GMIO_USE_FAST_ATOF
 #ifdef GMIO_USE_FAST_ATOF
 #  include "fast_atof.h"
 #endif

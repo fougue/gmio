@@ -58,4 +58,9 @@
 #  define GMIO_TARGET_ARCH_BIT_SIZE  @GMIO_TARGET_ARCH_BIT_SIZE@
 #endif
 
+/* gmio_core/internal/string_parse.h */
+#ifndef GMIO_USE_FAST_ATOF
+#  define GMIO_USE_FAST_ATOF
+#endif
+
 #endif /* GMIO_CONFIG_H_CMAKE */
