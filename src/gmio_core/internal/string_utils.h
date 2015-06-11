@@ -18,10 +18,6 @@
 
 #include "../global.h"
 
-/*#define GMIO_STRINGUTILS_C_ARRAYS*/
-/*#define GMIO_STRINGUTILS_CTYPE_H*/
-#define GMIO_STRINGUTILS_DIRECT_TESTS
-
 #ifdef GMIO_STRINGUTILS_CTYPE_H
 #  include <ctype.h>
 #endif

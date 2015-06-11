@@ -58,9 +58,18 @@
 #  define GMIO_TARGET_ARCH_BIT_SIZE  @GMIO_TARGET_ARCH_BIT_SIZE@
 #endif
 
-/* gmio_core/internal/string_parse.h */
-#ifndef GMIO_USE_FAST_ATOF
-#  define GMIO_USE_FAST_ATOF
+/* Header: gmio_core/internal/string_parse.h */
+#ifndef GMIO_STRINGPARSE_USE_FAST_ATOF
+/* Use fast_atof() instead of std string-to-float functions */
+#  define GMIO_STRINGPARSE_USE_FAST_ATOF
 #endif
+
+/* Header: gmio_core/internal/string_utils.h */
+#ifndef GMIO_STRINGUTILS_DIRECT_TESTS
+/* Use implementation based on "direct testing" */
+#  define GMIO_STRINGUTILS_DIRECT_TESTS
+#endif
+/*#define GMIO_STRINGUTILS_C_ARRAYS*/
+/*#define GMIO_STRINGUTILS_CTYPE_H*/
 
 #endif /* GMIO_CONFIG_H_CMAKE */

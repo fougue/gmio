@@ -22,7 +22,7 @@
 /* For implementation section */
 #include "helper_stream.h"
 #include "string_utils.h"
-#ifdef GMIO_USE_FAST_ATOF
+#ifdef GMIO_STRINGPARSE_USE_FAST_ATOF
 #  include "fast_atof.h"
 #endif
 
@@ -145,7 +145,7 @@ const char* gmio_skip_spaces(
 
 int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
 {
-#if defined(GMIO_USE_FAST_ATOF)
+#if defined(GMIO_STRINGPARSE_USE_FAST_ATOF)
     const char* end_ptr = NULL;
     *value_ptr = fast_atof(str, &end_ptr);
 #elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
