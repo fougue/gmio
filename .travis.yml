@@ -10,7 +10,7 @@ env:
 
 script:
   - mkdir debug && cd debug
-  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=d -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DCMAKE_INSTALL_PREFIX=../install
+  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=_d -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DCMAKE_INSTALL_PREFIX=../install
   - make
   - make install
   -
