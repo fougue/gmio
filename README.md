@@ -100,7 +100,7 @@ knowledge of the CeCILL-B license and that you accept its terms.
 Build status
 ============
 
-Travis (linux_x64) : [![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio)
+Travis (linux_x64) : [![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio)  
 AppVeyor (Windows) : [![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio)
 
 
