@@ -100,4 +100,4 @@ knowledge of the CeCILL-B license and that you accept its terms.
 Build status
 ============
 
-[![Build Status](https://travis-ci.org/fougue/gmio.png)](https://travis-ci.org/fougue/gmio)
+Travis (linux_x64) : [![Build Status](https://travis-ci.org/fougue/gmio.png)](https://travis-ci.org/fougue/gmio)
