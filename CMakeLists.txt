@@ -29,6 +29,11 @@ set(GMIO_VERSION
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# Detect Clang
+if (CMAKE_C_COMPILER MATCHES ".*clang")
+    set(CMAKE_COMPILER_IS_CLANG 1)
+endif ()
+
 # Options
 option(BUILD_SHARED_LIBS  "Build shared libraries (DLL)" OFF)
 option(BUILD_STRICT_C90   "Build with strict conformance to C90 standard" OFF)
@@ -48,7 +53,7 @@ test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 # Adapt C compiler flags to satisfy the BUILD_STRICT_C90 option
 #    It must be done before checking of C99 and POSIX features
 if(BUILD_STRICT_C90)
-    if(CMAKE_COMPILER_IS_GNUCC)
+    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
     elseif(MSVC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Za")
@@ -65,7 +70,7 @@ if(NOT BUILD_STRICT_C90)
     # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 
-    if(CMAKE_COMPILER_IS_GNUCC)
+    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
         list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
     endif()
     check_function_exists(powf GMIO_HAVE_POWF_FUNC)
@@ -121,7 +126,7 @@ if(NOT BUILD_STRICT_C90)
     endif()
 
     # Have builtin byte swap functions ?
-    if(CMAKE_COMPILER_IS_GNUCC)
+    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
         # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
         # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
         check_c_source_compiles(
@@ -143,7 +148,7 @@ configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated header files
 
 # Specific flags for GCC
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wlogical-op -Wfloat-equal")
@@ -286,7 +291,7 @@ add_executable(
         src/gmio_stl/internal/stlb_byte_swap.c
         src/gmio_stl/internal/stlb_write.c)
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     target_link_libraries(test_internal m) # -lm
 endif()
 
