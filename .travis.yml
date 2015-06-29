@@ -2,13 +2,23 @@ language: cpp
 
 compiler:
   - gcc
+  - clang
   
 env:
   matrix:
-    - LINUX=1 TRAVIS_SHARED_LIBS=ON
-    - LINUX=1 TRAVIS_SHARED_LIBS=OFF
+    - LINUX=1 TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=OFF
+    - LINUX=1 TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=OFF
+    - LINUX=1 TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=ON
+    - LINUX=1 TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=ON
+    - OSX=1   TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=OFF
 
 script:
-  - cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS
+  - mkdir debug && cd debug
+  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=_d -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 -DCMAKE_INSTALL_PREFIX=../install
   - make
-    
+  - make install
+  -
+  - cd .. && mkdir release && cd release
+  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 -DCMAKE_INSTALL_PREFIX=../install
+  - make install
+  
