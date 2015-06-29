@@ -293,6 +293,7 @@ add_executable(
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     target_link_libraries(test_internal m) # -lm
+    target_link_libraries(test_stl m) # -lm
 endif()
 
 add_test(test_internal test_internal)
