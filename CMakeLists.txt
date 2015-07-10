@@ -147,16 +147,21 @@ configure_file(src/gmio_core/version.h.cmake version.h @ONLY)
 configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
 include_directories(${CMAKE_BINARY_DIR}) # For generated header files
 
-# Specific flags for GCC
+# Specific flags for GCC and Clang
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wlogical-op -Wfloat-equal")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
 #    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
 #    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-field-initializers")
+    if(CMAKE_COMPILER_IS_GNUCC)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
+    endif()
 
     # Disable some warnings
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
 
     # Force PIC for GCC, see : https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -293,6 +298,7 @@ add_executable(
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     target_link_libraries(test_internal m) # -lm
+    target_link_libraries(test_stl m) # -lm
 endif()
 
 add_test(test_internal test_internal)

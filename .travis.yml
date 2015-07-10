@@ -21,6 +21,5 @@ script:
   - cd .. && mkdir release && cd release
   - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 -DCMAKE_INSTALL_PREFIX=../install
   - make
-  - make check
   - make install
   
