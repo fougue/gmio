@@ -31,8 +31,8 @@ typedef struct stl_testcase_result stl_testcase_result_t;
 void ascii_begin_solid(
         void* cookie, size_t stream_size, const char* solid_name)
 {
-    GMIO_UNUSED(stream_size);
     stl_testcase_result_t* res = (stl_testcase_result_t*)cookie;
+    GMIO_UNUSED(stream_size);
     if (res != NULL) {
         res->solid_name[0] = 0;
         if (solid_name != NULL)
