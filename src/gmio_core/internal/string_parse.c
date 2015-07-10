@@ -32,14 +32,13 @@ int gmio_eat_word(
 {
     const size_t buffer_capacity = buffer->max_len;
     const char* stream_curr_char = NULL;
-    size_t i = 0;
+    size_t i = buffer->len;
 
     /* assert(buffer != NULL && buffer->ptr != NULL); */
 
-    buffer->len = 0;
     stream_curr_char = gmio_skip_spaces(it);
     if (stream_curr_char == NULL) { /* Empty word */
-        buffer->ptr[0] = 0;
+        buffer->ptr[i] = 0;
         return 0;
     }
 

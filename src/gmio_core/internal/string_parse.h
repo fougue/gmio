@@ -39,10 +39,12 @@ struct gmio_string_buffer
 {
     char*  ptr; /*!< Buffer contents */
     size_t len; /*!< Size(length) of current contents */
-    size_t max_len; /*!< Maximum contents size(length) */
+    size_t max_len; /*!< Maximum contents size(capacity) */
 };
 
 typedef struct gmio_string_buffer  gmio_string_buffer_t;
+
+GMIO_INLINE void gmio_string_buffer_clear(gmio_string_buffer_t* buffer);
 
 /*! Forward iterator over a stream
  *
@@ -76,9 +78,15 @@ GMIO_INLINE const char* gmio_current_char(
 GMIO_INLINE const char *gmio_next_char(
         gmio_string_stream_fwd_iterator_t *it);
 
-/*! Advances iterator until the next non-space char */
+/*! Advances iterator until the first non-space char */
 GMIO_INLINE const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it);
+
+/*! Advances iterator until the first non-space char and copies any space found
+ *  in \p buffer */
+GMIO_INLINE void gmio_copy_spaces(
+        gmio_string_stream_fwd_iterator_t* it,
+        gmio_string_buffer_t* buffer);
 
 /*! Advances iterator so that next word is extracted into \p buffer
  * 
@@ -107,6 +115,12 @@ GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
 /*
  * -- Implementation
  */
+
+void gmio_string_buffer_clear(gmio_string_buffer_t* buffer)
+{
+    buffer->ptr[0] = 0;
+    buffer->len = 0;
+}
 
 const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it)
@@ -141,6 +155,21 @@ const char* gmio_skip_spaces(
     while (curr_char != NULL && gmio_clocale_isspace(*curr_char))
         curr_char = gmio_next_char(it);
     return curr_char;
+}
+
+void gmio_copy_spaces(
+        gmio_string_stream_fwd_iterator_t* it,
+        gmio_string_buffer_t* buffer)
+{
+    const char* curr_char = gmio_current_char(it);
+    while (curr_char != NULL
+           && gmio_clocale_isspace(*curr_char)
+           && buffer->len < buffer->max_len)
+    {
+        buffer->ptr[buffer->len] = *curr_char;
+        curr_char = gmio_next_char(it);
+        ++buffer->len;
+    }
 }
 
 int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
