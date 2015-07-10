@@ -46,6 +46,17 @@ GMIO_C_LINKAGE_BEGIN
 GMIO_LIBSTL_EXPORT
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream);
 
+/*! Returns the format of the STL data in file at location \p filepath
+ *
+ *  This function is a wrapper around gmio_stl_get_format()
+ *
+ *  \param filepath Path to the STL file. A stream is opened with fopen() so
+ *         the string shall follow the file name specifications of the running
+ *         environment
+ */
+GMIO_LIBSTL_EXPORT
+gmio_stl_format_t gmio_stl_get_format_file(const char* filepath);
+
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_STL_FORMAT_H */

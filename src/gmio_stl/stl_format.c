@@ -86,3 +86,16 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
     /* Fallback case */
     return GMIO_STL_FORMAT_UNKNOWN;
 }
+
+gmio_stl_format_t gmio_stl_get_format_file(const char* filepath)
+{
+    gmio_stl_format_t format = GMIO_STL_FORMAT_UNKNOWN;
+    FILE* file = fopen(filepath, "rb");
+
+    if (file != NULL) {
+        gmio_stream_t stream = gmio_stream_stdio(file);
+        format = gmio_stl_get_format(&stream);
+        fclose(file);
+    }
+    return format;
+}
