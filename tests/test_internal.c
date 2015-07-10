@@ -169,16 +169,20 @@ const char* test_internal__string_parse()
         UTEST_ASSERT(gmio_current_char(&fwd_it) != NULL);
         UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'U');
 
+        copy_strbuff.len = 0;
         UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
         /* printf("\ncopy_strbuff.ptr = \"%s\"\n", copy_strbuff.ptr); */
         UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Une") == 0);
 
+        copy_strbuff.len = 0;
         UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
         UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
 
+        copy_strbuff.len = 0;
         UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
         UTEST_ASSERT(strcmp(copy_strbuff.ptr, "o") == 0);
 
+        copy_strbuff.len = 0;
         UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
         UTEST_ASSERT(strcmp(copy_strbuff.ptr, "je") == 0);
 
@@ -193,9 +197,44 @@ const char* test_internal__string_parse()
         gmio_string_stream_fwd_iterator_init(&fwd_it);
 
         UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'U');
+        copy_strbuff.len = 0;
         UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
+        copy_strbuff.len = 0;
         UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
         UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
+    }
+
+    {
+        gmio_stream_buffer_t buff = {0};
+        gmio_stream_t stream = {0};
+
+        char fwd_it_str[32];
+        gmio_string_stream_fwd_iterator_t fwd_it = {0};
+
+        char copy_str[128];
+        gmio_string_buffer_t copy_strbuff;
+
+        buff.readonly_ptr = text;
+        buff.len = strlen(text);
+        buff.pos = 0;
+        gmio_stream_set_buffer(&stream, &buff);
+
+        fwd_it.stream = &stream;
+        fwd_it.buffer.ptr = fwd_it_str;
+        fwd_it.buffer.max_len = sizeof(fwd_it_str);
+        gmio_string_stream_fwd_iterator_init(&fwd_it);
+
+        copy_strbuff.ptr = copy_str;
+        copy_strbuff.len = 0;
+        copy_strbuff.max_len = sizeof(copy_str);
+
+        UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
+        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Une") == 0);
+
+        UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
+        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Unecitation,") == 0);
+        UTEST_ASSERT(gmio_eat_word(&fwd_it, &copy_strbuff) == 0);
+        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Unecitation,o") == 0);
     }
 
     return NULL;
