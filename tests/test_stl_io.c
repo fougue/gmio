@@ -123,8 +123,8 @@ const char* test_stl_read()
     stl_testcase_result_t result = {0};
 
     meshc.cookie = &result;
-    meshc.ascii_begin_solid_func = &ascii_begin_solid;
-    meshc.add_triangle_func = &add_triangle;
+    meshc.func_ascii_begin_solid = &ascii_begin_solid;
+    meshc.func_add_triangle = &add_triangle;
 
     for (i = 0; i < expected_count; ++i) {
         const gmio_stl_format_t format =
@@ -212,7 +212,7 @@ void generate_stlb_tests_models()
 
           mesh.cookie = &tri_array;
           mesh.triangle_count = tri_array.count;
-          mesh.get_triangle_func = &stl_triangle_array_get_triangle;
+          mesh.func_get_triangle = &stl_triangle_array_get_triangle;
 
           gmio_stl_write_file(
                       GMIO_STL_FORMAT_BINARY_LE,

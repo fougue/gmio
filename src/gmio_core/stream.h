@@ -50,7 +50,7 @@ struct gmio_stream
      *  The function should behaves like C standard [feof()]
      *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/feof.html)
      */
-    gmio_bool_t (*at_end_func)(void* cookie);
+    gmio_bool_t (*func_at_end)(void* cookie);
 
     /*! Pointer on a function that checks error indicator
      *
@@ -60,7 +60,7 @@ struct gmio_stream
      *  The function should behaves like C standard [ferror()]
      *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/ferror.html)
      */
-    int (*error_func)(void* cookie);
+    int (*func_error)(void* cookie);
 
     /*! Pointer on a function that reads block of data from stream
      *
@@ -73,7 +73,7 @@ struct gmio_stream
      *
      *  \returns The total number of elements successfully read
      */
-    size_t (*read_func)(void* cookie, void* ptr, size_t size, size_t count);
+    size_t (*func_read)(void* cookie, void* ptr, size_t size, size_t count);
 
     /*! Pointer on a function that writes block of data to stream
      *
@@ -86,10 +86,10 @@ struct gmio_stream
      *
      *  \returns The total number of elements successfully written
      */
-    size_t (*write_func)(void* cookie, const void* ptr, size_t size, size_t count);
+    size_t (*func_write)(void* cookie, const void* ptr, size_t size, size_t count);
 
     /*! Pointer on a function that returns the size(in bytes) of the stream */
-    size_t (*size_func)(void* cookie);
+    size_t (*func_size)(void* cookie);
 
     /*! Pointer on a function that moves the position indicator within the
      *  stream to the beginning
@@ -97,7 +97,7 @@ struct gmio_stream
      *  The function should behaves like C standard [rewind()]
      *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/rewind.html)
      */
-    void (*rewind_func)(void* cookie);
+    void (*func_rewind)(void* cookie);
 };
 
 typedef struct gmio_stream gmio_stream_t;

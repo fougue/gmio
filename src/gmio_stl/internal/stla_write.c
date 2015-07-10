@@ -203,7 +203,7 @@ int gmio_stla_write(
              ibuffer_facet < clamped_facet_count;
              ++ibuffer_facet)
         {
-            mesh->get_triangle_func(mesh->cookie, ibuffer_facet, &tri);
+            mesh->func_get_triangle(mesh->cookie, ibuffer_facet, &tri);
             buffc = gmio_write_string(buffc, "facet normal ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.normal);
             buffc = gmio_write_eol(buffc);

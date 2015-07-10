@@ -18,53 +18,53 @@
 
 #include "../stream.h"
 
-/*! Safe and convenient function for gmio_stream::at_end_func() */
+/*! Safe and convenient function for gmio_stream::func_at_end() */
 GMIO_INLINE gmio_bool_t gmio_stream_at_end(gmio_stream_t* stream)
 {
-    if (stream != NULL && stream->at_end_func != NULL)
-        return stream->at_end_func(stream->cookie);
+    if (stream != NULL && stream->func_at_end != NULL)
+        return stream->func_at_end(stream->cookie);
     return GMIO_FALSE;
 }
 
-/*! Safe and convenient function for gmio_stream::error_func()  */
+/*! Safe and convenient function for gmio_stream::func_error()  */
 GMIO_INLINE int gmio_stream_error(gmio_stream_t* stream)
 {
-    if (stream != NULL && stream->error_func != NULL)
-        return stream->error_func(stream->cookie);
+    if (stream != NULL && stream->func_error != NULL)
+        return stream->func_error(stream->cookie);
     return 0;
 }
 
-/*! Safe and convenient function for gmio_stream::read_func() */
+/*! Safe and convenient function for gmio_stream::func_read() */
 GMIO_INLINE size_t gmio_stream_read(
         gmio_stream_t* stream, void *ptr, size_t size, size_t count)
 {
-    if (stream != NULL && stream->read_func != NULL)
-        return stream->read_func(stream->cookie, ptr, size, count);
+    if (stream != NULL && stream->func_read != NULL)
+        return stream->func_read(stream->cookie, ptr, size, count);
     return 0;
 }
 
-/*! Safe and convenient function for gmio_stream::write_func() */
+/*! Safe and convenient function for gmio_stream::func_write() */
 GMIO_INLINE size_t gmio_stream_write(
         gmio_stream_t* stream, const void *ptr, size_t size, size_t count)
 {
-    if (stream != NULL && stream->write_func != NULL)
-        return stream->write_func(stream->cookie, ptr, size, count);
+    if (stream != NULL && stream->func_write != NULL)
+        return stream->func_write(stream->cookie, ptr, size, count);
     return 0;
 }
 
-/*! Safe and convenient function for gmio_stream::size_func() */
+/*! Safe and convenient function for gmio_stream::func_size() */
 GMIO_INLINE size_t gmio_stream_size(gmio_stream_t* stream)
 {
-    if (stream != NULL && stream->size_func != NULL)
-        return stream->size_func(stream->cookie);
+    if (stream != NULL && stream->func_size != NULL)
+        return stream->func_size(stream->cookie);
     return 0;
 }
 
-/*! Safe and convenient function for gmio_stream::rewind_func() */
+/*! Safe and convenient function for gmio_stream::func_rewind() */
 GMIO_INLINE void gmio_stream_rewind(gmio_stream_t* stream)
 {
-    if (stream != NULL && stream->rewind_func != NULL)
-        stream->rewind_func(stream->cookie);
+    if (stream != NULL && stream->func_rewind != NULL)
+        stream->func_rewind(stream->cookie);
 }
 
 #endif /* GMIO_INTERNAL_HELPER_STREAM_H */

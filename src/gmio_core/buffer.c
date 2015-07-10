@@ -24,12 +24,12 @@ GMIO_INLINE gmio_buffer_t gmio_buffer_null()
 }
 
 gmio_buffer_t gmio_buffer(
-        void* ptr, size_t size, void (*deallocate_func)(void*))
+        void* ptr, size_t size, void (*func_deallocate)(void*))
 {
     gmio_buffer_t buff;
     buff.ptr = ptr;
     buff.size = ptr != NULL ? size : 0;
-    buff.deallocate_func = deallocate_func;
+    buff.func_deallocate = func_deallocate;
     return buff;
 }
 
@@ -50,8 +50,8 @@ gmio_buffer_t gmio_buffer_realloc(void* ptr, size_t size)
 
 void gmio_buffer_deallocate(gmio_buffer_t *buffer)
 {
-    if (buffer != NULL && buffer->deallocate_func != NULL)
-        buffer->deallocate_func(buffer->ptr);
+    if (buffer != NULL && buffer->func_deallocate != NULL)
+        buffer->func_deallocate(buffer->ptr);
 }
 
 static gmio_buffer_t gmio_buffer_default_internal_ctor()

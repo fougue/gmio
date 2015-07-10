@@ -113,7 +113,7 @@ int gmio_stl_write(
  *  \param trsf Defines needed objects for the read operation
  *  \param creator Defines the callbacks for the mesh creation
  *
- *  Stream size is passed to gmio_task_iface::handle_progress_func() as the
+ *  Stream size is passed to gmio_task_iface::func_handle_progress() as the
  *  \p max_value argument.
  *
  *  Possible options in a future version could be:

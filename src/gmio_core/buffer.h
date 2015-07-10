@@ -35,7 +35,7 @@ struct gmio_buffer
 
     /*! Optional pointer on a function that deallocates the memory block
      *  beginning at \p ptr */
-    void (*deallocate_func)(void* ptr);
+    void (*func_deallocate)(void* ptr);
 };
 typedef struct gmio_buffer gmio_buffer_t;
 
@@ -46,7 +46,7 @@ GMIO_C_LINKAGE_BEGIN
  *  If \p ptr is NULL then gmio_buffer::size is forced to \c 0
  */
 GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer(
-        void* ptr, size_t size, void (*deallocate_func)(void*));
+        void* ptr, size_t size, void (*func_deallocate)(void*));
 
 /*! Returns a gmio_buffer object allocated with standard \c malloc() */
 GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_malloc(size_t size);
@@ -57,7 +57,7 @@ GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_calloc(size_t num, size_t size);
 /*! Returns a gmio_buffer object allocated with standard \c realloc() */
 GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_realloc(void* ptr, size_t size);
 
-/*! Safe and convenient call to gmio_buffer::deallocate_func() */
+/*! Safe and convenient call to gmio_buffer::func_deallocate() */
 GMIO_LIB_EXPORT void gmio_buffer_deallocate(gmio_buffer_t* buffer);
 
 /*! Typedef for a pointer to a function that creates an allocated buffer

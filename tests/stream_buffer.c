@@ -93,10 +93,10 @@ static void gmio_stream_buffer_rewind(void* cookie)
 void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_stream_buffer_t* buff)
 {
     stream->cookie = buff;
-    stream->at_end_func = gmio_stream_buffer_at_end;
-    stream->error_func = gmio_stream_buffer_error;
-    stream->read_func = gmio_stream_buffer_read;
-    stream->write_func = gmio_stream_buffer_write;
-    stream->size_func = gmio_stream_buffer_size;
-    stream->rewind_func = gmio_stream_buffer_rewind;
+    stream->func_at_end = gmio_stream_buffer_at_end;
+    stream->func_error = gmio_stream_buffer_error;
+    stream->func_read = gmio_stream_buffer_read;
+    stream->func_write = gmio_stream_buffer_write;
+    stream->func_size = gmio_stream_buffer_size;
+    stream->func_rewind = gmio_stream_buffer_rewind;
 }

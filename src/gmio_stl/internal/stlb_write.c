@@ -46,7 +46,7 @@ static void gmio_stlb_write_facets(
     uint32_t buffer_offset = 0;
     uint32_t i_facet = 0;
 
-    if (mesh == NULL || mesh->get_triangle_func == NULL)
+    if (mesh == NULL || mesh->func_get_triangle == NULL)
         return;
 
     triangle.attribute_byte_count = 0;
@@ -54,10 +54,10 @@ static void gmio_stlb_write_facets(
          i_facet < (i_facet_offset + facet_count);
          ++i_facet)
     {
-        mesh->get_triangle_func(mesh->cookie, i_facet, &triangle);
+        mesh->func_get_triangle(mesh->cookie, i_facet, &triangle);
 
-        if (wparams->fix_endian_func != NULL)
-            wparams->fix_endian_func(&triangle);
+        if (wparams->func_fix_endian != NULL)
+            wparams->func_fix_endian(&triangle);
 
         write_triangle_memcpy(&triangle, buffer + buffer_offset);
 
@@ -90,7 +90,7 @@ int gmio_stlb_write(
 
     /* Initialize wparams */
     if (byte_order != GMIO_ENDIANNESS_HOST)
-        wparams.fix_endian_func = gmio_stl_triangle_bswap;
+        wparams.func_fix_endian = gmio_stl_triangle_bswap;
     wparams.facet_count = gmio_size_to_uint32(
                 trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 

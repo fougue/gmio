@@ -35,7 +35,7 @@ struct gmio_task_iface
      *  If \c GMIO_TRUE is returned then the current task should abort as
      *  soon as possible, otherwise it can continue execution.
      */
-    gmio_bool_t (*is_stop_requested_func)(void* cookie);
+    gmio_bool_t (*func_is_stop_requested)(void* cookie);
 
     /*! Optional pointer on a function that is called anytime some new progress
      *  was done
@@ -44,7 +44,7 @@ struct gmio_task_iface
      *  \param value Current value of the task progress (<= \p max_value )
      *  \param max_value Maximum value of the task progress
      */
-    void (*handle_progress_func)(void* cookie, size_t value, size_t max_value);
+    void (*func_handle_progress)(void* cookie, size_t value, size_t max_value);
 };
 
 typedef struct gmio_task_iface gmio_task_iface_t;

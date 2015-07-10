@@ -44,7 +44,7 @@ struct gmio_stl_mesh_creator
      *  The argument \p stream_size is the total size (in bytes) of the input
      *  stream
      */
-    void (*ascii_begin_solid_func)(
+    void (*func_ascii_begin_solid)(
             void* cookie, size_t stream_size, const char* solid_name);
 
     /*! Pointer on a function that handles declaration of a mesh with
@@ -54,7 +54,7 @@ struct gmio_stl_mesh_creator
      *
      *  The argument \p header contains the header data(80 bytes)
      */
-    void (*binary_begin_solid_func)(
+    void (*func_binary_begin_solid)(
             void* cookie, uint32_t tri_count, const gmio_stlb_header_t* header);
 
     /*! Pointer on a function that adds a triangle to the user mesh
@@ -64,7 +64,7 @@ struct gmio_stl_mesh_creator
      *
      *  The argument \p tri_id is the index of the mesh triangle
      */
-    void (*add_triangle_func)(
+    void (*func_add_triangle)(
             void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle);
 
     /*! Pointer on a function that finalizes creation of the user mesh
@@ -72,7 +72,7 @@ struct gmio_stl_mesh_creator
      *  Optional function called at the end of the read process, ie. after all
      *  triangles have been added
      */
-    void (*end_solid_func)(void* cookie);
+    void (*func_end_solid)(void* cookie);
 };
 
 typedef struct gmio_stl_mesh_creator gmio_stl_mesh_creator_t;

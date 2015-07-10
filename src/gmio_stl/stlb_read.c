@@ -48,7 +48,7 @@ static void gmio_stlb_read_facets(
     uint32_t buffer_offset = 0;
     uint32_t i_facet = 0;
 
-    if (creator == NULL || creator->add_triangle_func == NULL)
+    if (creator == NULL || creator->func_add_triangle == NULL)
         return;
 
     for (i_facet = 0; i_facet < facet_count; ++i_facet) {
@@ -56,11 +56,11 @@ static void gmio_stlb_read_facets(
         read_triangle_memcpy(buffer + buffer_offset, &triangle);
         buffer_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
 
-        if (rparams->fix_endian_func != NULL)
-            rparams->fix_endian_func(&triangle);
+        if (rparams->func_fix_endian != NULL)
+            rparams->func_fix_endian(&triangle);
 
         /* Declare triangle */
-        creator->add_triangle_func(
+        creator->func_add_triangle(
                     creator->cookie, i_facet_offset + i_facet, &triangle);
     }
 }
@@ -89,7 +89,7 @@ int gmio_stlb_read(
 
     /* Initialize rparams */
     if (byte_order != GMIO_ENDIANNESS_HOST)
-        rparams.fix_endian_func = gmio_stl_triangle_bswap;
+        rparams.func_fix_endian = gmio_stl_triangle_bswap;
 
     /* Read header */
     if (gmio_stream_read(&trsf->stream, &header, GMIO_STLB_HEADER_SIZE, 1)

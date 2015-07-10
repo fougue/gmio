@@ -41,7 +41,7 @@ enum gmio_error
     GMIO_ERROR_STREAM,
 
     /*! Transfer was stopped by user, that is to say
-     *  gmio_transfer::is_stop_requested_func() returned GMIO_TRUE */
+     *  gmio_transfer::func_is_stop_requested() returned GMIO_TRUE */
     GMIO_ERROR_TRANSFER_STOPPED,
 
     /*! An error occured after a call to a <stdio.h> function

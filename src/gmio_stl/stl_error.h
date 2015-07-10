@@ -30,7 +30,7 @@ enum gmio_stl_error
     /*! STL format could not be guessed in read function */
     GMIO_STL_ERROR_UNKNOWN_FORMAT = GMIO_STL_ERROR_TAG + 0x01,
 
-    /*! Common STL write error indicating gmio_stl_mesh::get_triangle_func()
+    /*! Common STL write error indicating gmio_stl_mesh::func_get_triangle()
      *  pointer is NULL */
     GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC = GMIO_STL_ERROR_TAG + 0x02,
 

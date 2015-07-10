@@ -138,11 +138,11 @@ gmio_stream_t gmio_stream_stdio(FILE* file)
 {
     gmio_stream_t stream = { 0 };
     stream.cookie = file;
-    stream.at_end_func = gmio_stream_stdio_at_end;
-    stream.error_func = gmio_stream_stdio_error;
-    stream.read_func = gmio_stream_stdio_read;
-    stream.write_func = gmio_stream_stdio_write;
-    stream.size_func = gmio_stream_stdio_size;
-    stream.rewind_func = gmio_stream_stdio_rewind;
+    stream.func_at_end = gmio_stream_stdio_at_end;
+    stream.func_error = gmio_stream_stdio_error;
+    stream.func_read = gmio_stream_stdio_read;
+    stream.func_write = gmio_stream_stdio_write;
+    stream.func_size = gmio_stream_stdio_size;
+    stream.func_rewind = gmio_stream_stdio_rewind;
     return stream;
 }

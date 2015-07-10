@@ -19,47 +19,47 @@
 #include "../stl_mesh_creator.h"
 
 /*! Safe and convenient function for
- *  gmio_stl_mesh_creator::ascii_begin_solid_func() */
+ *  gmio_stl_mesh_creator::func_ascii_begin_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
         gmio_stl_mesh_creator_t* creator,
         size_t stream_size,
         const char* solid_name)
 {
-    if (creator != NULL && creator->ascii_begin_solid_func != NULL) {
-        creator->ascii_begin_solid_func(
+    if (creator != NULL && creator->func_ascii_begin_solid != NULL) {
+        creator->func_ascii_begin_solid(
                     creator->cookie, stream_size, solid_name);
     }
 }
 
 /*! Safe and convenient function for
- *  gmio_stl_mesh_creator::binary_begin_solid_func() */
+ *  gmio_stl_mesh_creator::func_binary_begin_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_binary_begin_solid(
         gmio_stl_mesh_creator_t* creator,
         uint32_t tri_count,
         const gmio_stlb_header_t* header)
 {
-    if (creator != NULL && creator->binary_begin_solid_func != NULL)
-        creator->binary_begin_solid_func(creator->cookie, tri_count, header);
+    if (creator != NULL && creator->func_binary_begin_solid != NULL)
+        creator->func_binary_begin_solid(creator->cookie, tri_count, header);
 }
 
 /*! Safe and convenient function for
- *  gmio_stl_mesh_creator::add_triangle_func() */
+ *  gmio_stl_mesh_creator::func_add_triangle() */
 GMIO_INLINE void gmio_stl_mesh_creator_add_triangle(
         gmio_stl_mesh_creator_t* creator,
         uint32_t tri_id,
         const gmio_stl_triangle_t* triangle)
 {
-    if (creator != NULL && creator->add_triangle_func != NULL)
-        creator->add_triangle_func(creator->cookie, tri_id, triangle);
+    if (creator != NULL && creator->func_add_triangle != NULL)
+        creator->func_add_triangle(creator->cookie, tri_id, triangle);
 }
 
 /*! Safe and convenient function for
- *  gmio_stl_mesh_creator::end_solid_func() */
+ *  gmio_stl_mesh_creator::func_end_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_end_solid(
         gmio_stl_mesh_creator_t* creator)
 {
-    if (creator != NULL && creator->end_solid_func != NULL)
-        creator->end_solid_func(creator->cookie);
+    if (creator != NULL && creator->func_end_solid != NULL)
+        creator->func_end_solid(creator->cookie);
 }
 
 #endif /* GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H */

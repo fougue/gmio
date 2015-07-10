@@ -19,7 +19,7 @@
 #include "../transfer.h"
 #include "helper_task_iface.h"
 
-/*! Safe and convenient function for gmio_task_iface::is_stop_requested_func()
+/*! Safe and convenient function for gmio_task_iface::func_is_stop_requested()
  *  through gmio_transfer::task_iface
  */
 GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
@@ -30,7 +30,7 @@ GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
     return GMIO_FALSE;
 }
 
-/*! Safe and convenient function for gmio_task_iface::handle_progress_func()
+/*! Safe and convenient function for gmio_task_iface::func_handle_progress()
  *  through gmio_transfer::task_iface
  */
 GMIO_INLINE void gmio_transfer_handle_progress(

@@ -90,7 +90,7 @@ typedef struct
     size_t stream_size;
     /* Offset (in bytes) from beginning of stream : current position */
     size_t stream_offset;
-    /* Cache for gmio_transfer::is_stop_requested_func() */
+    /* Cache for gmio_transfer::func_is_stop_requested() */
     gmio_bool_t is_stop_requested;
 } gmio_string_stream_fwd_iterator_cookie_t;
 

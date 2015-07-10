@@ -37,7 +37,7 @@ gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
 gmio_bool_t gmio_stl_check_mesh(int *error, const gmio_stl_mesh_t* mesh)
 {
     if (mesh == NULL
-            || (mesh->triangle_count > 0 && mesh->get_triangle_func == NULL))
+            || (mesh->triangle_count > 0 && mesh->func_get_triangle == NULL))
     {
         *error = GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC;
     }
