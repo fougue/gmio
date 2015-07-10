@@ -34,6 +34,6 @@ addons:
       name: "fougue/gmio"
       description: "C library for geometry input/output"
     notification_email: delorme.hugues@fougue.pro
-    build_command_prepend: "mkdir scan; cd scan; cmake .. -G \"Unix Makefiles\""
+    build_command_prepend: "mkdir scan; cd scan; cmake .. -G 'Unix Makefiles'"
     build_command:   "make -j4"
     branch_pattern: master
