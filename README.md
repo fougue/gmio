@@ -85,9 +85,8 @@ http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 Build status
 ============
 
-Travis (linux_x64) : [![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio)  
-AppVeyor (Windows) : [![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio)
-
+[![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio)  
+[![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio)
 <a href="https://scan.coverity.com/projects/5721">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/5721/badge.svg"/>
