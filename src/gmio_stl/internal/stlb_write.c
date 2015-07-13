@@ -91,6 +91,8 @@ int gmio_stlb_write(
     /* Initialize wparams */
     if (byte_order != GMIO_ENDIANNESS_HOST)
         wparams.func_fix_endian = gmio_stl_triangle_bswap;
+    /* Note: trsf != NULL  certified by gmio_stlb_check_params() */
+    /* coverity[var_deref_op : FALSE] */
     wparams.facet_count = gmio_size_to_uint32(
                 trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
