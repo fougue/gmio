@@ -1,3 +1,10 @@
+[![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio) 
+[![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio) 
+<a href="https://scan.coverity.com/projects/5721">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/5721/badge.svg"/>
+</a>  
+
 gmio: C library for geometry input/output
 ===========================================
 
@@ -80,15 +87,3 @@ abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-B
 license as circulated by CEA, CNRS and INRIA at the following URL
 http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-
-
-Build status
-============
-
-[![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio) 
-[![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio) 
-<a href="https://scan.coverity.com/projects/5721">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/5721/badge.svg"/>
-</a>
-
