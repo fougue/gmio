@@ -1,7 +1,7 @@
 /****************************************************************************
 ** gmio
 ** Copyright Fougue (2 Mar. 2015)
-** contact@fougsys.fr
+** contact@fougue.pro
 **
 ** This software is a reusable library whose purpose is to provide complete
 ** I/O support for various CAD file formats (eg. STL)
