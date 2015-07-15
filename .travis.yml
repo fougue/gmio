@@ -1,24 +1,31 @@
 language: cpp
 
+os:
+  - linux
+  - osx
+
 compiler:
   - gcc
   - clang
   
 env:
   matrix:
-    - LINUX=1 TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=OFF
-    - LINUX=1 TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=OFF
-    - LINUX=1 TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=ON
-    - LINUX=1 TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=ON
+    - TRAVIS_BUILD_TYPE=Debug    TRAVIS_SHARED_LIBS=OFF  TRAVIS_STRICT_C90=OFF  TRAVIS_MAKE_CHECK=ON
+    - TRAVIS_BUILD_TYPE=Debug    TRAVIS_SHARED_LIBS=OFF  TRAVIS_STRICT_C90=ON   TRAVIS_MAKE_CHECK=ON
+    - TRAVIS_BUILD_TYPE=Debug    TRAVIS_SHARED_LIBS=ON   TRAVIS_STRICT_C90=OFF  TRAVIS_MAKE_CHECK=OFF
+    - TRAVIS_BUILD_TYPE=Release  TRAVIS_SHARED_LIBS=OFF  TRAVIS_STRICT_C90=OFF  TRAVIS_MAKE_CHECK=OFF
 
 script:
-  - mkdir debug && cd debug
-  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=_d -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 -DCMAKE_INSTALL_PREFIX=../install
-  - make
-  - make check
+  - mkdir build && cd build
+  - cmake .. -G "Unix Makefiles" \
+             -DCMAKE_DEBUG_POSTFIX=_d \
+             -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE \
+             -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS \
+             -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 \
+             -DCMAKE_INSTALL_PREFIX=../install
+  - make -j4
+  -  if [ "${TRAVIS_MAKE_CHECK}" = "ON" ]; then
+         make check;
+     fi
   - make install
-  -
-  - cd .. && mkdir release && cd release
-  - cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 -DCMAKE_INSTALL_PREFIX=../install
-  - make
-  - make install
+  
