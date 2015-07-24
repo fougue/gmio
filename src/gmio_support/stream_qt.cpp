@@ -72,11 +72,11 @@ gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
 {
     gmio_stream_t stream = { 0 };
     stream.cookie = device;
-    stream.at_end_func = gmio_stream_qiodevice_at_end;
-    stream.error_func = gmio_stream_qiodevice_error;
-    stream.read_func = gmio_stream_qiodevice_read;
-    stream.write_func = gmio_stream_qiodevice_write;
-    stream.size_func = gmio_stream_qiodevice_size;
-    stream.rewind_func = gmio_stream_qiodevice_rewind;
+    stream.func_at_end = gmio_stream_qiodevice_at_end;
+    stream.func_error = gmio_stream_qiodevice_error;
+    stream.func_read = gmio_stream_qiodevice_read;
+    stream.func_write = gmio_stream_qiodevice_write;
+    stream.func_size = gmio_stream_qiodevice_size;
+    stream.func_rewind = gmio_stream_qiodevice_rewind;
     return stream;
 }

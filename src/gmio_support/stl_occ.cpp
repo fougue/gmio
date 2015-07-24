@@ -89,7 +89,7 @@ void gmio_stl_set_occmesh(
     std::memset(mesh, 0, sizeof(gmio_stl_mesh_t));
     mesh->cookie = &meshCookie;
     mesh->triangle_count = meshCookie.mesh()->NbTriangles(meshCookie.domainId());
-    mesh->get_triangle_func = internal::occmesh_get_triangle;
+    mesh->func_get_triangle = internal::occmesh_get_triangle;
 }
 
 gmio_stl_mesh gmio_stl_occmesh(const gmio_OccStlMeshDomain &meshCookie)
@@ -104,7 +104,7 @@ void gmio_stl_set_occmesh_creator(
 {
     std::memset(creator, 0, sizeof(gmio_stl_mesh_creator_t));
     creator->cookie = internal::occMeshPtr(mesh);
-    creator->add_triangle_func = internal::occmesh_add_triangle;
+    creator->func_add_triangle = internal::occmesh_add_triangle;
 }
 
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh &mesh)
