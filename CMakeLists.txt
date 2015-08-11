@@ -35,13 +35,7 @@ if (CMAKE_C_COMPILER MATCHES ".*clang")
 endif ()
 
 # Options
-option(BUILD_SHARED_LIBS  "Build shared libraries (DLL)" OFF)
-option(BUILD_STRICT_C90   "Build with strict conformance to C90 standard" OFF)
-option(BUILD_WITH_LIBSTL  "Build the libSTL module" ON)
-
-# Add core source files
-file(GLOB  ALL_SRC_FILES  src/gmio_core/*  src/gmio_core/internal/*)
-set(ALL_SRC_FILES  ${ALL_SRC_FILES})
+option(GMIO_BUILD_STRICT_C90 "Build with strict conformance to C90 standard" OFF)
 
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
@@ -50,9 +44,9 @@ math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
 include(TestBigEndian)
 test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 
-# Adapt C compiler flags to satisfy the BUILD_STRICT_C90 option
+# Adapt C compiler flags to satisfy the GMIO_BUILD_STRICT_C90 option
 #    It must be done before checking of C99 and POSIX features
-if(BUILD_STRICT_C90)
+if(GMIO_BUILD_STRICT_C90)
     if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
     elseif(MSVC)
@@ -66,7 +60,7 @@ set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
 # Check non-ANSI available features
-if(NOT BUILD_STRICT_C90)
+if(NOT GMIO_BUILD_STRICT_C90)
     # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 
@@ -141,11 +135,7 @@ if(NOT BUILD_STRICT_C90)
              int main() { return (int)_byteswap_ulong(0x11223344); }"
             GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
     endif()
-endif() # !BUILD_STRICT_C90
-
-configure_file(src/gmio_core/version.h.cmake version.h @ONLY)
-configure_file(src/gmio_core/config.h.cmake config.h @ONLY)
-include_directories(${CMAKE_BINARY_DIR}) # For generated header files
+endif() # !GMIO_BUILD_STRICT_C90
 
 # Specific flags for GCC and Clang
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
@@ -191,122 +181,13 @@ if(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
 endif()
 
-# Enable DLL generation (export symbols)
-if(BUILD_SHARED_LIBS)
-    add_definitions(-DGMIO_LIB_DLL
-                    -DGMIO_LIB_MAKE_DLL)
-    if(MSVC)
-        configure_file(src/gmio_core/gmio.rc.cmake gmio.rc @ONLY)
-        set(ALL_SRC_FILES ${ALL_SRC_FILES} ${CMAKE_BINARY_DIR}/gmio.rc)
-    endif()
-endif()
-
-# Declare installs
-install(FILES ${CMAKE_BINARY_DIR}/version.h DESTINATION include/gmio_core)
-install(FILES ${CMAKE_BINARY_DIR}/config.h DESTINATION include/gmio_core)
-
-file(GLOB  C_CORE_HEADERS  src/gmio_core/*.h)
-install(FILES ${C_CORE_HEADERS} DESTINATION include/gmio_core)
-
-# Module libSTL
-if(BUILD_WITH_LIBSTL)
-    if(BUILD_SHARED_LIBS)
-        add_definitions(-DGMIO_LIBSTL_DLL
-                        -DGMIO_LIBSTL_MAKE_DLL)
-    endif()
-
-    file(GLOB  ALL_LIBSTL_SRC_FILES  src/gmio_stl/*  src/gmio_stl/internal/*)
-    set(ALL_SRC_FILES  ${ALL_SRC_FILES}  ${ALL_LIBSTL_SRC_FILES})
-
-endif()
-file(GLOB  C_LIBSTL_HEADERS  src/gmio_stl/*.h)
-install(FILES ${C_LIBSTL_HEADERS} DESTINATION include/gmio_stl)
-
-
-# Common for support modules
-install(FILES src/gmio_support/support_global.h DESTINATION include/gmio_support)
-
-# Qt support
-install(FILES src/gmio_support/stream_qt.h   DESTINATION include/gmio_support)
-install(FILES src/gmio_support/stream_qt.cpp DESTINATION src/gmio_support)
-
-# OpenCASCADE support
-install(FILES src/gmio_support/stl_occ.h   DESTINATION include/gmio_support)
-install(FILES src/gmio_support/stl_occ.cpp DESTINATION src/gmio_support)
-
-# Installs for target
-add_library(gmio ${ALL_SRC_FILES})
-install(TARGETS gmio
-          RUNTIME DESTINATION lib
-          LIBRARY DESTINATION lib
-          ARCHIVE DESTINATION lib)
-
-# Add a target to generate API documentation with Doxygen
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-    configure_file(
-        ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
-    add_custom_target(
-        doc
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
-        COMMENT "Generating API documentation with Doxygen" VERBATIM)
-endif(DOXYGEN_FOUND)
+# Sub-directories
+add_subdirectory(src)
+add_subdirectory(tests)
+add_subdirectory(doc)
 
 # Examples:
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_RELEASE_POSTFIX=.release
 # make VERBOSE=1  or  cmake -DCMAKE_VERBOSE_MAKEFILE=TRUE
 
-
-# Tests
-
-enable_testing()
-set(CMAKE_CTEST_COMMAND ctest -V)
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
-
-add_executable(
-    test_internal
-    EXCLUDE_FROM_ALL
-        tests/stream_buffer.c
-        tests/utils.c
-        tests/test_internal.c
-        src/gmio_core/stream.c
-        src/gmio_core/internal/string_parse.c)
-
-add_executable(
-    test_platform EXCLUDE_FROM_ALL tests/test_platform.c)
-
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/tests/models
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests)
-add_executable(
-    test_stl
-    EXCLUDE_FROM_ALL
-        tests/test_stl_io.c
-        src/gmio_core/buffer.c
-        src/gmio_core/stream.c
-        src/gmio_core/internal/string_parse.c
-        src/gmio_stl/stl_format.c
-        src/gmio_stl/stl_io.c
-        src/gmio_stl/stla_read.c
-        src/gmio_stl/stlb_read.c
-        src/gmio_stl/internal/stl_rw_common.c
-        src/gmio_stl/internal/stla_write.c
-        src/gmio_stl/internal/stlb_byte_swap.c
-        src/gmio_stl/internal/stlb_write.c)
-
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
-    target_link_libraries(test_internal m) # -lm
-    target_link_libraries(test_stl m) # -lm
-endif()
-
-add_test(test_internal test_internal)
-add_test(test_platform test_platform)
-add_test(test_stl test_stl)
-
-add_dependencies(
-    check
-        test_internal
-        test_platform
-        test_stl)
