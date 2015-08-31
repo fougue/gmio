@@ -1,0 +1,22 @@
+version: 0.1_build{build}
+
+platform: x86
+configuration: Release
+
+clone_folder: c:\projects\gmio.git
+
+environment:
+  matrix:
+  - APPVEYOR_SHARED_LIBS: OFF
+    VisualStudioVersion: 12.0
+
+  - APPVEYOR_SHARED_LIBS: ON
+    VisualStudioVersion: 12.0
+
+build:
+
+build_script:
+ - cmake --version
+ - cd c:\projects\gmio.git
+ - cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=$(CONFIGURATION) -DCMAKE_DEBUG_POSTFIX=_d -DGMIO_BUILD_SHARED_LIBS=$(APPVEYOR_SHARED_LIBS)
+ - msbuild /p:Configuration=$(CONFIGURATION) /p:Platform="Win32" gmio.sln /verbosity:detailed /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
