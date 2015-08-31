@@ -30,8 +30,8 @@ if(GMIO_BUILD_SHARED_LIBS)
     add_definitions(-DGMIO_LIB_DLL
                     -DGMIO_LIB_MAKE_DLL)
     if(MSVC)
-        configure_file(gmio_core/gmio.rc.cmake gmio.rc @ONLY)
-        set(GMIO_SRC_FILES ${GMIO_SRC_FILES} ${CMAKE_BINARY_DIR}/gmio.rc)
+        configure_file(gmio_core/gmio.rc.cmake gmio_core/gmio.rc @ONLY)
+        set(GMIO_SRC_FILES ${GMIO_SRC_FILES} ${CMAKE_BINARY_DIR}/src/gmio_core/gmio.rc)
     endif()
 endif()
 
