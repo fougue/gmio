@@ -38,7 +38,7 @@ PROJECT_NUMBER = @GMIO_VERSION@
 # for a project that appears at the top of each page and should give viewer 
 # a quick idea about the purpose of the project. Keep the description short.
 
-PROJECT_BRIEF          = "Fast, portable geometry input/output C library"
+PROJECT_BRIEF          = "Fast, portable C library for geometry input/output"
 
 # With the PROJECT_LOGO tag one can specify an logo or icon that is 
 # included in the documentation. The maximum height of the logo should not 
@@ -128,7 +128,7 @@ FULL_PATH_NAMES        = YES
 # If left blank the directory from which doxygen is run is used as the 
 # path to strip.
 
-STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/src
+STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/../src
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of 
 # the path mentioned in the documentation of a class, which tells 
@@ -249,7 +249,7 @@ EXTENSION_MAPPING      =
 
 MARKDOWN_SUPPORT       = YES
 
-USE_MDFILE_AS_MAINPAGE  = @CMAKE_CURRENT_SOURCE_DIR@/README.md
+USE_MDFILE_AS_MAINPAGE  = @CMAKE_CURRENT_SOURCE_DIR@/../README.md
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
@@ -641,8 +641,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/README.md \
-                         @CMAKE_CURRENT_SOURCE_DIR@/src
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../README.md \
+                         @CMAKE_CURRENT_SOURCE_DIR@/../src
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -675,7 +675,7 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = \
-    @CMAKE_CURRENT_SOURCE_DIR@/src/gmio_support/support_global.h \
+    @CMAKE_CURRENT_SOURCE_DIR@/../src/gmio_support/support_global.h \
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or 
 # directories that are symbolic links (a Unix file system feature) are excluded 

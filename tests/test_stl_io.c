@@ -60,57 +60,57 @@ typedef struct stl_testcase stl_testcase;
 const char* test_stl_read()
 {
     const stl_testcase expected[] = {
-        { "tests/models/file_empty",
+        { "models/file_empty",
           GMIO_STL_ERROR_UNKNOWN_FORMAT,
           GMIO_STL_FORMAT_UNKNOWN,
           NULL
         },
-        { "tests/models/solid_4vertex.stla",
+        { "models/solid_4vertex.stla",
           GMIO_STL_ERROR_PARSING,
           GMIO_STL_FORMAT_ASCII,
           NULL
         },
-        { "tests/models/solid_anonymous_empty.stla",
+        { "models/solid_anonymous_empty.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           NULL
         },
-        { "tests/models/solid_empty.stla",
+        { "models/solid_empty.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           "emptysolid"
         },
-        { "tests/models/solid_empty.stlb",
+        { "models/solid_empty.stlb",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_BINARY_LE,
           NULL
         },
-        { "tests/models/solid_empty_name_many_words.stla",
+        { "models/solid_empty_name_many_words.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           "name with multiple words"
         },
-        { "tests/models/solid_empty_name_many_words_single_letters.stla",
+        { "models/solid_empty_name_many_words_single_letters.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           "a b c d e f\t\tg h"
         },
-        { "tests/models/solid_lack_z.stla",
+        { "models/solid_lack_z.stla",
           GMIO_STL_ERROR_PARSING,
           GMIO_STL_FORMAT_ASCII,
           NULL
         },
-        { "tests/models/solid_one_facet.stla",
+        { "models/solid_one_facet.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           NULL
         },
-        { "tests/models/solid_one_facet.le_stlb",
+        { "models/solid_one_facet.le_stlb",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_BINARY_LE,
           NULL
         },
-        { "tests/models/solid_one_facet_uppercase.stla",
+        { "models/solid_one_facet_uppercase.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           NULL
@@ -190,7 +190,7 @@ void stl_triangle_array_get_triangle(
 void generate_stlb_tests_models()
 {
     {
-        FILE* outfile = fopen("tests/models/solid_empty.stlb", "wb");
+        FILE* outfile = fopen("models/solid_empty.stlb", "wb");
         gmio_stream_t stream = gmio_stream_stdio(outfile);
         gmio_stlb_write_header(&stream, GMIO_ENDIANNESS_LITTLE, NULL, 0);
         fclose(outfile);
@@ -216,7 +216,7 @@ void generate_stlb_tests_models()
 
           gmio_stl_write_file(
                       GMIO_STL_FORMAT_BINARY_LE,
-                      "tests/models/solid_one_facet.le_stlb",
+                      "models/solid_one_facet.le_stlb",
                       &mesh,
                       NULL,
                       NULL);
