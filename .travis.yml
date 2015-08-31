@@ -19,8 +19,8 @@ script:
   - cmake .. -G "Unix Makefiles" 
              -DCMAKE_DEBUG_POSTFIX=_d 
              -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE 
-             -DBUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS 
-             -DBUILD_STRICT_C90=$TRAVIS_STRICT_C90 
+             -DGMIO_BUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS 
+             -DGMIO_BUILD_STRICT_C90=$TRAVIS_STRICT_C90 
              -DCMAKE_INSTALL_PREFIX=../install
   - make -j4
   -  if [ "${TRAVIS_MAKE_CHECK}" = "ON" ]; then
