@@ -36,8 +36,8 @@ if(GMIO_BUILD_SHARED_LIBS)
 endif()
 
 # Declare installs
-install(FILES ${CMAKE_BINARY_DIR}/src/version.h DESTINATION include/gmio_core)
-install(FILES ${CMAKE_BINARY_DIR}/src/config.h DESTINATION include/gmio_core)
+install(FILES ${CMAKE_BINARY_DIR}/src/gmio_core/version.h DESTINATION include/gmio_core)
+install(FILES ${CMAKE_BINARY_DIR}/src/gmio_core/config.h DESTINATION include/gmio_core)
 
 file(GLOB  GMIO_CORE_HEADERS  gmio_core/*.h)
 install(FILES ${GMIO_CORE_HEADERS} DESTINATION include/gmio_core)
@@ -79,4 +79,3 @@ install(TARGETS gmio
           RUNTIME DESTINATION lib
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib)
-
