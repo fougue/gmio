@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "../commons/bench_tools.h"
+#include "../commons/benchmark_tools.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/Exporter.hpp>

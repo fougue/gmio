@@ -16,7 +16,7 @@
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
 
-#include "../commons/bench_tools.h"
+#include "../commons/benchmark_tools.h"
 
 #include <string.h>
 

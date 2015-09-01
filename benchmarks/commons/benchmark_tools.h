@@ -13,24 +13,24 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#ifndef BENCH_TOOLS_H
-#define BENCH_TOOLS_H
+#ifndef BENCHMARK_TOOLS_H
+#define BENCHMARK_TOOLS_H
 
 #include <gmio_core/global.h>
 
 GMIO_C_LINKAGE_BEGIN
 
-typedef void (*bench_file_func_t)(const char*);
+typedef void (*benchmark_file_func_t)(const char*);
 
 void benchmark_list(
-        bench_file_func_t func, const char* title, int argc, char** argv);
+        benchmark_file_func_t func, const char* title, int argc, char** argv);
 
 void benchmark_forward_list(
-        bench_file_func_t func, int argc, char** argv);
+        benchmark_file_func_t func, int argc, char** argv);
 
 void benchmark(
-        bench_file_func_t func, const char* title, const char* filepath);
+        benchmark_file_func_t func, const char* title, const char* filepath);
 
 GMIO_C_LINKAGE_END
 
-#endif /* BENCH_TOOLS_H */
+#endif /* BENCHMARK_TOOLS_H */

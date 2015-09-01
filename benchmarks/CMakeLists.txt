@@ -14,8 +14,8 @@
 #############################################################################
 
 # Options
-option(GMIO_BENCHMARKS_ASSIMP      "Build benchmark for Assimp" ON)
-option(GMIO_BENCHMARKS_OPENCASCADE "Build benchmark for OpenCascade" ON)
+option(GMIO_BUILD_BENCHMARK_ASSIMP      "Build benchmark for Assimp" ON)
+option(GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON)
 
 set(ASSIMP_DIR      ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the Assimp library resides")
 set(OPENCASCADE_DIR ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the OpenCascade library resides")
@@ -37,7 +37,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
     link_libraries(m) # -lm
 endif()
 
-add_executable(bench_gmio bench_gmio/main.c ${COMMONS_FILES})
+add_executable(benchmark_gmio benchmark_gmio/main.c ${COMMONS_FILES})
 
 function(get_msvc_vernum outVerNum)
     if(MSVC60)
@@ -57,43 +57,43 @@ function(get_msvc_vernum outVerNum)
     endif()
 endfunction()
 
-if(GMIO_BENCHMARKS_ASSIMP)
-    add_executable(bench_assimp bench_assimp/main.cpp ${COMMONS_FILES})
+if(GMIO_BUILD_BENCHMARK_ASSIMP)
+    add_executable(benchmark_assimp benchmark_assimp/main.cpp ${COMMONS_FILES})
     # Note: we could use target_include_directories() but it's available in cmake > v2.8.10
     set_property(
-        TARGET bench_assimp
+        TARGET benchmark_assimp
         APPEND PROPERTY INCLUDE_DIRECTORIES ${ASSIMP_DIR}/include)
     # Libs
     find_library(LIBPATH_ASSIMP assimp ${ASSIMP_DIR}/lib64)
-    target_link_libraries(bench_assimp ${LIBPATH_ASSIMP})
+    target_link_libraries(benchmark_assimp ${LIBPATH_ASSIMP})
 endif()
 
-if(GMIO_BENCHMARKS_OPENCASCADE)
-    add_executable(bench_occ
-        bench_occ/main.cpp
+if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
+    add_executable(benchmark_opencascade
+        benchmark_opencascade/main.cpp
         ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ.cpp
         ${COMMONS_FILES})
 
     # TODO: define only if target arch is 64b
     # Note: we could use target_compile_definitions() but it's available in cmake > v2.8.10
     set_property(
-        TARGET bench_occ
+        TARGET benchmark_opencascade
         APPEND PROPERTY COMPILE_DEFINITIONS _OCC64)
 
     if(WIN32)
         set_property(
-            TARGET bench_occ
+            TARGET benchmark_opencascade
             APPEND PROPERTY COMPILE_DEFINITIONS WNT)
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set_property(
-            TARGET bench_occ
+            TARGET benchmark_opencascade
             APPEND PROPERTY COMPILE_DEFINITIONS
             HAVE_CONFIG_H  HAVE_FSTREAM  HAVE_IOSTREAM  HAVE_IOMANIP  HAVE_LIMITS_H)
     endif()
 
     # Note: we could use target_include_directories() but it's available in cmake > v2.8.10
     set_property(
-        TARGET bench_occ
+        TARGET benchmark_opencascade
         APPEND PROPERTY INCLUDE_DIRECTORIES ${OPENCASCADE_DIR}/inc)
 
     # Libs
@@ -110,7 +110,7 @@ if(GMIO_BENCHMARKS_OPENCASCADE)
     find_library(LIBPATH_OPENCASCADE_TKMATH TKMath ${OPENCASCADE_LIBDIR})
     find_library(LIBPATH_OPENCASCADE_TKSTL TKSTL ${OPENCASCADE_LIBDIR})
     target_link_libraries(
-        bench_occ
+        benchmark_opencascade
         ${LIBPATH_OPENCASCADE_TKERNEL}
         ${LIBPATH_OPENCASCADE_TKMATH}
         ${LIBPATH_OPENCASCADE_TKSTL})

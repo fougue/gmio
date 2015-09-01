@@ -35,8 +35,8 @@ if (CMAKE_C_COMPILER MATCHES ".*clang")
 endif ()
 
 # Options
-option(GMIO_BUILD_STRICT_C90 "Build with strict conformance to C90 standard" OFF)
-option(GMIO_BENCHMARKS "Build performance benchmarks for the gmio library" OFF)
+option(GMIO_BUILD_STRICT_C90 "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
+option(GMIO_BUILD_BENCHMARKS "Build performance benchmarks for the gmio library" OFF)
 
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
@@ -186,7 +186,7 @@ endif()
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(doc)
-if(GMIO_BENCHMARKS)
+if(GMIO_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
 

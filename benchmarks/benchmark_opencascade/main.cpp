@@ -21,7 +21,7 @@
 #include <gmio_stl/stl_io.h>
 #include <gmio_support/stl_occ.h>
 
-#include "../commons/bench_tools.h"
+#include "../commons/benchmark_tools.h"
 
 namespace BenchmarkOcc {
 
