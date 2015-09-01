@@ -13,10 +13,6 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-# Options
-option(GMIO_BUILD_BENCHMARK_ASSIMP      "Build benchmark for Assimp" ON)
-option(GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON)
-
 set(ASSIMP_DIR      ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the Assimp library resides")
 set(OPENCASCADE_DIR ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the OpenCascade library resides")
 
@@ -26,14 +22,8 @@ set(COMMONS_FILES  ${COMMONS_FILES})
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
-link_directories(${CMAKE_BINARY_DIR}/src)
-find_library(GMIO_LIBPATH gmio HINTS ${CMAKE_BINARY_DIR}/src)
-get_filename_component(GMIO_LIB_BASENAME ${GMIO_LIBPATH} NAME_WE)
-if ("${GMIO_LIB_BASENAME}" STREQUAL "")
-    set(GMIO_LIB_BASENAME "gmio")
-endif()
-link_libraries(${GMIO_LIB_BASENAME})
-if(CMAKE_COMPILER_IS_GNUCC)
+link_libraries(gmio)
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     link_libraries(m) # -lm
 endif()
 

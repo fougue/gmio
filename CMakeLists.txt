@@ -27,16 +27,19 @@ set(GMIO_VERSION_PATCH 0)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
-#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# Options
+option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
+option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
+option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
+if(GMIO_BUILD_BENCHMARKS)
+    option(GMIO_BUILD_BENCHMARK_ASSIMP      "Build benchmark for Assimp" ON)
+    option(GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON)
+endif()
 
 # Detect Clang
 if (CMAKE_C_COMPILER MATCHES ".*clang")
     set(CMAKE_COMPILER_IS_CLANG 1)
 endif ()
-
-# Options
-option(GMIO_BUILD_STRICT_C90 "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
-option(GMIO_BUILD_BENCHMARKS "Build performance benchmarks for the gmio library" OFF)
 
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
@@ -181,6 +184,8 @@ if(MSVC)
     # Enable "Generate Intrinsic Functions"
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
 endif()
+
+#set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Sub-directories
 add_subdirectory(src)

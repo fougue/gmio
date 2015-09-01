@@ -17,43 +17,37 @@ enable_testing()
 set(CMAKE_CTEST_COMMAND ctest -V)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
-include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated header files
+include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
 
+# test_internal
 add_executable(
     test_internal
     EXCLUDE_FROM_ALL
         stream_buffer.c
         utils.c
-        test_internal.c
-        ../src/gmio_core/stream.c
-        ../src/gmio_core/internal/string_parse.c)
+        test_internal.c)
+target_link_libraries(test_internal gmio)
 
+# test_platform
 add_executable(
     test_platform EXCLUDE_FROM_ALL test_platform.c)
 
+# test_stl
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(
     test_stl
     EXCLUDE_FROM_ALL
-        test_stl_io.c
-        ../src/gmio_core/buffer.c
-        ../src/gmio_core/stream.c
-        ../src/gmio_core/internal/string_parse.c
-        ../src/gmio_stl/stl_format.c
-        ../src/gmio_stl/stl_io.c
-        ../src/gmio_stl/stla_read.c
-        ../src/gmio_stl/stlb_read.c
-        ../src/gmio_stl/internal/stl_rw_common.c
-        ../src/gmio_stl/internal/stla_write.c
-        ../src/gmio_stl/internal/stlb_byte_swap.c
-        ../src/gmio_stl/internal/stlb_write.c)
+        test_stl_io.c)
+target_link_libraries(test_stl gmio)
 
+# GCC and Clang requires lm
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
     target_link_libraries(test_internal m) # -lm
     target_link_libraries(test_stl m) # -lm
 endif()
 
+# Declare tests
 add_test(test_internal test_internal)
 add_test(test_platform test_platform)
 add_test(test_stl test_stl)

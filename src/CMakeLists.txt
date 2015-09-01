@@ -13,10 +13,6 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-# Options
-option(GMIO_BUILD_SHARED_LIBS  "Build gmio as a shared library (DLL)" OFF)
-option(GMIO_BUILD_LIBSTL  "Build also the libSTL module" ON)
-
 # Add core source files
 file(GLOB  GMIO_SRC_FILES  gmio_core/*  gmio_core/internal/*)
 set(GMIO_SRC_FILES  ${GMIO_SRC_FILES})
@@ -43,16 +39,14 @@ file(GLOB  GMIO_CORE_HEADERS  gmio_core/*.h)
 install(FILES ${GMIO_CORE_HEADERS} DESTINATION include/gmio_core)
 
 # Module libSTL
-if(GMIO_BUILD_LIBSTL)
-    if(GMIO_BUILD_SHARED_LIBS)
-        add_definitions(-DGMIO_LIBSTL_DLL
-                        -DGMIO_LIBSTL_MAKE_DLL)
-    endif()
-
-    file(GLOB  GMIO_LIBSTL_SRC_FILES  gmio_stl/*  gmio_stl/internal/*)
-    set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBSTL_SRC_FILES})
-
+if(GMIO_BUILD_SHARED_LIBS)
+    add_definitions(-DGMIO_LIBSTL_DLL
+                    -DGMIO_LIBSTL_MAKE_DLL)
 endif()
+
+file(GLOB  GMIO_LIBSTL_SRC_FILES  gmio_stl/*  gmio_stl/internal/*)
+set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBSTL_SRC_FILES})
+
 file(GLOB  GMIO_LIBSTL_HEADERS  gmio_stl/*.h)
 install(FILES ${GMIO_LIBSTL_HEADERS} DESTINATION include/gmio_stl)
 
