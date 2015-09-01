@@ -15,7 +15,7 @@
 
 # Options
 option(GMIO_BUILD_SHARED_LIBS  "Build gmio as a shared library (DLL)" OFF)
-option(GMIO_BUILD_WITH_LIBSTL  "Build the libSTL module" ON)
+option(GMIO_BUILD_LIBSTL  "Build also the libSTL module" ON)
 
 # Add core source files
 file(GLOB  GMIO_SRC_FILES  gmio_core/*  gmio_core/internal/*)
@@ -23,7 +23,7 @@ set(GMIO_SRC_FILES  ${GMIO_SRC_FILES})
 
 configure_file(gmio_core/version.h.cmake gmio_core/version.h @ONLY)
 configure_file(gmio_core/config.h.cmake gmio_core/config.h @ONLY)
-include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated header files
+include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
 
 # Enable DLL generation (export symbols)
 if(GMIO_BUILD_SHARED_LIBS)
@@ -43,7 +43,7 @@ file(GLOB  GMIO_CORE_HEADERS  gmio_core/*.h)
 install(FILES ${GMIO_CORE_HEADERS} DESTINATION include/gmio_core)
 
 # Module libSTL
-if(GMIO_BUILD_WITH_LIBSTL)
+if(GMIO_BUILD_LIBSTL)
     if(GMIO_BUILD_SHARED_LIBS)
         add_definitions(-DGMIO_LIBSTL_DLL
                         -DGMIO_LIBSTL_MAKE_DLL)
