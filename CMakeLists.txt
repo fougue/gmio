@@ -20,7 +20,7 @@ include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 include(CheckTypeSize)
 
-project(gmio C)
+project(gmio)
 set(GMIO_VERSION_MAJOR 0)
 set(GMIO_VERSION_MINOR 1)
 set(GMIO_VERSION_PATCH 0)
@@ -36,6 +36,7 @@ endif ()
 
 # Options
 option(GMIO_BUILD_STRICT_C90 "Build with strict conformance to C90 standard" OFF)
+option(GMIO_BENCHMARKS "Build performance benchmarks for the gmio library" OFF)
 
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
@@ -185,9 +186,11 @@ endif()
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(doc)
+if(GMIO_BENCHMARKS)
+    add_subdirectory(benchmarks)
+endif()
 
 # Examples:
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=.debug
 #   cmake ../.. -DCMAKE_INSTALL_PREFIX=../../gcc-linux64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_RELEASE_POSTFIX=.release
 # make VERBOSE=1  or  cmake -DCMAKE_VERBOSE_MAKEFILE=TRUE
-
