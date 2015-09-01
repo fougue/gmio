@@ -48,29 +48,12 @@ private:
     int m_domainId;
 };
 
-/*! Initializes \p mesh so it maps to a domain in StlMesh_Mesh
- *
- *  \c mesh->cookie will point to \p meshCookie
- */
-GMIO_LIBSUPPORT_EXPORT
-void gmio_stl_set_occmesh(
-        gmio_stl_mesh* mesh, const gmio_OccStlMeshDomain& meshCookie);
-
 /*! Returns a gmio_stl_mesh mapped to domain in StlMesh_Mesh
  *
  *  The mesh's cookie will point to \p meshCookie
  */
 GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh gmio_stl_occmesh(const gmio_OccStlMeshDomain& meshCookie);
-
-/*! Initializes \p creator to build a new domain in a StlMesh_Mesh object
- *
- *  \c creator->cookie will point to the internal data(ie StlMesh_Mesh*) of
- *  handle \p mesh
- */
-GMIO_LIBSUPPORT_EXPORT
-void gmio_stl_set_occmesh_creator(
-        gmio_stl_mesh_creator* creator, const Handle_StlMesh_Mesh& mesh);
 
 /*! Returns a gmio_stl_mesh_creator that will build a new domain in a
  *  StlMesh_Mesh object
