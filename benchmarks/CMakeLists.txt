@@ -13,10 +13,9 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-set(ASSIMP_DIR      ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the Assimp library resides")
-set(OPENCASCADE_DIR ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the OpenCascade library resides")
+set(ROOTDIR_ASSIMP      ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the Assimp library resides")
+set(ROOTDIR_OPENCASCADE ${CMAKE_SOURCE_DIR} CACHE PATH "Directory where the OpenCascade library resides")
 
-# List source files in commons/
 file(GLOB COMMONS_FILES commons/*)
 set(COMMONS_FILES  ${COMMONS_FILES})
 
@@ -52,14 +51,18 @@ if(GMIO_BUILD_BENCHMARK_ASSIMP)
     # Note: we could use target_include_directories() but it's available in cmake > v2.8.10
     set_property(
         TARGET benchmark_assimp
-        APPEND PROPERTY INCLUDE_DIRECTORIES ${ASSIMP_DIR}/include)
-    # Libs
-    find_library(LIBPATH_ASSIMP assimp ${ASSIMP_DIR}/lib64)
-    target_link_libraries(benchmark_assimp ${LIBPATH_ASSIMP})
+        APPEND PROPERTY INCLUDE_DIRECTORIES ${ROOTDIR_ASSIMP}/include)
+
+    # TODO: choose lib32/lib64 depending on the architecture
+    find_library(
+        LIB_ASSIMP assimp ${ROOTDIR_ASSIMP}/lib64
+        DOC "Path to the assimp import library")
+    target_link_libraries(benchmark_assimp ${LIB_ASSIMP})
 endif()
 
 if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
-    add_executable(benchmark_opencascade
+    add_executable(
+        benchmark_opencascade
         benchmark_opencascade/main.cpp
         ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ.cpp
         ${COMMONS_FILES})
@@ -84,24 +87,32 @@ if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
     # Note: we could use target_include_directories() but it's available in cmake > v2.8.10
     set_property(
         TARGET benchmark_opencascade
-        APPEND PROPERTY INCLUDE_DIRECTORIES ${OPENCASCADE_DIR}/inc)
+        APPEND PROPERTY INCLUDE_DIRECTORIES ${ROOTDIR_OPENCASCADE}/inc)
 
     # Libs
     if(MSVC)
         set(_MSVC_VERNUM_ 0) # Init
         get_msvc_vernum(_MSVC_VERNUM_)
-        set(OPENCASCADE_LIBDIR ${OPENCASCADE_DIR}/win64/vc${_MSVC_VERNUM_}/lib)
+        # TODO: choose win32/win64 depending on the architecture
+        set(LIBDIR_OPENCASCADE ${ROOTDIR_OPENCASCADE}/win64/vc${_MSVC_VERNUM_}/lib)
     elseif((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND CMAKE_COMPILER_IS_GNUCXX)
-        set(OPENCASCADE_LIBDIR ${OPENCASCADE_DIR}/lin64/gcc/lib)
+        # TODO: choose lin32/lin64 depending on the architecture
+        set(LIBDIR_OPENCASCADE ${ROOTDIR_OPENCASCADE}/lin64/gcc/lib)
     endif()
-    message(STATUS ${OPENCASCADE_LIBDIR})
+    #message(STATUS ${ROOTDIR_OPENCASCADE})
 
-    find_library(LIBPATH_OPENCASCADE_TKERNEL TKernel ${OPENCASCADE_LIBDIR})
-    find_library(LIBPATH_OPENCASCADE_TKMATH TKMath ${OPENCASCADE_LIBDIR})
-    find_library(LIBPATH_OPENCASCADE_TKSTL TKSTL ${OPENCASCADE_LIBDIR})
+    find_library(
+        LIB_OPENCASCADE_TKERNEL TKernel ${LIBDIR_OPENCASCADE}
+        DOC "Path to the TKernel import library")
+    find_library(
+        LIB_OPENCASCADE_TKMATH TKMath ${LIBDIR_OPENCASCADE}
+        DOC "Path to the TKMath import library")
+    find_library(
+        LIB_OPENCASCADE_TKSTL TKSTL ${LIBDIR_OPENCASCADE}
+        DOC "Path to the TKSTL import library")
     target_link_libraries(
         benchmark_opencascade
-        ${LIBPATH_OPENCASCADE_TKERNEL}
-        ${LIBPATH_OPENCASCADE_TKMATH}
-        ${LIBPATH_OPENCASCADE_TKSTL})
+        ${LIB_OPENCASCADE_TKERNEL}
+        ${LIB_OPENCASCADE_TKMATH}
+        ${LIB_OPENCASCADE_TKSTL})
 endif()

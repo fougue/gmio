@@ -19,6 +19,7 @@ include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckCSourceCompiles)
 include(CheckTypeSize)
+include(CMakeDependentOption)
 
 project(gmio)
 set(GMIO_VERSION_MAJOR 0)
@@ -31,10 +32,13 @@ set(GMIO_VERSION
 option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
 option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
 option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
-if(GMIO_BUILD_BENCHMARKS)
-    option(GMIO_BUILD_BENCHMARK_ASSIMP      "Build benchmark for Assimp" ON)
-    option(GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON)
-endif()
+cmake_dependent_option(
+    GMIO_BUILD_BENCHMARK_ASSIMP "Build benchmark for Assimp" ON
+    "GMIO_BUILD_BENCHMARKS" OFF)
+cmake_dependent_option(
+    GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON
+    "GMIO_BUILD_BENCHMARKS" OFF)
+option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
 
 # Detect Clang
 if (CMAKE_C_COMPILER MATCHES ".*clang")
