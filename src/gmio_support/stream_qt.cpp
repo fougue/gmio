@@ -28,12 +28,12 @@ static gmio_bool_t gmio_stream_qiodevice_at_end(void* cookie)
 static int gmio_stream_qiodevice_error(void* cookie)
 {
     const QIODevice* device = static_cast<QIODevice*>(cookie);
-    const QFile* file = dynamic_cast<const QFile*>(device);
+    const QFile* file = qobject_cast<const QFile*>(device);
     if (file != NULL) {
         return file->error();
     }
     else {
-        const QString err_str = static_cast<QIODevice*>(cookie)->errorString();
+        const QString err_str = device->errorString();
         return !err_str.isEmpty() ? 1 : 0;
     }
     return 0;

@@ -52,12 +52,12 @@ static void occmesh_get_triangle(
             meshCookie->mesh()->Triangles(meshCookie->domainId());
     const Handle_StlMesh_MeshTriangle& occTri =
             occTriangles.Value(tri_id + 1);
-    Standard_Integer v1;
-    Standard_Integer v2;
-    Standard_Integer v3;
-    Standard_Real xN;
-    Standard_Real yN;
-    Standard_Real zN;
+    int v1;
+    int v2;
+    int v3;
+    double xN;
+    double yN;
+    double zN;
     occTri->GetVertexAndOrientation(v1, v2, v3, xN, yN, zN);
     triangle->normal.x = float(xN);
     triangle->normal.y = float(yN);

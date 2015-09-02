@@ -1,0 +1,17 @@
+#ifndef QFILE_H
+#define QFILE_H
+
+#include <QtCore/QIODevice>
+
+class QFile : public QIODevice
+{
+public:
+    enum FileError {
+        NoError = 0
+    };
+
+    FileError error() const
+    { return NoError; }
+};
+
+#endif // QFILE_H

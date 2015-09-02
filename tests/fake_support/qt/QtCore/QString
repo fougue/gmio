@@ -1,0 +1,11 @@
+#ifndef QSTRING_H
+#define QSTRING_H
+
+class QString
+{
+public:
+    bool isEmpty() const
+    { return false; }
+};
+
+#endif // QSTRING_H

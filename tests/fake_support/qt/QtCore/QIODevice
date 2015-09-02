@@ -1,0 +1,29 @@
+#ifndef QIODEVICE_H
+#define QIODEVICE_H
+
+#include <QtCore/QtGlobal>
+#include <QtCore/QString>
+
+class QIODevice
+{
+public:
+    virtual bool atEnd() const
+    { return false; }
+
+    QString errorString() const
+    { return QString(); }
+
+    qint64 read(char* /*data*/, qint64 /*maxlen*/)
+    { return 0; }
+
+    qint64 write(const char* /*data*/, qint64 /*len*/)
+    { return 0; }
+
+    virtual qint64 size() const
+    { return 0; }
+
+    virtual bool seek(qint64 /*pos*/)
+    { return true; }
+};
+
+#endif // QIODEVICE_H
