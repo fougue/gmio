@@ -43,30 +43,8 @@ target_link_libraries(test_stl gmio)
 
 # fake_support
 if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
-    add_executable(
-        fake_support
-        EXCLUDE_FROM_ALL
-            fake_support/main.cpp
-            fake_support/opencascade/gp_XYZ.hxx
-            fake_support/opencascade/Handle_StlMesh_Mesh.hxx
-            fake_support/opencascade/Handle_StlMesh_MeshTriangle.hxx
-            fake_support/opencascade/StlMesh_Mesh.hxx
-            fake_support/opencascade/StlMesh_MeshTriangle.hxx
-            fake_support/opencascade/StlMesh_SequenceOfMeshTriangle.hxx
-            fake_support/opencascade/TColgp_SequenceOfXYZ.hxx
-            fake_support/qt/QtCore/QFile
-            fake_support/qt/QtCore/QIODevice
-            fake_support/qt/QtCore/QString
-            fake_support/qt/QtCore/QtGlobal
-            ../src/gmio_support/stl_occ.cpp
-            ../src/gmio_support/stream_qt.cpp)
-    target_link_libraries(test_stl gmio)
-    set_property(
-        TARGET fake_support
-        APPEND PROPERTY INCLUDE_DIRECTORIES
-            ${CMAKE_SOURCE_DIR}/src
-            ${CMAKE_CURRENT_SOURCE_DIR}/fake_support/opencascade
-            ${CMAKE_CURRENT_SOURCE_DIR}/fake_support/qt)
+    add_subdirectory(fake_support)
+    add_dependencies(check fake_support)
 endif()
 
 # For some targets, GCC and Clang requires -lm
@@ -84,5 +62,4 @@ add_dependencies(
     check
         test_internal
         test_platform
-        test_stl
-        fake_support)
+        test_stl)
