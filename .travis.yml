@@ -16,9 +16,7 @@ env:
 
 script:
   - cmake --version
-  - if [ "${TRAVIS_COVERALLS}" = "ON" ] \
-       && [ "${TRAVIS_OS_NAME}" = "linux" ] \
-       && [ "${CC}" = "gcc" ];
+  - if [ "${TRAVIS_COVERALLS}" = "ON" ] && [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "gcc" ];
     then
         pip install cpp-coveralls;
     else
@@ -32,7 +30,7 @@ script:
              -DGMIO_BUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS 
              -DGMIO_BUILD_STRICT_C90=$TRAVIS_STRICT_C90
              -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON
-             -DGMIO_BUILD_TESTS_COVERALLS=ON
+             -DGMIO_BUILD_TESTS_COVERALLS=$TRAVIS_COVERALLS
              -DCMAKE_INSTALL_PREFIX=../install
   - make -j4
   - if [ "${TRAVIS_MAKE_CHECK}" = "ON" ]; then
