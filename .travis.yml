@@ -18,7 +18,8 @@ script:
   - cmake --version
   - if [ "${TRAVIS_COVERALLS}" = "ON" ] && [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "gcc" ];
     then
-        pip install cpp-coveralls;
+        export PYTHONUSERBASE=`pwd`/pip
+        pip install --user cpp-coveralls;
     else
         export TRAVIS_COVERALLS=OFF;
     fi
@@ -38,6 +39,6 @@ script:
     fi
   - make install
   - if [ "${TRAVIS_COVERALLS}" = "ON" ]; then
-        coveralls --gcov-options '\-lp';
+        $PYTHONUSERBASE/bin/coveralls --gcov-options '\-lp';
     fi
   
