@@ -13,6 +13,13 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
+if(GMIO_BUILD_TESTS_COVERAGE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall -W -fprofile-arcs -ftest-coverage")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wall -W -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage")
+    link_libraries(gcov)
+endif()
+
 # Add core source files
 file(GLOB  GMIO_SRC_FILES  gmio_core/*  gmio_core/internal/*)
 set(GMIO_SRC_FILES  ${GMIO_SRC_FILES})

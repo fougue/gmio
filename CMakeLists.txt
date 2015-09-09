@@ -28,6 +28,11 @@ set(GMIO_VERSION_PATCH 0)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
+# Detect Clang
+if (CMAKE_C_COMPILER MATCHES ".*clang")
+    set(CMAKE_COMPILER_IS_CLANG 1)
+endif ()
+
 # Options
 option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
 option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
@@ -39,11 +44,9 @@ cmake_dependent_option(
     GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON
     "GMIO_BUILD_BENCHMARKS" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
-
-# Detect Clang
-if (CMAKE_C_COMPILER MATCHES ".*clang")
-    set(CMAKE_COMPILER_IS_CLANG 1)
-endif ()
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
+endif()
 
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")

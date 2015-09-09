@@ -23,6 +23,13 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
 
+if(GMIO_BUILD_TESTS_COVERAGE)
+    set(CMAKE_CXX_FLAGS "-g -O0 -Wall -W -fprofile-arcs -ftest-coverage")
+    set(CMAKE_C_FLAGS "-g -O0 -Wall -W -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "-fprofile-arcs -ftest-coverage")
+    link_libraries(gcov)
+endif()
+
 # test_internal
 add_executable(
     test_internal
