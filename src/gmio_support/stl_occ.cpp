@@ -46,10 +46,10 @@ static void occmesh_add_triangle(void* cookie,
 static void occmesh_get_triangle(
         const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle)
 {
-    const gmio_OccStlMeshDomain* meshCookie =
-            static_cast<const gmio_OccStlMeshDomain*>(cookie);
+    const gmio_occ_stl_mesh_domain_t* mesh_domain =
+            static_cast<const gmio_occ_stl_mesh_domain_t*>(cookie);
     const StlMesh_SequenceOfMeshTriangle& occTriangles =
-            meshCookie->mesh()->Triangles(meshCookie->domainId());
+            mesh_domain->mesh->Triangles(mesh_domain->domain_id);
     const Handle_StlMesh_MeshTriangle& occTri =
             occTriangles.Value(tri_id + 1);
     int v1;
@@ -64,7 +64,7 @@ static void occmesh_get_triangle(
     triangle->normal.z = float(zN);
 
     const TColgp_SequenceOfXYZ& vertices =
-            meshCookie->mesh()->Vertices(meshCookie->domainId());
+            mesh_domain->mesh->Vertices(mesh_domain->domain_id);
     const gp_XYZ& coordsV1 = vertices.Value(v1);
     const gp_XYZ& coordsV2 = vertices.Value(v2);
     const gp_XYZ& coordsV3 = vertices.Value(v3);
@@ -83,46 +83,48 @@ static void occmesh_get_triangle(
 
 } // namespace internal
 
-gmio_stl_mesh gmio_stl_occmesh(const gmio_OccStlMeshDomain &meshCookie)
+gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain)
 {
-    gmio_stl_mesh mesh = { 0 };
-    mesh.cookie = &meshCookie;
-    mesh.triangle_count = meshCookie.mesh()->NbTriangles(meshCookie.domainId());
+    gmio_stl_mesh_t mesh = { 0 };
+    mesh.cookie = mesh_domain;
+    if (mesh_domain != NULL && mesh_domain->mesh != NULL) {
+        mesh.triangle_count =
+                mesh_domain->mesh->NbTriangles(mesh_domain->domain_id);
+    }
     mesh.func_get_triangle = internal::occmesh_get_triangle;
     return mesh;
 }
 
-gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh &mesh)
+gmio_stl_mesh_creator_t gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
 {
-    gmio_stl_mesh_creator creator = { 0 };
-    creator.cookie = internal::occMeshPtr(mesh);
+    gmio_stl_mesh_creator_t creator = { 0 };
+    creator.cookie = mesh;
     creator.func_add_triangle = internal::occmesh_add_triangle;
     return creator;
 }
 
-gmio_OccStlMeshDomain::gmio_OccStlMeshDomain(
-        const Handle_StlMesh_Mesh &stlMesh, int domId)
-    : m_mesh(stlMesh),
-      m_domainId(domId)
+gmio_stl_mesh_creator_t gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh &hnd)
+{
+    return gmio_stl_occmesh_creator(internal::occMeshPtr(hnd));
+}
+
+gmio_occ_stl_mesh_domain::gmio_occ_stl_mesh_domain()
+    : mesh(NULL),
+      domain_id(0)
 {
 }
 
-const Handle_StlMesh_Mesh &gmio_OccStlMeshDomain::mesh() const
+gmio_occ_stl_mesh_domain::gmio_occ_stl_mesh_domain(
+        const StlMesh_Mesh *msh, int dom_id)
+    : mesh(msh),
+      domain_id(dom_id)
+
 {
-    return m_mesh;
 }
 
-void gmio_OccStlMeshDomain::setMesh(const Handle_StlMesh_Mesh &stlMesh)
+gmio_occ_stl_mesh_domain::gmio_occ_stl_mesh_domain(
+        const Handle_StlMesh_Mesh &hndMesh, int dom_id)
+    : mesh(internal::occMeshPtr(hndMesh)),
+      domain_id(dom_id)
 {
-    m_mesh = stlMesh;
-}
-
-int gmio_OccStlMeshDomain::domainId() const
-{
-    return m_domainId;
-}
-
-void gmio_OccStlMeshDomain::setDomainId(int domId)
-{
-    m_domainId = domId;
 }

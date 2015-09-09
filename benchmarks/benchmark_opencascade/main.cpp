@@ -68,7 +68,7 @@ Handle_StlMesh_Mesh stlMesh;
 static void bmk_stl_read(const char* filepath)
 {
     stlMesh = new StlMesh_Mesh;
-    gmio_stl_mesh_creator_t mesh_creator = gmio_stl_occmesh_creator(stlMesh);
+    gmio_stl_mesh_creator_t mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
     int error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
@@ -76,8 +76,8 @@ static void bmk_stl_read(const char* filepath)
 
 static void bmk_stl_write(const char* filepath, gmio_stl_format_t format)
 {
-    const gmio_OccStlMeshDomain occMeshDomain(stlMesh);
-    const gmio_stl_mesh_t mesh = gmio_stl_occmesh(occMeshDomain);
+    const gmio_occ_stl_mesh_domain_t occ_mesh_domain(stlMesh);
+    const gmio_stl_mesh_t mesh = gmio_stl_occmesh(&occ_mesh_domain);
 
     gmio_stl_write_options_t opts = { 0 };
     opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
