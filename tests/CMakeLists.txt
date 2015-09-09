@@ -15,6 +15,10 @@
 
 enable_testing()
 set(CMAKE_CTEST_COMMAND ctest -V)
+if(WIN32 AND GMIO_BUILD_SHARED_LIBS)
+    configure_file(win_ctest_cmd.bat.cmake win_ctest_cmd.bat @ONLY)
+    set(CMAKE_CTEST_COMMAND win_ctest_cmd.bat)
+endif()
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
@@ -25,8 +29,9 @@ add_executable(
     EXCLUDE_FROM_ALL
         stream_buffer.c
         utils.c
-        test_internal.c)
-target_link_libraries(test_internal gmio)
+        test_internal.c
+        ../src/gmio_core/internal/string_parse.c)
+#target_link_libraries(test_internal gmio)
 
 # test_platform
 add_executable(
