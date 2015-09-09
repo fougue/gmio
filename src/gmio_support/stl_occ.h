@@ -15,6 +15,9 @@
 
 /*! \file stl_occ.h
  *  Support of OpenCascade's StlMesh_Mesh
+ *
+*  \addtogroup gmio_support
+ *  @{
  */
 
 #ifndef __cplusplus
@@ -69,3 +72,4 @@ GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh_creator_t gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
 
 #endif /* GMIO_SUPPORT_STL_OCC_H */
+/*! @} */

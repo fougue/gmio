@@ -15,6 +15,9 @@
 
 /*! \file error.h
  *  List of common errors, reported by I/O functions
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_ERROR_H
@@ -65,3 +68,4 @@ GMIO_INLINE gmio_bool_t gmio_error(int code)
 { return code != GMIO_ERROR_OK ? GMIO_TRUE : GMIO_FALSE; }
 
 #endif /* GMIO_ERROR_H */
+/*! @} */

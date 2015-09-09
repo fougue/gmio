@@ -15,6 +15,9 @@
 
 /*! \file stl_error.h
  *  List of errors specific to STL I/O functions
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_ERROR_H
@@ -58,3 +61,4 @@ enum gmio_stl_error
 typedef enum gmio_stl_error  gmio_stl_error_t;
 
 #endif /* GMIO_STL_ERROR_H */
+/*! @} */

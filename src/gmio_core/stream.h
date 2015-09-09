@@ -15,6 +15,9 @@
 
 /*! \file stream.h
  *  Declaration of gmio_stream and utility functions
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_STREAM_H
@@ -115,3 +118,4 @@ GMIO_LIB_EXPORT gmio_stream_t gmio_stream_stdio(FILE* file);
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_STREAM_H */
+/*! @} */

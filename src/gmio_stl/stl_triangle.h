@@ -15,6 +15,9 @@
 
 /*! \file stl_triangle.h
  *  Declaration of gmio_stl_coords and gmio_stl_triangle
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_TRIANGLE_H
@@ -59,3 +62,4 @@ enum {
 };
 
 #endif /* GMIO_STL_TRIANGLE_H */
+/*! @} */

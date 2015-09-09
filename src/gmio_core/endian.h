@@ -15,6 +15,9 @@
 
 /*! \file endian.h
  *  Architecture endianness
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_ENDIAN_H
@@ -59,3 +62,4 @@ GMIO_LIB_EXPORT gmio_endianness_t gmio_host_endianness();
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_ENDIAN_H */
+/*! @} */

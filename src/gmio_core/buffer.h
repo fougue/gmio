@@ -15,6 +15,9 @@
 
 /*! \file buffer.h
  *  Declaration of gmio_buffer and utility functions
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_BUFFER_H
@@ -90,3 +93,4 @@ GMIO_LIB_EXPORT gmio_buffer_t gmio_buffer_default();
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_BUFFER_H */
+/*! @} */

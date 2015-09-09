@@ -15,6 +15,9 @@
 
 /*! \file task_iface.h
  *  Declaration of gmio_task_iface
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_TASK_IFACE_H
@@ -50,3 +53,4 @@ struct gmio_task_iface
 typedef struct gmio_task_iface gmio_task_iface_t;
 
 #endif /* GMIO_TASK_IFACE_H */
+/*! @} */

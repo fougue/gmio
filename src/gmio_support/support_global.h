@@ -13,6 +13,16 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
+/*! \file support_global.h
+ *  Global declarations for the support module
+ *
+ *  \defgroup gmio_support gmioSupport
+ *  Provides facilities to integrate seamlessly with other 3rd-party libraries
+ *
+ *  \addtogroup gmio_support
+ *  @{
+ */
+
 #ifndef GMIO_SUPPORT_GLOBAL_H
 #define GMIO_SUPPORT_GLOBAL_H
 
@@ -29,3 +39,4 @@
 #endif /* GMIO_LIBSUPPORT_DLL */
 
 #endif /* GMIO_SUPPORT_GLOBAL_H */
+/*! @} */

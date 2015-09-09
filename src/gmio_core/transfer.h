@@ -15,6 +15,9 @@
 
 /*! \file transfer.h
  *  Declaration of gmio_transfer
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_TRANSFER_H
@@ -41,3 +44,4 @@ struct gmio_transfer
 typedef struct gmio_transfer gmio_transfer_t;
 
 #endif /* GMIO_TRANSFER_H */
+/*! @} */

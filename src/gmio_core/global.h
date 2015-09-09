@@ -15,6 +15,12 @@
 
 /*! \file global.h
  *  Fundamental global declarations, included by almost all other header files
+ *
+ *  \defgroup gmio_core gmioCore
+ *  All other gmio modules rely on this module
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_GLOBAL_H
@@ -161,3 +167,4 @@ typedef double gmio_float64_t;
 #endif /* __cplusplus */
 
 #endif /* GMIO_GLOBAL_H */
+/*! @} */

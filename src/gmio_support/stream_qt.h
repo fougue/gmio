@@ -15,6 +15,9 @@
 
 /*! \file stream_qt.h
  *  Support of Qt's QIODevice (requires at least Qt4)
+ *
+*  \addtogroup gmio_support
+ *  @{
  */
 
 #ifndef GMIO_SUPPORT_STREAM_QT_H
@@ -39,3 +42,4 @@ gmio_stream_t gmio_stream_qiodevice(
         );
 
 #endif /* GMIO_SUPPORT_STREAM_QT_H */
+/*! @} */

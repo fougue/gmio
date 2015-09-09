@@ -15,6 +15,9 @@
 
 /*! \file stl_io_options.h
  *  Options for STL read/write functions
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_IO_OPTIONS_H
@@ -80,3 +83,4 @@ struct gmio_stl_write_options
 typedef struct gmio_stl_write_options gmio_stl_write_options_t;
 
 #endif /* GMIO_STL_IO_OPTIONS_H */
+/*! @} */

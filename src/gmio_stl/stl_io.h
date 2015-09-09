@@ -15,6 +15,9 @@
 
 /*! \file stl_io.h
  *  STL read/write functions
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_IO_H
@@ -185,3 +188,4 @@ int gmio_stlb_write_header(
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_STL_IO_H */
+/*! @} */

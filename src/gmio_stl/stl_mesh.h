@@ -15,6 +15,9 @@
 
 /*! \file stl_mesh.h
  *  Declaration of gmio_stl_mesh
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_MESH_H
@@ -42,3 +45,4 @@ struct gmio_stl_mesh
 typedef struct gmio_stl_mesh gmio_stl_mesh_t;
 
 #endif /* GMIO_STL_MESH_H */
+/*! @} */

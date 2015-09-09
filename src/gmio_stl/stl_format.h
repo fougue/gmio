@@ -15,6 +15,9 @@
 
 /*! \file stl_format.h
  *  Detection of STL format from input stream
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_FORMAT_H
@@ -60,3 +63,4 @@ gmio_stl_format_t gmio_stl_get_format_file(const char* filepath);
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_STL_FORMAT_H */
+/*! @} */

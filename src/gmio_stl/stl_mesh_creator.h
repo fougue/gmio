@@ -15,6 +15,9 @@
 
 /*! \file stl_mesh_creator.h
  *  Declaration of gmio_stl_mesh_creator
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_MESH_CREATOR_H
@@ -78,3 +81,4 @@ struct gmio_stl_mesh_creator
 typedef struct gmio_stl_mesh_creator gmio_stl_mesh_creator_t;
 
 #endif /* GMIO_STL_MESH_CREATOR_H */
+/*! @} */

@@ -15,6 +15,9 @@
 
 /*! \file stlb_header.h
  *  Declaration of gmio_stlb_header
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STLB_HEADER_H
@@ -33,3 +36,4 @@ struct gmio_stlb_header
 typedef struct gmio_stlb_header gmio_stlb_header_t;
 
 #endif /* GMIO_STLB_HEADER_H */
+/*! @} */

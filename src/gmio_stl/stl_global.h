@@ -15,6 +15,12 @@
 
 /*! \file stl_global.h
  *  Global declarations for the STL module
+ *
+ *  \defgroup gmio_stl gmioSTL
+ *  Provides API to handle input/output operations with the STL file format
+ *
+ *  \addtogroup gmio_stl
+ *  @{
  */
 
 #ifndef GMIO_STL_GLOBAL_H
@@ -35,3 +41,4 @@
 #endif /* GMIO_LIBSTL_DLL */
 
 #endif /* GMIO_STL_GLOBAL_H */
+/*! @} */

@@ -15,6 +15,9 @@
 
 /*! \file text_format.h
  *  Formats for textual representation
+ *
+ *  \addtogroup gmio_core
+ *  @{
  */
 
 #ifndef GMIO_TEXT_FORMAT_H
@@ -41,3 +44,4 @@ enum gmio_float_text_format
 typedef enum gmio_float_text_format gmio_float_text_format_t;
 
 #endif /* GMIO_TEXT_FORMAT_H */
+/*! @} */
