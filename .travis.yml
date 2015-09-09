@@ -18,7 +18,7 @@ script:
   - cmake --version
   - if [ "${TRAVIS_COVERALLS}" = "ON" ] && [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "gcc" ];
     then
-        export PYTHONUSERBASE=`pwd`/pip
+        export PYTHONUSERBASE=`pwd`/pip;
         pip install --user cpp-coveralls;
     else
         export TRAVIS_COVERALLS=OFF;
