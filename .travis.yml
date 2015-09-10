@@ -22,22 +22,22 @@ script:
         pip install --user cpp-coveralls;
     else
         export TRAVIS_COVERALLS=OFF;
-        mkdir build && cd build;
     fi
   - echo TRAVIS_COVERALLS=$TRAVIS_COVERALLS
+  - mkdir build && cd build
   - cmake .. -G "Unix Makefiles" 
              -DCMAKE_DEBUG_POSTFIX=_d 
              -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE 
              -DGMIO_BUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS 
              -DGMIO_BUILD_STRICT_C90=$TRAVIS_STRICT_C90
              -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON
-             -DGMIO_BUILD_TESTS_COVERALLS=$TRAVIS_COVERALLS
-             -DCMAKE_INSTALL_PREFIX=install
+             -DGMIO_BUILD_TESTS_COVERAGE=$TRAVIS_COVERALLS
+             -DCMAKE_INSTALL_PREFIX=../install
   - make -j4
+  - make install
   - if [ "${TRAVIS_MAKE_CHECK}" = "ON" ]; then
         make check;
     fi
-  - make install
   - if [ "${TRAVIS_COVERALLS}" = "ON" ]; then
         $PYTHONUSERBASE/bin/coveralls --gcov-options '\-lp';
     fi
