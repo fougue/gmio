@@ -39,6 +39,12 @@ script:
         make check;
     fi
   - if [ "${TRAVIS_COVERALLS}" = "ON" ]; then
-        $PYTHONUSERBASE/bin/coveralls --exclude benchmarks --gcov-options '\-lp' --root .. --build-root .;
+        $PYTHONUSERBASE/bin/coveralls   \
+            --exclude benchmarks        \
+            --exclude build/CMakeFiles  \
+            --exclude install           \
+            --exclude tests             \
+            --gcov-options '\-lp'       \
+            --root .. --build-root .    ;
     fi
   
