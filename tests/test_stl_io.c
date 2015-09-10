@@ -16,11 +16,19 @@
 #include "utest_lib.h"
 
 #include "../src/gmio_core/error.h"
+#include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_io.h"
 
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
+
+GMIO_INLINE gmio_bool_t gmio_stlb_header_equal(
+        const gmio_stlb_header_t* lhs, const gmio_stlb_header_t* rhs)
+{
+    return memcmp(lhs, rhs, GMIO_STLB_HEADER_SIZE) == 0;
+}
 
 struct stl_testcase_result
 {
@@ -94,6 +102,11 @@ const char* test_stl_read()
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           "a b c d e f\t\tg h"
+        },
+        { "models/solid_grabcad_arm11_link0_hb.le_stlb",
+          GMIO_ERROR_OK,
+          GMIO_STL_FORMAT_BINARY_LE,
+          NULL
         },
         { "models/solid_lack_z.stla",
           GMIO_STL_ERROR_PARSING,
@@ -185,11 +198,156 @@ struct stl_triangle_array
 };
 typedef struct stl_triangle_array stl_triangle_array_t;
 
-void stl_triangle_array_get_triangle(
+struct stl_io_cookie
+{
+    gmio_stlb_header_t header;
+    stl_triangle_array_t tri_array;
+};
+typedef struct stl_io_cookie stl_io_cookie_t;
+
+static void stl_io_cookie__binary_begin_solid(
+        void* cookie, uint32_t tri_count, const gmio_stlb_header_t* header)
+{
+    stl_io_cookie_t* io_cookie = (stl_io_cookie_t*)cookie;
+    memcpy(&io_cookie->header, header, GMIO_STLB_HEADER_SIZE);
+    io_cookie->tri_array.count = tri_count;
+    if (tri_count > 0) {
+        io_cookie->tri_array.ptr =
+                (gmio_stl_triangle_t*)malloc(tri_count * sizeof(gmio_stl_triangle_t));
+
+    }
+}
+
+static void stl_io_cookie__add_triangle(
+        void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle)
+{
+    stl_io_cookie_t* io_cookie = (stl_io_cookie_t*)cookie;
+    io_cookie->tri_array.ptr[tri_id] = *triangle;
+}
+
+static void stl_io_cookie__get_triangle(
         const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle)
 {
-    const stl_triangle_array_t* array = (const stl_triangle_array_t*)cookie;
-    *triangle = array->ptr[tri_id];
+    const stl_io_cookie_t* io_cookie = (const stl_io_cookie_t*)cookie;
+    *triangle = io_cookie->tri_array.ptr[tri_id];
+}
+
+static gmio_stl_mesh_creator_t stl_io_mesh_creator(stl_io_cookie_t* cookie)
+{
+    gmio_stl_mesh_creator_t creator = {0};
+    creator.cookie = cookie;
+    creator.func_binary_begin_solid = &stl_io_cookie__binary_begin_solid;
+    creator.func_add_triangle = &stl_io_cookie__add_triangle;
+    return creator;
+}
+
+static gmio_stl_mesh_t stl_io_mesh(const stl_io_cookie_t* cookie)
+{
+    gmio_stl_mesh_t mesh = {0};
+    mesh.cookie = cookie;
+    mesh.triangle_count = cookie->tri_array.count;
+    mesh.func_get_triangle = &stl_io_cookie__get_triangle;
+    return mesh;
+}
+
+const char* test_stlb_write_header()
+{
+    const char* filepath = "temp/solid.stlb";
+    gmio_stlb_header_t header = { 0 };
+    const char* header_str = "temp/solid.stlb generated with gmio library";
+    int error = GMIO_ERROR_OK;
+
+    {
+        FILE* outfile = fopen(filepath, "wb");
+        gmio_stream_t stream = gmio_stream_stdio(outfile);
+        memcpy(&header,
+               header_str,
+               GMIO_MIN(GMIO_STLB_HEADER_SIZE, strlen(header_str)));
+        error = gmio_stlb_write_header(
+                    &stream, GMIO_ENDIANNESS_LITTLE, &header, 0);
+        fclose(outfile);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+
+    {
+        stl_io_cookie_t cookie = {0};
+        gmio_stl_mesh_creator_t mesh_creator = stl_io_mesh_creator(&cookie);
+        error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        UTEST_ASSERT(gmio_stlb_header_equal(&header, &cookie.header));
+        UTEST_ASSERT(cookie.tri_array.count == 0);
+    }
+
+    return NULL;
+}
+
+const char* test_stlb_write()
+{
+    const char* model_filepath = "models/solid_grabcad_arm11_link0_hb.le_stlb";
+    const char* model_filepath_out = "temp/solid_grabcad_arm11_link0_hb.le_stlb";
+    const char* model_filepath_out_be = "temp/solid_grabcad_arm11_link0_hb.be_stlb";
+    stl_io_cookie_t cookie = {0};
+    int error = GMIO_ERROR_OK;
+
+    /* Read input model file */
+    {
+        gmio_stl_mesh_creator_t mesh_creator = stl_io_mesh_creator(&cookie);
+        error = gmio_stl_read_file(model_filepath, &mesh_creator, NULL);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+
+    /* Write back input model file
+     * Write also the model file in big-endian STL format
+     */
+    {
+        gmio_stl_write_options_t options = {0};
+        const gmio_stl_mesh_t mesh = stl_io_mesh(&cookie);
+        options.stlb_header_data = &cookie.header;
+        error = gmio_stl_write_file(
+                    GMIO_STL_FORMAT_BINARY_LE, model_filepath_out, &mesh, NULL, &options);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+
+        /* Big-endian version */
+        error = gmio_stl_write_file(
+                    GMIO_STL_FORMAT_BINARY_BE, model_filepath_out_be, &mesh, NULL, &options);
+    }
+
+    /* Check input and output models are equal */
+    {
+        uint8_t buffer_in[2048] = {0};
+        uint8_t buffer_out[2048] = {0};
+        const size_t buff_size = 2048;
+        size_t bytes_read_in = 0;
+        size_t bytes_read_out = 0;
+        FILE* in = fopen(model_filepath, "rb");
+        FILE* out = fopen(model_filepath_out, "rb");
+        UTEST_ASSERT(in != NULL && out != NULL);
+        do {
+            bytes_read_in = fread(&buffer_in[0], 1, buff_size, in);
+            bytes_read_out = fread(&buffer_out[0], 1, buff_size, out);
+            UTEST_ASSERT(bytes_read_in == bytes_read_out);
+            UTEST_ASSERT(memcmp(&buffer_in[0], &buffer_out[0], buff_size) == 0);
+        } while (!feof(in) && !feof(out)
+                 && bytes_read_in > 0 && bytes_read_out > 0);
+    }
+
+    /* Check output LE/BE models are equal */
+    {
+        const uint32_t le_tri_count = cookie.tri_array.count;
+        const gmio_stl_triangle_t* le_tri_ptr = cookie.tri_array.ptr;
+        stl_io_cookie_t cookie_be = {0};
+        gmio_stl_mesh_creator_t mesh_creator = stl_io_mesh_creator(&cookie_be);
+        error = gmio_stl_read_file(model_filepath_out_be, &mesh_creator, NULL);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        UTEST_ASSERT(gmio_stlb_header_equal(&cookie.header, &cookie_be.header));
+        UTEST_ASSERT(le_tri_count == cookie_be.tri_array.count);
+        UTEST_ASSERT(memcmp(le_tri_ptr, cookie_be.tri_array.ptr, le_tri_count) == 0);
+        free(cookie_be.tri_array.ptr);
+    }
+
+    free(cookie.tri_array.ptr);
+
+    return NULL;
 }
 
 void generate_stlb_tests_models()
@@ -210,14 +368,14 @@ void generate_stlb_tests_models()
               { 5.f, 10.f, 0.f }, /* v3 */
               0                   /* attr */
           };
-          stl_triangle_array_t tri_array;
+          stl_io_cookie_t io_cookie = {0};
 
-          tri_array.ptr = &tri;
-          tri_array.count = 1;
+          io_cookie.tri_array.ptr = &tri;
+          io_cookie.tri_array.count = 1;
 
-          mesh.cookie = &tri_array;
-          mesh.triangle_count = tri_array.count;
-          mesh.func_get_triangle = &stl_triangle_array_get_triangle;
+          mesh.cookie = &io_cookie;
+          mesh.triangle_count = io_cookie.tri_array.count;
+          mesh.func_get_triangle = &stl_io_cookie__get_triangle;
 
           gmio_stl_write_file(
                       GMIO_STL_FORMAT_BINARY_LE,
@@ -239,6 +397,8 @@ const char* all_tests()
     /*generate_stlb_tests_models();*/
     UTEST_SUITE_START();
     UTEST_RUN(test_stl_read);
+    UTEST_RUN(test_stlb_write_header);
+    UTEST_RUN(test_stlb_write);
     return NULL;
 }
 

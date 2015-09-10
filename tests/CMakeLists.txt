@@ -23,6 +23,8 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
+
 # test_internal
 add_executable(
     test_internal
