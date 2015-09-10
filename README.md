@@ -3,7 +3,7 @@
 <a href="https://scan.coverity.com/projects/5721">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/5721/badge.svg"/>
-</a>  
+</a>
 [![Coverage Status](https://coveralls.io/repos/fougue/gmio/badge.svg?branch=master&service=github)](https://coveralls.io/github/fougue/gmio?branch=master)
 
 gmio: C library for geometry input/output
