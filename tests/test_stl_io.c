@@ -110,6 +110,11 @@ const char* test_stl_read()
           GMIO_STL_FORMAT_BINARY_LE,
           NULL
         },
+        { "models/solid_one_facet.be_stlb",
+          GMIO_ERROR_OK,
+          GMIO_STL_FORMAT_BINARY_BE,
+          NULL
+        },
         { "models/solid_one_facet_uppercase.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
@@ -217,6 +222,12 @@ void generate_stlb_tests_models()
           gmio_stl_write_file(
                       GMIO_STL_FORMAT_BINARY_LE,
                       "models/solid_one_facet.le_stlb",
+                      &mesh,
+                      NULL,
+                      NULL);
+          gmio_stl_write_file(
+                      GMIO_STL_FORMAT_BINARY_BE,
+                      "models/solid_one_facet.be_stlb",
                       &mesh,
                       NULL,
                       NULL);
