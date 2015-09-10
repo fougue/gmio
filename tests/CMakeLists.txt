@@ -37,6 +37,11 @@ add_executable(
 add_executable(
     test_platform EXCLUDE_FROM_ALL test_platform.c)
 
+# test_core
+add_executable(
+    test_core EXCLUDE_FROM_ALL test_core.c)
+target_link_libraries(test_core gmio)
+
 # test_stl
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -61,10 +66,12 @@ endif()
 # Declare tests
 add_test(test_internal test_internal)
 add_test(test_platform test_platform)
+add_test(test_core test_core)
 add_test(test_stl test_stl)
 
 add_dependencies(
     check
         test_internal
         test_platform
+        test_core
         test_stl)
