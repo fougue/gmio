@@ -39,6 +39,7 @@ script:
         make check;
     fi
   - if [ "${TRAVIS_COVERALLS}" = "ON" ]; then
-        $PYTHONUSERBASE/bin/coveralls --gcov-options '\-lp';
+        $PYTHONUSERBASE/bin/coveralls --verbose --gcov-options '\-lp' --dump dump_coveralls.json;
+        cat dump_coveralls.json;
     fi
   
