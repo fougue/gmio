@@ -24,12 +24,25 @@
 
 #include <string.h>
 
+gmio_bool_t gmio_stl_coords_equal(
+        const gmio_stl_coords_t* lhs,
+        const gmio_stl_coords_t* rhs,
+        uint32_t max_ulp_diff);
+
+gmio_bool_t gmio_stl_triangle_equal(
+        const gmio_stl_triangle_t* lhs,
+        const gmio_stl_triangle_t* rhs,
+        uint32_t max_ulp_diff);
+
 /*! Does binary STL header \p lhs compare equal to \p rhs ? */
 GMIO_INLINE gmio_bool_t gmio_stlb_header_equal(
         const gmio_stlb_header_t* lhs, const gmio_stlb_header_t* rhs)
 {
     return memcmp(lhs, rhs, GMIO_STLB_HEADER_SIZE) == 0;
 }
+
+void gmio_stlb_header_to_printable_string(
+        const gmio_stlb_header_t* header, char* str, char replacement);
 
 /*! Callback for gmio_stl_mesh_creator::func_add_triangle that does
  *  nothing(ie "no operation") */
@@ -41,13 +54,18 @@ struct gmio_stl_triangle_array
 {
     gmio_stl_triangle_t* ptr;
     uint32_t count;
+    uint32_t capacity;
 };
 typedef struct gmio_stl_triangle_array gmio_stl_triangle_array_t;
+
+/*! Returns an dynamically allocated array of gmio_stl_triangle_t */
+gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count);
 
 /*! Holds complete STL data (usable for both binary and ascii formats) */
 struct gmio_stl_data
 {
     gmio_stlb_header_t header;
+    char solid_name[1024];
     gmio_stl_triangle_array_t tri_array;
 };
 typedef struct gmio_stl_data gmio_stl_data_t;
