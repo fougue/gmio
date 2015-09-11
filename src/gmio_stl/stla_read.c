@@ -358,17 +358,12 @@ static void parse_solidname_beg(gmio_stla_parse_data_t* data)
     if (!parsing_can_continue(data))
         return;
 
-    switch (data->token) {
-    case ID_token:
+    if (data->token == FACET_token || data->token == ENDSOLID_token) {
+        gmio_string_buffer_clear(&data->string_buffer);
+    }
+    else {
         /* Solid name can be made of multiple words */
         parse_eat_until_token(data, FACET_token | ENDSOLID_token);
-        break;
-    case FACET_token:
-    case ENDSOLID_token:
-        gmio_string_buffer_clear(&data->string_buffer);
-        break;
-    default:
-        parsing_error_msg(data, "unexpected token for 'solid <name>'");
     }
 }
 
@@ -481,6 +476,7 @@ static void parse_facets(gmio_stla_parse_data_t* data)
     uint32_t i_facet = 0;
     gmio_stl_triangle_t facet;
 
+    facet.attribute_byte_count = 0;
     while (data->token == FACET_token && parsing_can_continue(data)) {
         parse_facet(data, &facet);
         gmio_stl_mesh_creator_add_triangle(data->creator, i_facet, &facet);
