@@ -20,6 +20,8 @@
 #include "../src/gmio_core/internal/string_utils.h"
 #include "../src/gmio_core/internal/convert.h"
 
+#include <stddef.h>
+
 /*! Does \p a and \p b compares equals by ULP (Units in the Last Place) ?
  *
  *  ULP = spacing between floating-point numbers
