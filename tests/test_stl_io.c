@@ -15,6 +15,7 @@
 
 #include "utest_lib.h"
 #include "stl_utils.h"
+#include "utils.h"
 
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/min_max.h"
@@ -22,6 +23,9 @@
 #include "../src/gmio_stl/stl_io.h"
 
 #include <stddef.h>
+
+static const char* stl_grabcad_arm11_filepath =
+        "models/solid_grabcad_arm11_link0_hb.le_stlb";
 
 struct stl_testcase_result
 {
@@ -209,9 +213,9 @@ const char* test_stlb_write_header()
 
 const char* test_stlb_write()
 {
-    const char* model_filepath = "models/solid_grabcad_arm11_link0_hb.le_stlb";
-    const char* model_filepath_out = "temp/solid_grabcad_arm11_link0_hb.le_stlb";
-    const char* model_filepath_out_be = "temp/solid_grabcad_arm11_link0_hb.be_stlb";
+    const char* model_filepath = stl_grabcad_arm11_filepath;
+    const char* model_filepath_out = "temp/solid.le_stlb";
+    const char* model_filepath_out_be = "temp/solid.be_stlb";
     gmio_stl_data_t data = {0};
     int error = GMIO_ERROR_OK;
 
@@ -276,6 +280,57 @@ const char* test_stlb_write()
     return NULL;
 }
 
+const char* test_stla_write()
+{
+    const char* model_filepath = stl_grabcad_arm11_filepath;
+    const char* model_filepath_out = "temp/solid.stla";
+    gmio_stl_data_t data = {0};
+    char header_str[GMIO_STLB_HEADER_SIZE + 1] = {0};
+    int error = GMIO_ERROR_OK;
+
+    /* Read input model file */
+    {
+        gmio_stl_mesh_creator_t creator = gmio_stl_data_mesh_creator(&data);
+        error = gmio_stl_read_file(model_filepath, &creator, NULL);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+
+    /* Write the model to STL ascii format */
+    {
+        gmio_stl_write_options_t options = {0};
+        const gmio_stl_mesh_t mesh = gmio_stl_data_mesh(&data);
+        gmio_stlb_header_to_printable_string(&data.header, &header_str[0], '_');
+        options.stla_solid_name = &header_str[0];
+        options.stla_float32_prec = 7;
+        options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
+        error = gmio_stl_write_file(
+                    GMIO_STL_FORMAT_ASCII, model_filepath_out, &mesh, NULL, &options);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+
+    /* Read the output STL ascii model */
+    {
+        char trim_header_str[sizeof(header_str)] = {0};
+        gmio_stl_data_t data_stla = {0};
+        gmio_stl_mesh_creator_t creator = gmio_stl_data_mesh_creator(&data_stla);
+        size_t i = 0;
+        strncpy(&trim_header_str[0], &header_str[0], sizeof(header_str));
+        gmio_string_trim_from_end(trim_header_str, sizeof(header_str));
+        error = gmio_stl_read_file(model_filepath_out, &creator, NULL);
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        UTEST_ASSERT(data.tri_array.count == data_stla.tri_array.count);
+        UTEST_ASSERT(strcmp(&trim_header_str[0], &data_stla.solid_name[0]) == 0);
+        for (i = 0; i < data.tri_array.count; ++i) {
+            const gmio_stl_triangle_t* lhs = &data.tri_array.ptr[i];
+            const gmio_stl_triangle_t* rhs = &data_stla.tri_array.ptr[i];
+            const gmio_bool_t tri_equal = gmio_stl_triangle_equal(lhs, rhs, 5);
+            UTEST_ASSERT(tri_equal);
+        }
+    }
+
+    return NULL;
+}
+
 void generate_stlb_tests_models()
 {
     {
@@ -322,6 +377,7 @@ const char* all_tests()
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stlb_write_header);
     UTEST_RUN(test_stlb_write);
+    UTEST_RUN(test_stla_write);
     return NULL;
 }
 

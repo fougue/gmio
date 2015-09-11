@@ -51,7 +51,8 @@ add_executable(
     test_stl
     EXCLUDE_FROM_ALL
         test_stl_io.c
-        stl_utils.c)
+        stl_utils.c
+        utils.c)
 target_link_libraries(test_stl gmio)
 
 # fake_support
