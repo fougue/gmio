@@ -17,6 +17,7 @@
 #define GMIO_TESTS_UTILS_H
 
 #include "../src/gmio_core/global.h"
+#include "../src/gmio_core/internal/string_utils.h"
 #include "../src/gmio_core/internal/convert.h"
 
 /*! Does \p a and \p b compares equals by ULP (Units in the Last Place) ?
@@ -43,5 +44,8 @@ GMIO_INLINE int gmio_float32_sign(gmio_float32_t v)
 {
     return gmio_int32_sign(gmio_convert_int32(v));
 }
+
+/*! Trim whitespaces in string \p str from end */
+void gmio_string_trim_from_end(char* str, size_t len);
 
 #endif /* GMIO_TESTS_UTILS_H */

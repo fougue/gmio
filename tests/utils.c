@@ -40,3 +40,16 @@ uint32_t gmio_float32_ulp_diff(gmio_float32_t a, gmio_float32_t b)
     const uint32_t ub = gmio_convert_uint32(b);
     return ua > ub ? ua - ub : ub - ua;
 }
+
+void gmio_string_trim_from_end(char *str, size_t len)
+{
+    if (len > 0) {
+        do {
+            --len;
+            if (str[len] == 0 || gmio_clocale_isspace(str[len]))
+                str[len] = 0;
+            else
+                break;
+        } while (len != 0);
+    }
+}
