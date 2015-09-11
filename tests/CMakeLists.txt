@@ -50,7 +50,8 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
 add_executable(
     test_stl
     EXCLUDE_FROM_ALL
-        test_stl_io.c)
+        test_stl_io.c
+        stl_utils.c)
 target_link_libraries(test_stl gmio)
 
 # fake_support
