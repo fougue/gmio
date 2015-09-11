@@ -63,6 +63,7 @@ endif()
 
 # For some targets, GCC and Clang requires -lm
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    target_link_libraries(test_core m)
     target_link_libraries(test_internal m)
     target_link_libraries(test_stl m)
 endif()
