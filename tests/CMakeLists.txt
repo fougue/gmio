@@ -52,6 +52,7 @@ add_executable(
     EXCLUDE_FROM_ALL
         main_test_stl.c
         test_stl_io.c
+        test_stl_internal.c
         stl_utils.c
         utils.c
         ../src/gmio_stl/internal/stl_rw_common.c)

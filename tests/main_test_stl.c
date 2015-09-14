@@ -15,6 +15,8 @@
 
 #include "utest_lib.h"
 
+const char* test_stl_internal__rw_common();
+
 const char* test_stl_read();
 const char* test_stlb_write_header();
 const char* test_stlb_write();
@@ -23,6 +25,8 @@ const char* test_stla_write();
 const char* all_tests()
 {
     UTEST_SUITE_START();
+
+    UTEST_RUN(test_stl_internal__rw_common);
 
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stlb_write_header);
