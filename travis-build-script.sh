@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cmake --version
+# Make the script fails on any command error
+set -e
 
 # Install cpp-coveralls only if OS==linux and CC==gcc
 if [ "${TRAVIS_COVERALLS}" = "ON" ]      \
@@ -16,6 +17,7 @@ echo TRAVIS_COVERALLS=$TRAVIS_COVERALLS
 
 # CMake
 mkdir build && cd build
+cmake --version
 cmake .. -G "Unix Makefiles"       \
          -DCMAKE_DEBUG_POSTFIX=_d  \
          -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE \
