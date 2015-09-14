@@ -40,6 +40,9 @@ const char* test_core__buffer()
         UTEST_ASSERT(buff.ptr != NULL);
         UTEST_ASSERT(buff.size == buff_size);
         UTEST_ASSERT(memcmp(buff.ptr, &zero_buff[0], buff_size) == 0);
+        /* TODO: make assert succeed with mingw and GMIO_BUILD_SHARED_LIBS=ON
+         *       In this case free() has not the same address in libgmio.dll and
+         *       test_core.exe */
         UTEST_ASSERT(buff.func_deallocate == &free);
         gmio_buffer_deallocate(&buff);
     }
