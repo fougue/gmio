@@ -62,7 +62,11 @@ struct gmio_stl_triangle_array
 };
 typedef struct gmio_stl_triangle_array gmio_stl_triangle_array_t;
 
-/*! Returns an dynamically allocated array of gmio_stl_triangle_t */
+/*! Returns an dynamically allocated array of gmio_stl_triangle_t
+ *
+ *  Contents of the memory block beginnning at gmio_stl_triangle_array::ptr
+ *  is initialized with zeroes
+ */
 gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count);
 
 /*! Holds complete STL data (usable for both binary and ascii formats) */

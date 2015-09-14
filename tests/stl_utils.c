@@ -36,7 +36,7 @@ gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count)
     gmio_stl_triangle_array_t array = {0};
     if (tri_count > 0) {
         array.ptr =
-                (gmio_stl_triangle_t*)malloc(tri_count * sizeof(gmio_stl_triangle_t));
+                (gmio_stl_triangle_t*)calloc(tri_count, sizeof(gmio_stl_triangle_t));
     }
     array.count = gmio_size_to_uint32(tri_count);
     array.capacity = array.count;
@@ -83,7 +83,7 @@ static void gmio_stl_data__add_triangle(
                 realloc(data->tri_array.ptr, cap * sizeof(gmio_stl_triangle_t));
         data->tri_array.capacity = cap;
     }
-    data->tri_array.ptr[tri_id] = *triangle;
+    memcpy(&data->tri_array.ptr[tri_id], triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
     data->tri_array.count = GMIO_MAX(data->tri_array.count, tri_id + 1);
 }
 

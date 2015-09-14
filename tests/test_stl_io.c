@@ -265,15 +265,16 @@ const char* test_stlb_write()
 
     /* Check output LE/BE models are equal */
     {
-        const uint32_t le_tri_count = data.tri_array.count;
-        const gmio_stl_triangle_t* le_tri_ptr = data.tri_array.ptr;
         gmio_stl_data_t data_be = {0};
         gmio_stl_mesh_creator_t creator = gmio_stl_data_mesh_creator(&data_be);
         error = gmio_stl_read_file(model_filepath_out_be, &creator, NULL);
         UTEST_ASSERT(error == GMIO_ERROR_OK);
         UTEST_ASSERT(gmio_stlb_header_equal(&data.header, &data_be.header));
-        UTEST_ASSERT(le_tri_count == data_be.tri_array.count);
-        UTEST_ASSERT(memcmp(le_tri_ptr, data_be.tri_array.ptr, le_tri_count) == 0);
+        UTEST_ASSERT(data.tri_array.count == data_be.tri_array.count);
+        UTEST_ASSERT(memcmp(data.tri_array.ptr,
+                            data_be.tri_array.ptr,
+                            data.tri_array.count * sizeof(gmio_stl_triangle_t))
+                         == 0);
         free(data_be.tri_array.ptr);
     }
 
