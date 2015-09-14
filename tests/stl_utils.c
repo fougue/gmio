@@ -147,3 +147,11 @@ gmio_bool_t gmio_stl_triangle_equal(
             && gmio_stl_coords_equal(&lhs->v3, &rhs->v3, max_ulp_diff)
             && lhs->attribute_byte_count == rhs->attribute_byte_count;
 }
+
+void gmio_stl_nop_get_triangle(
+        const void *cookie, uint32_t tri_id, gmio_stl_triangle_t *triangle)
+{
+    GMIO_UNUSED(cookie);
+    GMIO_UNUSED(tri_id);
+    GMIO_UNUSED(triangle);
+}

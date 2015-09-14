@@ -49,6 +49,10 @@ void gmio_stlb_header_to_printable_string(
 void gmio_stl_nop_add_triangle(
         void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle);
 
+/*! Callback for gmio_stl_mesh::func_get_triangle that does nothing */
+void gmio_stl_nop_get_triangle(
+        const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle);
+
 /*! Holds an array of STL triangles */
 struct gmio_stl_triangle_array
 {
