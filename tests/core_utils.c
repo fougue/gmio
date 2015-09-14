@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "utils.h"
+#include "core_utils.h"
 
 gmio_bool_t gmio_float32_equals_by_ulp(
         gmio_float32_t a, gmio_float32_t b, uint32_t max_ulp_diff)

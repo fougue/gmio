@@ -15,8 +15,7 @@
 
 #include "stl_utils.h"
 
-#include "utils.h"
-
+#include "core_utils.h"
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 

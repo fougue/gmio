@@ -31,10 +31,10 @@ add_executable(
     EXCLUDE_FROM_ALL
         main_test_core.c
         test_core.c
-        test_internal.c
-        test_platform.c
+        test_core_internal.c
+        test_core_platform.c
+        core_utils.c
         stream_buffer.c
-        utils.c
         ../src/gmio_core/internal/string_parse.c)
 target_link_libraries(test_core gmio)
 
@@ -47,8 +47,8 @@ add_executable(
         main_test_stl.c
         test_stl_io.c
         test_stl_internal.c
+        core_utils.c
         stl_utils.c
-        utils.c
         ../src/gmio_stl/internal/stl_rw_common.c)
 target_link_libraries(test_stl gmio)
 

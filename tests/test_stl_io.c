@@ -15,8 +15,8 @@
 
 #include "utest_assert.h"
 
+#include "core_utils.h"
 #include "stl_utils.h"
-#include "utils.h"
 
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/min_max.h"

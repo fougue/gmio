@@ -13,8 +13,8 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#ifndef GMIO_TESTS_UTILS_H
-#define GMIO_TESTS_UTILS_H
+#ifndef GMIO_TESTS_CORE_UTILS_H
+#define GMIO_TESTS_CORE_UTILS_H
 
 #include "../src/gmio_core/global.h"
 #include "../src/gmio_core/internal/string_utils.h"
@@ -50,4 +50,4 @@ GMIO_INLINE int gmio_float32_sign(gmio_float32_t v)
 /*! Trim whitespaces in string \p str from end */
 void gmio_string_trim_from_end(char* str, size_t len);
 
-#endif /* GMIO_TESTS_UTILS_H */
+#endif /* GMIO_TESTS_CORE_UTILS_H */

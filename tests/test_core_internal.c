@@ -15,6 +15,9 @@
 
 #include "utest_assert.h"
 
+#include "core_utils.h"
+#include "stream_buffer.h"
+
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
 #include "../src/gmio_core/internal/convert.h"
@@ -22,9 +25,6 @@
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/string_parse.h"
 #include "../src/gmio_core/internal/string_utils.h"
-
-#include "stream_buffer.h"
-#include "utils.h"
 
 #include <stdlib.h>
 #include <stdio.h>
