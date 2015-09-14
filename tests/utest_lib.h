@@ -6,17 +6,11 @@
 #ifndef UTEST_LIB_H
 #define UTEST_LIB_H
 
-#include <stdio.h>
+#include "utest_assert.h"
+
 #include <stdlib.h>
 
 #define UTEST_SUITE_START() const char* message = NULL
-
-#define UTEST_ASSERT(test) if (!(test))\
-                           { printf("  ERROR : %s   (line = %i, file = %s)", #test, __LINE__, __FILE__);\
-                             return #test; }
-
-#define UTEST_ASSERT_MSG(test, message) if (!(test))\
-                                        { printf(message); return message; }
                                         
 #define UTEST_RUN(test) printf("\n-----%s", " " #test); \
                         message = test();\
