@@ -96,12 +96,14 @@ GMIO_INLINE void gmio_copy_spaces(
 int gmio_eat_word(
         gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
 
+#if 0
 /*! Iterate over stream while it matches input string \p str
  *
  *  Returns GMIO_TRUE if \p str was fully matched
  */
 gmio_bool_t gmio_checked_next_chars(
         gmio_string_stream_fwd_iterator_t* it, const char* str);
+#endif
 
 /*! Converts the string pointed to by \p str to gmio_float32_t representation
  *

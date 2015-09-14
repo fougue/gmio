@@ -58,6 +58,7 @@ int gmio_eat_word(
     return -1;
 }
 
+#if 0
 gmio_bool_t gmio_checked_next_chars(
         gmio_string_stream_fwd_iterator_t *it, const char *str)
 {
@@ -72,3 +73,4 @@ gmio_bool_t gmio_checked_next_chars(
 
     return same;
 }
+#endif
