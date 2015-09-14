@@ -13,7 +13,8 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "utest_lib.h"
+#include "utest_assert.h"
+
 #include "stl_utils.h"
 #include "utils.h"
 
@@ -23,6 +24,7 @@
 #include "../src/gmio_stl/stl_io.h"
 
 #include <stddef.h>
+#include <stdlib.h>
 
 static const char* stl_grabcad_arm11_filepath =
         "models/solid_grabcad_arm11_link0_hb.le_stlb";
@@ -369,16 +371,3 @@ void generate_stlb_tests_models()
                       NULL);
     }
 }
-
-const char* all_tests()
-{
-    /*generate_stlb_tests_models();*/
-    UTEST_SUITE_START();
-    UTEST_RUN(test_stl_read);
-    UTEST_RUN(test_stlb_write_header);
-    UTEST_RUN(test_stlb_write);
-    UTEST_RUN(test_stla_write);
-    return NULL;
-}
-
-UTEST_MAIN(all_tests)
