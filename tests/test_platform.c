@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "utest_lib.h"
+#include "utest_assert.h"
 
 #include "../src/gmio_core/global.h"
 #include "../src/gmio_core/transfer.h"
@@ -101,14 +101,3 @@ const char* test_platform__compiler()
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
-
-const char* all_tests()
-{
-    UTEST_SUITE_START();
-    UTEST_RUN(test_platform__alignment);
-    UTEST_RUN(test_platform__global_h);
-    UTEST_RUN(test_platform__compiler);
-    return NULL;
-}
-
-UTEST_MAIN(all_tests)

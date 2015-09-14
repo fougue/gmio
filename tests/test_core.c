@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "utest_lib.h"
+#include "utest_assert.h"
 
 #include "../src/gmio_core/buffer.h"
 #include "../src/gmio_core/endian.h"
@@ -106,15 +106,3 @@ const char* test_core__stream()
 
     return NULL;
 }
-
-const char* all_tests()
-{
-    UTEST_SUITE_START();
-    UTEST_RUN(test_core__buffer);
-    UTEST_RUN(test_core__endian);
-    UTEST_RUN(test_core__error);
-    UTEST_RUN(test_core__stream);
-    return NULL;
-}
-
-UTEST_MAIN(all_tests)

@@ -25,23 +25,17 @@ include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake hea
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 
-# test_internal
-add_executable(
-    test_internal
-    EXCLUDE_FROM_ALL
-        stream_buffer.c
-        utils.c
-        test_internal.c
-        ../src/gmio_core/internal/string_parse.c)
-#target_link_libraries(test_internal gmio)
-
-# test_platform
-add_executable(
-    test_platform EXCLUDE_FROM_ALL test_platform.c)
-
 # test_core
 add_executable(
-    test_core EXCLUDE_FROM_ALL test_core.c)
+    test_core
+    EXCLUDE_FROM_ALL
+        main_test_core.c
+        test_core.c
+        test_internal.c
+        test_platform.c
+        stream_buffer.c
+        utils.c
+        ../src/gmio_core/internal/string_parse.c)
 target_link_libraries(test_core gmio)
 
 # test_stl
@@ -66,19 +60,12 @@ endif()
 
 # For some targets, GCC and Clang requires -lm
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
-    target_link_libraries(test_internal m)
+    target_link_libraries(test_core m)
     target_link_libraries(test_stl m)
 endif()
 
 # Declare tests
-add_test(test_internal test_internal)
-add_test(test_platform test_platform)
 add_test(test_core test_core)
 add_test(test_stl test_stl)
 
-add_dependencies(
-    check
-        test_internal
-        test_platform
-        test_core
-        test_stl)
+add_dependencies(check test_core test_stl)

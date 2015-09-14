@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "utest_lib.h"
+#include "utest_assert.h"
 
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
@@ -300,17 +300,3 @@ const char* test_internal__string_utils()
 
     return NULL;
 }
-
-const char* all_tests()
-{
-    UTEST_SUITE_START();
-    UTEST_RUN(test_internal__byte_swap);
-    UTEST_RUN(test_internal__byte_codec);
-    UTEST_RUN(test_internal__fast_atof);
-    UTEST_RUN(test_internal__safe_cast);
-    UTEST_RUN(test_internal__string_parse);
-    UTEST_RUN(test_internal__string_utils);
-    return NULL;
-}
-
-UTEST_MAIN(all_tests)
