@@ -84,12 +84,6 @@ static size_t gmio_stream_buffer_size(void* cookie)
     return buff->len;
 }
 
-static void gmio_stream_buffer_rewind(void* cookie)
-{
-    gmio_stream_buffer_t* buff = (gmio_stream_buffer_t*)cookie;
-    buff->pos = 0;
-}
-
 void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_stream_buffer_t* buff)
 {
     stream->cookie = buff;
@@ -98,5 +92,5 @@ void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_stream_buffer_t* buff)
     stream->func_read = gmio_stream_buffer_read;
     stream->func_write = gmio_stream_buffer_write;
     stream->func_size = gmio_stream_buffer_size;
-    stream->func_rewind = gmio_stream_buffer_rewind;
+    /* TODO: implement func_get/set_pos functions */
 }

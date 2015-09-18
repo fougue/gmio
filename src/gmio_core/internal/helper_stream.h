@@ -60,11 +60,21 @@ GMIO_INLINE size_t gmio_stream_size(gmio_stream_t* stream)
     return 0;
 }
 
-/*! Safe and convenient function for gmio_stream::func_rewind() */
-GMIO_INLINE void gmio_stream_rewind(gmio_stream_t* stream)
+/*! Safe and convenient function for gmio_stream::func_get_pos() */
+GMIO_INLINE int gmio_stream_get_pos(
+        gmio_stream_t* stream, gmio_stream_pos_t* pos)
 {
-    if (stream != NULL && stream->func_rewind != NULL)
-        stream->func_rewind(stream->cookie);
+    if (stream != NULL && stream->func_get_pos != NULL)
+        return stream->func_get_pos(stream->cookie, pos);
+    return -1;
 }
 
+/*! Safe and convenient function for gmio_stream::func_set_pos() */
+GMIO_INLINE int gmio_stream_set_pos(
+        gmio_stream_t* stream, const gmio_stream_pos_t* pos)
+{
+    if (stream != NULL && stream->func_set_pos != NULL)
+        return stream->func_set_pos(stream->cookie, pos);
+    return -1;
+}
 #endif /* GMIO_INTERNAL_HELPER_STREAM_H */

@@ -129,9 +129,19 @@ static size_t gmio_stream_stdio_size(void* cookie)
 #endif
 }
 
-static void gmio_stream_stdio_rewind(void* cookie)
+static int gmio_stream_stdio_get_pos(void* cookie, gmio_stream_pos_t* pos)
 {
-    rewind((FILE*) cookie);
+    fpos_t fpos;
+    int res = fgetpos((FILE*)cookie, &fpos);
+    memcpy(&pos->cookie[0], &fpos, sizeof(fpos_t));
+    return res;
+}
+
+static int gmio_stream_stdio_set_pos(void* cookie, const gmio_stream_pos_t* pos)
+{
+    fpos_t fpos;
+    memcpy(&fpos, &pos->cookie[0], sizeof(fpos_t));
+    return fsetpos((FILE*)cookie, &fpos);
 }
 
 gmio_stream_t gmio_stream_stdio(FILE* file)
@@ -143,6 +153,7 @@ gmio_stream_t gmio_stream_stdio(FILE* file)
     stream.func_read = gmio_stream_stdio_read;
     stream.func_write = gmio_stream_stdio_write;
     stream.func_size = gmio_stream_stdio_size;
-    stream.func_rewind = gmio_stream_stdio_rewind;
+    stream.func_get_pos = gmio_stream_stdio_get_pos;
+    stream.func_set_pos = gmio_stream_stdio_set_pos;
     return stream;
 }

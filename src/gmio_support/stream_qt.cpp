@@ -18,6 +18,8 @@
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
 
+#include <cstring>
+
 QT_USE_NAMESPACE
 
 static gmio_bool_t gmio_stream_qiodevice_at_end(void* cookie)
@@ -62,10 +64,23 @@ static size_t gmio_stream_qiodevice_size(void* cookie)
     return device->size();
 }
 
-static void gmio_stream_qiodevice_rewind(void* cookie)
+static int gmio_stream_qiodevice_get_pos(void* cookie, gmio_stream_pos_t* pos)
 {
     QIODevice* device = static_cast<QIODevice*>(cookie);
-    device->seek(0);
+    qint64 qpos = device->pos();
+    std::memcpy(&pos->cookie[0], &qpos, sizeof(qint64));
+    return 0;
+}
+
+static int gmio_stream_qiodevice_set_pos(
+        void* cookie, const gmio_stream_pos_t* pos)
+{
+    QIODevice* device = static_cast<QIODevice*>(cookie);
+    qint64 qpos;
+    std::memcpy(&qpos, &pos->cookie[0], sizeof(qint64));
+    if (device->seek(qpos))
+        return 0;
+    return -1; /* TODO: return error code */
 }
 
 gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
@@ -77,6 +92,7 @@ gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
     stream.func_read = gmio_stream_qiodevice_read;
     stream.func_write = gmio_stream_qiodevice_write;
     stream.func_size = gmio_stream_qiodevice_size;
-    stream.func_rewind = gmio_stream_qiodevice_rewind;
+    stream.func_get_pos = gmio_stream_qiodevice_get_pos;
+    stream.func_set_pos = gmio_stream_qiodevice_set_pos;
     return stream;
 }

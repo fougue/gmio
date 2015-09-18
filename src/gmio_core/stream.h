@@ -24,6 +24,7 @@
 #define GMIO_STREAM_H
 
 #include "global.h"
+#include "stream_pos.h"
 #include <stdio.h>
 
 /*! Stream that can get input from an arbitrary data source or can write
@@ -94,16 +95,12 @@ struct gmio_stream
     /*! Pointer on a function that returns the size(in bytes) of the stream */
     size_t (*func_size)(void* cookie);
 
-    /*! Pointer on a function that moves the position indicator within the
-     *  stream to the beginning
-     *
-     *  The function should behaves like C standard [rewind()]
-     *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/rewind.html)
-     */
-    void (*func_rewind)(void* cookie);
+    int (*func_get_pos)(void* cookie, gmio_stream_pos_t* pos);
+    int (*func_set_pos)(void* cookie, const gmio_stream_pos_t* pos);
 };
 
 typedef struct gmio_stream gmio_stream_t;
+
 
 GMIO_C_LINKAGE_BEGIN
 
