@@ -85,7 +85,7 @@ static void occmesh_get_triangle(
 
 gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain)
 {
-    gmio_stl_mesh_t mesh = { 0 };
+    gmio_stl_mesh_t mesh = {0};
     mesh.cookie = mesh_domain;
     if (mesh_domain != NULL && mesh_domain->mesh != NULL) {
         mesh.triangle_count =
@@ -97,7 +97,7 @@ gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain)
 
 gmio_stl_mesh_creator_t gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
 {
-    gmio_stl_mesh_creator_t creator = { 0 };
+    gmio_stl_mesh_creator_t creator = {0};
     creator.cookie = mesh;
     creator.func_add_triangle = internal::occmesh_add_triangle;
     return creator;

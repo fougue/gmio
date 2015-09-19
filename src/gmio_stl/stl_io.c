@@ -35,7 +35,7 @@ int gmio_stl_read_file(
 
     file = fopen(filepath, "rb");
     if (file != NULL) {
-        gmio_transfer_t trsf = { 0 };
+        gmio_transfer_t trsf = {0};
         trsf.stream = gmio_stream_stdio(file);
         trsf.buffer = gmio_buffer_default();
         if (task_iface != NULL)
@@ -96,7 +96,7 @@ int gmio_stl_write_file(
 
     file = fopen(filepath, "wb");
     if (file != NULL) {
-        gmio_transfer_t trsf = { 0 };
+        gmio_transfer_t trsf = {0};
         trsf.stream = gmio_stream_stdio(file);
         trsf.buffer = gmio_buffer_default();
         if (task_iface != NULL)

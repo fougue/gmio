@@ -31,7 +31,7 @@ enum { GMIO_FIXED_BUFFER_SIZE = 512 };
 
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
 {
-    char fixed_buffer[GMIO_FIXED_BUFFER_SIZE];
+    char fixed_buffer[GMIO_FIXED_BUFFER_SIZE] = {0};
     size_t read_size = 0;
     gmio_stream_pos_t stream_start_pos = gmio_stream_pos_null();
 
@@ -43,7 +43,6 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
      * First keep stream start position, it will be restored after read
      */
     gmio_stream_get_pos(stream, &stream_start_pos);
-    memset(fixed_buffer, 0, GMIO_FIXED_BUFFER_SIZE);
     read_size = gmio_stream_read(stream, &fixed_buffer, 1, GMIO_FIXED_BUFFER_SIZE);
     read_size = GMIO_MIN(read_size, GMIO_FIXED_BUFFER_SIZE);
     gmio_stream_set_pos(stream, &stream_start_pos);

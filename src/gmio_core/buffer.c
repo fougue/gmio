@@ -19,7 +19,7 @@
 
 GMIO_INLINE gmio_buffer_t gmio_buffer_null()
 {
-    gmio_buffer_t buff = { 0 };
+    gmio_buffer_t buff = {0};
     return buff;
 }
 

@@ -35,7 +35,7 @@ const char* test_core__buffer()
         const size_t obj_count = 4;
         const size_t obj_size = 256;
         const size_t buff_size = obj_count * obj_size;
-        const uint8_t zero_buff[4 * 256] = { 0 };
+        const uint8_t zero_buff[4 * 256] = {0};
         gmio_buffer_t buff = gmio_buffer_calloc(obj_count, obj_size);
         UTEST_ASSERT(buff.ptr != NULL);
         UTEST_ASSERT(buff.size == buff_size);
@@ -99,7 +99,7 @@ const char* test_core__stream()
 {
     {
         const gmio_stream_t null_stream = gmio_stream_null();
-        const uint8_t null_bytes[sizeof(gmio_stream_t)] = { 0 };
+        const uint8_t null_bytes[sizeof(gmio_stream_t)] = {0};
         UTEST_ASSERT(memcmp(&null_stream, &null_bytes, sizeof(gmio_stream_t))
                      == 0);
     }

@@ -196,7 +196,7 @@ GMIO_INLINE void parsing_error(gmio_stla_parse_data_t* data)
 GMIO_INLINE void parsing_error_token_expected(
         gmio_stla_parse_data_t* data, gmio_stla_token_t token)
 {
-    char msg[256] = { 0 };
+    char msg[256] = {0};
     sprintf(msg,
             "token <%s> expected, got <%s>",
             token_to_string(token),

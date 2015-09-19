@@ -185,7 +185,7 @@ const char* test_stl_read()
 const char* test_stlb_write_header()
 {
     const char* filepath = "temp/solid.stlb";
-    gmio_stlb_header_t header = { 0 };
+    gmio_stlb_header_t header = {0};
     const char* header_str = "temp/solid.stlb generated with gmio library";
     int error = GMIO_ERROR_OK;
 

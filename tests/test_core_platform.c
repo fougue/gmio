@@ -63,14 +63,14 @@ const char* test_platform__global_h()
 
 const char* test_platform__compiler()
 {
-    /* Check that initialization with { 0 } works as expected
+    /* Check that initialization with {0} works as expected
      *
      * Depending on your version, GCC can incorrectly reports the warning
      * "missing braces around initializer [-Wmissing-braces]"
      * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
      */
     {
-        const gmio_transfer_t trsf_null_bracket0 = { 0 };
+        const gmio_transfer_t trsf_null_bracket0 = {0};
         gmio_transfer_t trsf_null_memset0;
 
         memset(&trsf_null_memset0, 0, sizeof(gmio_transfer_t));

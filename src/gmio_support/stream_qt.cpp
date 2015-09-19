@@ -85,7 +85,7 @@ static int gmio_stream_qiodevice_set_pos(
 
 gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
 {
-    gmio_stream_t stream = { 0 };
+    gmio_stream_t stream = {0};
     stream.cookie = device;
     stream.func_at_end = gmio_stream_qiodevice_at_end;
     stream.func_error = gmio_stream_qiodevice_error;

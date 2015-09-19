@@ -47,35 +47,35 @@ GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
 
 gmio_stream_t gmio_stream_null()
 {
-    gmio_stream_t null_stream = { 0 };
+    gmio_stream_t null_stream = {0};
     return null_stream;
 }
 
 static gmio_bool_t gmio_stream_stdio_at_end(void* cookie)
 {
-    return feof((FILE*) cookie);
+    return feof((FILE*)cookie);
 }
 
 static int gmio_stream_stdio_error(void* cookie)
 {
-    return ferror((FILE*) cookie);
+    return ferror((FILE*)cookie);
 }
 
 static size_t gmio_stream_stdio_read(
         void* cookie, void* ptr, size_t item_size, size_t item_count)
 {
-    return fread(ptr, item_size, item_count, (FILE*) cookie);
+    return fread(ptr, item_size, item_count, (FILE*)cookie);
 }
 
 static size_t gmio_stream_stdio_write(
         void* cookie, const void* ptr, size_t item_size, size_t item_count)
 {
-    return fwrite(ptr, item_size, item_count, (FILE*) cookie);
+    return fwrite(ptr, item_size, item_count, (FILE*)cookie);
 }
 
 static size_t gmio_stream_stdio_size(void* cookie)
 {
-    FILE* file = (FILE*) cookie;
+    FILE* file = (FILE*)cookie;
 
 #if defined(GMIO_HAVE_SYS_TYPES_H) \
     && defined(GMIO_HAVE_SYS_STAT_H) \
@@ -146,7 +146,7 @@ static int gmio_stream_stdio_set_pos(void* cookie, const gmio_stream_pos_t* pos)
 
 gmio_stream_t gmio_stream_stdio(FILE* file)
 {
-    gmio_stream_t stream = { 0 };
+    gmio_stream_t stream = gmio_stream_null();
     stream.cookie = file;
     stream.func_at_end = gmio_stream_stdio_at_end;
     stream.func_error = gmio_stream_stdio_error;
