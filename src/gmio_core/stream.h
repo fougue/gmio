@@ -95,7 +95,19 @@ struct gmio_stream
     /*! Pointer on a function that returns the size(in bytes) of the stream */
     size_t (*func_size)(void* cookie);
 
+    /*! Pointer on a function that retrieves the current position in the stream
+     *
+     *  \retval 0 on success
+     *  \retval !=0 on error
+     */
     int (*func_get_pos)(void* cookie, gmio_stream_pos_t* pos);
+
+    /*! Pointer on a function that restores the current position in the stream
+     *  to \p pos
+     *
+     *  \retval 0 on success
+     *  \retval !=0 on error
+     */
     int (*func_set_pos)(void* cookie, const gmio_stream_pos_t* pos);
 };
 

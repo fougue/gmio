@@ -25,19 +25,28 @@
 
 #include "global.h"
 
+/*! Size of the byte array gmio_stream_pos::cookie */
 enum { GMIO_STREAM_POS_COOKIE_SIZE = 32 }; /* 32 bytes */
 
-/*! Stream position
+/*! Specifies a position within a stream
  *
+ *  The information in gmio_stream_pos objects is usually filled by a call to
+ *  gmio_stream::func_get_pos(), which takes a pointer to an object of this type
+ *  as argument.
+ *
+ *  The content of a gmio_stream_pos object is not meant to be read directly,
+ *  but only to be used as an argument in a call to gmio_stream::func_set_pos()
  */
 struct gmio_stream_pos
 {
+    /*! Stores the actual(concrete) stream position object */
     uint8_t cookie[GMIO_STREAM_POS_COOKIE_SIZE];
 };
 typedef struct gmio_stream_pos gmio_stream_pos_t;
 
 GMIO_C_LINKAGE_BEGIN
 
+/*! Returns a null stream position */
 GMIO_LIB_EXPORT gmio_stream_pos_t gmio_stream_pos_null();
 
 GMIO_C_LINKAGE_END
