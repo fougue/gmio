@@ -6,6 +6,9 @@
 
 #include <Handle_StlMesh_Mesh.hxx>
 
+#include "../../src/gmio_support/stream_cpp.h"
+#include <fstream>
+
 int main()
 {
     // OpenCascade
@@ -15,6 +18,10 @@ int main()
     // Qt
     QFile file;
     gmio_stream_qiodevice(&file);
+
+    // C++
+    //std::ifstream s("test.txt");
+    //gmio_stream_t stream = gmio_stream_cpp(&s);
 
     return 0;
 }
