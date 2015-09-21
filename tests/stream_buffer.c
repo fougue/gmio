@@ -84,6 +84,20 @@ static size_t gmio_stream_buffer_size(void* cookie)
     return buff->len;
 }
 
+static int gmio_stream_buffer_get_pos(void* cookie, gmio_stream_pos_t* pos)
+{
+    gmio_stream_buffer_t* buff = (gmio_stream_buffer_t*)cookie;
+    memcpy(&pos->cookie[0], &buff->pos, sizeof(size_t));
+    return 0;
+}
+
+static int gmio_stream_buffer_set_pos(void* cookie, const gmio_stream_pos_t* pos)
+{
+    gmio_stream_buffer_t* buff = (gmio_stream_buffer_t*)cookie;
+    memcpy(&buff->pos, &pos->cookie[0], sizeof(size_t));
+    return 0;
+}
+
 void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_stream_buffer_t* buff)
 {
     stream->cookie = buff;
@@ -92,5 +106,6 @@ void gmio_stream_set_buffer(gmio_stream_t *stream, gmio_stream_buffer_t* buff)
     stream->func_read = gmio_stream_buffer_read;
     stream->func_write = gmio_stream_buffer_write;
     stream->func_size = gmio_stream_buffer_size;
-    /* TODO: implement func_get/set_pos functions */
+    stream->func_get_pos = gmio_stream_buffer_get_pos;
+    stream->func_set_pos = gmio_stream_buffer_set_pos;
 }
