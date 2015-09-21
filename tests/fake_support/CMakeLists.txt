@@ -30,7 +30,7 @@ add_executable(
         qt/QtCore/QtGlobal
         ../../src/gmio_support/stl_occ.cpp
         ../../src/gmio_support/stream_qt.cpp)
-link_libraries(gmio)
+target_link_libraries(fake_support gmio)
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/opencascade

@@ -1,12 +1,10 @@
 #include "../../src/gmio_stl/stl_io.h"
 #include "../../src/gmio_support/stl_occ.h"
+#include "../../src/gmio_support/stream_qt.h"
+#include "../../src/gmio_support/stream_cpp.h"
 
 #include <QtCore/QFile>
-#include "../../src/gmio_support/stream_qt.h"
-
 #include <Handle_StlMesh_Mesh.hxx>
-
-#include "../../src/gmio_support/stream_cpp.h"
 #include <fstream>
 
 int main()
@@ -20,8 +18,10 @@ int main()
     gmio_stream_qiodevice(&file);
 
     // C++
-    //std::ifstream s("test.txt");
-    //gmio_stream_t stream = gmio_stream_cpp(&s);
+    std::ifstream is("test.txt");
+    gmio_istream_cpp(&is);
+    std::ofstream os("test.txt");
+    gmio_ostream_cpp(&os);
 
     return 0;
 }

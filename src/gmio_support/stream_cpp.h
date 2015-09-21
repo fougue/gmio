@@ -29,29 +29,41 @@
 #include <cstring>
 #include <iostream>
 
-template<typename STREAM>
-gmio_stream_t gmio_stream_cpp(STREAM* s);
+/*! Returns a gmio_stream for C++ input stream (cookie will hold \p s ) */
+template<typename CHAR, typename TRAITS>
+gmio_stream_t gmio_istream_cpp(std::basic_istream<CHAR, TRAITS>* s);
+
+/*! Returns a gmio_stream for C++ output stream (cookie will hold \p s ) */
+template<typename CHAR, typename TRAITS>
+gmio_stream_t gmio_ostream_cpp(std::basic_ostream<CHAR, TRAITS>* s);
+
+
+
 
 //
 // Implementation
 //
+#ifndef DOXYGEN
+
+namespace gmio {
+namespace internal {
 
 template<typename STREAM>
-gmio_bool_t gmio_stream_cpp_at_end(void* cookie)
+gmio_bool_t stream_cpp_at_end(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     return s->eof();
 }
 
 template<typename STREAM>
-int gmio_stream_cpp_error(void* cookie)
+int stream_cpp_error(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     return s->rdstate();
 }
 
 template<typename STREAM>
-size_t gmio_stream_cpp_read(
+size_t istream_cpp_read(
         void* cookie, void* ptr, size_t item_size, size_t item_count)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
@@ -60,7 +72,7 @@ size_t gmio_stream_cpp_read(
 }
 
 template<typename STREAM>
-size_t gmio_stream_cpp_write(
+size_t ostream_cpp_write(
         void* cookie, const void* ptr, size_t item_size, size_t item_count)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
@@ -70,7 +82,7 @@ size_t gmio_stream_cpp_write(
 }
 
 template<typename STREAM>
-size_t gmio_stream_cpp_size(void* cookie)
+size_t istream_cpp_size(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     std::streampos pos = s->tellg();
@@ -78,44 +90,102 @@ size_t gmio_stream_cpp_size(void* cookie)
     std::streampos begin_pos = s->tellg();
     s->seekg(0, std::ios_base::end);
     std::streampos end_pos = s->tellg();
-    s->seekg(pos, std::ios_base::beg);
+    s->seekg(pos, std::ios_base::beg); // Restore pos
     return end_pos - begin_pos;
 }
 
 template<typename STREAM>
-int gmio_stream_cpp_get_pos(void* cookie, gmio_stream_pos_t* pos)
+size_t ostream_cpp_size(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
-    std::streampos spos = s->tellg();
+    std::streampos pos = s->tellp();
+    s->seekp(0, std::ios_base::beg);
+    std::streampos begin_pos = s->tellp();
+    s->seekp(0, std::ios_base::end);
+    std::streampos end_pos = s->tellp();
+    s->seekp(pos, std::ios_base::beg); // Restore pos
+    return end_pos - begin_pos;
+}
+
+GMIO_INLINE void copy_cpp_streampos(gmio_stream_pos_t* pos, std::streampos spos)
+{
     std::memcpy(&pos->cookie[0], &spos, sizeof(std::streampos));
+}
+
+GMIO_INLINE std::streampos to_cpp_streampos(const gmio_stream_pos_t* pos)
+{
+    std::streampos spos;
+    std::memcpy(&spos, &pos->cookie[0], sizeof(std::streampos));
+    return spos;
+}
+
+template<typename STREAM>
+int istream_cpp_get_pos(void* cookie, gmio_stream_pos_t* pos)
+{
+    copy_cpp_streampos(pos, static_cast<STREAM*>(cookie)->tellg());
     return 0;
 }
 
 template<typename STREAM>
-static int gmio_stream_cpp_set_pos(void* cookie, const gmio_stream_pos_t* pos)
+int istream_cpp_set_pos(void* cookie, const gmio_stream_pos_t* pos)
 {
-    STREAM* s = static_cast<STREAM*>(cookie);
-    std::streampos spos;
-    std::memcpy(&spos, &pos->cookie[0], sizeof(std::streampos));
-    s->seekg(spos);
-    s->seekp(spos);
+    static_cast<STREAM*>(cookie)->seekg(to_cpp_streampos(pos));
     return 0; // TODO: return error code
 }
 
 template<typename STREAM>
-gmio_stream_t gmio_stream_cpp(STREAM* s)
+int ostream_cpp_get_pos(void* cookie, gmio_stream_pos_t* pos)
 {
-    gmio_stream_t stream = gmio_stream_null();
-    stream.cookie = s;
-    stream.func_at_end = gmio_stream_cpp_at_end<STREAM>;
-    stream.func_error = gmio_stream_cpp_error<STREAM>;
-    stream.func_read = gmio_stream_cpp_read<STREAM>;
-    stream.func_write = gmio_stream_cpp_write<STREAM>;
-    stream.func_size = gmio_stream_cpp_size<STREAM>;
-    stream.func_get_pos = gmio_stream_cpp_get_pos<STREAM>;
-    stream.func_set_pos = gmio_stream_cpp_set_pos<STREAM>;
+    copy_cpp_streampos(pos, static_cast<STREAM*>(cookie)->tellp());
+    return 0;
+}
+
+template<typename STREAM>
+static int ostream_cpp_set_pos(void* cookie, const gmio_stream_pos_t* pos)
+{
+    static_cast<STREAM*>(cookie)->seekp(to_cpp_streampos(pos));
+    return 0; // TODO: return error code
+}
+
+template<typename STREAM>
+void stream_cpp_init_common(STREAM* s, gmio_stream_t* stream)
+{
+    *stream = gmio_stream_null();
+    stream->cookie = s;
+    stream->func_at_end = gmio::internal::stream_cpp_at_end<STREAM>;
+    stream->func_error = gmio::internal::stream_cpp_error<STREAM>;
+}
+
+} // namespace internal
+} // namespace gmio
+
+template<typename CHAR, typename TRAITS>
+gmio_stream_t gmio_istream_cpp(std::basic_istream<CHAR, TRAITS>* s)
+{
+    typedef std::basic_istream<CHAR, TRAITS> CppStream;
+    gmio_stream_t stream;
+    gmio::internal::stream_cpp_init_common(s, &stream);
+    stream.func_size = gmio::internal::istream_cpp_size<CppStream>;
+    stream.func_read = gmio::internal::istream_cpp_read<CppStream>;
+    stream.func_get_pos = gmio::internal::istream_cpp_get_pos<CppStream>;
+    stream.func_set_pos = gmio::internal::istream_cpp_set_pos<CppStream>;
     return stream;
 }
+
+template<typename CHAR, typename TRAITS>
+gmio_stream_t gmio_ostream_cpp(std::basic_ostream<CHAR, TRAITS>* s)
+{
+    typedef std::basic_ostream<CHAR, TRAITS> CppStream;
+    gmio_stream_t stream;
+    gmio::internal::stream_cpp_init_common(s, &stream);
+    stream.func_size = gmio::internal::ostream_cpp_size<CppStream>;
+    stream.func_write = gmio::internal::ostream_cpp_write<CppStream>;
+    stream.func_get_pos = gmio::internal::ostream_cpp_get_pos<CppStream>;
+    stream.func_set_pos = gmio::internal::ostream_cpp_set_pos<CppStream>;
+    return stream;
+}
+
+#endif // !DOXYGEN
 
 #endif /* GMIO_SUPPORT_STREAM_CPP_H */
 /*! @} */
