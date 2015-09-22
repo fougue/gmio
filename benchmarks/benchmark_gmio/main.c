@@ -37,8 +37,8 @@ static void dummy_process_triangle(
 
 static void bench_gmio_stl_read(const char* filepath)
 {
-    my_igeom_t cookie = { 0 };
-    gmio_stl_mesh_creator_t mesh_creator = { 0 };
+    my_igeom_t cookie = {0};
+    gmio_stl_mesh_creator_t mesh_creator = {0};
     int error = GMIO_ERROR_OK;
 
     mesh_creator.cookie = &cookie;
@@ -66,6 +66,7 @@ enum { STL_TRIANGLE_ARRAY_SIZE = 512 };
 typedef struct stl_readwrite_conv
 {
     gmio_transfer_t trsf;
+    gmio_stream_pos_t out_stream_pos_begin;
     gmio_stl_format_t in_format;
     gmio_stl_format_t out_format;
     gmio_stl_triangle_t triangle_array[STL_TRIANGLE_ARRAY_SIZE];
@@ -116,8 +117,8 @@ static void readwrite_get_triangle(
 
 static void stl_readwrite_flush_triangles(stl_readwrite_conv_t* rw_conv)
 {
-    gmio_stl_mesh_t mesh = { 0 };
-    gmio_stl_write_options_t options = { 0 };
+    gmio_stl_mesh_t mesh = {0};
+    gmio_stl_write_options_t options = {0};
     mesh.cookie = &rw_conv->triangle_array[0];
     mesh.triangle_count = rw_conv->triangle_pos;
     mesh.func_get_triangle = &readwrite_get_triangle;
@@ -152,7 +153,7 @@ static void readwrite_end_solid(void* cookie)
         const gmio_endianness_t byte_order = to_byte_order(rw_conv->out_format);
         /* The total facet count has to be written because it wasn't known at
          * the beginning of the read procedure */
-        stream->func_rewind(stream->cookie);
+        stream->func_set_pos(stream->cookie, &rw_conv->out_stream_pos_begin);
         gmio_stlb_write_header(
                     stream, byte_order, NULL, rw_conv->total_triangle_count);
     }
@@ -162,9 +163,9 @@ static void bench_gmio_stl_readwrite_conv(const char* filepath)
 {
     FILE* infile = fopen(filepath, "rb");
     FILE* outfile = fopen("_readwrite_conv.stl", "wb");
-    gmio_transfer_t in_trsf = { 0 };
-    stl_readwrite_conv_t rw_conv = { 0 };
-    gmio_stl_mesh_creator_t mesh_creator = { 0 };
+    gmio_transfer_t in_trsf = {0};
+    stl_readwrite_conv_t rw_conv = {0};
+    gmio_stl_mesh_creator_t mesh_creator = {0};
     int error = GMIO_ERROR_OK;
 
     /* rw_conv.out_format = GMIO_STL_FORMAT_BINARY_LE; */
@@ -178,6 +179,9 @@ static void bench_gmio_stl_readwrite_conv(const char* filepath)
     if (outfile != NULL) {
         rw_conv.trsf.buffer = gmio_buffer_malloc(512 * 1024);
         rw_conv.trsf.stream = gmio_stream_stdio(outfile);
+        rw_conv.trsf.stream.func_get_pos(
+                    rw_conv.trsf.stream.cookie,
+                    &rw_conv.out_stream_pos_begin);
     }
 
     mesh_creator.cookie = &rw_conv;
