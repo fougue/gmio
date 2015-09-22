@@ -13,22 +13,15 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-file(GLOB COMMONS_FILES commons/*)
-set(COMMONS_FILES  ${COMMONS_FILES})
+set(ROOTDIR_ASSIMP ${CMAKE_SOURCE_DIR} CACHE PATH
+    "Directory where the Assimp library resides")
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
-link_libraries(gmio)
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
-    link_libraries(m) # -lm
-endif()
+include_directories(${ROOTDIR_ASSIMP}/include)
+add_executable(benchmark_assimp main.cpp ${COMMONS_FILES})
 
-add_subdirectory(benchmark_gmio)
+# TODO: choose lib32/lib64 depending on the architecture
+find_library(
+    LIB_ASSIMP assimp ${ROOTDIR_ASSIMP}/lib64
+    DOC "Path to the assimp import library")
 
-if(GMIO_BUILD_BENCHMARK_ASSIMP)
-    add_subdirectory(benchmark_assimp)
-endif()
-
-if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
-    add_subdirectory(benchmark_opencascade)
-endif()
+target_link_libraries(benchmark_assimp ${LIB_ASSIMP})

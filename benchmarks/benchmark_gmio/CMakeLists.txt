@@ -13,22 +13,4 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-file(GLOB COMMONS_FILES commons/*)
-set(COMMONS_FILES  ${COMMONS_FILES})
-
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
-link_libraries(gmio)
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
-    link_libraries(m) # -lm
-endif()
-
-add_subdirectory(benchmark_gmio)
-
-if(GMIO_BUILD_BENCHMARK_ASSIMP)
-    add_subdirectory(benchmark_assimp)
-endif()
-
-if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
-    add_subdirectory(benchmark_opencascade)
-endif()
+add_executable(benchmark_gmio main.c ${COMMONS_FILES})
