@@ -65,6 +65,8 @@ const char* test_platform__compiler()
 {
     /* Check that initialization with {0} works as expected
      *
+     * See http://www.ex-parrot.com/~chris/random/initialise.html
+     *
      * Depending on your version, GCC can incorrectly reports the warning
      * "missing braces around initializer [-Wmissing-braces]"
      * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
