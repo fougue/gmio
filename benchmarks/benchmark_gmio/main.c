@@ -31,11 +31,13 @@ static void dummy_process_triangle(
         const gmio_stl_triangle_t* triangle)
 {
     my_igeom_t* my_igeom = (my_igeom_t*)(cookie);
+    GMIO_UNUSED(triangle_id);
+    GMIO_UNUSED(triangle);
     if (my_igeom != NULL)
         ++(my_igeom->facet_count);
 }
 
-static void bench_gmio_stl_read(const char* filepath)
+static void bmk_gmio_stl_read(const char* filepath)
 {
     my_igeom_t cookie = {0};
     gmio_stl_mesh_creator_t mesh_creator = {0};
@@ -79,6 +81,7 @@ static void readwrite_ascii_begin_solid(
 {
     stl_readwrite_conv_t* rw_conv = (stl_readwrite_conv_t*)cookie;
     gmio_stream_t* stream = &rw_conv->trsf.stream;
+    GMIO_UNUSED(stream_size);
     if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
         stream->func_write(stream->cookie, "solid ", 1, 6);
         stream->func_write(stream->cookie, solid_name, 1, strlen(solid_name));
@@ -159,7 +162,7 @@ static void readwrite_end_solid(void* cookie)
     }
 }
 
-static void bench_gmio_stl_readwrite_conv(const char* filepath)
+static void bmk_gmio_stl_readwrite_conv(const char* filepath)
 {
     FILE* infile = fopen(filepath, "rb");
     FILE* outfile = fopen("_readwrite_conv.stl", "wb");
@@ -202,12 +205,36 @@ static void bench_gmio_stl_readwrite_conv(const char* filepath)
 int main(int argc, char** argv)
 {
     if (argc > 1) {
-        benchmark_list(&bench_gmio_stl_read,
-                       "gmio_stl_read_file()",
-                       argc - 1, argv + 1);
-        benchmark_list(&bench_gmio_stl_readwrite_conv,
-                       "gmio_stl_readwrite_conv()",
-                       argc - 1, argv + 1);
+        const char* filepath = argv[1];
+
+        /* Declare benchmarks */
+        benchmark_cmp_arg_t cmp_args[] = {
+            { "read_file()",
+              bmk_gmio_stl_read, NULL,
+              NULL, NULL },
+            { "readwrite_conv()",
+              bmk_gmio_stl_readwrite_conv, NULL,
+              NULL, NULL },
+            {0}
+        };
+        const size_t cmp_count =
+                sizeof(cmp_args) / sizeof(benchmark_cmp_arg_t) - 1;
+        benchmark_cmp_result_t cmp_res[2] = {0};
+        benchmark_cmp_result_array_t res_array = {0};
+        const benchmark_cmp_result_header_t header = { "gmio", NULL };
+
+        cmp_args[0].func1_filepath = filepath;
+        cmp_args[1].func1_filepath = filepath;
+
+        res_array.ptr = &cmp_res[0];
+        res_array.count = cmp_count;
+
+        /* Execute benchmarks */
+        benchmark_cmp_batch(5, &cmp_args[0], &cmp_res[0], NULL, NULL);
+
+        /* Print results */
+        benchmark_print_results(
+                    BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
     }
     return 0;
 }

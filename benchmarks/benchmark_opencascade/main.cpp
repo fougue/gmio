@@ -16,6 +16,7 @@
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
 #include <StlMesh_Mesh.hxx>
+#include <Standard_Version.hxx>
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
@@ -23,49 +24,38 @@
 
 #include "../commons/benchmark_tools.h"
 
-namespace BenchmarkOcc {
+#include <vector>
+
+namespace BmkOcc {
 
 Handle_StlMesh_Mesh stlMesh;
 
-static void bmk_RWStl_ReadFile(const char* filepath)
+static void RWStl_ReadFile(const char* filepath)
 {
     stlMesh = RWStl::ReadFile(OSD_Path(filepath));
     if (stlMesh.IsNull())
         printf("RWStl::ReadFile(): null mesh\n");
 }
 
-static void bmk_RWStl_WriteAscii(const char* filepath)
+static void RWStl_WriteAscii(const char* filepath)
 {
     if (!RWStl::WriteAscii(stlMesh, OSD_Path(filepath)))
         printf("RWStl::WriteAscii() failure\n");
 }
 
-static void bmk_RWStl_WriteBinary(const char* filepath)
+static void RWStl_WriteBinary(const char* filepath)
 {
     if (!RWStl::WriteBinary(stlMesh, OSD_Path(filepath)))
         printf("RWStl::WriteBinary() failure\n");
 }
 
-static void bmk_main(const char* filepath)
-{
-    benchmark(BenchmarkOcc::bmk_RWStl_ReadFile,
-              "RWStl::ReadFile()",
-              filepath);
-    benchmark(BenchmarkOcc::bmk_RWStl_WriteAscii,
-              "RWStl::WriteAscii",
-              "__file_bench_occ.stla");
-    benchmark(BenchmarkOcc::bmk_RWStl_WriteBinary,
-              "RWStl::WriteBinary",
-              "__file_bench_occ.stlb");
-}
+} // namespace BmkOcc
 
-} // namespace BenchmarkOcc
-
-namespace BenchmarkGmio {
+namespace BmkGmio {
 
 Handle_StlMesh_Mesh stlMesh;
 
-static void bmk_stl_read(const char* filepath)
+static void stl_read(const char* filepath)
 {
     stlMesh = new StlMesh_Mesh;
     gmio_stl_mesh_creator_t mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
@@ -74,7 +64,7 @@ static void bmk_stl_read(const char* filepath)
         printf("gmio error: 0x%X\n", error);
 }
 
-static void bmk_stl_write(const char* filepath, gmio_stl_format_t format)
+static void stl_write(const char* filepath, gmio_stl_format_t format)
 {
     const gmio_occ_stl_mesh_domain_t occ_mesh_domain(stlMesh);
     const gmio_stl_mesh_t mesh = gmio_stl_occmesh(&occ_mesh_domain);
@@ -87,44 +77,58 @@ static void bmk_stl_write(const char* filepath, gmio_stl_format_t format)
         printf("gmio error: 0x%X\n", error);
 }
 
-static void bmk_stla_write(const char* filepath)
+static void stla_write(const char* filepath)
 {
-    bmk_stl_write(filepath, GMIO_STL_FORMAT_ASCII);
+    stl_write(filepath, GMIO_STL_FORMAT_ASCII);
 }
 
-static void bmk_stlb_write_le(const char* filepath)
+static void stlb_write_le(const char* filepath)
 {
-    bmk_stl_write(filepath, GMIO_STL_FORMAT_BINARY_LE);
+    stl_write(filepath, GMIO_STL_FORMAT_BINARY_LE);
 }
 
-static void bmk_stlb_write_be(const char* filepath)
+static void stlb_write_be(const char* filepath)
 {
-    bmk_stl_write(filepath, GMIO_STL_FORMAT_BINARY_BE);
+    stl_write(filepath, GMIO_STL_FORMAT_BINARY_BE);
 }
 
-static void bmk_main(const char* filepath)
-{
-    benchmark(bmk_stl_read,
-              "gmio_stl_read()",
-              filepath);
-    benchmark(bmk_stla_write,
-              "gmio_stl_write(STL_ASCII)",
-              "__file_bench_gmio.stla");
-    benchmark(bmk_stlb_write_le,
-              "gmio_stl_write(STL_BINARY_LE)",
-              "__file_bench_gmio_le.stlb");
-    benchmark(bmk_stlb_write_be,
-              "gmio_stl_write(STL_BINARY_BE)",
-              "__file_bench_gmio_be.stlb");
-}
-} // namespace BenchmarkGmio
+} // namespace BmkGmio
 
 int main(int argc, char** argv)
 {
     if (argc > 1) {
-        benchmark_forward_list(BenchmarkOcc::bmk_main, argc - 1, argv + 1);
-        benchmark_forward_list(BenchmarkGmio::bmk_main, argc - 1, argv + 1);
-    }
+        const char* filepath = argv[1];
+        std::cout << std::endl << "Input file: " << filepath << std::endl;
 
+        /* Declare benchmarks */
+        const benchmark_cmp_arg_t cmp_args[] = {
+            { "read",
+              BmkGmio::stl_read, filepath,
+              BmkOcc::RWStl_ReadFile, filepath },
+            { "write(ascii)",
+              BmkGmio::stla_write, "__bmk_occ_gmio.stla",
+              BmkOcc::RWStl_WriteAscii, "__bmk_occ.stla" },
+            { "write(binary/le)",
+              BmkGmio::stlb_write_le, "__bmk_occ_gmio.stlb_le",
+              BmkOcc::RWStl_WriteBinary, "__bmk_occ.stlb_le" },
+            { "write(binary/be)",
+              BmkGmio::stlb_write_be, "__bmk_occ_gmio.stlb_be",
+              NULL, NULL },
+            {}
+        };
+
+        /* Execute benchmarks */
+        std::vector<benchmark_cmp_result_t> cmp_res_vec;
+        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg_t) - 1);
+        benchmark_cmp_batch(5, &cmp_args[0], &cmp_res_vec[0], NULL, NULL);
+
+        /* Print results */
+        const benchmark_cmp_result_array_t res_array = {
+            &cmp_res_vec.at(0), cmp_res_vec.size() };
+        const benchmark_cmp_result_header_t header = {
+            "gmio", "OpenCascade v"OCC_VERSION_COMPLETE };
+        benchmark_print_results(
+                    BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
+    }
     return 0;
 }

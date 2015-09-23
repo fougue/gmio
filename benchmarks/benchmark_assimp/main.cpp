@@ -19,12 +19,15 @@
 #include <assimp/Exporter.hpp>
 #include <assimp/scene.h>
 #include <assimp/cimport.h>
+#include <assimp/version.h>
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
 
 #include <cstring>
 #include <iostream>
+#include <vector>
+#include <sstream>
 
 static unsigned totalTriangleCount(const aiScene* scene)
 {
@@ -48,26 +51,37 @@ GMIO_INLINE void copy_aiVector3D(
     *coords = *((gmio_stl_coords_t*)&vec3);
 }
 
-namespace BenchmarkAssimp {
+namespace BmkAssimp {
+
+static std::string assimp_version_str()
+{
+    std::stringstream ss;
+    ss << "Assimp v"
+       << aiGetVersionMajor() << '.'
+       << aiGetVersionMinor()
+       << ".?";
+    return ss.str();
+}
 
 Assimp::Importer* globalImporter = NULL;
 const aiScene* globalScene = NULL;
 
-static void bmk_import(const char* filepath)
+static void import(const char* filepath)
 {
     Assimp::Importer* importer = globalImporter;
     const aiScene* scene = importer->ReadFile(filepath, 0);
-    if (aiGetErrorString() != NULL)
-        std::cerr << aiGetErrorString() << std::endl;
+    const char* aiErrorStr = aiGetErrorString();
+    if (std::strlen(aiErrorStr) > 0)
+        std::cerr << aiErrorStr << std::endl;
     if (scene == NULL || scene->mNumMeshes <= 0) {
         std::cerr << "Failed to read file " << filepath << std::endl;
     }
     globalScene = scene;
-    std::cout << "BenchAssimp, triCount = "
-              << totalTriangleCount(scene) << std::endl;
+//    std::cout << "BmkAssimp, triCount = "
+//              << totalTriangleCount(scene) << std::endl;
 }
 
-static void bmk_export_stla(const char* filepath)
+static void export_stla(const char* filepath)
 {
     Assimp::Exporter exporter;
 //    for (std::size_t i = 0; i < exporter.GetExportFormatCount(); ++i) {
@@ -78,32 +92,15 @@ static void bmk_export_stla(const char* filepath)
     exporter.Export(globalScene, "stl", filepath);
 }
 
-static void bmk_export_stlb(const char* filepath)
+static void export_stlb(const char* filepath)
 {
     Assimp::Exporter exporter;
     exporter.Export(globalScene, "stlb", filepath);
 }
 
-static void bmk_main(const char* filepath)
-{
-    BenchmarkAssimp::globalImporter = new Assimp::Importer;
-    benchmark(BenchmarkAssimp::bmk_import,
-              "Assimp::Importer::ReadFile()",
-              filepath);
-    benchmark(BenchmarkAssimp::bmk_export_stla,
-              "Assimp::Exporter::Export(STL_ASCII)",
-              "__file_bench_assimp.stla");
-    benchmark(BenchmarkAssimp::bmk_export_stlb,
-              "Assimp::Exporter::Export(STL_BINARY)",
-              "__file_bench_assimp.stlb");
+} // namespace BmkAssimp
 
-    delete BenchmarkAssimp::globalImporter;
-    BenchmarkAssimp::globalImporter = NULL;
-}
-
-} // namespace BenchAssimp
-
-namespace BenchmarkGmio {
+namespace BmkGmio {
 
 struct aiSceneHelper
 {
@@ -112,7 +109,7 @@ struct aiSceneHelper
     int hasToCountTriangle;
 };
 
-aiSceneHelper globalSceneHelper = { 0 };
+aiSceneHelper globalSceneHelper = {};
 
 static void allocate_stl_scene(aiScene* pScene)
 {
@@ -281,7 +278,7 @@ static void get_triangle(
     copy_aiVector3D(&triangle->v3, mesh->mVertices[f.mIndices[2]]);
 }
 
-static void bmk_stl_read(const char* filepath)
+static void stl_read(const char* filepath)
 {
     gmio_stl_mesh_creator_t mesh_creator = { 0 };
     mesh_creator.cookie = &globalSceneHelper;
@@ -295,11 +292,11 @@ static void bmk_stl_read(const char* filepath)
         printf("gmio error: 0x%X\n", error);
 
     const aiScene* scene = globalSceneHelper.scene;
-    std::cout << "BenchGmio, triCount = "
-              << totalTriangleCount(scene) << std::endl;
+//    std::cout << "BmkGmio, triCount = "
+//              << totalTriangleCount(scene) << std::endl;
 }
 
-static void bmk_stl_write(const char* filepath, gmio_stl_format_t format)
+static void stl_write(const char* filepath, gmio_stl_format_t format)
 {
     const aiMesh* sceneMesh = globalSceneHelper.scene->mMeshes[0];
 
@@ -316,50 +313,74 @@ static void bmk_stl_write(const char* filepath, gmio_stl_format_t format)
         printf("gmio error: 0x%X\n", error);
 }
 
-static void bmk_stla_write(const char* filepath)
+static void stla_write(const char* filepath)
 {
-    bmk_stl_write(filepath, GMIO_STL_FORMAT_ASCII);
+    stl_write(filepath, GMIO_STL_FORMAT_ASCII);
 }
 
-static void bmk_stlb_write_le(const char* filepath)
+static void stlb_write_le(const char* filepath)
 {
-    bmk_stl_write(filepath, GMIO_STL_FORMAT_BINARY_LE);
+    stl_write(filepath, GMIO_STL_FORMAT_BINARY_LE);
 }
 
-static void bmk_stlb_write_be(const char* filepath)
+static void stlb_write_be(const char* filepath)
 {
-    bmk_stl_write(filepath, GMIO_STL_FORMAT_BINARY_BE);
+    stl_write(filepath, GMIO_STL_FORMAT_BINARY_BE);
 }
 
-static void bmk_main(const char* filepath)
+} // namespace BmkGmio
+
+static void bmk_init()
 {
-    BenchmarkGmio::globalSceneHelper.scene = new aiScene;
-    BenchmarkGmio::globalSceneHelper.totalTriangleCount = 0;
-
-    benchmark(BenchmarkGmio::bmk_stl_read,
-              "gmio_stl_read()",
-              filepath);
-    benchmark(BenchmarkGmio::bmk_stla_write,
-              "gmio_stl_write(STL_ASCII)",
-              "__file_bench_gmio.stla");
-    benchmark(BenchmarkGmio::bmk_stlb_write_le,
-              "gmio_stl_write(STL_BINARY_LE)",
-              "__file_bench_gmio_le.stlb");
-    benchmark(BenchmarkGmio::bmk_stlb_write_be,
-              "gmio_stl_write(STL_BINARY_BE)",
-              "__file_bench_gmio_be.stlb");
-
-    delete BenchmarkGmio::globalSceneHelper.scene;
-    BenchmarkGmio::globalSceneHelper.scene = NULL;
+    BmkAssimp::globalImporter = new Assimp::Importer;
+    BmkGmio::globalSceneHelper.scene = new aiScene;
+    BmkGmio::globalSceneHelper.totalTriangleCount = 0;
 }
 
-} // namespace BenchmarkGmio
+static void bmk_cleanup()
+{
+    delete BmkAssimp::globalImporter;
+    BmkAssimp::globalImporter = NULL;
+    delete BmkGmio::globalSceneHelper.scene;
+    BmkGmio::globalSceneHelper.scene = NULL;
+}
 
 int main(int argc, char** argv)
 {
     if (argc > 1) {
-        benchmark_forward_list(BenchmarkAssimp::bmk_main, argc - 1, argv + 1);
-        benchmark_forward_list(BenchmarkGmio::bmk_main, argc - 1, argv + 1);
+        const char* filepath = argv[1];
+        std::cout << std::endl << "Input file: " << filepath << std::endl;
+
+        /* Declare benchmarks */
+        const benchmark_cmp_arg_t cmp_args[] = {
+            { "read",
+              BmkGmio::stl_read, filepath,
+              BmkAssimp::import, filepath },
+            { "write(ascii)",
+              BmkGmio::stla_write, "__bmk_assimp_gmio.stla",
+              BmkAssimp::export_stla, "__bmk_assimp.stla" },
+            { "write(binary/le)",
+              BmkGmio::stlb_write_le, "__bmk_assimp_gmio.stlb_le",
+              BmkAssimp::export_stlb, "__bmk_assimp.stlb_le" },
+            { "write(binary/be)",
+              BmkGmio::stlb_write_be, "__bmk_assimp_gmio.stlb_be",
+              NULL, NULL },
+            {}
+        };
+
+        /* Execute benchmarks */
+        std::vector<benchmark_cmp_result_t> cmp_res_vec;
+        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg_t) - 1);
+        benchmark_cmp_batch(
+                    5, &cmp_args[0], &cmp_res_vec[0], &bmk_init, &bmk_cleanup);
+
+        /* Print results */
+        const benchmark_cmp_result_array_t res_array = {
+            &cmp_res_vec.at(0), cmp_res_vec.size() };
+        const std::string assimp_ver = BmkAssimp::assimp_version_str();
+        const benchmark_cmp_result_header_t header = { "gmio", assimp_ver.c_str() };
+        benchmark_print_results(
+                    BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
     }
     return 0;
 }
