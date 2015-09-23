@@ -17,6 +17,7 @@
 #define BENCHMARK_TOOLS_H
 
 #include <gmio_core/global.h>
+#include <stddef.h>
 
 GMIO_C_LINKAGE_BEGIN
 
