@@ -66,9 +66,9 @@ static int64_t benchmark_timer_elapsed_ms(const benchmark_timer_t* timer)
     elapsed.QuadPart /= timer->frequency.QuadPart;
     return elapsed.QuadPart;
 #elif defined(BENCHMARK_TIMER_LIBC)
-    /* For seconds:
-     * return (float)((clock() - start_tick) / (float)CLOCKS_PER_SEC); */
-    return clock() - timer->start_tick;
+    const clock_t elapsed_ticks = clock() - timer->start_tick;
+    const double elapsed_ms = (elapsed_ticks * 1000) / ((double)CLOCKS_PER_SEC);
+    return (int64_t)elapsed_ms;
 #endif
 }
 
