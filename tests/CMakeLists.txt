@@ -26,30 +26,42 @@ include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake hea
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 
 # test_core
-add_executable(
-    test_core
-    EXCLUDE_FROM_ALL
+set(GMIO_TEST_CORE_SRC
         main_test_core.c
         test_core.c
         test_core_internal.c
         test_core_platform.c
         core_utils.c
-        stream_buffer.c
-        ../src/gmio_core/internal/string_parse.c)
+        stream_buffer.c)
+if(GMIO_BUILD_SHARED_LIBS)
+    # Note_1: MSVC wants it because internal symbols are not exported (GCC
+    #         exports all symbols)
+    set(GMIO_TEST_CORE_SRC
+            ${GMIO_TEST_CORE_SRC}
+            ../src/gmio_core/internal/string_parse.c)
+endif()
+
+add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
 target_link_libraries(test_core gmio)
 
 # test_stl
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
+
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-add_executable(
-    test_stl
-    EXCLUDE_FROM_ALL
+set(GMIO_TEST_STL_SRC
         main_test_stl.c
         test_stl_io.c
         test_stl_internal.c
         core_utils.c
-        stl_utils.c
-        ../src/gmio_stl/internal/stl_rw_common.c)
+        stl_utils.c)
+if(GMIO_BUILD_SHARED_LIBS)
+    # See Note_1
+    set(GMIO_TEST_STL_SRC
+            ${GMIO_TEST_STL_SRC}
+            ../src/gmio_stl/internal/stl_rw_common.c)
+endif()
+
+add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})
 target_link_libraries(test_stl gmio)
 
 # fake_support
