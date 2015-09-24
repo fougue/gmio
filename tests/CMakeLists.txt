@@ -70,8 +70,8 @@ if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
     add_dependencies(check fake_support)
 endif()
 
-# For some targets, GCC and Clang requires -lm
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+# For some targets, GCC requires -lm
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     target_link_libraries(test_core m)
     target_link_libraries(test_stl m)
 endif()

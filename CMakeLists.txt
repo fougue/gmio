@@ -28,10 +28,20 @@ set(GMIO_VERSION_PATCH 0)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
-# Detect Clang
-if (CMAKE_C_COMPILER MATCHES ".*clang")
+# C Compiler detection
+if(CMAKE_C_COMPILER MATCHES ".*clang")
     set(CMAKE_COMPILER_IS_CLANG 1)
 endif ()
+
+if(CMAKE_C_COMPILER MATCHES "tcc")
+    set(CMAKE_COMPILER_IS_TCC 1) # TinyCC
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCC
+       OR CMAKE_COMPILER_IS_CLANG
+       OR CMAKE_COMPILER_IS_TCC)
+    set(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE 1) # Compatible with GNUCC options
+endif()
 
 # Options
 option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
@@ -44,7 +54,7 @@ cmake_dependent_option(
     GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON
     "GMIO_BUILD_BENCHMARKS" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
 endif()
 
@@ -58,7 +68,7 @@ test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 # Adapt C compiler flags to satisfy the GMIO_BUILD_STRICT_C90 option
 #    It must be done before checking of C99 and POSIX features
 if(GMIO_BUILD_STRICT_C90)
-    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
     elseif(MSVC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Za")
@@ -75,7 +85,7 @@ if(NOT GMIO_BUILD_STRICT_C90)
     # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 
-    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
     endif()
     check_function_exists(powf GMIO_HAVE_POWF_FUNC)
@@ -131,7 +141,7 @@ if(NOT GMIO_BUILD_STRICT_C90)
     endif()
 
     # Have builtin byte swap functions ?
-    if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
         # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
         check_c_source_compiles(
@@ -148,8 +158,8 @@ if(NOT GMIO_BUILD_STRICT_C90)
     endif()
 endif() # !GMIO_BUILD_STRICT_C90
 
-# Specific flags for GCC and Clang
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+# Specific flags for GCC-like compilers
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")

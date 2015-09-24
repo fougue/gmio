@@ -19,7 +19,7 @@ set(COMMONS_FILES  ${COMMONS_FILES})
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
 link_libraries(gmio)
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_CLANG)
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     link_libraries(m) # -lm
 endif()
 
