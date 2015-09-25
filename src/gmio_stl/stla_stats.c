@@ -25,7 +25,7 @@ gmio_stla_stats_t gmio_stla_stats_get(
 {
     gmio_stla_stats_t stats = {0};
     void* mblock_ptr = trsf != NULL ? trsf->memblock.ptr : NULL;
-    const size_t mblock_size = trsf != NULL ? trsf->memblock.size : NULL;
+    const size_t mblock_size = trsf != NULL ? trsf->memblock.size : 0;
     int err = GMIO_ERROR_OK;
 
     /* Check validity of input transfer object */

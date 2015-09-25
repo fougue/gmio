@@ -53,7 +53,7 @@ enum gmio_stla_stat_flag
     GMIO_STLA_STAT_FLAG_SIZE = 0x04,
     GMIO_STLA_STAT_FLAG_ALL = 0xFF
 };
-typedef enum gmio_stla_stat gmio_stla_stat_t;
+typedef enum gmio_stla_stat_flag gmio_stla_stat_flag_t;
 
 GMIO_C_LINKAGE_BEGIN
 
