@@ -34,11 +34,11 @@ enum gmio_error
     /*! Pointer on argument gmio_transfer_t is NULL */
     GMIO_ERROR_NULL_TRANSFER,
 
-    /*! Pointer on argument buffer is NULL */
-    GMIO_ERROR_NULL_BUFFER,
+    /*! Pointer on argument memory block is NULL */
+    GMIO_ERROR_NULL_MEMBLOCK,
 
-    /*! Argument buffer's size is too small */
-    GMIO_ERROR_INVALID_BUFFER_SIZE,
+    /*! Argument size for the memory block is too small */
+    GMIO_ERROR_INVALID_MEMBLOCK_SIZE,
 
     /*! An error occurred with gmio_stream */
     GMIO_ERROR_STREAM,

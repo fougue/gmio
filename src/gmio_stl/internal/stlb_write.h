@@ -24,8 +24,8 @@
 /*! Writes geometry in the STL binary format
  *
  *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_INVALID_BUFFER_SIZE_ERROR
- *          if <tt>trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *  \retval GMIO_INVALID_MEMBLOCK_SIZE_ERROR
+ *          if <tt>trsf->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 int gmio_stlb_write(
         gmio_transfer_t* trsf,

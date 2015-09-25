@@ -37,8 +37,8 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  Internally, it uses:
  *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
- *    \li the global default function to construct a temporary gmio_buffer
- *        object (see gmio_buffer_default())
+ *    \li the global default function to construct a temporary gmio_memblock
+ *        object (see gmio_memblock_default())
  *
  *  \return Error code (see error.h and stl_error.h)
  */
@@ -74,8 +74,8 @@ int gmio_stl_read(
  *
  *  Internally, it uses:
  *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
- *    \li the global default function to construct a temporary gmio_buffer
- *        object (see gmio_buffer_default())
+ *    \li the global default function to construct a temporary gmio_memblock
+ *        object (see gmio_memblock_default())
  *
  *  \return Error code (see error.h and stl_error.h)
  */
@@ -147,8 +147,8 @@ enum { GMIO_STLB_MIN_CONTENTS_SIZE = 284 };
 /*! Reads geometry from STL binary stream
  *
  *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_ERROR_INVALID_BUFFER_SIZE
- *          if <tt>trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
+ *          if <tt>trsf->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_read(

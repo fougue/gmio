@@ -23,8 +23,8 @@
 #ifndef GMIO_TRANSFER_H
 #define GMIO_TRANSFER_H
 
-#include "buffer.h"
 #include "global.h"
+#include "memblock.h"
 #include "stream.h"
 #include "task_iface.h"
 
@@ -35,7 +35,7 @@ struct gmio_transfer
     gmio_stream_t stream;
 
     /*! The memory block used by the transfer for stream buffering */
-    gmio_buffer_t buffer;
+    gmio_memblock_t memblock;
 
     /*! The interface object by which the transfer task can be controlled */
     gmio_task_iface_t task_iface;

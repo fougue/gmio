@@ -24,8 +24,8 @@
 /*! Writes geometry in the STL ascii format
  *
  *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_ERROR_INVALID_BUFFER_SIZE
- *          if <tt>trsf->buffer.size < 512</tt>
+ *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
+ *          if <tt>trsf->memblock.size < 512</tt>
  */
 int gmio_stla_write(
         gmio_transfer_t* trsf,

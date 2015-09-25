@@ -25,10 +25,10 @@ gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
         *error = GMIO_ERROR_NULL_TRANSFER;
     }
     else {
-        if (trsf->buffer.ptr == NULL)
-            *error = GMIO_ERROR_NULL_BUFFER;
-        else if (trsf->buffer.size == 0)
-            *error = GMIO_ERROR_INVALID_BUFFER_SIZE;
+        if (trsf->memblock.ptr == NULL)
+            *error = GMIO_ERROR_NULL_MEMBLOCK;
+        else if (trsf->memblock.size == 0)
+            *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     }
 
     return gmio_no_error(*error);
@@ -53,8 +53,8 @@ gmio_bool_t gmio_stlb_check_params(
     if (!gmio_check_transfer(error, trsf))
         return GMIO_FALSE;
 
-    if (trsf->buffer.size < GMIO_STLB_MIN_CONTENTS_SIZE)
-        *error = GMIO_ERROR_INVALID_BUFFER_SIZE;
+    if (trsf->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
+        *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     if (byte_order != GMIO_ENDIANNESS_LITTLE
             && byte_order != GMIO_ENDIANNESS_BIG)
     {

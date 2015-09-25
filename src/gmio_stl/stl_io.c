@@ -37,13 +37,13 @@ int gmio_stl_read_file(
     if (file != NULL) {
         gmio_transfer_t trsf = {0};
         trsf.stream = gmio_stream_stdio(file);
-        trsf.buffer = gmio_buffer_default();
+        trsf.memblock = gmio_memblock_default();
         if (task_iface != NULL)
             trsf.task_iface = *task_iface;
 
         error = gmio_stl_read(&trsf, creator);
         fclose(file);
-        gmio_buffer_deallocate(&trsf.buffer);
+        gmio_memblock_deallocate(&trsf.memblock);
     }
     else {
         error = GMIO_ERROR_STDIO;
@@ -98,13 +98,13 @@ int gmio_stl_write_file(
     if (file != NULL) {
         gmio_transfer_t trsf = {0};
         trsf.stream = gmio_stream_stdio(file);
-        trsf.buffer = gmio_buffer_default();
+        trsf.memblock = gmio_memblock_default();
         if (task_iface != NULL)
             trsf.task_iface = *task_iface;
 
         error = gmio_stl_write(format, &trsf, mesh, options);
         fclose(file);
-        gmio_buffer_deallocate(&trsf.buffer);
+        gmio_memblock_deallocate(&trsf.memblock);
     }
     else {
         error = GMIO_ERROR_STDIO;

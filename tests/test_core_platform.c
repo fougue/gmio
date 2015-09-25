@@ -84,7 +84,7 @@ const char* test_platform__compiler()
                      == 0);
 
         UTEST_ASSERT(sizeof(gmio_transfer_t) >= (sizeof(gmio_stream_t)
-                                                 + sizeof(gmio_buffer_t)
+                                                 + sizeof(gmio_memblock_t)
                                                  + sizeof(gmio_task_iface_t)));
     }
 

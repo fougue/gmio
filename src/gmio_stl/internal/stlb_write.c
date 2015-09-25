@@ -30,20 +30,20 @@
 #include <string.h>
 
 GMIO_INLINE void write_triangle_memcpy(
-        const gmio_stl_triangle_t* triangle, uint8_t* buffer)
+        const gmio_stl_triangle_t* triangle, uint8_t* mblock)
 {
-    memcpy(buffer, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
+    memcpy(mblock, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
 static void gmio_stlb_write_facets(
         const gmio_stl_mesh_t* mesh,
-        uint8_t* buffer,
+        uint8_t* mblock,
         const gmio_stlb_readwrite_helper_t* wparams)
 {
     const uint32_t facet_count = wparams->facet_count;
     const uint32_t i_facet_offset = wparams->i_facet_offset;
     gmio_stl_triangle_t triangle;
-    uint32_t buffer_offset = 0;
+    uint32_t mblock_offset = 0;
     uint32_t i_facet = 0;
 
     if (mesh == NULL || mesh->func_get_triangle == NULL)
@@ -59,9 +59,9 @@ static void gmio_stlb_write_facets(
         if (wparams->func_fix_endian != NULL)
             wparams->func_fix_endian(&triangle);
 
-        write_triangle_memcpy(&triangle, buffer + buffer_offset);
+        write_triangle_memcpy(&triangle, mblock + mblock_offset);
 
-        buffer_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
+        mblock_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
     } /* end for */
 }
 
@@ -77,7 +77,7 @@ int gmio_stlb_write(
     const gmio_bool_t write_triangles_only =
             options != NULL ? options->stl_write_triangles_only : GMIO_FALSE;
     /* Variables */
-    void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
+    void* mblock_ptr = trsf != NULL ? trsf->memblock.ptr : NULL;
     gmio_stlb_readwrite_helper_t wparams = {0};
     uint32_t i_facet = 0;
     int error = GMIO_ERROR_OK;
@@ -94,7 +94,7 @@ int gmio_stlb_write(
     /* Note: trsf != NULL  certified by gmio_stlb_check_params() */
     /* coverity[var_deref_op : FALSE] */
     wparams.facet_count = gmio_size_to_uint32(
-                trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                trsf->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     if (!write_triangles_only) {
         error = gmio_stlb_write_header(
@@ -113,17 +113,17 @@ int gmio_stlb_write(
     {
         gmio_transfer_handle_progress(trsf, i_facet, facet_count);
 
-        /* Write to buffer */
+        /* Write to memory block */
         wparams.facet_count = GMIO_MIN(wparams.facet_count,
                                        facet_count - wparams.i_facet_offset);
 
-        gmio_stlb_write_facets(mesh, buffer_ptr, &wparams);
+        gmio_stlb_write_facets(mesh, mblock_ptr, &wparams);
         wparams.i_facet_offset += wparams.facet_count;
 
-        /* Write buffer to stream */
+        /* Write memory block to stream */
         if (gmio_stream_write(
                     &trsf->stream,
-                    buffer_ptr,
+                    mblock_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     wparams.facet_count)
                 != wparams.facet_count)

@@ -38,13 +38,13 @@ const char* test_stl_internal__rw_common()
         UTEST_ASSERT(!gmio_check_transfer(&error, &trsf));
         UTEST_ASSERT(error == GMIO_ERROR_NULL_BUFFER);
 
-        trsf.buffer = gmio_buffer(&buff[0], 0, NULL);
+        trsf.buffer = gmio_memblock(&buff[0], 0, NULL);
         UTEST_ASSERT(!gmio_check_transfer(&error, &trsf));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_BUFFER_SIZE);
 
         /* Verify that gmio_check_transfer() doesn't touch error when in case of
          * success */
-        trsf.buffer = gmio_buffer(&buff[0], sizeof(buff), NULL);
+        trsf.buffer = gmio_memblock(&buff[0], sizeof(buff), NULL);
         UTEST_ASSERT(!gmio_check_transfer(&error, &trsf));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_BUFFER_SIZE);
 
@@ -87,12 +87,12 @@ const char* test_stl_internal__rw_common()
         UTEST_ASSERT(error == GMIO_ERROR_NULL_TRANSFER);
 
         error = GMIO_ERROR_OK;
-        trsf.buffer = gmio_buffer(&buff[0], GMIO_STLB_MIN_CONTENTS_SIZE / 2, NULL);
+        trsf.buffer = gmio_memblock(&buff[0], GMIO_STLB_MIN_CONTENTS_SIZE / 2, NULL);
         UTEST_ASSERT(!gmio_stlb_check_params(&error, &trsf, GMIO_ENDIANNESS_HOST));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_BUFFER_SIZE);
 
         error = GMIO_ERROR_OK;
-        trsf.buffer = gmio_buffer(&buff[0], sizeof(buff), NULL);
+        trsf.buffer = gmio_memblock(&buff[0], sizeof(buff), NULL);
         UTEST_ASSERT(gmio_stlb_check_params(&error, &trsf, GMIO_ENDIANNESS_HOST));
         UTEST_ASSERT(error == GMIO_ERROR_OK);
 

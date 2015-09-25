@@ -74,10 +74,10 @@ int gmio_stlb_read(
     const uint32_t max_facet_count_per_read =
             trsf != NULL ?
                 gmio_size_to_uint32(
-                    trsf->buffer.size / GMIO_STLB_TRIANGLE_RAWSIZE)
+                    trsf->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE)
               : 0;
     /* Variables */
-    void* buffer_ptr = trsf != NULL ? trsf->buffer.ptr : NULL;
+    void* mblock_ptr = trsf != NULL ? trsf->memblock.ptr : NULL;
     gmio_stlb_readwrite_helper_t rparams = {0};
     gmio_stlb_header_t header;
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
@@ -99,13 +99,13 @@ int gmio_stlb_read(
     }
 
     /* Read facet count */
-    if (gmio_stream_read(&trsf->stream, buffer_ptr, sizeof(uint32_t), 1)
+    if (gmio_stream_read(&trsf->stream, mblock_ptr, sizeof(uint32_t), 1)
             != 1)
     {
         return GMIO_STL_ERROR_FACET_COUNT;
     }
 
-    memcpy(&total_facet_count, buffer_ptr, sizeof(uint32_t));
+    memcpy(&total_facet_count, mblock_ptr, sizeof(uint32_t));
     if (byte_order != GMIO_ENDIANNESS_HOST)
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
@@ -124,7 +124,7 @@ int gmio_stlb_read(
                 gmio_size_to_uint32(
                     gmio_stream_read(
                         &trsf->stream,
-                        buffer_ptr,
+                        mblock_ptr,
                         GMIO_STLB_TRIANGLE_RAWSIZE,
                         max_facet_count_per_read));
         if (gmio_stream_error(&trsf->stream) != 0)
@@ -135,7 +135,7 @@ int gmio_stlb_read(
             break; /* Exit if no facet to read */
 
         if (gmio_no_error(error)) {
-            gmio_stlb_read_facets(creator, buffer_ptr, &rparams);
+            gmio_stlb_read_facets(creator, mblock_ptr, &rparams);
             rparams.i_facet_offset += rparams.facet_count;
             if (gmio_transfer_is_stop_requested(trsf))
                 error = GMIO_ERROR_TRANSFER_STOPPED;

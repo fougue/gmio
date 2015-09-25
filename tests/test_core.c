@@ -15,7 +15,7 @@
 
 #include "utest_assert.h"
 
-#include "../src/gmio_core/buffer.h"
+#include "../src/gmio_core/memblock.h"
 #include "../src/gmio_core/endian.h"
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/stream.h"
@@ -23,20 +23,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-static gmio_buffer_t buffer_ctor()
+static gmio_memblock_t buffer_ctor()
 {
-    return gmio_buffer_calloc(4, 256);
+    return gmio_memblock_calloc(4, 256);
 }
 
 const char* test_core__buffer()
 {
-    /* gmio_buffer_calloc() */
+    /* gmio_memblock_calloc() */
     {
         const size_t obj_count = 4;
         const size_t obj_size = 256;
         const size_t buff_size = obj_count * obj_size;
         const uint8_t zero_buff[4 * 256] = {0};
-        gmio_buffer_t buff = gmio_buffer_calloc(obj_count, obj_size);
+        gmio_memblock_t buff = gmio_memblock_calloc(obj_count, obj_size);
         UTEST_ASSERT(buff.ptr != NULL);
         UTEST_ASSERT(buff.size == buff_size);
         UTEST_ASSERT(memcmp(buff.ptr, &zero_buff[0], buff_size) == 0);
@@ -44,32 +44,32 @@ const char* test_core__buffer()
          *       In this case free() has not the same address in libgmio.dll and
          *       test_core.exe */
         UTEST_ASSERT(buff.func_deallocate == &free);
-        gmio_buffer_deallocate(&buff);
+        gmio_memblock_deallocate(&buff);
     }
-    /* gmio_buffer_malloc() */
+    /* gmio_memblock_malloc() */
     {
         const size_t buff_size = 2 * 1024; /* 2KB */
-        gmio_buffer_t buff = gmio_buffer_malloc(buff_size);
+        gmio_memblock_t buff = gmio_memblock_malloc(buff_size);
         UTEST_ASSERT(buff.ptr != NULL);
         UTEST_ASSERT(buff.size == buff_size);
         UTEST_ASSERT(buff.func_deallocate == &free);
-        gmio_buffer_deallocate(&buff);
+        gmio_memblock_deallocate(&buff);
     }
-    /* gmio_buffer_realloc() */
+    /* gmio_memblock_realloc() */
     {
         const size_t buff_size = 1024; /* 1KB */
-        gmio_buffer_t buff = gmio_buffer_malloc(buff_size);
-        buff = gmio_buffer_realloc(buff.ptr, 2 * buff_size);
+        gmio_memblock_t buff = gmio_memblock_malloc(buff_size);
+        buff = gmio_memblock_realloc(buff.ptr, 2 * buff_size);
         UTEST_ASSERT(buff.ptr != NULL);
         UTEST_ASSERT(buff.size == (2 * buff_size));
         UTEST_ASSERT(buff.func_deallocate == &free);
-        gmio_buffer_deallocate(&buff);
+        gmio_memblock_deallocate(&buff);
     }
     /* default ctor */
     {
-        UTEST_ASSERT(gmio_buffer_default_constructor() != NULL);
-        gmio_buffer_set_default_constructor(&buffer_ctor);
-        UTEST_ASSERT(gmio_buffer_default_constructor() == &buffer_ctor);
+        UTEST_ASSERT(gmio_memblock_default_constructor() != NULL);
+        gmio_memblock_set_default_constructor(&buffer_ctor);
+        UTEST_ASSERT(gmio_memblock_default_constructor() == &buffer_ctor);
     }
 
     return NULL;

@@ -175,12 +175,12 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
     rw_conv.out_format = GMIO_STL_FORMAT_ASCII;
 
     if (infile != NULL) {
-        in_trsf.buffer = gmio_buffer_malloc(512 * 1024);
+        in_trsf.memblock = gmio_memblock_malloc(512 * 1024);
         in_trsf.stream = gmio_stream_stdio(infile);
         rw_conv.in_format = gmio_stl_get_format(&in_trsf.stream);
     }
     if (outfile != NULL) {
-        rw_conv.trsf.buffer = gmio_buffer_malloc(512 * 1024);
+        rw_conv.trsf.memblock = gmio_memblock_malloc(512 * 1024);
         rw_conv.trsf.stream = gmio_stream_stdio(outfile);
         rw_conv.trsf.stream.func_get_pos(
                     rw_conv.trsf.stream.cookie,
@@ -195,8 +195,8 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
 
     error = gmio_stl_read(&in_trsf, &mesh_creator);
 
-    gmio_buffer_deallocate(&in_trsf.buffer);
-    gmio_buffer_deallocate(&rw_conv.trsf.buffer);
+    gmio_memblock_deallocate(&in_trsf.memblock);
+    gmio_memblock_deallocate(&rw_conv.trsf.memblock);
 
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
