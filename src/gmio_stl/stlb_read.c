@@ -37,6 +37,11 @@ GMIO_INLINE void read_triangle_memcpy(
     memcpy(triangle, buffer, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
+typedef void (*gmio_stl_func_fix_endian_t)(gmio_stl_triangle_t*);
+
+typedef void (*gmio_stl_func_add_triangle_t)(
+        void*, uint32_t, const gmio_stl_triangle_t*);
+
 static void gmio_stlb_read_facets(
         gmio_stl_mesh_creator_t* creator,
         const uint8_t* buffer,
@@ -44,24 +49,25 @@ static void gmio_stlb_read_facets(
 {
     const uint32_t facet_count = rparams->facet_count;
     const uint32_t i_facet_offset = rparams->i_facet_offset;
+    const gmio_stl_func_fix_endian_t func_fix_endian = rparams->func_fix_endian;
+    const gmio_stl_func_add_triangle_t func_add_triangle =
+            creator != NULL ? creator->func_add_triangle : NULL;
+    void* cookie = creator->cookie;
     gmio_stl_triangle_t triangle;
     uint32_t buffer_offset = 0;
     uint32_t i_facet = 0;
 
-    if (creator == NULL || creator->func_add_triangle == NULL)
+    if (func_add_triangle == NULL)
         return;
 
     for (i_facet = 0; i_facet < facet_count; ++i_facet) {
-        /* Decode data */
         read_triangle_memcpy(buffer + buffer_offset, &triangle);
         buffer_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
 
-        if (rparams->func_fix_endian != NULL)
-            rparams->func_fix_endian(&triangle);
+        if (func_fix_endian != NULL)
+            func_fix_endian(&triangle);
 
-        /* Declare triangle */
-        creator->func_add_triangle(
-                    creator->cookie, i_facet_offset + i_facet, &triangle);
+        func_add_triangle(cookie, i_facet_offset + i_facet, &triangle);
     }
 }
 
@@ -81,7 +87,7 @@ int gmio_stlb_read(
     gmio_stlb_readwrite_helper_t rparams = {0};
     gmio_stlb_header_t header;
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
-    int error = GMIO_ERROR_OK; /* Helper  to store function result error code */
+    int error = GMIO_ERROR_OK; /* Helper to store function result error code */
 
     /* Check validity of input parameters */
     if (!gmio_stlb_check_params(&error, trsf, byte_order))
