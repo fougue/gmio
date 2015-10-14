@@ -15,6 +15,7 @@
 
 #include "stla_write.h"
 
+#include "stl_funptr_typedefs.h"
 #include "stl_rw_common.h"
 #include "../stl_error.h"
 
@@ -190,6 +191,9 @@ int gmio_stla_write(
          ifacet < total_facet_count && gmio_no_error(error);
          ifacet += buffer_facet_count)
     {
+        const gmio_stl_mesh_func_get_triangle_t func_get_triangle =
+                mesh->func_get_triangle;
+        const void* mesh_cookie = mesh->cookie;
         const uint32_t clamped_facet_count =
                 GMIO_MIN(ifacet + buffer_facet_count, total_facet_count);
         gmio_stl_triangle_t tri;
@@ -203,7 +207,7 @@ int gmio_stla_write(
              ibuffer_facet < clamped_facet_count;
              ++ibuffer_facet)
         {
-            mesh->func_get_triangle(mesh->cookie, ibuffer_facet, &tri);
+            func_get_triangle(mesh_cookie, ibuffer_facet, &tri);
             buffc = gmio_write_string(buffc, "facet normal ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.normal);
             buffc = gmio_write_eol(buffc);

@@ -17,6 +17,7 @@
 
 #include "stl_error.h"
 #include "internal/helper_stl_mesh_creator.h"
+#include "internal/stl_funptr_typedefs.h"
 #include "internal/stl_rw_common.h"
 
 #include "../gmio_core/error.h"
@@ -473,13 +474,17 @@ static void parse_facet(
 
 static void parse_facets(gmio_stla_parse_data_t* data)
 {
+    const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
+            data->creator->func_add_triangle;
+    void* creator_cookie = data->creator->cookie;
     uint32_t i_facet = 0;
     gmio_stl_triangle_t facet;
 
     facet.attribute_byte_count = 0;
     while (data->token == FACET_token && parsing_can_continue(data)) {
         parse_facet(data, &facet);
-        gmio_stl_mesh_creator_add_triangle(data->creator, i_facet, &facet);
+        if (func_add_triangle != NULL)
+            func_add_triangle(creator_cookie, i_facet, &facet);
         ++i_facet;
     }
 }

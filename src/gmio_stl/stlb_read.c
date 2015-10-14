@@ -17,6 +17,7 @@
 
 #include "stl_error.h"
 #include "internal/helper_stl_mesh_creator.h"
+#include "internal/stl_funptr_typedefs.h"
 #include "internal/stl_rw_common.h"
 #include "internal/stlb_byte_swap.h"
 
@@ -37,11 +38,6 @@ GMIO_INLINE void read_triangle_memcpy(
     memcpy(triangle, buffer, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
-typedef void (*gmio_stl_func_fix_endian_t)(gmio_stl_triangle_t*);
-
-typedef void (*gmio_stl_func_add_triangle_t)(
-        void*, uint32_t, const gmio_stl_triangle_t*);
-
 static void gmio_stlb_read_facets(
         gmio_stl_mesh_creator_t* creator,
         const uint8_t* buffer,
@@ -49,8 +45,9 @@ static void gmio_stlb_read_facets(
 {
     const uint32_t facet_count = rparams->facet_count;
     const uint32_t i_facet_offset = rparams->i_facet_offset;
-    const gmio_stl_func_fix_endian_t func_fix_endian = rparams->func_fix_endian;
-    const gmio_stl_func_add_triangle_t func_add_triangle =
+    const gmio_stl_triangle_func_fix_endian_t func_fix_endian =
+            rparams->func_fix_endian;
+    const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
             creator != NULL ? creator->func_add_triangle : NULL;
     void* cookie = creator->cookie;
     gmio_stl_triangle_t triangle;

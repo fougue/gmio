@@ -15,6 +15,7 @@
 
 #include "stlb_write.h"
 
+#include "stl_funptr_typedefs.h"
 #include "stl_rw_common.h"
 #include "stlb_byte_swap.h"
 #include "../stl_error.h"
@@ -42,25 +43,26 @@ static void gmio_stlb_write_facets(
 {
     const uint32_t facet_count = wparams->facet_count;
     const uint32_t i_facet_offset = wparams->i_facet_offset;
+    const gmio_stl_triangle_func_fix_endian_t func_fix_endian =
+            wparams->func_fix_endian;
+    const gmio_stl_mesh_func_get_triangle_t func_get_triangle =
+            mesh != NULL ? mesh->func_get_triangle : NULL;
+    const void* cookie = mesh->cookie;
     gmio_stl_triangle_t triangle;
     uint32_t mblock_offset = 0;
     uint32_t i_facet = 0;
 
-    if (mesh == NULL || mesh->func_get_triangle == NULL)
+    if (func_get_triangle == NULL)
         return;
 
     triangle.attribute_byte_count = 0;
-    for (i_facet = i_facet_offset;
-         i_facet < (i_facet_offset + facet_count);
-         ++i_facet)
-    {
-        mesh->func_get_triangle(mesh->cookie, i_facet, &triangle);
+    for (i_facet = 0; i_facet < facet_count; ++i_facet) {
+        func_get_triangle(cookie, i_facet_offset + i_facet, &triangle);
 
-        if (wparams->func_fix_endian != NULL)
-            wparams->func_fix_endian(&triangle);
+        if (func_fix_endian != NULL)
+            func_fix_endian(&triangle);
 
         write_triangle_memcpy(&triangle, mblock + mblock_offset);
-
         mblock_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
     } /* end for */
 }

@@ -18,6 +18,8 @@
 #ifndef GMIO_INTERNAL_STL_RW_COMMON_H
 #define GMIO_INTERNAL_STL_RW_COMMON_H
 
+#include "stl_funptr_typedefs.h"
+
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/endian.h"
 #include "../../gmio_core/transfer.h"
@@ -28,7 +30,7 @@ struct gmio_stlb_readwrite_helper
 {
     uint32_t facet_count;
     uint32_t i_facet_offset;
-    void   (*func_fix_endian)(gmio_stl_triangle_t* tri);
+    gmio_stl_triangle_func_fix_endian_t func_fix_endian;
 };
 typedef struct gmio_stlb_readwrite_helper  gmio_stlb_readwrite_helper_t;
 
