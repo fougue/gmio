@@ -33,6 +33,8 @@
 
 class Handle_StlMesh_Mesh;
 class StlMesh_Mesh;
+class StlMesh_SequenceOfMeshTriangle;
+class TColgp_SequenceOfXYZ;
 
 /*! Domain in a OpenCascade \c StlMesh_Mesh object
  *
@@ -42,9 +44,18 @@ struct GMIO_LIBSUPPORT_EXPORT gmio_occ_stl_mesh_domain
 {
     gmio_occ_stl_mesh_domain();
     gmio_occ_stl_mesh_domain(const StlMesh_Mesh* mesh, int dom_id = 1);
-    gmio_occ_stl_mesh_domain(const Handle_StlMesh_Mesh& hndMesh, int dom_id = 1);
-    const StlMesh_Mesh* mesh;
-    int domain_id;
+    gmio_occ_stl_mesh_domain(const Handle_StlMesh_Mesh& hnd, int dom_id = 1);
+
+    inline const StlMesh_Mesh* mesh() const;
+    inline int domain_id() const;
+    inline const StlMesh_SequenceOfMeshTriangle* triangles() const;
+    inline const TColgp_SequenceOfXYZ* vertices() const;
+
+private:
+    const StlMesh_Mesh* m_mesh;
+    int m_domain_id;
+    const StlMesh_SequenceOfMeshTriangle* m_triangles;
+    const TColgp_SequenceOfXYZ* m_vertices;
 };
 typedef struct gmio_occ_stl_mesh_domain gmio_occ_stl_mesh_domain_t;
 
@@ -70,6 +81,24 @@ gmio_stl_mesh_creator_t gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
  */
 GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh_creator_t gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
+
+
+
+// --
+// -- Implementation
+// --
+
+const StlMesh_Mesh* gmio_occ_stl_mesh_domain::mesh() const
+{ return m_mesh; }
+
+int gmio_occ_stl_mesh_domain::domain_id() const
+{ return m_domain_id; }
+
+const StlMesh_SequenceOfMeshTriangle* gmio_occ_stl_mesh_domain::triangles() const
+{ return m_triangles; }
+
+const TColgp_SequenceOfXYZ* gmio_occ_stl_mesh_domain::vertices() const
+{ return m_vertices; }
 
 #endif /* GMIO_SUPPORT_STL_OCC_H */
 /*! @} */
