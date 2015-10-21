@@ -10,6 +10,7 @@
 #define GMIO_INTERNAL_FAST_ATOF_H
 
 #include "../global.h"
+#include "string_utils.h"
 
 #include <float.h>
 #include <limits.h>
@@ -22,10 +23,7 @@ GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
      * the float-to-string code used there has to be rewritten first.
      */
     static const char LOCALE_DECIMAL_POINTS[] = { '.' };
-
-    if (in == LOCALE_DECIMAL_POINTS[0])
-        return GMIO_TRUE;
-    return GMIO_FALSE;
+    return in == LOCALE_DECIMAL_POINTS[0];
 }
 
 /* we write [17] here instead of [] to work around a swig bug */
@@ -63,7 +61,7 @@ GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
     gmio_bool_t overflow=GMIO_FALSE;
     uint32_t unsignedValue = 0;
 
-    while ( ( *in >= '0') && ( *in <= '9' ))
+    while ( gmio_clocale_isdigit(*in) )
     {
         const uint32_t tmp = ( unsignedValue * 10 ) + ( *in - '0' );
         if (tmp<unsignedValue)
@@ -152,7 +150,7 @@ GMIO_INLINE uint32_t strtoul16(const char* in, const char** out)
     for (;;)
     {
         uint32_t tmp = 0;
-        if ((*in >= '0') && (*in <= '9'))
+        if (gmio_clocale_isdigit(*in))
             tmp = (unsignedValue << 4u) + (*in - '0');
         else if ((*in >= 'A') && (*in <= 'F'))
             tmp = (unsignedValue << 4u) + (*in - 'A') + 10;
@@ -244,7 +242,7 @@ GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
 
     /* Use integer arithmetic for as long as possible, for speed
      * and precision. */
-    while ( ( *in >= '0') && ( *in <= '9' ) )
+    while ( gmio_clocale_isdigit(*in) )
     {
         /* If it looks like we're going to overflow, bail out
            now and start using floating point. */
@@ -256,7 +254,7 @@ GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
     floatValue = (gmio_float32_t)intValue;
     /* If there are any digits left to parse, then we need to use
      *  floating point arithmetic from here. */
-    while ( ( *in >= '0') && ( *in <= '9' ) )
+    while ( gmio_clocale_isdigit(*in) )
     {
         floatValue = (floatValue * 10.f) + (gmio_float32_t)(*in - '0');
         ++in;
