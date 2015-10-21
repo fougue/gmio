@@ -27,9 +27,10 @@ void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
     gmio_next_char(it);
 }
 
-int gmio_eat_word(
+gmio_eat_word_error_t gmio_eat_word(
         gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *buffer)
 {
+    char* buffer_ptr = buffer->ptr;
     const size_t buffer_capacity = buffer->max_len;
     const char* stream_curr_char = NULL;
     size_t i = buffer->len;
@@ -38,12 +39,12 @@ int gmio_eat_word(
 
     stream_curr_char = gmio_skip_spaces(it);
     if (stream_curr_char == NULL) { /* Empty word */
-        buffer->ptr[i] = 0;
-        return 0;
+        buffer_ptr[i] = 0;
+        return GMIO_EAT_WORD_ERROR_EMPTY;
     }
 
     do {
-        buffer->ptr[i] = *stream_curr_char;
+        buffer_ptr[i] = *stream_curr_char;
         stream_curr_char = gmio_next_char(it);
         ++i;
     } while(i < buffer_capacity
@@ -51,11 +52,11 @@ int gmio_eat_word(
             && !gmio_clocale_isspace(*stream_curr_char));
 
     if (i < buffer_capacity) {
-        buffer->ptr[i] = 0; /* End string with terminating null byte */
+        buffer_ptr[i] = 0; /* End string with terminating null byte */
         buffer->len = i;
-        return 0;
+        return GMIO_EAT_WORD_ERROR_OK;
     }
-    return -1;
+    return GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW;
 }
 
 #if 0

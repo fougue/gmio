@@ -88,12 +88,20 @@ GMIO_INLINE void gmio_copy_spaces(
         gmio_string_stream_fwd_iterator_t* it,
         gmio_string_buffer_t* buffer);
 
+enum gmio_eat_word_error
+{
+    GMIO_EAT_WORD_ERROR_OK = 0,
+    GMIO_EAT_WORD_ERROR_EMPTY,
+    GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW,
+};
+typedef enum gmio_eat_word_error gmio_eat_word_error_t;
+
 /*! Advances iterator so that next word is extracted into \p buffer
  * 
  *  \retval 0    On success
  *  \retval <=-1 On error
  */
-int gmio_eat_word(
+gmio_eat_word_error_t gmio_eat_word(
         gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
 
 #if 0
