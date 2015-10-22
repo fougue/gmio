@@ -21,6 +21,7 @@
 
 /* For implementation section */
 #include "helper_stream.h"
+#include "string.h"
 #include "string_utils.h"
 #ifdef GMIO_STRINGPARSE_USE_FAST_ATOF
 #  include "fast_atof.h"
@@ -29,22 +30,6 @@
 #include <errno.h>
 #include <stdlib.h>
 /* End for implementation section */
-
-/*! Stores traditional 8-bit strings
- *
- *  For faster length lookups, it knowns the length of its contents. It must
- *  never exceeds the maximum length of the buffer.
- */
-struct gmio_string_buffer
-{
-    char*  ptr; /*!< Buffer contents */
-    size_t len; /*!< Size(length) of current contents */
-    size_t max_len; /*!< Maximum contents size(capacity) */
-};
-
-typedef struct gmio_string_buffer  gmio_string_buffer_t;
-
-GMIO_INLINE void gmio_string_buffer_clear(gmio_string_buffer_t* buffer);
 
 /*! Forward iterator over a stream
  *
@@ -55,12 +40,12 @@ GMIO_INLINE void gmio_string_buffer_clear(gmio_string_buffer_t* buffer);
 struct gmio_string_stream_fwd_iterator
 {
     gmio_stream_t* stream;
-    gmio_string_buffer_t buffer;
+    gmio_string_t buffer;
     size_t buffer_pos; /*!< Position indicator in buffer */
 
     void* cookie;
     void (*stream_read_hook)(
-            void* cookie, const gmio_string_buffer_t* str_buffer);
+            void* cookie, const gmio_string_t* str_buffer);
 };
 
 typedef struct gmio_string_stream_fwd_iterator
@@ -86,7 +71,7 @@ GMIO_INLINE const char* gmio_skip_spaces(
  *  in \p buffer */
 GMIO_INLINE void gmio_copy_spaces(
         gmio_string_stream_fwd_iterator_t* it,
-        gmio_string_buffer_t* buffer);
+        gmio_string_t* buffer);
 
 enum gmio_eat_word_error
 {
@@ -102,7 +87,7 @@ typedef enum gmio_eat_word_error gmio_eat_word_error_t;
  *  \retval <=-1 On error
  */
 gmio_eat_word_error_t gmio_eat_word(
-        gmio_string_stream_fwd_iterator_t* it, gmio_string_buffer_t* buffer);
+        gmio_string_stream_fwd_iterator_t* it, gmio_string_t* buffer);
 
 #if 0
 /*! Iterate over stream while it matches input string \p str
@@ -125,12 +110,6 @@ GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
 /*
  * -- Implementation
  */
-
-void gmio_string_buffer_clear(gmio_string_buffer_t* buffer)
-{
-    buffer->ptr[0] = 0;
-    buffer->len = 0;
-}
 
 const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it)
@@ -169,7 +148,7 @@ const char* gmio_skip_spaces(
 
 void gmio_copy_spaces(
         gmio_string_stream_fwd_iterator_t* it,
-        gmio_string_buffer_t* buffer)
+        gmio_string_t* buffer)
 {
     const char* curr_char = gmio_current_char(it);
     while (curr_char != NULL

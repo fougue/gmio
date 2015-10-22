@@ -79,8 +79,8 @@
  *
  */
 
-/* Fixed maximum length of any string_buffer user in this source file */
-enum { GMIO_STLA_READ_STRING_BUFFER_LEN = 1024 };
+/* Fixed maximum length of any string user in this source file */
+enum { GMIO_STLA_READ_STRING_MAX_LEN = 1024 };
 
 /* gmio_stream_fwd_iterator_stla_cookie */
 typedef struct
@@ -114,13 +114,6 @@ typedef enum
     unknown_token
 } gmio_stla_token_t;
 
-struct gmio_const_string
-{
-    const char* ptr;
-    size_t len;
-};
-typedef struct gmio_const_string gmio_const_string_t;
-
 static const char gmio_stla_tokstr_ENDFACET[] = "endfacet";
 static const char gmio_stla_tokstr_ENDLOOP[] = "endloop";
 static const char gmio_stla_tokstr_ENDSOLID[] = "endsolid";
@@ -130,7 +123,6 @@ static const char gmio_stla_tokstr_NORMAL[] = "normal";
 static const char gmio_stla_tokstr_OUTER[] = "outer";
 static const char gmio_stla_tokstr_SOLID[] = "solid";
 static const char gmio_stla_tokstr_VERTEX[] = "vertex";
-#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) }
 
 static const gmio_const_string_t gmio_stla_tokstr[] = {
     {0},
@@ -155,12 +147,12 @@ typedef struct
     gmio_bool_t error;
     gmio_string_stream_fwd_iterator_t stream_iterator;
     gmio_string_stream_fwd_iterator_cookie_t stream_iterator_cookie;
-    gmio_string_buffer_t string_buffer;
+    gmio_string_t string_buffer;
     gmio_stl_mesh_creator_t* creator;
 } gmio_stla_parse_data_t;
 
 static void gmio_stream_fwd_iterator_stla_read_hook(
-        void* cookie, const gmio_string_buffer_t* buffer)
+        void* cookie, const gmio_string_t* buffer)
 {
     gmio_string_stream_fwd_iterator_cookie_t* tcookie =
             (gmio_string_stream_fwd_iterator_cookie_t*)(cookie);
@@ -286,7 +278,7 @@ static gmio_stla_token_t parsing_find_token(const char* word, size_t word_len)
 }
 
 GMIO_INLINE gmio_stla_token_t parsing_find_token_from_buff(
-        const gmio_string_buffer_t* str_buffer)
+        const gmio_string_t* str_buffer)
 {
     return parsing_find_token(str_buffer->ptr, str_buffer->len);
 }
@@ -295,7 +287,7 @@ static gmio_bool_t parsing_eat_next_token(
         gmio_stla_token_t next_token, gmio_stla_parse_data_t* data)
 {
     const char* next_token_str = token_to_string(next_token);
-    gmio_string_buffer_t* data_strbuff = &data->string_buffer;
+    gmio_string_t* data_strbuff = &data->string_buffer;
     gmio_eat_word_error_t eat_error;
 
     data_strbuff->len = 0;
@@ -334,7 +326,7 @@ static gmio_bool_t parse_eat_until_token(
 {
     if (!token_match_candidate(data->token, end_tokens)) {
         gmio_string_stream_fwd_iterator_t* stream_it = &data->stream_iterator;
-        gmio_string_buffer_t* string_buf = &data->string_buffer;
+        gmio_string_t* string_buf = &data->string_buffer;
         gmio_bool_t end_token_found = GMIO_FALSE;
 
         do {
@@ -378,7 +370,7 @@ static gmio_bool_t parse_solidname_beg(gmio_stla_parse_data_t* data)
     if (parsing_eat_next_token(unknown_token, data)) {
         data->token = parsing_find_token_from_buff(&data->string_buffer);
         if (data->token == FACET_token || data->token == ENDSOLID_token) {
-            gmio_string_buffer_clear(&data->string_buffer);
+            gmio_string_clear(&data->string_buffer);
             return GMIO_TRUE;
         }
         else {
@@ -486,7 +478,7 @@ static void parse_solid(gmio_stla_parse_data_t* data)
 
 int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
 {
-    char fixed_buffer[GMIO_STLA_READ_STRING_BUFFER_LEN];
+    char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN];
     gmio_stla_parse_data_t parse_data;
 
     { /* Check validity of input parameters */
@@ -514,7 +506,7 @@ int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
 
     parse_data.string_buffer.ptr = &fixed_buffer[0];
     parse_data.string_buffer.len = 0;
-    parse_data.string_buffer.max_len = GMIO_STLA_READ_STRING_BUFFER_LEN;
+    parse_data.string_buffer.max_len = GMIO_STLA_READ_STRING_MAX_LEN;
 
     parse_data.creator = creator;
 

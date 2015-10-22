@@ -28,7 +28,7 @@ void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
 }
 
 gmio_eat_word_error_t gmio_eat_word(
-        gmio_string_stream_fwd_iterator_t *it, gmio_string_buffer_t *buffer)
+        gmio_string_stream_fwd_iterator_t *it, gmio_string_t *buffer)
 {
     char* buffer_ptr = buffer->ptr;
     const size_t buffer_capacity = buffer->max_len;

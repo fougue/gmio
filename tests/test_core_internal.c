@@ -151,7 +151,7 @@ const char* test_internal__string_parse()
         gmio_string_stream_fwd_iterator_t fwd_it = {0};
 
         char copy_str[128];
-        gmio_string_buffer_t copy_strbuff;
+        gmio_string_t copy_strbuff;
 
         buff.readonly_ptr = text;
         buff.len = strlen(text);
@@ -212,7 +212,7 @@ const char* test_internal__string_parse()
         gmio_string_stream_fwd_iterator_t fwd_it = {0};
 
         char copy_str[128];
-        gmio_string_buffer_t copy_strbuff;
+        gmio_string_t copy_strbuff;
 
         buff.readonly_ptr = text;
         buff.len = strlen(text);
