@@ -77,7 +77,7 @@ enum gmio_eat_word_error
 {
     GMIO_EAT_WORD_ERROR_OK = 0,
     GMIO_EAT_WORD_ERROR_EMPTY,
-    GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW,
+    GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW
 };
 typedef enum gmio_eat_word_error gmio_eat_word_error_t;
 
