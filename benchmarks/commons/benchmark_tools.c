@@ -15,6 +15,7 @@
 
 #include "benchmark_tools.h"
 
+#include <float.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -124,36 +125,61 @@ GMIO_INLINE size_t size_t_max(size_t lhs, size_t rhs)
 }
 
 /*! String representation of the unit used for execution time */
-static const char* unit_time_str = "ms";
+static const char unit_time_str[] = "ms";
 
-/*! Generic formatted print of some execution time */
-static void gprintf_func_exec_time(
+/*! String representation of some data not available */
+static const char n_a[] = "N/A";
+
+/*! Generic formatted print of a string */
+static void gprintf_func_string(
         /* Annex data for func_gprintf (ex: char* for sprintf()) */
         void* cookie,
         /* Function ptr on a printf wrap (ex: sprintf_wrap()) */
         func_gprintf_t func_gprintf,
         /* Width of the print column, if any (can be == 0) */
         size_t width_column,
-        /* Execution time, in ms */
+        /* String to be printed */
+        const char* str)
+{
+    if (width_column > 0)
+        func_gprintf(cookie, "%-*s", width_column, str);
+    else
+        func_gprintf(cookie, "%s", str);
+}
+
+/*! Generic formatted print of some execution time */
+static void gprintf_func_exec_time(
+        void* cookie,
+        func_gprintf_t func_gprintf,
+        size_t width_column,
         size_t time_ms,
-        /* Valid execution time ? */
         gmio_bool_t has_time)
 {
     if (has_time) {
         char str_time[128] = {0};
         /* TODO: %ull is not accepted by mingw, find a fix(maybe %ul64) */
         sprintf(str_time, "%u%s", (unsigned)time_ms, unit_time_str);
-        if (width_column > 0)
-            func_gprintf(cookie, "%-*s", width_column, str_time);
-        else
-            func_gprintf(cookie, "%s", str_time);
+        gprintf_func_string(cookie, func_gprintf, width_column, str_time);
     }
     else {
-        const char n_a[] = "N/A";
-        if (width_column > 0)
-            func_gprintf(cookie, "%-*s", width_column, n_a);
-        else
-            func_gprintf(cookie, "%s", n_a);
+        gprintf_func_string(cookie, func_gprintf, width_column, n_a);
+    }
+}
+
+/*! Generic formatted print of a ratio */
+static void gprintf_func_exec_ratio(
+        void* cookie,
+        func_gprintf_t func_gprintf,
+        size_t width_column,
+        float ratio)
+{
+    if (!(ratio < 0)) { /* Valid ratio */
+        char str_ratio[128] = {0};
+        sprintf(str_ratio, "%.2f", ratio);
+        gprintf_func_string(cookie, func_gprintf, width_column, str_ratio);
+    }
+    else {
+        gprintf_func_string(cookie, func_gprintf, width_column, n_a);
     }
 }
 
@@ -210,13 +236,43 @@ static size_t find_maxlen_cmp_result_func_exec_time(
     for (i = 0; i < res_array.count; ++i) {
         size_t time = 0;
         gmio_bool_t has_time = GMIO_FALSE;
-        size_t len = 0;
         func_select_exec_infos(&res_array.ptr[i], &time, &has_time);
         gprintf_func_exec_time(strbuff, &sprintf_wrap, 0, time, has_time);
-        len = safe_strlen(strbuff);
-        max_len = size_t_max(len, max_len);
+        max_len = size_t_max(safe_strlen(strbuff), max_len);
     }
     return max_len;
+}
+
+/*! Returns the strlen of the longest func2/func1 ratio string */
+static size_t find_maxlen_cmp_result_ratio(
+        benchmark_cmp_result_array_t res_array)
+{
+    char strbuff[1024] = {0};
+    size_t max_len = 0;
+    size_t i;
+    for (i = 0; i < res_array.count; ++i) {
+        const float ratio = res_array.ptr[i].func2_func1_ratio;
+        gprintf_func_exec_ratio(strbuff, &sprintf_wrap, 0, ratio);
+        max_len = size_t_max(safe_strlen(strbuff), max_len);
+    }
+    return max_len;
+}
+
+static void update_benchmark_cmp_result_ratio(benchmark_cmp_result_t* result)
+{
+    if (result->has_func1_exec_time && result->has_func2_exec_time) {
+        if (result->func2_exec_time_ms > 0) {
+            result->func2_func1_ratio =
+                    result->func2_exec_time_ms
+                    / (float)result->func1_exec_time_ms;
+        }
+        else {
+            result->func2_func1_ratio = FLT_MAX;
+        }
+    }
+    else {
+        result->func2_func1_ratio = -1.f; /* Non-valid ratio */
+    }
 }
 
 /* Implementation */
@@ -240,8 +296,48 @@ benchmark_cmp_result_t benchmark_cmp(benchmark_cmp_arg_t arg)
         result.func2_exec_time_ms = benchmark_timer_elapsed_ms(&timer);
         result.has_func2_exec_time = GMIO_TRUE;
     }
+    update_benchmark_cmp_result_ratio(&result);
 
     return result;
+}
+
+void benchmark_cmp_batch(
+        size_t run_count,
+        const benchmark_cmp_arg_t *arg_array,
+        benchmark_cmp_result_t *result_array,
+        void (*func_init)(),
+        void (*func_cleanup)())
+{
+    size_t run; /* for-loop index */
+    size_t array_size = 0;
+    while (arg_array[array_size].tag != NULL)
+        ++array_size;
+
+    for (run = 0; run < run_count; ++run) {
+        size_t i; /* for-loop index */
+        /* Init */
+        if (func_init)
+            (*func_init)();
+
+        for (i = 0; i < array_size; ++i) {
+            const benchmark_cmp_result_t ires = benchmark_cmp(arg_array[i]);
+            benchmark_cmp_result_t* fres = &result_array[i];
+            if (run != 0) {
+                if (fres->func1_exec_time_ms > ires.func1_exec_time_ms)
+                    fres->func1_exec_time_ms = ires.func1_exec_time_ms;
+                if (fres->func2_exec_time_ms > ires.func2_exec_time_ms)
+                    fres->func2_exec_time_ms = ires.func2_exec_time_ms;
+                update_benchmark_cmp_result_ratio(fres);
+            }
+            else {
+                *fres = ires;
+            }
+        }
+
+        /* Cleanup */
+        if (func_cleanup)
+            (*func_cleanup)();
+    }
 }
 
 void benchmark_print_results(
@@ -254,6 +350,7 @@ void benchmark_print_results(
                 header.component_1 != NULL ?  header.component_1 : "";
         const char* header_comp2 =
                 header.component_2 != NULL ?  header.component_2 : "";
+        const char* header_ratio = "";
         const size_t width_tag_col =
                 find_maxlen_cmp_result_tag(result_array);
         const size_t width_func1_col =
@@ -266,12 +363,17 @@ void benchmark_print_results(
                     find_maxlen_cmp_result_func_exec_time(
                         result_array, &select_cmp_result_func2_exec_infos),
                     safe_strlen(header_comp2));
+        const size_t width_ratio_col =
+                size_t_max(
+                    find_maxlen_cmp_result_ratio(result_array),
+                    safe_strlen(header_ratio));
         size_t i; /* for-loop index*/
 
         /* Print table header */
         printf("%*s | ", (int)width_tag_col, "");
         printf("%-*s | ", (int)width_func1_col, header_comp1);
-        printf("%-*s\n", (int)width_func2_col, header_comp2);
+        printf("%-*s | ", (int)width_func2_col, header_comp2);
+        printf("%-*s\n", (int)width_ratio_col, header_ratio);
 
         /* Print separation between header and results */
         print_string_n("-", width_tag_col + 1);
@@ -279,6 +381,8 @@ void benchmark_print_results(
         print_string_n("-", width_func1_col + 2);
         printf("|");
         print_string_n("-", width_func2_col + 2);
+        printf("|");
+        print_string_n("-", width_ratio_col + 2);
         printf("\n");
 
         /* Print benchmark result lines */
@@ -294,46 +398,11 @@ void benchmark_print_results(
                         width_func2_col,
                         result.func2_exec_time_ms,
                         result.has_func2_exec_time);
+            printf(" | ");
+            gprintf_func_exec_ratio(
+                        NULL, printf_wrap,
+                        width_ratio_col, result.func2_func1_ratio);
             printf("\n");
         }
-    }
-}
-
-void benchmark_cmp_batch(
-        size_t run_count,
-        const benchmark_cmp_arg_t *arg_array,
-        benchmark_cmp_result_t *result_array,
-        void (*func_init)(),
-        void (*func_cleanup)())
-{
-    size_t run; /* for-loop index */
-    size_t array_size = 0;
-    while (arg_array[array_size].tag != NULL) {
-        ++array_size;
-    }
-
-    for (run = 0; run < run_count; ++run) {
-        size_t i; /* for-loop index */
-        /* Init */
-        if (func_init)
-            (*func_init)();
-
-        for (i = 0; i < array_size; ++i) {
-            const benchmark_cmp_result_t ires = benchmark_cmp(arg_array[i]);
-            benchmark_cmp_result_t* fres = &result_array[i];
-            if  (run != 0) {
-                if (fres->func1_exec_time_ms > ires.func1_exec_time_ms)
-                    fres->func1_exec_time_ms = ires.func1_exec_time_ms;
-                if (fres->func2_exec_time_ms > ires.func2_exec_time_ms)
-                    fres->func2_exec_time_ms = ires.func2_exec_time_ms;
-            }
-            else {
-                *fres = ires;
-            }
-        }
-
-        /* Cleanup */
-        if (func_cleanup)
-            (*func_cleanup)();
     }
 }

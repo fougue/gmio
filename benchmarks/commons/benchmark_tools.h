@@ -55,6 +55,7 @@ struct benchmark_cmp_result
     size_t func2_exec_time_ms;
     /*! Is exec time of the 2nd function valid ? */
     gmio_bool_t has_func2_exec_time;
+    float func2_func1_ratio;
 };
 typedef struct benchmark_cmp_result benchmark_cmp_result_t;
 
