@@ -39,7 +39,7 @@ typedef struct gmio_const_string gmio_const_string_t;
  *      const gmio_const_string_t token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
  *  \endcode
  */
-#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) }
+#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
 
 /*! Stores traditional 8-bit mutable strings
  *
