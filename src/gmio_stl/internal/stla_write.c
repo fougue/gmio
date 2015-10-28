@@ -50,13 +50,7 @@ enum { GMIO_STLA_FACET_SIZE = 321 };
 enum { GMIO_STLA_FACET_SIZE_P2 = 512 };
 enum { GMIO_STLA_SOLID_NAME_MAX_LEN = 512 };
 
-GMIO_INLINE char* gmio_write_string(char* buffer, const char* str)
-{
-    const char* safe_str = str != NULL ? str : "";
-    const size_t len = strlen(safe_str);
-    strncpy(buffer, safe_str, len);
-    return buffer + len;
-}
+/* Fucntions for raw strings(ie. "const char*") */
 
 GMIO_INLINE char* gmio_write_eol(char* buffer)
 {
@@ -64,24 +58,30 @@ GMIO_INLINE char* gmio_write_eol(char* buffer)
     return buffer + 1;
 }
 
-GMIO_INLINE char* gmio_write_string_eol(char* buffer, const char* str)
+GMIO_INLINE char* gmio_write_rawstr(char* buffer, const char* str)
 {
-    buffer = gmio_write_string(buffer, str);
-    return gmio_write_eol(buffer);
+    /* pre-condition: str must not be NULL */
+#if 0
+    const size_t len = strlen(str);
+    strncpy(buffer, str, len);
+    return buffer + len;
+#else
+    /* Not that good :
+     *     the compiler cannot optimize copy for the target architecture
+     */
+    while (*str != 0) {
+        *buffer = *str;
+        ++buffer;
+        ++str;
+    }
+    return buffer;
+#endif
 }
 
-/*static char* gmio_write_space(char* buffer)
+GMIO_INLINE char* gmio_write_rawstr_eol(char* buffer, const char* str)
 {
-  *buffer = ' ';
-  return buffer + 1;
-}*/
-
-GMIO_INLINE char* gmio_write_nspaces(char* buffer, int n)
-{
-    const int offset = n;
-    while (n > 0)
-        *(buffer + (--n)) = ' ';
-    return buffer + offset;
+    buffer = gmio_write_rawstr(buffer, str);
+    return gmio_write_eol(buffer);
 }
 
 GMIO_INLINE char gmio_float_text_format_to_specifier(
@@ -120,7 +120,8 @@ GMIO_INLINE char* gmio_write_coords(
                             coords_format, coords->x, coords->y, coords->z);
 }
 
-static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
+GMIO_INLINE gmio_bool_t gmio_transfer_flush_buffer(
+        gmio_transfer_t* trsf, size_t n)
 {
     const size_t write_count =
             gmio_stream_write(&trsf->stream, trsf->memblock.ptr, sizeof(char), n);
@@ -130,7 +131,7 @@ static gmio_bool_t gmio_transfer_flush_buffer(gmio_transfer_t* trsf, size_t n)
 int gmio_stla_write(
         gmio_transfer_t* trsf,
         const gmio_stl_mesh_t* mesh,
-        const gmio_stl_write_options_t *options)
+        const gmio_stl_write_options_t* options)
 {
     /* Constants */
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
@@ -138,8 +139,10 @@ int gmio_stla_write(
             trsf != NULL ?
                 gmio_size_to_uint32(trsf->memblock.size / GMIO_STLA_FACET_SIZE_P2)
               : 0;
-    const char* solid_name =
+    const char* opt_solid_name =
             options != NULL ? options->stla_solid_name : NULL;
+    const char* solid_name =
+            opt_solid_name != NULL ? opt_solid_name : "";
     const gmio_float_text_format_t float32_format =
             options != NULL ?
                 options->stla_float32_format :
@@ -170,9 +173,9 @@ int gmio_stla_write(
                 gmio_float_text_format_to_specifier(float32_format);
         char* it = coords_format;
         it = gmio_write_stdio_format(it, float32_specifier, float32_prec);
-        it = gmio_write_nspaces(it, 2);
+        it = gmio_write_rawstr(it, "  ");
         it = gmio_write_stdio_format(it, float32_specifier, float32_prec);
-        it = gmio_write_nspaces(it, 2);
+        it = gmio_write_rawstr(it, "  ");
         it = gmio_write_stdio_format(it, float32_specifier, float32_prec);
         *it = 0; /* Write terminating null byte */
         /* TODO: check the "format" string can contain the given precision */
@@ -180,8 +183,8 @@ int gmio_stla_write(
 
     /* Write solid declaration */
     if (!write_triangles_only) {
-        buffc = gmio_write_string(buffc, "solid ");
-        buffc = gmio_write_string_eol(buffc, solid_name);
+        buffc = gmio_write_rawstr(buffc, "solid ");
+        buffc = gmio_write_rawstr_eol(buffc, solid_name);
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)mblock_ptr))
             return GMIO_ERROR_STREAM;
     }
@@ -208,23 +211,19 @@ int gmio_stla_write(
              ++ibuffer_facet)
         {
             func_get_triangle(mesh_cookie, ibuffer_facet, &tri);
-            buffc = gmio_write_string(buffc, "facet normal ");
+            buffc = gmio_write_rawstr(buffc, "facet normal ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.normal);
-            buffc = gmio_write_eol(buffc);
 
-            buffc = gmio_write_string_eol(buffc, "outer loop");
-            buffc = gmio_write_string(buffc, " vertex ");
+            buffc = gmio_write_rawstr(buffc, "\nouter loop");
+            buffc = gmio_write_rawstr(buffc, "\n vertex ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.v1);
-            buffc = gmio_write_eol(buffc);
-            buffc = gmio_write_string(buffc, " vertex ");
+            buffc = gmio_write_rawstr(buffc, "\n vertex ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.v2);
-            buffc = gmio_write_eol(buffc);
-            buffc = gmio_write_string(buffc, " vertex ");
+            buffc = gmio_write_rawstr(buffc, "\n vertex ");
             buffc = gmio_write_coords(buffc, coords_format, &tri.v3);
-            buffc = gmio_write_eol(buffc);
-            buffc = gmio_write_string_eol(buffc, "endloop");
+            buffc = gmio_write_rawstr(buffc, "\nendloop");
 
-            buffc = gmio_write_string_eol(buffc, "endfacet");
+            buffc = gmio_write_rawstr(buffc, "\nendfacet\n");
         } /* end for (ibuffer_facet) */
 
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)mblock_ptr))
@@ -237,8 +236,8 @@ int gmio_stla_write(
 
     /* Write end of solid */
     if (gmio_no_error(error) && !write_triangles_only) {
-        buffc = gmio_write_string(trsf->memblock.ptr, "endsolid ");
-        buffc = gmio_write_string_eol(buffc, solid_name);
+        buffc = gmio_write_rawstr(trsf->memblock.ptr, "endsolid ");
+        buffc = gmio_write_rawstr_eol(buffc, solid_name);
         if (!gmio_transfer_flush_buffer(trsf, buffc - (char*)mblock_ptr))
             error = GMIO_ERROR_STREAM;
     }
