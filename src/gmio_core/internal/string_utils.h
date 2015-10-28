@@ -81,7 +81,7 @@ GMIO_INLINE int gmio_clocale_isdigit(char c)
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
-    return digit_chars[c];
+    return digit_chars[(unsigned char)c];
 }
 
 /*! Returns non-zero if \p c is an uppercase letter (for C-locale), zero
@@ -151,7 +151,7 @@ GMIO_INLINE int gmio_clocale_islower(char c)
 /*! Returns the lowercase letter converted to uppercase */
 GMIO_INLINE char gmio_clocale_toupper(char c)
 {
-    static const uint8_t table_toupper[128] = {
+    static const char table_toupper[128] = {
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
         ' ', '!', '"', '#', '$', '%', '&','\'', '(', ')', '*', '+', ',', '-', '.', '/',
@@ -161,13 +161,13 @@ GMIO_INLINE char gmio_clocale_toupper(char c)
         '`', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
         'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '{', '|', '}', '~', 0,
     };
-    return table_toupper[c];
+    return table_toupper[(unsigned char)c];
 }
 
 /*! Returns the uppercase letter converted to lowercase */
 GMIO_INLINE char gmio_clocale_tolower(char c)
 {
-    static const uint8_t table_tolower[128] = {
+    static const char table_tolower[128] = {
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
         ' ', '!', '"', '#', '$', '%', '&','\'', '(', ')', '*', '+', ',', '-', '.', '/',
@@ -177,7 +177,7 @@ GMIO_INLINE char gmio_clocale_tolower(char c)
         '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
         'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', 0,
     };
-    return table_tolower[c];
+    return table_tolower[(unsigned char)c];
 }
 
 /*! Returns true if \p c1 compare equals to \p c2
