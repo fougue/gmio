@@ -49,7 +49,7 @@ gmio_eat_word_error_t gmio_eat_word(
         ++i;
     } while(i < str_capacity
             && stream_curr_char != NULL
-            && !gmio_clocale_isspace(*stream_curr_char));
+            && !gmio_ascii_isspace(*stream_curr_char));
 
     if (i < str_capacity) {
         str_ptr[i] = 0; /* End string with terminating null byte */

@@ -82,21 +82,8 @@
 /* Fixed maximum length of any string user in this source file */
 enum { GMIO_STLA_READ_STRING_MAX_LEN = 1024 };
 
-/* gmio_stream_fwd_iterator_stla_cookie */
-typedef struct
-{
-    /* Copy of gmio_stla_read() corresponding argument */
-    gmio_transfer_t* transfer;
-    /* Cache for gmio_stream_size(&transfer->stream) */
-    size_t stream_size;
-    /* Offset (in bytes) from beginning of stream : current position */
-    size_t stream_offset;
-    /* Cache for gmio_transfer::func_is_stop_requested() */
-    gmio_bool_t is_stop_requested;
-} gmio_string_stream_fwd_iterator_cookie_t;
-
 /* gmio_stla_token */
-typedef enum
+enum gmio_stla_token
 {
     null_token = 0,
     ENDFACET_token,
@@ -112,7 +99,8 @@ typedef enum
     FLOAT_token = ID_token,
     empty_token,
     unknown_token
-} gmio_stla_token_t;
+};
+typedef enum gmio_stla_token gmio_stla_token_t;
 
 static const char gmio_stla_tokstr_ENDFACET[] = "endfacet";
 static const char gmio_stla_tokstr_ENDLOOP[] = "endloop";
@@ -124,10 +112,10 @@ static const char gmio_stla_tokstr_OUTER[] = "outer";
 static const char gmio_stla_tokstr_SOLID[] = "solid";
 static const char gmio_stla_tokstr_VERTEX[] = "vertex";
 
-static const gmio_const_string_t gmio_stla_tokstr[] = {
+static const gmio_const_string_t gmio_stla_tokcstr[] = {
     {0},
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_ENDFACET),
-    GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_ENDLOOP) ,
+    GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_ENDLOOP),
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_ENDSOLID),
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_FACET),
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_LOOP),
@@ -135,10 +123,23 @@ static const gmio_const_string_t gmio_stla_tokstr[] = {
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_OUTER),
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_SOLID),
     GMIO_CONST_STRING_FROM_ARRAY(gmio_stla_tokstr_VERTEX),
-    { "ID", 2 },
+    { "ID", 2 }, /* ID_token */
     { "",   0 }, /* empty_token */
     { "?",  1 }  /* unknown_token */
 };
+
+/* gmio_stream_fwd_iterator_stla_cookie */
+typedef struct
+{
+    /* Copy of gmio_stla_read() corresponding argument */
+    gmio_transfer_t* transfer;
+    /* Cache for gmio_stream_size(&transfer->stream) */
+    size_t stream_size;
+    /* Offset (in bytes) from beginning of stream : current position */
+    size_t stream_offset;
+    /* Cache for gmio_transfer::func_is_stop_requested() */
+    gmio_bool_t is_stop_requested;
+} gmio_string_stream_fwd_iterator_cookie_t;
 
 /* gmio_stla_parse_data */
 typedef struct
@@ -173,7 +174,7 @@ GMIO_INLINE gmio_bool_t parsing_can_continue(
 
 GMIO_INLINE const char* token_to_string(gmio_stla_token_t token)
 {
-    return gmio_stla_tokstr[token].ptr;
+    return gmio_stla_tokcstr[token].ptr;
 }
 
 GMIO_INLINE void parsing_error_msg(
@@ -218,32 +219,32 @@ static gmio_stla_token_t parsing_find_token(const char* word, size_t word_len)
         switch (word[0]) {
         case 'f':
         case 'F':
-            if (gmio_stricmp(word + 1, "acet") == 0)
+            if (gmio_ascii_stricmp(word + 1, "acet") == 0)
                 return FACET_token;
             break;
         case 'l':
         case 'L':
-            if (gmio_stricmp(word + 1, "oop") == 0)
+            if (gmio_ascii_stricmp(word + 1, "oop") == 0)
                 return LOOP_token;
             break;
         case 'n':
         case 'N':
-            if (gmio_stricmp(word + 1, "ormal") == 0)
+            if (gmio_ascii_stricmp(word + 1, "ormal") == 0)
                 return NORMAL_token;
             break;
         case 'o':
         case 'O':
-            if (gmio_stricmp(word + 1, "uter") == 0)
+            if (gmio_ascii_stricmp(word + 1, "uter") == 0)
                 return OUTER_token;
             break;
         case 's':
         case 'S':
-            if (gmio_stricmp(word + 1, "olid") == 0)
+            if (gmio_ascii_stricmp(word + 1, "olid") == 0)
                 return SOLID_token;
             break;
         case 'v':
         case 'V':
-            if (gmio_stricmp(word + 1, "ertex") == 0)
+            if (gmio_ascii_stricmp(word + 1, "ertex") == 0)
                 return VERTEX_token;
             break;
         default:
@@ -252,21 +253,21 @@ static gmio_stla_token_t parsing_find_token(const char* word, size_t word_len)
     }
 
     /* Might be "end..." token */
-    if (word_len >= 7 && gmio_istarts_with(word, "end") == GMIO_TRUE) {
+    if (word_len >= 7 && gmio_ascii_istarts_with(word, "end")) {
         switch (word[3]) {
         case 'f':
         case 'F':
-            if (gmio_stricmp(word + 4, "acet") == 0)
+            if (gmio_ascii_stricmp(word + 4, "acet") == 0)
                 return ENDFACET_token;
             break;
         case 'l':
         case 'L':
-            if (gmio_stricmp(word + 4, "oop") == 0)
+            if (gmio_ascii_stricmp(word + 4, "oop") == 0)
                 return ENDLOOP_token;
             break;
         case 's':
         case 'S':
-            if (gmio_stricmp(word + 4, "olid") == 0)
+            if (gmio_ascii_stricmp(word + 4, "olid") == 0)
                 return ENDSOLID_token;
             break;
         default:
@@ -286,14 +287,14 @@ GMIO_INLINE gmio_stla_token_t parsing_find_token_from_buff(
 static gmio_bool_t parsing_eat_next_token(
         gmio_stla_token_t next_token, gmio_stla_parse_data_t* data)
 {
-    const char* next_token_str = token_to_string(next_token);
     gmio_string_t* data_strbuff = &data->string_buffer;
     gmio_eat_word_error_t eat_error;
 
     data_strbuff->len = 0;
     eat_error = gmio_eat_word(&data->stream_iterator, data_strbuff);
     if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
-        if (gmio_stricmp(data_strbuff->ptr, next_token_str) == 0) {
+        const char* next_token_str = token_to_string(next_token);
+        if (gmio_ascii_stricmp(data_strbuff->ptr, next_token_str) == 0) {
             data->token = next_token;
             return GMIO_TRUE;
         }
@@ -385,6 +386,7 @@ static gmio_bool_t parse_solidname_beg(gmio_stla_parse_data_t* data)
 
 static gmio_bool_t parse_solidname_end(gmio_stla_parse_data_t* data)
 {
+    GMIO_UNUSED(data);
     /* TODO: parse according to retrieved solid name */
     return GMIO_TRUE;
 }

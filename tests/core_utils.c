@@ -46,7 +46,7 @@ void gmio_string_trim_from_end(char *str, size_t len)
     if (len > 0) {
         do {
             --len;
-            if (str[len] == 0 || gmio_clocale_isspace(str[len]))
+            if (str[len] == 0 || gmio_ascii_isspace(str[len]))
                 str[len] = 0;
             else
                 break;

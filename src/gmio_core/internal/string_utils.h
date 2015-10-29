@@ -18,43 +18,42 @@
 
 #include "../global.h"
 
-/*! Returns non-zero if \p c is a space (for C-locale), zero otherwise */
-GMIO_INLINE int gmio_clocale_isspace(char c);
+/*! Returns non-zero if \p c is a space, zero otherwise */
+GMIO_INLINE int gmio_ascii_isspace(char c);
 
-/*! Returns non-zero if \p c is a digit (for C-locale), zero otherwise */
-GMIO_INLINE int gmio_clocale_isdigit(char c);
+/*! Returns non-zero if \p c is a digit, zero otherwise */
+GMIO_INLINE int gmio_ascii_isdigit(char c);
 
-/*! Returns non-zero if \p c is an uppercase letter (for C-locale), zero
- *  otherwise */
-GMIO_INLINE int gmio_clocale_isupper(char c);
+/*! Returns non-zero if \p c is an uppercase letter, zero otherwise */
+GMIO_INLINE int gmio_ascii_isupper(char c);
 
-/*! Returns non-zero if \p c is a lowercase letter (for C-locale), zero
- *  otherwise */
-GMIO_INLINE int gmio_clocale_islower(char c);
+/*! Returns non-zero if \p c is a lowercase letter, zero otherwise */
+GMIO_INLINE int gmio_ascii_islower(char c);
 
 /*! Returns the lowercase letter converted to uppercase */
-GMIO_INLINE char gmio_clocale_toupper(char c);
+GMIO_INLINE char gmio_ascii_toupper(char c);
 
 /*! Returns the uppercase letter converted to lowercase */
-GMIO_INLINE char gmio_clocale_tolower(char c);
+GMIO_INLINE char gmio_ascii_tolower(char c);
 
-/*! Returns true if \p c1 compare equals to \p c2
+/*! Returns 0 if \p c1 compare equals to \p c2, non-zero otherwise
  *
  *  Comparison is case-insensitive
  */
-GMIO_INLINE gmio_bool_t gmio_clocale_char_iequals(char c1, char c2);
+GMIO_INLINE gmio_bool_t gmio_ascii_char_iequals(char c1, char c2);
 
 /*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise
  *
  *  Comparison is case-insensitive
  */
-GMIO_INLINE int gmio_stricmp(const char* str1, const char* str2);
+GMIO_INLINE int gmio_ascii_stricmp(const char* str1, const char* str2);
 
 /*! Returns true if \p str starts with string \p begin
  *
  *  Comparison is case-insensitive
  */
-GMIO_INLINE gmio_bool_t gmio_istarts_with(const char* str, const char* begin);
+GMIO_INLINE gmio_bool_t gmio_ascii_istarts_with(
+        const char* str, const char* begin);
 
 
 
@@ -68,7 +67,7 @@ GMIO_INLINE gmio_bool_t gmio_istarts_with(const char* str, const char* begin);
 #  include <ctype.h>
 #endif
 
-int gmio_clocale_isspace(char c)
+int gmio_ascii_isspace(char c)
 {
     /* 0x20 : space (SPC)
      * 0x09 : horizontal tab (TAB)
@@ -79,115 +78,42 @@ int gmio_clocale_isspace(char c)
 #if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
     /* TODO: eliminate branch */
     return c == 0x20 || ((uint8_t)(c - 0x09) < 5);
-#elif defined(GMIO_STRINGUTILS_C_ARRAYS)
-    static const unsigned char space_chars[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-    return space_chars[c];
 #elif defined(GMIO_STRINGUTILS_CTYPE_H)
     return isspace(c);
 #endif
 }
 
-int gmio_clocale_isdigit(char c)
+int gmio_ascii_isdigit(char c)
 {
-    static const unsigned char digit_chars[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-    return digit_chars[(unsigned char)c];
+    /* 48 <= c <= 57 */
+#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
+    return (uint8_t) (c - 48) < 10;
+#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+    return isdigit(c);
+#endif
 }
 
-int gmio_clocale_isupper(char c)
+int gmio_ascii_isupper(char c)
 {
+    /* 65 <= c <= 90; */
 #if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
-    /* TODO: eliminate branch */
-    return 65 <= c && c <= 90;
-#elif defined(GMIO_STRINGUTILS_C_ARRAYS)
-    static const unsigned char upper_chars[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-    return upper_chars[c];
+    return (uint8_t) (c - 65) < 26;
 #elif defined(GMIO_STRINGUTILS_CTYPE_H)
     return isupper(c);
 #endif
 }
 
-int gmio_clocale_islower(char c)
+int gmio_ascii_islower(char c)
 {
+    /* 97 <= c <= 122; */
 #if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
-    /* TODO: eliminate branch */
-    return 97 <= c && c <= 122;
-#elif defined(GMIO_STRINGUTILS_C_ARRAYS)
-    static const unsigned char lower_chars[] = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
-    return lower_chars[c];
+    return (unsigned) (c - 97) < 26;
 #elif defined(GMIO_STRINGUTILS_CTYPE_H)
     return islower(c);
 #endif
 }
 
-char gmio_clocale_toupper(char c)
+char gmio_ascii_toupper(char c)
 {
     static const char table_toupper[128] = {
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
@@ -202,7 +128,7 @@ char gmio_clocale_toupper(char c)
     return table_toupper[(unsigned char)c];
 }
 
-char gmio_clocale_tolower(char c)
+char gmio_ascii_tolower(char c)
 {
     static const char table_tolower[128] = {
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
@@ -217,16 +143,16 @@ char gmio_clocale_tolower(char c)
     return table_tolower[(unsigned char)c];
 }
 
-gmio_bool_t gmio_clocale_char_iequals(char c1, char c2)
+gmio_bool_t gmio_ascii_char_iequals(char c1, char c2)
 {
     /* TODO: eliminate branch */
-    return c1 == c2 || (gmio_clocale_toupper(c1) == gmio_clocale_toupper(c2));
+    return c1 == c2 || (gmio_ascii_toupper(c1) == gmio_ascii_toupper(c2));
 }
 
-int gmio_stricmp(const char* str1, const char* str2)
+int gmio_ascii_stricmp(const char* str1, const char* str2)
 {
     while (*str1 != 0 && *str2 != 0) {
-        if (!gmio_clocale_char_iequals(*str1, *str2))
+        if (!gmio_ascii_char_iequals(*str1, *str2))
             return 1;
         ++str1;
         ++str2;
@@ -234,10 +160,10 @@ int gmio_stricmp(const char* str1, const char* str2)
     return *str1 == 0 && *str2 == 0 ? 0 : 1;
 }
 
-gmio_bool_t gmio_istarts_with(const char* str, const char* begin)
+gmio_bool_t gmio_ascii_istarts_with(const char* str, const char* begin)
 {
     while (*begin != 0) {
-        if (*str == 0 || !gmio_clocale_char_iequals(*str, *begin))
+        if (*str == 0 || !gmio_ascii_char_iequals(*str, *begin))
             return GMIO_FALSE;
         ++str;
         ++begin;

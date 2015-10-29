@@ -138,7 +138,7 @@ const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it)
 {
     const char* curr_char = gmio_current_char(it);
-    while (curr_char != NULL && gmio_clocale_isspace(*curr_char))
+    while (curr_char != NULL && gmio_ascii_isspace(*curr_char))
         curr_char = gmio_next_char(it);
     return curr_char;
 }
@@ -148,7 +148,7 @@ void gmio_copy_spaces(
 {
     const char* curr_char = gmio_current_char(it);
     while (curr_char != NULL
-           && gmio_clocale_isspace(*curr_char)
+           && gmio_ascii_isspace(*curr_char)
            && str->len < str->max_len)
     {
         str->ptr[str->len] = *curr_char;

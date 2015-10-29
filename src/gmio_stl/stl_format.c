@@ -74,13 +74,13 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
     {
         /* Skip spaces at beginning */
         size_t pos = 0;
-        while (pos < read_size && gmio_clocale_isspace(fixed_buffer[pos]))
+        while (pos < read_size && gmio_ascii_isspace(fixed_buffer[pos]))
             ++pos;
 
         /* Next token (if exists) must match "solid\s" */
         if ((pos + 6) < read_size
-                && gmio_istarts_with(fixed_buffer + pos, "solid")
-                && gmio_clocale_isspace(fixed_buffer[pos + 5]))
+                && gmio_ascii_istarts_with(fixed_buffer + pos, "solid")
+                && gmio_ascii_isspace(fixed_buffer[pos + 5]))
         {
             return GMIO_STL_FORMAT_ASCII;
         }
