@@ -67,12 +67,13 @@ GMIO_INLINE const char *gmio_next_char(
 GMIO_INLINE const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it);
 
-/*! Advances iterator until the first non-space char and copies any space found
- *  in \p buffer */
+/*! Advances iterator until the first non-space char and copies in \p str any
+ *  space found */
 GMIO_INLINE void gmio_copy_spaces(
         gmio_string_stream_fwd_iterator_t* it,
-        gmio_string_t* buffer);
+        gmio_string_t* str);
 
+/*! Error codes returned by gmio_eat_word() */
 enum gmio_eat_word_error
 {
     GMIO_EAT_WORD_ERROR_OK = 0,
@@ -81,13 +82,9 @@ enum gmio_eat_word_error
 };
 typedef enum gmio_eat_word_error gmio_eat_word_error_t;
 
-/*! Advances iterator so that next word is extracted into \p buffer
- * 
- *  \retval 0    On success
- *  \retval <=-1 On error
- */
+/*! Advances iterator so that next word is extracted into \p str */
 gmio_eat_word_error_t gmio_eat_word(
-        gmio_string_stream_fwd_iterator_t* it, gmio_string_t* buffer);
+        gmio_string_stream_fwd_iterator_t* it, gmio_string_t* str);
 
 #if 0
 /*! Iterate over stream while it matches input string \p str
@@ -147,17 +144,16 @@ const char* gmio_skip_spaces(
 }
 
 void gmio_copy_spaces(
-        gmio_string_stream_fwd_iterator_t* it,
-        gmio_string_t* buffer)
+        gmio_string_stream_fwd_iterator_t* it, gmio_string_t* str)
 {
     const char* curr_char = gmio_current_char(it);
     while (curr_char != NULL
            && gmio_clocale_isspace(*curr_char)
-           && buffer->len < buffer->max_len)
+           && str->len < str->max_len)
     {
-        buffer->ptr[buffer->len] = *curr_char;
+        str->ptr[str->len] = *curr_char;
         curr_char = gmio_next_char(it);
-        ++buffer->len;
+        ++str->len;
     }
 }
 

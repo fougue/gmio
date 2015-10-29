@@ -28,32 +28,32 @@ void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
 }
 
 gmio_eat_word_error_t gmio_eat_word(
-        gmio_string_stream_fwd_iterator_t *it, gmio_string_t *buffer)
+        gmio_string_stream_fwd_iterator_t *it, gmio_string_t *str)
 {
-    char* buffer_ptr = buffer->ptr;
-    const size_t buffer_capacity = buffer->max_len;
+    char* str_ptr = str->ptr;
+    const size_t str_capacity = str->max_len;
     const char* stream_curr_char = NULL;
-    size_t i = buffer->len;
+    size_t i = str->len;
 
-    /* assert(buffer != NULL && buffer->ptr != NULL); */
+    /* assert(str != NULL && str->ptr != NULL); */
 
     stream_curr_char = gmio_skip_spaces(it);
     if (stream_curr_char == NULL) { /* Empty word */
-        buffer_ptr[i] = 0;
+        str_ptr[i] = 0;
         return GMIO_EAT_WORD_ERROR_EMPTY;
     }
 
     do {
-        buffer_ptr[i] = *stream_curr_char;
+        str_ptr[i] = *stream_curr_char;
         stream_curr_char = gmio_next_char(it);
         ++i;
-    } while(i < buffer_capacity
+    } while(i < str_capacity
             && stream_curr_char != NULL
             && !gmio_clocale_isspace(*stream_curr_char));
 
-    if (i < buffer_capacity) {
-        buffer_ptr[i] = 0; /* End string with terminating null byte */
-        buffer->len = i;
+    if (i < str_capacity) {
+        str_ptr[i] = 0; /* End string with terminating null byte */
+        str->len = i;
         return GMIO_EAT_WORD_ERROR_OK;
     }
     return GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW;
