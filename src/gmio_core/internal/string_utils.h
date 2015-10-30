@@ -69,52 +69,57 @@ GMIO_INLINE gmio_bool_t gmio_ascii_istarts_with(
 
 int gmio_ascii_isspace(char c)
 {
+#if defined(GMIO_STRINGUTILS_CTYPE_H)
+    return isspace(c);
+#else
     /* 0x20 : space (SPC)
      * 0x09 : horizontal tab (TAB)
      * 0x0a : newline (LF)
      * 0x0b : vertical tab (VT)
      * 0x0c : feed (FF)
-     * 0x0d : carriage return (CR) */
-#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
-    /* TODO: eliminate branch */
+     * 0x0d : carriage return (CR)
+     *
+     * TODO: eliminate branch
+     */
     return c == 0x20 || ((uint8_t)(c - 0x09) < 5);
-#elif defined(GMIO_STRINGUTILS_CTYPE_H)
-    return isspace(c);
 #endif
 }
 
 int gmio_ascii_isdigit(char c)
 {
-    /* 48 <= c <= 57 */
-#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
-    return (uint8_t) (c - 48) < 10;
-#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+#if defined(GMIO_STRINGUTILS_CTYPE_H)
     return isdigit(c);
+#else
+    /* 48 <= c <= 57 */
+    return (uint8_t) (c - 48) < 10;
 #endif
 }
 
 int gmio_ascii_isupper(char c)
 {
-    /* 65 <= c <= 90; */
-#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
-    return (uint8_t) (c - 65) < 26;
-#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+#if defined(GMIO_STRINGUTILS_CTYPE_H)
     return isupper(c);
+#else
+    /* 65 <= c <= 90; */
+    return (uint8_t) (c - 65) < 26;
 #endif
 }
 
 int gmio_ascii_islower(char c)
 {
-    /* 97 <= c <= 122; */
-#if defined(GMIO_STRINGUTILS_DIRECT_TESTS)
-    return (unsigned) (c - 97) < 26;
-#elif defined(GMIO_STRINGUTILS_CTYPE_H)
+#if defined(GMIO_STRINGUTILS_CTYPE_H)
     return islower(c);
+#else
+    /* 97 <= c <= 122; */
+    return (uint8_t) (c - 97) < 26;
 #endif
 }
 
 char gmio_ascii_toupper(char c)
 {
+#if defined(GMIO_STRINGUTILS_CTYPE_H)
+    return (char)toupper(c);
+#else
     static const char table_toupper[128] = {
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
@@ -126,10 +131,14 @@ char gmio_ascii_toupper(char c)
         'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '{', '|', '}', '~', 0,
     };
     return table_toupper[(unsigned char)c];
+#endif
 }
 
 char gmio_ascii_tolower(char c)
 {
+#if defined(GMIO_STRINGUTILS_CTYPE_H)
+    return (char)tolower(c);
+#else
     static const char table_tolower[128] = {
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
         0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
@@ -141,6 +150,7 @@ char gmio_ascii_tolower(char c)
         'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', 0,
     };
     return table_tolower[(unsigned char)c];
+#endif
 }
 
 gmio_bool_t gmio_ascii_char_iequals(char c1, char c2)

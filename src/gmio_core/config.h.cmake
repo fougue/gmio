@@ -65,11 +65,6 @@
 #endif
 
 /* Header: gmio_core/internal/string_utils.h */
-#ifndef GMIO_STRINGUTILS_DIRECT_TESTS
-/* Use implementation based on "direct testing" */
-#  define GMIO_STRINGUTILS_DIRECT_TESTS
-#endif
-/*#define GMIO_STRINGUTILS_C_ARRAYS*/
 /*#define GMIO_STRINGUTILS_CTYPE_H*/
 
 #endif /* GMIO_CONFIG_H_CMAKE */
