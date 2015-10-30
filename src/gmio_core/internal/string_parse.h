@@ -40,11 +40,12 @@
 struct gmio_string_stream_fwd_iterator
 {
     gmio_stream_t* stream;
-    gmio_string_t buffer;
-    size_t buffer_pos; /*!< Position indicator in buffer */
+    gmio_string_t strbuff;
+    const char* strbuff_ptr_end; /*!< Position after last char in strbuff */
+    const char* strbuff_ptr_at;  /*!< Position indicator in buffer */
 
     void* cookie;
-    void (*stream_read_hook)(
+    void (*func_stream_read_hook)(
             void* cookie, const gmio_string_t* str_buffer);
 };
 
@@ -111,25 +112,26 @@ GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
 const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it)
 {
-      if (it->buffer_pos < it->buffer.len)
-        return it->buffer.ptr + it->buffer_pos;
-    return NULL;
+    return it->strbuff_ptr_at < it->strbuff_ptr_end ?
+                it->strbuff_ptr_at :
+                NULL;
 }
 
 const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
 {
-    ++(it->buffer_pos);
-    if (it->buffer_pos < it->buffer.len)
-        return it->buffer.ptr + it->buffer_pos;
-    
+    ++(it->strbuff_ptr_at);
+    if (it->strbuff_ptr_at < it->strbuff_ptr_end)
+        return it->strbuff_ptr_at;
+
     /* Read next chunk of data */
-    it->buffer_pos = 0;
-    it->buffer.len = gmio_stream_read(
-                it->stream, it->buffer.ptr, sizeof(char), it->buffer.max_len);
-    if (it->buffer.len > 0) {
-        if (it->stream_read_hook != NULL)
-            it->stream_read_hook(it->cookie, &it->buffer);
-        return it->buffer.ptr;
+    it->strbuff_ptr_at = it->strbuff.ptr;
+    it->strbuff.len = gmio_stream_read(
+                it->stream, it->strbuff.ptr, sizeof(char), it->strbuff.max_len);
+    it->strbuff_ptr_end = it->strbuff.ptr + it->strbuff.len;
+    if (it->strbuff.len > 0) {
+        if (it->func_stream_read_hook != NULL)
+            it->func_stream_read_hook(it->cookie, &it->strbuff);
+        return it->strbuff.ptr;
     }
     return NULL;
 }
@@ -169,11 +171,7 @@ int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
     char* end_ptr = NULL;
     *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
 #endif
-
-    if (end_ptr == str || errno == ERANGE)
-        return -1;
-
-    return 0;
+    return (end_ptr == str || errno == ERANGE) ? -1 : 0;
 }
 
 #endif /* GMIO_INTERNAL_STRING_PARSE_H */

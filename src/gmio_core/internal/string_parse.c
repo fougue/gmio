@@ -22,38 +22,38 @@ void gmio_string_stream_fwd_iterator_init(gmio_string_stream_fwd_iterator_t *it)
     /* Trick: declaring the buffer exhausted will actually trigger the first
      * call to gmio_stream_read() inside gmio_next_char()
      */
-    it->buffer.len = 0;
-    it->buffer_pos = it->buffer.max_len;
+    it->strbuff.len = 0;
+    it->strbuff_ptr_end = it->strbuff.ptr;
+    it->strbuff_ptr_at = it->strbuff_ptr_end;
     gmio_next_char(it);
 }
 
 gmio_eat_word_error_t gmio_eat_word(
         gmio_string_stream_fwd_iterator_t *it, gmio_string_t *str)
 {
-    char* str_ptr = str->ptr;
-    const size_t str_capacity = str->max_len;
+    char* str_ptr_at = str->ptr + str->len;
+    const char* str_ptr_end = str->ptr + str->max_len;
     const char* stream_curr_char = NULL;
-    size_t i = str->len;
 
     /* assert(str != NULL && str->ptr != NULL); */
 
     stream_curr_char = gmio_skip_spaces(it);
     if (stream_curr_char == NULL) { /* Empty word */
-        str_ptr[i] = 0;
+        *str_ptr_at = 0;
         return GMIO_EAT_WORD_ERROR_EMPTY;
     }
 
     do {
-        str_ptr[i] = *stream_curr_char;
+        *str_ptr_at = *stream_curr_char;
         stream_curr_char = gmio_next_char(it);
-        ++i;
-    } while(i < str_capacity
-            && stream_curr_char != NULL
-            && !gmio_ascii_isspace(*stream_curr_char));
+        ++str_ptr_at;
+    } while (stream_curr_char != NULL
+             && !gmio_ascii_isspace(*stream_curr_char)
+             && str_ptr_at < str_ptr_end);
 
-    if (i < str_capacity) {
-        str_ptr[i] = 0; /* End string with terminating null byte */
-        str->len = i;
+    if (str_ptr_at < str_ptr_end) {
+        *str_ptr_at = 0; /* End string with null byte */
+        str->len = str_ptr_at - str->ptr;
         return GMIO_EAT_WORD_ERROR_OK;
     }
     return GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW;

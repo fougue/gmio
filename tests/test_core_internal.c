@@ -159,8 +159,8 @@ const char* test_internal__string_parse()
         gmio_stream_set_buffer(&stream, &buff);
 
         fwd_it.stream = &stream;
-        fwd_it.buffer.ptr = fwd_it_str;
-        fwd_it.buffer.max_len = sizeof(fwd_it_str);
+        fwd_it.strbuff.ptr = fwd_it_str;
+        fwd_it.strbuff.max_len = sizeof(fwd_it_str);
         gmio_string_stream_fwd_iterator_init(&fwd_it);
 
         copy_strbuff.ptr = copy_str;
@@ -192,8 +192,8 @@ const char* test_internal__string_parse()
 
         /* Test with very small string buffer */
         buff.pos = 0;
-        fwd_it.buffer.ptr = small_fwd_it_str;
-        fwd_it.buffer.max_len = sizeof(small_fwd_it_str);
+        fwd_it.strbuff.ptr = small_fwd_it_str;
+        fwd_it.strbuff.max_len = sizeof(small_fwd_it_str);
         gmio_string_stream_fwd_iterator_init(&fwd_it);
 
         UTEST_ASSERT(*gmio_current_char(&fwd_it) == 'U');
@@ -220,8 +220,8 @@ const char* test_internal__string_parse()
         gmio_stream_set_buffer(&stream, &buff);
 
         fwd_it.stream = &stream;
-        fwd_it.buffer.ptr = fwd_it_str;
-        fwd_it.buffer.max_len = sizeof(fwd_it_str);
+        fwd_it.strbuff.ptr = fwd_it_str;
+        fwd_it.strbuff.max_len = sizeof(fwd_it_str);
         gmio_string_stream_fwd_iterator_init(&fwd_it);
 
         copy_strbuff.ptr = copy_str;
