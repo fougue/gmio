@@ -18,18 +18,7 @@
 
 #include "../global.h"
 #include "../stream.h"
-
-/* For implementation section */
-#include "helper_stream.h"
 #include "string.h"
-#include "string_utils.h"
-#ifdef GMIO_STRINGPARSE_USE_FAST_ATOF
-#  include "fast_atof.h"
-#endif
-
-#include <errno.h>
-#include <stdlib.h>
-/* End for implementation section */
 
 /*! Forward iterator over a stream
  *
@@ -103,11 +92,21 @@ gmio_bool_t gmio_checked_next_chars(
  */
 GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
 
+GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str);
 
 
 /*
  * -- Implementation
  */
+
+#include "helper_stream.h"
+#include "string_utils.h"
+#ifdef GMIO_STRINGPARSE_USE_FAST_ATOF
+#  include "fast_atof.h"
+#endif
+
+#include <errno.h>
+#include <stdlib.h>
 
 const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it)
@@ -172,6 +171,17 @@ int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
     *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
 #endif
     return (end_ptr == str || errno == ERANGE) ? -1 : 0;
+}
+
+GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str)
+{
+#if defined(GMIO_STRINGPARSE_USE_FAST_ATOF)
+    return fast_atof(str, NULL);
+#elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
+    return strtof(str, NULL);
+#else
+    return (gmio_float32_t)strtod(str, NULL);
+#endif
 }
 
 #endif /* GMIO_INTERNAL_STRING_PARSE_H */
