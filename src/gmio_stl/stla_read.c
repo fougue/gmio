@@ -311,6 +311,13 @@ static gmio_bool_t parsing_eat_next_token(
     }
 }
 
+GMIO_INLINE void parsing_eat_next_token_str(gmio_stla_parse_data_t* data)
+{
+    data->string_buffer.len = 0;
+    gmio_eat_word(&data->stream_iterator, &data->string_buffer);
+    data->token = unknown_token;
+}
+
 GMIO_INLINE gmio_bool_t token_match_candidate(
         gmio_stla_token_t token, const gmio_stla_token_t* candidates)
 {
@@ -417,16 +424,16 @@ static gmio_bool_t parse_endsolid(gmio_stla_parse_data_t* data)
     return GMIO_FALSE;
 }
 
-static void parse_xyz_coords(
+GMIO_INLINE void parse_xyz_coords(
         gmio_stla_parse_data_t* data, gmio_stl_coords_t* coords)
 {
     const char* strbuff_ptr = data->string_buffer.ptr;
-    parsing_eat_next_token(unknown_token, data);
-    gmio_get_float32(strbuff_ptr, &coords->x);
-    parsing_eat_next_token(unknown_token, data);
-    gmio_get_float32(strbuff_ptr, &coords->y);
-    parsing_eat_next_token(unknown_token, data);
-    gmio_get_float32(strbuff_ptr, &coords->z);
+    parsing_eat_next_token_str(data);
+    coords->x = gmio_to_float32(strbuff_ptr);
+    parsing_eat_next_token_str(data);
+    coords->y = gmio_to_float32(strbuff_ptr);
+    parsing_eat_next_token_str(data);
+    coords->z = gmio_to_float32(strbuff_ptr);
 }
 
 static void parse_facet(
@@ -465,7 +472,7 @@ static void parse_facets(gmio_stla_parse_data_t* data)
         parse_facet(data, &facet);
         if (func_add_triangle != NULL)
             func_add_triangle(creator_cookie, i_facet, &facet);
-        parsing_eat_next_token(unknown_token, data);
+        parsing_eat_next_token_str(data);
         data->token = parsing_find_token_from_buff(&data->string_buffer);
         ++i_facet;
     }
