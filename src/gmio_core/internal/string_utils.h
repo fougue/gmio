@@ -161,13 +161,11 @@ gmio_bool_t gmio_ascii_char_iequals(char c1, char c2)
 
 int gmio_ascii_stricmp(const char* str1, const char* str2)
 {
-    while (*str1 != 0 && *str2 != 0) {
-        if (!gmio_ascii_char_iequals(*str1, *str2))
-            return 1;
+    while (*str1 != 0 && gmio_ascii_char_iequals(*str1, *str2)) {
         ++str1;
         ++str2;
     }
-    return *str1 == 0 && *str2 == 0 ? 0 : 1;
+    return *str1 - *str2;
 }
 
 gmio_bool_t gmio_ascii_istarts_with(const char* str, const char* begin)
