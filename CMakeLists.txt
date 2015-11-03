@@ -163,18 +163,20 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wmissing-field-initializers")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
     if(CMAKE_COMPILER_IS_GNUCC)
+        # Undefined behavior sanitizer(ubsan), requires GCC >= v4.9
+        #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
     else()
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
     endif()
 
     # Disable some warnings
-#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
 
-    # Force PIC for GCC, see : https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
+    # Force PIC for GCC
+    #     See https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
