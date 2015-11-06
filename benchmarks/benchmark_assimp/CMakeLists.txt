@@ -19,9 +19,9 @@ set(ROOTDIR_ASSIMP ${CMAKE_SOURCE_DIR} CACHE PATH
 include_directories(${ROOTDIR_ASSIMP}/include)
 add_executable(benchmark_assimp main.cpp ${COMMONS_FILES})
 
-# TODO: choose lib32/lib64 depending on the architecture
+# Choose lib32/lib64 depending on the architecture
 find_library(
-    LIB_ASSIMP assimp ${ROOTDIR_ASSIMP}/lib64
+    LIB_ASSIMP assimp ${ROOTDIR_ASSIMP}/lib${GMIO_TARGET_ARCH_BIT_SIZE}
     DOC "Path to the assimp import library")
 
 target_link_libraries(benchmark_assimp ${LIB_ASSIMP})

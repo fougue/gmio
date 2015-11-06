@@ -41,8 +41,9 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ.cpp
     ${COMMONS_FILES})
 
-# TODO: define only if target arch is 64b
-add_definitions(-D_OCC64)
+if(GMIO_TARGET_ARCH_BIT_SIZE EQUAL 64)
+    add_definitions(-D_OCC64)
+endif()
 
 if(WIN32)
     add_definitions(-DWNT)
@@ -61,11 +62,9 @@ include_directories(${ROOTDIR_OPENCASCADE}/inc)
 if(MSVC)
     set(_MSVC_VERNUM_ 0) # Init
     get_msvc_vernum(_MSVC_VERNUM_)
-    # TODO: choose win32/win64 depending on the architecture
-    set(LIBDIR_OPENCASCADE ${ROOTDIR_OPENCASCADE}/win64/vc${_MSVC_VERNUM_}/lib)
+    set(LIBDIR_OPENCASCADE ${ROOTDIR_OPENCASCADE}/win${GMIO_TARGET_ARCH_BIT_SIZE}/vc${_MSVC_VERNUM_}/lib)
 elseif((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND CMAKE_COMPILER_IS_GNUCXX)
-    # TODO: choose lin32/lin64 depending on the architecture
-    set(LIBDIR_OPENCASCADE ${ROOTDIR_OPENCASCADE}/lin64/gcc/lib)
+    set(LIBDIR_OPENCASCADE ${ROOTDIR_OPENCASCADE}/lin${GMIO_TARGET_ARCH_BIT_SIZE}/gcc/lib)
 endif()
 #message(STATUS ${ROOTDIR_OPENCASCADE})
 
