@@ -30,7 +30,7 @@ typedef void (*gmio_stl_mesh_func_get_triangle_t)(
 
 /* gmio_stl_mesh_creator */
 typedef void (*gmio_stl_mesh_creator_func_ascii_begin_solid_t)(
-        void*, size_t, const char*);
+        void*, gmio_streamsize_t, const char*);
 typedef void (*gmio_stl_mesh_creator_func_binary_begin_solid_t)(
         void*, uint32_t, const gmio_stlb_header_t*);
 typedef void (*gmio_stl_mesh_creator_func_add_triangle_t)(

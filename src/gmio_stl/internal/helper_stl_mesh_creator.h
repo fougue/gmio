@@ -22,7 +22,7 @@
  *  gmio_stl_mesh_creator::func_ascii_begin_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
         gmio_stl_mesh_creator_t* creator,
-        size_t stream_size,
+        gmio_streamsize_t stream_size,
         const char* solid_name)
 {
     if (creator != NULL && creator->func_ascii_begin_solid != NULL) {

@@ -127,7 +127,7 @@ static void allocate_stl_scene(aiScene* pScene)
 }
 
 static void func_ascii_begin_solid(
-        void* cookie, size_t stream_size, const char* solid_name)
+        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
 {
     aiSceneHelper* helper = (aiSceneHelper*)cookie;
     helper->hasToCountTriangle = 1; // true

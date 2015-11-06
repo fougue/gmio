@@ -20,6 +20,10 @@
  *  @{
  */
 
+#ifndef __cplusplus
+#  error C++ compiler required
+#endif
+
 #ifndef GMIO_SUPPORT_STREAM_QT_H
 #define GMIO_SUPPORT_STREAM_QT_H
 

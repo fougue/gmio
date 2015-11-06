@@ -77,7 +77,7 @@ typedef struct stl_readwrite_conv
 } stl_readwrite_conv_t;
 
 static void readwrite_ascii_begin_solid(
-        void* cookie, size_t stream_size, const char* solid_name)
+        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
 {
     stl_readwrite_conv_t* rw_conv = (stl_readwrite_conv_t*)cookie;
     gmio_stream_t* stream = &rw_conv->trsf.stream;

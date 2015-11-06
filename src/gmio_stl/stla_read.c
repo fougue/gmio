@@ -134,9 +134,9 @@ typedef struct
     /* Copy of gmio_stla_read() corresponding argument */
     gmio_transfer_t* transfer;
     /* Cache for gmio_stream_size(&transfer->stream) */
-    size_t stream_size;
+    gmio_streamsize_t stream_size;
     /* Offset (in bytes) from beginning of stream : current position */
-    size_t stream_offset;
+    gmio_streamoffset_t stream_offset;
     /* Cache for gmio_transfer::func_is_stop_requested() */
     gmio_bool_t is_stop_requested;
 } gmio_string_stream_fwd_iterator_cookie_t;

@@ -44,7 +44,7 @@ gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count)
 }
 
 static void gmio_stl_data__ascii_begin_solid(
-        void* cookie, size_t stream_size, const char* solid_name)
+        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
 {
     gmio_stl_data_t* data = (gmio_stl_data_t*)cookie;
 
@@ -59,7 +59,8 @@ static void gmio_stl_data__ascii_begin_solid(
      * for each face */
     {
         const size_t facet_size = 200;
-        const size_t facet_count = GMIO_MAX(1, stream_size / facet_size);
+        const size_t facet_count =
+                gmio_streamsize_to_size(GMIO_MAX(1, stream_size / facet_size));
         data->tri_array = gmio_stl_triangle_array_malloc(facet_count);
     }
 }

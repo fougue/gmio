@@ -20,6 +20,10 @@
  *  @{
  */
 
+#ifndef __cplusplus
+#  error C++ compiler required
+#endif
+
 #ifndef GMIO_SUPPORT_STREAM_CPP_H
 #define GMIO_SUPPORT_STREAM_CPP_H
 
@@ -68,7 +72,7 @@ size_t istream_cpp_read(
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     s->read(static_cast<char*>(ptr), item_size * item_count);
-    return s->gcount() / item_size;
+    return static_cast<size_t>(s->gcount() / item_size);
 }
 
 template<typename STREAM>
@@ -82,7 +86,7 @@ size_t ostream_cpp_write(
 }
 
 template<typename STREAM>
-size_t istream_cpp_size(void* cookie)
+gmio_streamsize_t istream_cpp_size(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     std::streampos pos = s->tellg();
@@ -95,7 +99,7 @@ size_t istream_cpp_size(void* cookie)
 }
 
 template<typename STREAM>
-size_t ostream_cpp_size(void* cookie)
+gmio_streamsize_t ostream_cpp_size(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     std::streampos pos = s->tellp();

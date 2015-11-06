@@ -53,7 +53,7 @@ GMIO_INLINE size_t gmio_stream_write(
 }
 
 /*! Safe and convenient function for gmio_stream::func_size() */
-GMIO_INLINE size_t gmio_stream_size(gmio_stream_t* stream)
+GMIO_INLINE gmio_streamsize_t gmio_stream_size(gmio_stream_t* stream)
 {
     if (stream != NULL && stream->func_size != NULL)
         return stream->func_size(stream->cookie);

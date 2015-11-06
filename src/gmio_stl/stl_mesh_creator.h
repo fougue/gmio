@@ -26,6 +26,7 @@
 #include "stl_global.h"
 #include "stl_triangle.h"
 #include "stlb_header.h"
+#include "../gmio_core/stream.h"
 
 #include <stddef.h>
 
@@ -48,7 +49,7 @@ struct gmio_stl_mesh_creator
      *  stream
      */
     void (*func_ascii_begin_solid)(
-            void* cookie, size_t stream_size, const char* solid_name);
+            void* cookie, gmio_streamsize_t stream_size, const char* solid_name);
 
     /*! Pointer on a function that handles declaration of a mesh with
      *  \p tri_count number of triangles

@@ -27,6 +27,14 @@
 #include "stream_pos.h"
 #include <stdio.h>
 
+#ifdef GMIO_HAVE_INT64_TYPE
+typedef int64_t gmio_streamsize_t;
+typedef int64_t gmio_streamoffset_t;
+#else
+typedef long gmio_streamsize_t;
+typedef long gmio_streamoffset_t;
+#endif
+
 /*! Stream that can get input from an arbitrary data source or can write
  *  output to an arbitrary data sink.
  *
@@ -93,7 +101,7 @@ struct gmio_stream
     size_t (*func_write)(void* cookie, const void* ptr, size_t size, size_t count);
 
     /*! Pointer on a function that returns the size(in bytes) of the stream */
-    size_t (*func_size)(void* cookie);
+    gmio_streamsize_t (*func_size)(void* cookie);
 
     /*! Pointer on a function that retrieves the current position in the stream
      *

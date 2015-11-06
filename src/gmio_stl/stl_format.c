@@ -49,7 +49,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
 
     /* Binary STL ? */
     if (read_size >= (GMIO_STLB_HEADER_SIZE + 4)) {
-        const size_t stream_size = gmio_stream_size(stream);
+        const gmio_streamsize_t stream_size = gmio_stream_size(stream);
 
         /* Try with little-endian format */
         uint32_t facet_count =

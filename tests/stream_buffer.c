@@ -78,7 +78,7 @@ static size_t gmio_stream_buffer_write(
     }
 }
 
-static size_t gmio_stream_buffer_size(void* cookie)
+static gmio_streamsize_t gmio_stream_buffer_size(void* cookie)
 {
     const gmio_stream_buffer_t* buff = (const gmio_stream_buffer_t*)cookie;
     return buff->len;

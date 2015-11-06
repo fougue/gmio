@@ -73,7 +73,7 @@ static size_t gmio_stream_stdio_write(
     return fwrite(ptr, item_size, item_count, (FILE*)cookie);
 }
 
-static size_t gmio_stream_stdio_size(void* cookie)
+static gmio_streamsize_t gmio_stream_stdio_size(void* cookie)
 {
     FILE* file = (FILE*)cookie;
 

@@ -132,6 +132,18 @@ const char* test_internal__safe_cast()
     UTEST_ASSERT(gmio_size_to_uint32(0xFFFFFFFF) == 0xFFFFFFFF);
     UTEST_ASSERT(gmio_size_to_uint32(100) == 100);
 #endif
+
+    UTEST_ASSERT(gmio_streamsize_to_size(-1) == ((size_t)-1));
+#ifdef GMIO_HAVE_INT64_TYPE
+#  if GMIO_TARGET_ARCH_BIT_SIZE < 64
+    const gmio_streamsize_t overMaxSizet =
+            ((gmio_streamsize_t)GMIO_MAX_SIZET) + 1;
+    UTEST_ASSERT(gmio_streamsize_to_size(overMaxSizet) == GMIO_MAX_SIZET);
+#  endif
+    UTEST_ASSERT(gmio_streamsize_to_size(GMIO_MAX_SIZET) == GMIO_MAX_SIZET);
+    UTEST_ASSERT(gmio_streamsize_to_size(150) == 150);
+#endif
+
     return NULL;
 }
 

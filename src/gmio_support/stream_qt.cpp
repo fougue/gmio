@@ -46,7 +46,7 @@ static size_t gmio_stream_qiodevice_read(
 {
     QIODevice* device = static_cast<QIODevice*>(cookie);
     const qint64 c = device->read(static_cast<char*>(ptr), item_size * item_count);
-    return c / item_size;
+    return static_cast<size_t>(c / item_size);
 }
 
 static size_t gmio_stream_qiodevice_write(
@@ -55,10 +55,10 @@ static size_t gmio_stream_qiodevice_write(
     QIODevice* device = static_cast<QIODevice*>(cookie);
     const qint64 c = device->write(
                 static_cast<const char*>(ptr), item_size * item_count);
-    return c / item_size;
+    return static_cast<size_t>(c / item_size);
 }
 
-static size_t gmio_stream_qiodevice_size(void* cookie)
+static gmio_streamsize_t gmio_stream_qiodevice_size(void* cookie)
 {
     QIODevice* device = static_cast<QIODevice*>(cookie);
     return device->size();
