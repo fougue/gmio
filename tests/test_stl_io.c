@@ -213,6 +213,15 @@ const char* test_stlb_write_header()
     return NULL;
 }
 
+/* Safely closes the two files \p f1 and \p f2 */
+static void fclose_2(FILE* f1, FILE* f2)
+{
+    if (f1 != NULL)
+        fclose(f1);
+    if (f2 != NULL)
+        fclose(f2);
+}
+
 const char* test_stlb_write()
 {
     const char* model_filepath = stl_grabcad_arm11_filepath;
@@ -253,14 +262,25 @@ const char* test_stlb_write()
         size_t bytes_read_out = 0;
         FILE* in = fopen(model_filepath, "rb");
         FILE* out = fopen(model_filepath_out, "rb");
-        UTEST_ASSERT(in != NULL && out != NULL);
+        if (in == NULL || out == NULL) {
+            fclose_2(in, out);
+            perror("test_stlb_write()");
+            UTEST_FAIL("fopen() error for in/out model files");
+        }
         do {
             bytes_read_in = fread(&buffer_in[0], 1, buff_size, in);
             bytes_read_out = fread(&buffer_out[0], 1, buff_size, out);
-            UTEST_ASSERT(bytes_read_in == bytes_read_out);
-            UTEST_ASSERT(memcmp(&buffer_in[0], &buffer_out[0], buff_size) == 0);
+            if (bytes_read_in != bytes_read_out) {
+                fclose_2(in, out);
+                UTEST_FAIL("Different byte count between in/out");
+            }
+            if (memcmp(&buffer_in[0], &buffer_out[0], buff_size) != 0) {
+                fclose_2(in, out);
+                UTEST_FAIL("Different buffer contents between in/out");
+            }
         } while (!feof(in) && !feof(out)
                  && bytes_read_in > 0 && bytes_read_out > 0);
+        fclose_2(in, out);
     }
 
     /* Check output LE/BE models are equal */
