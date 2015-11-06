@@ -46,14 +46,11 @@ static void gmio_stlb_write_facets(
     const gmio_stl_triangle_func_fix_endian_t func_fix_endian =
             wparams->func_fix_endian;
     const gmio_stl_mesh_func_get_triangle_t func_get_triangle =
-            mesh != NULL ? mesh->func_get_triangle : NULL;
+            mesh->func_get_triangle;
     const void* cookie = mesh->cookie;
     gmio_stl_triangle_t triangle;
     uint32_t mblock_offset = 0;
     uint32_t i_facet = 0;
-
-    if (func_get_triangle == NULL)
-        return;
 
     triangle.attribute_byte_count = 0;
     for (i_facet = 0; i_facet < facet_count; ++i_facet) {
@@ -85,10 +82,11 @@ int gmio_stlb_write(
     int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
-    gmio_stl_check_mesh(&error, mesh);
-    gmio_stlb_check_params(&error, trsf, byte_order);
-    if (gmio_error(error))
+    if (!gmio_stl_check_mesh(&error, mesh)
+            || !gmio_stlb_check_params(&error, trsf, byte_order))
+    {
         return error;
+    }
 
     /* Initialize wparams */
     if (byte_order != GMIO_ENDIANNESS_HOST)

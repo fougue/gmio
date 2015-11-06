@@ -47,6 +47,7 @@ static void gmio_stlb_read_facets(
     const uint32_t i_facet_offset = rparams->i_facet_offset;
     const gmio_stl_triangle_func_fix_endian_t func_fix_endian =
             rparams->func_fix_endian;
+    /* coverity[var_deref_op : FALSE] */
     const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
             creator != NULL ? creator->func_add_triangle : NULL;
     void* cookie = creator->cookie;
