@@ -175,5 +175,31 @@ typedef double gmio_float64_t;
 #  define GMIO_C_LINKAGE_END
 #endif /* __cplusplus */
 
+#if defined(_MSC_VER) && _MSC_VER >= 1400 /* Visual C++ 2008 */
+#  define GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(__code__) \
+     __pragma(warning(push)) \
+     __pragma(warning(disable: __code__))
+#  define GMIO_PRAGMA_MSVC_WARNING_POP() \
+     __pragma(warning(pop))
+#else
+/*! MSVC specific macro that disable the compiler warning of code \p __code__
+ *
+ * With Visual C++, expands to :
+ *    \code
+ *      #pragma warning(push)
+ *      #pragma warning(disable: __code__)
+ *    \endcode
+ */
+#  define GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(__code__)
+/*! MSVC specific macro that pop the changes made after last warning(pop)
+ *
+ * With Visual C++, expands to :
+ *    \code
+ *      #pragma warning(pop)
+ *    \endcode
+ */
+#  define GMIO_PRAGMA_MSVC_WARNING_POP()
+#endif
+
 #endif /* GMIO_GLOBAL_H */
 /*! @} */

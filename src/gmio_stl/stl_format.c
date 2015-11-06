@@ -29,6 +29,11 @@
 
 enum { GMIO_FIXED_BUFFER_SIZE = 512 };
 
+GMIO_INLINE gmio_streamsize_t gmio_stlb_streamsize(uint32_t facet_count)
+{
+    return GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE;
+}
+
 gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
 {
     char fixed_buffer[GMIO_FIXED_BUFFER_SIZE] = {0};
@@ -55,19 +60,13 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
         uint32_t facet_count =
                 gmio_decode_uint32_le((const uint8_t*)fixed_buffer + 80);
 
-        if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
-                == stream_size)
-        {
+        if (gmio_stlb_streamsize(facet_count) == stream_size)
             return GMIO_STL_FORMAT_BINARY_LE;
-        }
 
-        /* Try with byte-reverted facet count */
+        /* Try with big-endian format */
         facet_count = gmio_uint32_bswap(facet_count);
-        if ((GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE)
-                == stream_size)
-        {
+        if (gmio_stlb_streamsize(facet_count) == stream_size)
             return GMIO_STL_FORMAT_BINARY_BE;
-        }
     }
 
     /* ASCII STL ? */
