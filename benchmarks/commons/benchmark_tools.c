@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef WIN32
+#if WIN32
 #  include <windows.h>
 #  define BENCHMARK_TIMER_WINDOWS
 #else
@@ -51,7 +51,7 @@ static void benchmark_timer_start(benchmark_timer_t* timer)
 #endif
 }
 
-static int64_t benchmark_timer_elapsed_ms(const benchmark_timer_t* timer)
+static gmio_time_ms_t benchmark_timer_elapsed_ms(const benchmark_timer_t* timer)
 {
 #ifdef BENCHMARK_TIMER_WINDOWS
     LARGE_INTEGER end_time = {0};
@@ -73,7 +73,7 @@ static int64_t benchmark_timer_elapsed_ms(const benchmark_timer_t* timer)
 #elif defined(BENCHMARK_TIMER_LIBC)
     const clock_t elapsed_ticks = clock() - timer->start_tick;
     const double elapsed_ms = (elapsed_ticks * 1000) / ((double)CLOCKS_PER_SEC);
-    return (int64_t)elapsed_ms;
+    return (gmio_time_ms_t)elapsed_ms;
 #endif
 }
 
@@ -152,13 +152,13 @@ static void gprintf_func_exec_time(
         void* cookie,
         func_gprintf_t func_gprintf,
         size_t width_column,
-        size_t time_ms,
+        gmio_time_ms_t time,
         gmio_bool_t has_time)
 {
     if (has_time) {
         char str_time[128] = {0};
         /* TODO: %ull is not accepted by mingw, find a fix(maybe %ul64) */
-        sprintf(str_time, "%u%s", (unsigned)time_ms, unit_time_str);
+        sprintf(str_time, "%u%s", (unsigned)time, unit_time_str);
         gprintf_func_string(cookie, func_gprintf, width_column, str_time);
     }
     else {
@@ -186,7 +186,7 @@ static void gprintf_func_exec_ratio(
 /*! Helper for printf() around gprintf_func_exec_time() */
 static void printf_func_exec_time(
         size_t width_column,
-        size_t time_ms,
+        gmio_time_ms_t time_ms,
         gmio_bool_t has_time)
 {
     gprintf_func_exec_time(
@@ -207,7 +207,9 @@ static size_t find_maxlen_cmp_result_tag(benchmark_cmp_result_array_t res_array)
 
 /*! Writes in output args the func1 execution informations */
 static void select_cmp_result_func1_exec_infos(
-        const benchmark_cmp_result_t* cmp, size_t* time, gmio_bool_t* has_time)
+        const benchmark_cmp_result_t* cmp,
+        gmio_time_ms_t* time,
+        gmio_bool_t* has_time)
 {
     *time = cmp->func1_exec_time_ms;
     *has_time = cmp->has_func1_exec_time;
@@ -215,7 +217,9 @@ static void select_cmp_result_func1_exec_infos(
 
 /*! Writes in output args the func2 execution informations */
 static void select_cmp_result_func2_exec_infos(
-        const benchmark_cmp_result_t* cmp, size_t* time, gmio_bool_t* has_time)
+        const benchmark_cmp_result_t* cmp,
+        gmio_time_ms_t* time,
+        gmio_bool_t* has_time)
 {
     *time = cmp->func2_exec_time_ms;
     *has_time = cmp->has_func2_exec_time;
@@ -223,7 +227,7 @@ static void select_cmp_result_func2_exec_infos(
 
 /*! Typedef on pointer to functions like select_cmp_result_funcX_exec_infos() */
 typedef void (*func_select_cmp_result_func_exec_infos_t)(
-        const benchmark_cmp_result_t*, size_t*, gmio_bool_t*);
+        const benchmark_cmp_result_t*, gmio_time_ms_t*, gmio_bool_t*);
 
 /*! Returns the strlen of the longest execution time string */
 static size_t find_maxlen_cmp_result_func_exec_time(
@@ -234,7 +238,7 @@ static size_t find_maxlen_cmp_result_func_exec_time(
     size_t max_len = 0;
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
-        size_t time = 0;
+        gmio_time_ms_t time = 0;
         gmio_bool_t has_time = GMIO_FALSE;
         func_select_exec_infos(&res_array.ptr[i], &time, &has_time);
         gprintf_func_exec_time(strbuff, &sprintf_wrap, 0, time, has_time);

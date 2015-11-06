@@ -21,6 +21,12 @@
 
 GMIO_C_LINKAGE_BEGIN
 
+#ifdef GMIO_HAVE_INT64_TYPE
+typedef uint64_t gmio_time_ms_t;
+#else
+typedef size_t gmio_time_ms_t;
+#endif
+
 /*! Typedef on pointer to function to be benchmarked(execution time) */
 typedef void (*benchmark_file_func_t)(const char*);
 
@@ -48,11 +54,11 @@ struct benchmark_cmp_result
     /*! Identifies the comparison */
     const char* tag;
     /*! Execution time(in ms) of the 1st function */
-    size_t func1_exec_time_ms;
+    gmio_time_ms_t func1_exec_time_ms;
     /*! Is exec time of the 1st function valid ? */
     gmio_bool_t has_func1_exec_time;
     /*! Execution time(in ms) of the 2nd function */
-    size_t func2_exec_time_ms;
+    gmio_time_ms_t func2_exec_time_ms;
     /*! Is exec time of the 2nd function valid ? */
     gmio_bool_t has_func2_exec_time;
     float func2_func1_ratio;
