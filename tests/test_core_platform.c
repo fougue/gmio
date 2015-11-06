@@ -55,6 +55,11 @@ const char* test_platform__global_h()
     UTEST_ASSERT(sizeof(int32_t) == 4);
     UTEST_ASSERT(sizeof(uint32_t) == 4);
 
+#ifdef GMIO_HAVE_INT64_TYPE
+    UTEST_ASSERT(sizeof(int64_t) == 8);
+    UTEST_ASSERT(sizeof(uint64_t) == 8);
+#endif
+
     UTEST_ASSERT(sizeof(gmio_float32_t) == 4);
     UTEST_ASSERT(sizeof(gmio_float64_t) == 8);
 

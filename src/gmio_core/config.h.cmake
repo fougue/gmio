@@ -18,6 +18,11 @@
 #ifndef GMIO_CONFIG_H_CMAKE
 #define GMIO_CONFIG_H_CMAKE
 
+/* 64b integer type */
+#cmakedefine GMIO_HAVE_INT64_T
+#cmakedefine GMIO_HAVE_MSVC_INT64
+#cmakedefine GMIO_HAVE_LONG_LONG
+
 /* C99 */
 #ifndef GMIO_HAVE_STDINT_H
 #cmakedefine GMIO_HAVE_STDINT_H

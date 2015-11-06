@@ -60,6 +60,7 @@ endif()
 
 # Find bit size of the target architecture
 math(EXPR GMIO_TARGET_ARCH_BIT_SIZE "8 * ${CMAKE_SIZEOF_VOID_P}")
+message(STATUS "GMIO_TARGET_ARCH_BIT_SIZE = ${GMIO_TARGET_ARCH_BIT_SIZE}")
 
 # Test if host's architecture is big-endian
 include(TestBigEndian)
@@ -82,6 +83,27 @@ check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
 # Check non-ANSI available features
 if(NOT GMIO_BUILD_STRICT_C90)
+    # Check availability of a 64b integer type
+    if(GMIO_HAVE_STDINT_H)
+        set(CMAKE_REQUIRED_INCLUDES stdint.h)
+    endif()
+    check_type_size("int64_t" GMIO_SIZEOF_INT64_T)
+    if(NOT HAVE_GMIO_SIZEOF_INT64_T)
+        check_type_size("__int64" GMIO_SIZEOF_MSVC_INT64)
+        if(NOT HAVE_GMIO_SIZEOF_MSVC_INT64)
+            check_type_size("long long" GMIO_SIZEOF_LONG_LONG)
+        endif()
+    endif()
+    set(CMAKE_REQUIRED_INCLUDES)
+
+    if(HAVE_GMIO_SIZEOF_INT64_T)
+        set(GMIO_HAVE_INT64_T ${HAVE_GMIO_SIZEOF_INT64_T})
+    elseif(HAVE_GMIO_SIZEOF_MSVC_INT64)
+        set(GMIO_HAVE_MSVC_INT64 ${HAVE_GMIO_SIZEOF_MSVC_INT64})
+    elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
+        set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
+    endif()
+
     # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 
