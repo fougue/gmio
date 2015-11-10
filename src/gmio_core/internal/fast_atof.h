@@ -22,8 +22,7 @@ GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
      * TODO: This should probably also be used in irr::core::string, but
      * the float-to-string code used there has to be rewritten first.
      */
-    static const char LOCALE_DECIMAL_POINTS[] = { '.' };
-    return in == LOCALE_DECIMAL_POINTS[0];
+    return in == '.';
 }
 
 /* we write [17] here instead of [] to work around a swig bug */
@@ -242,25 +241,13 @@ GMIO_INLINE gmio_float32_t strtof10(const char* in, const char** out)
 
     /* Use integer arithmetic for as long as possible, for speed
      * and precision. */
-    while ( gmio_ascii_isdigit(*in) )
-    {
-        /* If it looks like we're going to overflow, bail out
-           now and start using floating point. */
-        if (intValue >= MAX_SAFE_U32_VALUE)
-            break;
+    for (; gmio_ascii_isdigit(*in) && intValue < MAX_SAFE_U32_VALUE; ++in)
         intValue = (intValue * 10) + (*in - '0');
-        ++in;
-    }
     floatValue = (gmio_float32_t)intValue;
     /* If there are any digits left to parse, then we need to use
-     *  floating point arithmetic from here. */
-    while ( gmio_ascii_isdigit(*in) )
-    {
-        floatValue = (floatValue * 10.f) + (gmio_float32_t)(*in - '0');
-        ++in;
-        if (floatValue > FLT_MAX) /* Just give up. */
-            break;
-    }
+     * floating point arithmetic from here. */
+    for (; gmio_ascii_isdigit(*in) && floatValue <= FLT_MAX; ++in)
+        floatValue = (floatValue * 10) + (*in - '0');
     if (out)
         *out = in;
     return floatValue;
