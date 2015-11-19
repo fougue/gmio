@@ -50,7 +50,11 @@ GMIO_INLINE const char* gmio_current_char(
         const gmio_string_stream_fwd_iterator_t* it);
 
 /*! Moves on next char in stream */
-GMIO_INLINE const char *gmio_next_char(
+GMIO_INLINE const char* gmio_next_char(
+        gmio_string_stream_fwd_iterator_t *it);
+
+/*! Moves on next char in stream */
+GMIO_INLINE gmio_string_stream_fwd_iterator_t* gmio_move_next_char(
         gmio_string_stream_fwd_iterator_t *it);
 
 /*! Advances iterator until the first non-space char */
@@ -85,14 +89,16 @@ gmio_bool_t gmio_checked_next_chars(
         gmio_string_stream_fwd_iterator_t* it, const char* str);
 #endif
 
-/*! Converts the string pointed to by \p str to gmio_float32_t representation
+/*! Converts C string \p str to float
  *
  *  \retval 0  On success
  *  \retval -1 On error(check \c errno to see what happened)
  */
 GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
 
+/*! Converts C string \p str to float */
 GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str);
+
 
 
 /*
@@ -135,6 +141,14 @@ const char *gmio_next_char(gmio_string_stream_fwd_iterator_t *it)
     return NULL;
 }
 
+gmio_string_stream_fwd_iterator_t* gmio_move_next_char(
+        gmio_string_stream_fwd_iterator_t *it)
+{
+    gmio_next_char(it);
+    return it;
+}
+
+
 const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it)
 {
@@ -162,7 +176,7 @@ int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
 {
 #if defined(GMIO_STRINGPARSE_USE_FAST_ATOF)
     const char* end_ptr = NULL;
-    *value_ptr = fast_atof(str, &end_ptr);
+    *value_ptr = fast_strtof(str, &end_ptr);
 #elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
     char* end_ptr = NULL;
     *value_ptr = strtof(str, &end_ptr);
@@ -173,10 +187,10 @@ int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
     return (end_ptr == str || errno == ERANGE) ? -1 : 0;
 }
 
-GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str)
+gmio_float32_t gmio_to_float32(const char* str)
 {
 #if defined(GMIO_STRINGPARSE_USE_FAST_ATOF)
-    return fast_atof(str, NULL);
+    return fast_atof(str);
 #elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
     return strtof(str, NULL);
 #else
