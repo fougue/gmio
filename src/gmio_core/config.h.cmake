@@ -18,6 +18,11 @@
 #ifndef GMIO_CONFIG_H_CMAKE
 #define GMIO_CONFIG_H_CMAKE
 
+/* Size(in bytes) of integer types */
+#cmakedefine GMIO_SIZEOF_SHORT @GMIO_SIZEOF_SHORT@
+#cmakedefine GMIO_SIZEOF_INT   @GMIO_SIZEOF_INT@
+#cmakedefine GMIO_SIZEOF_LONG  @GMIO_SIZEOF_LONG@
+
 /* 64b integer type */
 #cmakedefine GMIO_HAVE_INT64_T
 #cmakedefine GMIO_HAVE_MSVC_INT64

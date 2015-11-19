@@ -81,6 +81,11 @@ set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
 # Some compilers (like GCC v4.9) don't disable <stdint.h> in STRICT_ANSI mode
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
+# Find size of short, int and long types
+check_type_size("short" GMIO_SIZEOF_SHORT)
+check_type_size("int" GMIO_SIZEOF_INT)
+check_type_size("long" GMIO_SIZEOF_LONG)
+
 # Check non-ANSI available features
 if(NOT GMIO_BUILD_STRICT_C90)
     # Check availability of a 64b integer type
