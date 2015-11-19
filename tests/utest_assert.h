@@ -15,8 +15,10 @@
     }
 
 #define UTEST_FAIL(message) \
-    printf("  FAIL : %s   (line = %i, file = %s)", #message, __LINE__, __FILE__);\
-    return "UTEST_FAIL()";
+    {\
+        printf("  FAIL : %s   (line = %i, file = %s)", #message, __LINE__, __FILE__);\
+        return "UTEST_FAIL()";\
+    }
 
 #define UTEST_ASSERT_MSG(test, message) \
     if (!(test)) {\
