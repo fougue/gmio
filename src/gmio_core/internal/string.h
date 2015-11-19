@@ -20,41 +20,44 @@
 
 #include <stddef.h>
 
-/*! Stores traditional 8-bit read-only strings
+/*! Stores a read-only string of 8-bit chars
  *
  *  For faster lookups, it knowns the length of its contents.
  */
 struct gmio_const_string
 {
-    const char* ptr;
-    size_t len;
+    const char* ptr; /*!< Contents */
+    size_t len;      /*!< Size(length) of current contents */
 };
 typedef struct gmio_const_string gmio_const_string_t;
 
-/*! Expands to bracket initialization of a gmio_const_string from const char[]
- *
- *  Example:
- *  \code
- *      const char token[] = "woops";
- *      const gmio_const_string_t token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
- *  \endcode
- */
-#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
-
-/*! Stores traditional 8-bit mutable strings
+/*! Stores a mutable string of 8-bit chars
  *
  *  For faster lookups, it knowns the length of its contents. Length must not
  *  exceeds the maximum size(capacity).
  */
 struct gmio_string
 {
-    char*  ptr; /*!< Buffer contents */
+    char*  ptr; /*!< Contents */
     size_t len; /*!< Size(length) of current contents */
     size_t max_len; /*!< Maximum contents size(capacity) */
 };
-
 typedef struct gmio_string gmio_string_t;
 
+/*! Expands to bracket initialization of a gmio_const_string from const char[]
+ *
+ *  Example:
+ *  \code
+ *      const char token[] = "woops";
+ *      gmio_const_string_t token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
+ *  \endcode
+ */
+#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
+
+/*! Returns an initialized gmio_const_string_t object */
+GMIO_INLINE gmio_const_string_t gmio_const_string(const char* ptr, size_t len);
+
+/*! Clears the contents of the string \p str and makes it null */
 GMIO_INLINE void gmio_string_clear(gmio_string_t* str);
 
 
@@ -62,6 +65,14 @@ GMIO_INLINE void gmio_string_clear(gmio_string_t* str);
 /*
  * -- Implementation
  */
+
+gmio_const_string_t gmio_const_string(const char* ptr, size_t len)
+{
+    gmio_const_string_t cstr;
+    cstr.ptr = ptr;
+    cstr.len = len;
+    return cstr;
+}
 
 void gmio_string_clear(gmio_string_t* str)
 {
