@@ -22,10 +22,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#ifdef _MSC_VER
-#  pragma warning(push)
-#  pragma warning(disable : 4127) /* "conditional expression is constant" */
-#endif
+/* Disable MSVC warning "conditional expression is constant" */
+GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
 
 const char* test_platform__alignment()
 {
@@ -105,6 +103,4 @@ const char* test_platform__compiler()
     return NULL;
 }
 
-#ifdef _MSC_VER
-#  pragma warning(pop)
-#endif
+GMIO_PRAGMA_MSVC_WARNING_POP()
