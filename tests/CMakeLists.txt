@@ -38,7 +38,7 @@ if(GMIO_BUILD_SHARED_LIBS)
     #         exports all symbols)
     set(GMIO_TEST_CORE_SRC
             ${GMIO_TEST_CORE_SRC}
-            ../src/gmio_core/internal/string_parse.c)
+            ../src/gmio_core/internal/stringstream.c)
 endif()
 
 add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
