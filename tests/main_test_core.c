@@ -23,6 +23,7 @@ const char* test_core__stream();
 const char* test_internal__byte_swap();
 const char* test_internal__byte_codec();
 const char* test_internal__fast_atof();
+const char* test_internal__gmio_fast_atof();
 const char* test_internal__safe_cast();
 const char* test_internal__string_parse();
 const char* test_internal__string_utils();
@@ -43,6 +44,7 @@ const char* all_tests()
     UTEST_RUN(test_internal__byte_swap);
     UTEST_RUN(test_internal__byte_codec);
     UTEST_RUN(test_internal__fast_atof);
+    UTEST_RUN(test_internal__gmio_fast_atof);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__string_parse);
     UTEST_RUN(test_internal__string_utils);

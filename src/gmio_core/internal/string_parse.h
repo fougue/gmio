@@ -25,6 +25,8 @@
  *  To be used with API below.
  *  It allows to iterate over a stream (until end is reached) as if it was a
  *  string.
+ *
+ *  TODO: rename to gmio_string_stream
  */
 struct gmio_string_stream_fwd_iterator
 {
@@ -34,8 +36,7 @@ struct gmio_string_stream_fwd_iterator
     const char* strbuff_ptr_at;  /*!< Position indicator in buffer */
 
     void* cookie;
-    void (*func_stream_read_hook)(
-            void* cookie, const gmio_string_t* str_buffer);
+    void (*func_stream_read_hook)(void* cookie, const gmio_string_t* strbuff);
 };
 
 typedef struct gmio_string_stream_fwd_iterator
@@ -89,6 +90,10 @@ gmio_bool_t gmio_checked_next_chars(
         gmio_string_stream_fwd_iterator_t* it, const char* str);
 #endif
 
+/*! Parses float from string iterator \p it */
+GMIO_INLINE gmio_float32_t gmio_parse_float32(
+        gmio_string_stream_fwd_iterator_t* it);
+
 /*! Converts C string \p str to float
  *
  *  \retval 0  On success
@@ -109,6 +114,7 @@ GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str);
 #include "string_utils.h"
 #ifdef GMIO_STRINGPARSE_USE_FAST_ATOF
 #  include "fast_atof.h"
+#  include "string_parse_fast_atof.h"
 #endif
 
 #include <errno.h>
@@ -147,7 +153,6 @@ gmio_string_stream_fwd_iterator_t* gmio_move_next_char(
     gmio_next_char(it);
     return it;
 }
-
 
 const char* gmio_skip_spaces(
         gmio_string_stream_fwd_iterator_t* it)
@@ -195,6 +200,18 @@ gmio_float32_t gmio_to_float32(const char* str)
     return strtof(str, NULL);
 #else
     return (gmio_float32_t)strtod(str, NULL);
+#endif
+}
+
+gmio_float32_t gmio_parse_float32(gmio_string_stream_fwd_iterator_t* it)
+{
+#if defined(GMIO_STRINGPARSE_USE_FAST_ATOF)
+    return gmio_fast_atof(it);
+#else
+    char strbuff_ptr[64];
+    gmio_string_t strbuff = { &strbuff_ptr[0], 0, sizeof(strbuff_ptr) };
+    gmio_eat_word(it, &strbuff);
+    return (gmio_float32_t)atof(strbuff_ptr);
 #endif
 }
 

@@ -62,7 +62,7 @@ const char* test_internal__byte_codec()
 
 static gmio_bool_t gmio_test_calculation_atof(const char* value_str)
 {
-    const gmio_float32_t fast_value = fast_atof(value_str, NULL);
+    const gmio_float32_t fast_value = fast_atof(value_str);
     const gmio_float32_t std_value = (gmio_float32_t)strtod(value_str, NULL);
     const gmio_bool_t accurate =
             gmio_float32_equals_by_ulp(fast_value, std_value, 1);
@@ -120,6 +120,35 @@ const char* test_internal__fast_atof()
     accurate &= gmio_test_calculation_atof("-0.0690462109446526");
 
     UTEST_ASSERT(accurate == GMIO_TRUE);
+
+    return NULL;
+}
+
+const char* test_internal__gmio_fast_atof()
+{
+    const char fstr[] = "1234.567E05";
+    const float f1 = fast_atof(fstr);
+
+    {
+        char strbuff[2048] = {0};
+        gmio_string_stream_fwd_iterator_t it = {0};
+        gmio_stream_buffer_t streambuff = {0};
+        gmio_stream_t stream = {0};
+        float f2;
+
+        streambuff.readonly_ptr = &fstr[0];
+        streambuff.len = sizeof(fstr) - 1;
+        gmio_stream_set_buffer(&stream, &streambuff);
+
+        it.stream = &stream;
+        it.strbuff.ptr = &strbuff[0];
+        it.strbuff.max_len = sizeof(strbuff) - 1;
+        gmio_string_stream_fwd_iterator_init(&it);
+
+        f2 = gmio_fast_atof(&it);
+
+        UTEST_ASSERT(gmio_float32_equals_by_ulp(f1, f2, 1));
+    }
 
     return NULL;
 }
