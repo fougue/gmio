@@ -68,10 +68,10 @@
 #  define GMIO_TARGET_ARCH_BIT_SIZE  @GMIO_TARGET_ARCH_BIT_SIZE@
 #endif
 
-/* Header: gmio_core/internal/string_parse.h */
-#ifndef GMIO_STRINGPARSE_USE_FAST_ATOF
+/* Header: gmio_core/internal/stringstream.h */
+#ifndef GMIO_STRINGSTREAM_USE_FAST_ATOF
 /* Use fast_atof() instead of std string-to-float functions */
-#  define GMIO_STRINGPARSE_USE_FAST_ATOF
+#  define GMIO_STRINGSTREAM_USE_FAST_ATOF
 #endif
 
 /* Header: gmio_core/internal/string_utils.h */

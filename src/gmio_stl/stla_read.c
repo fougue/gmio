@@ -24,7 +24,7 @@
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_transfer.h"
 #include "../gmio_core/internal/min_max.h"
-#include "../gmio_core/internal/string_parse.h"
+#include "../gmio_core/internal/stringstream.h"
 #include "../gmio_core/internal/string_utils.h"
 
 #include <ctype.h>
@@ -98,7 +98,7 @@ typedef enum
     unknown_token
 } gmio_stla_token_t;
 
-/* gmio_stream_fwd_iterator_stla_cookie */
+/* gmio_stringstream_stla_cookie_t */
 typedef struct
 {
     /* Copy of gmio_stla_read() corresponding argument */
@@ -109,15 +109,15 @@ typedef struct
     gmio_streamoffset_t stream_offset;
     /* Cache for gmio_transfer::func_is_stop_requested() */
     gmio_bool_t is_stop_requested;
-} gmio_string_stream_fwd_iterator_cookie_t;
+} gmio_stringstream_stla_cookie_t;
 
 /* gmio_stla_parse_data */
 typedef struct
 {
     gmio_stla_token_t token;
     gmio_bool_t error;
-    gmio_string_stream_fwd_iterator_t stream_iterator;
-    gmio_string_stream_fwd_iterator_cookie_t stream_iterator_cookie;
+    gmio_stringstream_t stream_iterator;
+    gmio_stringstream_stla_cookie_t stream_iterator_cookie;
     gmio_string_t string_buffer;
     gmio_stl_mesh_creator_t* creator;
 } gmio_stla_parse_data_t;
@@ -126,11 +126,11 @@ typedef struct
 enum { GMIO_STLA_READ_STRING_MAX_LEN = 1024 };
 
 /* Callback used for gmio_string_stream_fwd_iterator::func_stream_read_hook */
-static void gmio_stream_fwd_iterator_stla_read_hook(
+static void gmio_stringstream_stla_read_hook(
         void* cookie, const gmio_string_t* strbuff)
 {
-    gmio_string_stream_fwd_iterator_cookie_t* tcookie =
-            (gmio_string_stream_fwd_iterator_cookie_t*)(cookie);
+    gmio_stringstream_stla_cookie_t* tcookie =
+            (gmio_stringstream_stla_cookie_t*)(cookie);
     const gmio_transfer_t* trsf = tcookie != NULL ? tcookie->transfer : NULL;
     if (tcookie != NULL) {
         tcookie->stream_offset += strbuff->len;
@@ -168,8 +168,8 @@ int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
     parse_data.stream_iterator.strbuff.max_len = trsf->memblock.size;
     parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
     parse_data.stream_iterator.func_stream_read_hook =
-            gmio_stream_fwd_iterator_stla_read_hook;
-    gmio_string_stream_fwd_iterator_init(&parse_data.stream_iterator);
+            gmio_stringstream_stla_read_hook;
+    gmio_stringstream_init(&parse_data.stream_iterator);
 
     parse_data.string_buffer.ptr = &fixed_buffer[0];
     parse_data.string_buffer.len = 0;
@@ -462,14 +462,14 @@ int stla_eat_next_token(
         gmio_stla_parse_data_t* data,
         gmio_stla_token_t expected_token)
 {
-    gmio_string_t* data_strbuff = &data->string_buffer;
+    gmio_string_t* strbuff = &data->string_buffer;
     gmio_eat_word_error_t eat_error;
 
-    data_strbuff->len = 0;
-    eat_error = gmio_eat_word(&data->stream_iterator, data_strbuff);
+    strbuff->len = 0;
+    eat_error = gmio_stringstream_eat_word(&data->stream_iterator, strbuff);
     if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
         const char* expected_token_str = stla_token_to_string(expected_token);
-        if (gmio_ascii_stricmp(data_strbuff->ptr, expected_token_str) == 0) {
+        if (gmio_ascii_stricmp(strbuff->ptr, expected_token_str) == 0) {
             data->token = expected_token;
             return 0;
         }
@@ -489,13 +489,13 @@ int stla_eat_next_token_inplace(
         gmio_stla_parse_data_t* data,
         gmio_stla_token_t expected_token)
 {
-    gmio_string_stream_fwd_iterator_t* it = &data->stream_iterator;
+    gmio_stringstream_t* it = &data->stream_iterator;
     const char* stream_char = NULL;
     const char* expected_token_str = stla_token_to_string(expected_token);
     gmio_bool_t error = GMIO_FALSE;
 
     data->token = unknown_token;
-    stream_char = gmio_skip_spaces(it);
+    stream_char = gmio_stringstream_skip_ascii_spaces(it);
     while (!error) {
         if (stream_char == NULL || gmio_ascii_isspace(*stream_char)) {
             if (*expected_token_str == 0) {
@@ -509,7 +509,7 @@ int stla_eat_next_token_inplace(
         {
             error = GMIO_TRUE;
         }
-        stream_char = gmio_next_char(it);
+        stream_char = gmio_stringstream_next_char(it);
         ++expected_token_str;
     }
 
@@ -524,22 +524,21 @@ int stla_eat_until_token(
         gmio_stla_parse_data_t* data, const gmio_stla_token_t* end_tokens)
 {
     if (!stla_token_match_candidate(data->token, end_tokens)) {
-        gmio_string_stream_fwd_iterator_t* stream_it = &data->stream_iterator;
-        gmio_string_t* string_buf = &data->string_buffer;
+        gmio_stringstream_t* stream_it = &data->stream_iterator;
+        gmio_string_t* strbuff = &data->string_buffer;
         gmio_bool_t end_token_found = GMIO_FALSE;
 
         do {
-            const size_t previous_buff_len = string_buf->len;
+            const size_t previous_buff_len = strbuff->len;
             gmio_eat_word_error_t eat_word_err = 0;
             const char* next_word = NULL; /* Pointer on next word string */
             size_t next_word_len = 0; /* Length of next word string */
 
-            gmio_copy_spaces(stream_it, string_buf);
+            gmio_stringstream_copy_ascii_spaces(stream_it, strbuff);
             /* Next word */
-            next_word = string_buf->ptr + string_buf->len;
-            eat_word_err = gmio_eat_word(stream_it, string_buf);
-            next_word_len =
-                    (string_buf->ptr + string_buf->len) - next_word;
+            next_word = strbuff->ptr + strbuff->len;
+            eat_word_err = gmio_stringstream_eat_word(stream_it, strbuff);
+            next_word_len = (strbuff->ptr + strbuff->len) - next_word;
             /* Qualify token */
             data->token =
                     eat_word_err == GMIO_EAT_WORD_ERROR_OK ?
@@ -550,10 +549,10 @@ int stla_eat_until_token(
             /* True ?
              * trim string_buf so it contains only contents before end token */
             if (end_token_found) {
-                string_buf->len = previous_buff_len;
-                string_buf->ptr[previous_buff_len] = 0;
+                strbuff->len = previous_buff_len;
+                strbuff->ptr[previous_buff_len] = 0;
             }
-        } while (!end_token_found && string_buf->len < string_buf->max_len);
+        } while (!end_token_found && strbuff->len < strbuff->max_len);
 
         if (!end_token_found) {
             stla_error_msg(
@@ -639,20 +638,20 @@ GMIO_INLINE int is_float_char(const char* str)
 int parse_xyz_coords(gmio_stla_parse_data_t* data, gmio_stl_coords_t* coords)
 {
     int errc = 0;
-    gmio_string_stream_fwd_iterator_t* it = &data->stream_iterator;
+    gmio_stringstream_t* it = &data->stream_iterator;
     const char* strbuff = NULL;
 
-    strbuff = gmio_skip_spaces(it);
+    strbuff = gmio_stringstream_skip_ascii_spaces(it);
     errc += !is_float_char(strbuff);
-    coords->x = gmio_parse_float32(it);
+    coords->x = gmio_stringstream_parse_float32(it);
 
-    strbuff = gmio_skip_spaces(it);
+    strbuff = gmio_stringstream_skip_ascii_spaces(it);
     errc += !is_float_char(strbuff);
-    coords->y = gmio_parse_float32(it);
+    coords->y = gmio_stringstream_parse_float32(it);
 
-    strbuff = gmio_skip_spaces(it);
+    strbuff = gmio_stringstream_skip_ascii_spaces(it);
     errc += !is_float_char(strbuff);
-    coords->z = gmio_parse_float32(it);
+    coords->z = gmio_stringstream_parse_float32(it);
 
     data->string_buffer.len = 0;
     data->token = unknown_token;
@@ -702,7 +701,7 @@ void parse_facets(gmio_stla_parse_data_t* data)
                 func_add_triangle(creator_cookie, i_facet, &facet);
             /* Eat next unknown token */
             strbuff->len = 0;
-            gmio_eat_word(&data->stream_iterator, strbuff);
+            gmio_stringstream_eat_word(&data->stream_iterator, strbuff);
             data->token = stla_find_token_from_string(strbuff);
             ++i_facet;
         }
