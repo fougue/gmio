@@ -124,21 +124,20 @@ const char* test_internal__fast_atof()
     return NULL;
 }
 
+static const char test_internal__gmio_fast_atof__fstr[] = "1234.567E05";
 const char* test_internal__gmio_fast_atof()
 {
-    const char fstr[] = "1234.567E05";
-    const float f1 = fast_atof(fstr);
+    const float f1 = fast_atof(test_internal__gmio_fast_atof__fstr);
 
     {
         char strbuff[2048] = {0};
         gmio_stringstream_t it = {0};
-        gmio_stream_buffer_t streambuff = {0};
-        gmio_stream_t stream = {0};
+        gmio_ro_buffer_t streambuff = {
+            &test_internal__gmio_fast_atof__fstr[0],
+            sizeof(test_internal__gmio_fast_atof__fstr) - 1,
+            0 };
+        gmio_stream_t stream = gmio_istream_buffer(&streambuff);
         float f2;
-
-        streambuff.readonly_ptr = &fstr[0];
-        streambuff.len = sizeof(fstr) - 1;
-        gmio_stream_set_buffer(&stream, &streambuff);
 
         it.stream = &stream;
         it.strbuff.ptr = &strbuff[0];
@@ -176,16 +175,19 @@ const char* test_internal__safe_cast()
     return NULL;
 }
 
+static const char test_internal__stringstream__text[] =
+        "Une    citation,\to je crois qu'elle est de moi :"
+        "Parfois le chemin est rude.\n"
+        "pi : 3.1415926535897932384626433832795";
+
 const char* test_internal__stringstream()
 {
-    const char text[] =
-            "Une    citation,\to je crois qu'elle est de moi :"
-            "Parfois le chemin est rude.\n"
-            "pi : 3.1415926535897932384626433832795";
-
     {
-        gmio_stream_buffer_t buff = {0};
-        gmio_stream_t stream = {0};
+        gmio_ro_buffer_t buff = {
+            &test_internal__stringstream__text[0],
+            sizeof(test_internal__stringstream__text) - 1,
+            0 };
+        gmio_stream_t stream = gmio_istream_buffer(&buff);
 
         char small_fwd_it_str[4];
         char fwd_it_str[32];
@@ -193,11 +195,6 @@ const char* test_internal__stringstream()
 
         char copy_str[128];
         gmio_string_t copy_strbuff;
-
-        buff.readonly_ptr = text;
-        buff.len = strlen(text);
-        buff.pos = 0;
-        gmio_stream_set_buffer(&stream, &buff);
 
         fwd_it.stream = &stream;
         fwd_it.strbuff.ptr = fwd_it_str;
@@ -246,19 +243,17 @@ const char* test_internal__stringstream()
     }
 
     {
-        gmio_stream_buffer_t buff = {0};
-        gmio_stream_t stream = {0};
+        gmio_ro_buffer_t buff = {
+            &test_internal__stringstream__text[0],
+            sizeof(test_internal__stringstream__text) - 1,
+            0 };
+        gmio_stream_t stream = gmio_istream_buffer(&buff);
 
         char fwd_it_str[32];
         gmio_stringstream_t fwd_it = {0};
 
         char copy_str[128];
         gmio_string_t copy_strbuff;
-
-        buff.readonly_ptr = text;
-        buff.len = strlen(text);
-        buff.pos = 0;
-        gmio_stream_set_buffer(&stream, &buff);
 
         fwd_it.stream = &stream;
         fwd_it.strbuff.ptr = fwd_it_str;

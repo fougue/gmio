@@ -18,15 +18,25 @@
 
 #include "../src/gmio_core/stream.h"
 
-struct gmio_stream_buffer
+/* Read-only buffer */
+struct gmio_ro_buffer
 {
-    const void* readonly_ptr;
-    void* readwrite_ptr;
+    const void* ptr;
     size_t len;
     size_t pos;
 };
-typedef struct gmio_stream_buffer gmio_stream_buffer_t;
+typedef struct gmio_ro_buffer gmio_ro_buffer_t;
 
-void gmio_stream_set_buffer(gmio_stream_t* stream, gmio_stream_buffer_t* buff);
+/* Read/write buffer */
+struct gmio_rw_buffer
+{
+    void* ptr;
+    size_t len;
+    size_t pos;
+};
+typedef struct gmio_rw_buffer gmio_rw_buffer_t;
+
+gmio_stream_t gmio_istream_buffer(gmio_ro_buffer_t* buff);
+gmio_stream_t gmio_iostream_buffer(gmio_rw_buffer_t* buff);
 
 #endif /* GMIO_STREAM_BUFFER_H */
