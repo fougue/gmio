@@ -48,7 +48,7 @@ typedef struct gmio_string gmio_string_t;
  *
  *  Example:
  *  \code
- *      const char token[] = "woops";
+ *      static const char token[] = "woops";
  *      gmio_const_string_t token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
  *  \endcode
  */
