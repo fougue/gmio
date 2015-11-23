@@ -247,10 +247,6 @@ GMIO_INLINE gmio_bool_t stla_token_match_candidate(
 static void stla_error_msg(
         gmio_stla_parse_data_t* data, const char* msg);
 
-/* Makes the parsing fails with no specific message */
-static void stla_error(
-        gmio_stla_parse_data_t* data);
-
 /* Makes the parsing fails with message showing token mismatch */
 static void stla_error_token_expected(
         gmio_stla_parse_data_t* data, gmio_stla_token_t token);
@@ -436,11 +432,6 @@ void stla_error_msg(gmio_stla_parse_data_t* data, const char* msg)
             data->string_buffer.ptr);
     data->error = GMIO_TRUE;
     data->token = unknown_token;
-}
-
-void stla_error(gmio_stla_parse_data_t* data)
-{
-    stla_error_msg(data, "unknown");
 }
 
 void stla_error_token_expected(
