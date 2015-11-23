@@ -136,10 +136,9 @@ const char* test_internal__gmio_fast_atof()
             &test_internal__gmio_fast_atof__fstr[0],
             sizeof(test_internal__gmio_fast_atof__fstr) - 1,
             0 };
-        gmio_stream_t stream = gmio_istream_buffer(&streambuff);
         float f2;
 
-        it.stream = &stream;
+        it.stream = gmio_istream_buffer(&streambuff);
         it.strbuff.ptr = &strbuff[0];
         it.strbuff.max_len = sizeof(strbuff) - 1;
         gmio_stringstream_init(&it);
@@ -187,7 +186,6 @@ const char* test_internal__stringstream()
             &test_internal__stringstream__text[0],
             sizeof(test_internal__stringstream__text) - 1,
             0 };
-        gmio_stream_t stream = gmio_istream_buffer(&buff);
 
         char small_fwd_it_str[4];
         char fwd_it_str[32];
@@ -196,7 +194,7 @@ const char* test_internal__stringstream()
         char copy_str[128];
         gmio_string_t copy_strbuff;
 
-        fwd_it.stream = &stream;
+        fwd_it.stream = gmio_istream_buffer(&buff);
         fwd_it.strbuff.ptr = fwd_it_str;
         fwd_it.strbuff.max_len = sizeof(fwd_it_str);
         gmio_stringstream_init(&fwd_it);
@@ -247,7 +245,6 @@ const char* test_internal__stringstream()
             &test_internal__stringstream__text[0],
             sizeof(test_internal__stringstream__text) - 1,
             0 };
-        gmio_stream_t stream = gmio_istream_buffer(&buff);
 
         char fwd_it_str[32];
         gmio_stringstream_t fwd_it = {0};
@@ -255,7 +252,7 @@ const char* test_internal__stringstream()
         char copy_str[128];
         gmio_string_t copy_strbuff;
 
-        fwd_it.stream = &stream;
+        fwd_it.stream = gmio_istream_buffer(&buff);
         fwd_it.strbuff.ptr = fwd_it_str;
         fwd_it.strbuff.max_len = sizeof(fwd_it_str);
         gmio_stringstream_init(&fwd_it);

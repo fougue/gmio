@@ -28,7 +28,7 @@
  */
 struct gmio_stringstream
 {
-    gmio_stream_t* stream;
+    gmio_stream_t stream;
     gmio_string_t strbuff;
     const char* strbuff_end; /*!< Position after last char in strbuff */
     const char* strbuff_at;  /*!< Position indicator in buffer */
@@ -134,8 +134,9 @@ const char *gmio_stringstream_next_char(gmio_stringstream_t *it)
 
     /* Read next chunk of data */
     it->strbuff_at = it->strbuff.ptr;
-    it->strbuff.len = gmio_stream_read(
-                it->stream, it->strbuff.ptr, sizeof(char), it->strbuff.max_len);
+    it->strbuff.len =
+            gmio_stream_read(
+                &it->stream, it->strbuff.ptr, 1, it->strbuff.max_len);
     it->strbuff_end = it->strbuff.ptr + it->strbuff.len;
     if (it->strbuff.len > 0) {
         if (it->func_stream_read_hook != NULL)

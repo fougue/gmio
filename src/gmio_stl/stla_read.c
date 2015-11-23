@@ -163,7 +163,7 @@ int gmio_stla_read(gmio_transfer_t* trsf, gmio_stl_mesh_creator_t* creator)
             gmio_stream_size(&trsf->stream);
     parse_data.stream_iterator_cookie.is_stop_requested = GMIO_FALSE;
 
-    parse_data.stream_iterator.stream = &trsf->stream;
+    parse_data.stream_iterator.stream = trsf->stream;
     parse_data.stream_iterator.strbuff.ptr = trsf->memblock.ptr;
     parse_data.stream_iterator.strbuff.max_len = trsf->memblock.size;
     parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
