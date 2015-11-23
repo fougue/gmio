@@ -124,18 +124,15 @@ const char* test_internal__fast_atof()
     return NULL;
 }
 
-static const char test_internal__gmio_fast_atof__fstr[] = "1234.567E05";
 const char* test_internal__gmio_fast_atof()
 {
-    const float f1 = fast_atof(test_internal__gmio_fast_atof__fstr);
+    static const char fstr[] = "1234.567E05";
+    const float f1 = fast_atof(fstr);
 
     {
         char strbuff[2048] = {0};
         gmio_stringstream_t it = {0};
-        gmio_ro_buffer_t streambuff = {
-            &test_internal__gmio_fast_atof__fstr[0],
-            sizeof(test_internal__gmio_fast_atof__fstr) - 1,
-            0 };
+        gmio_ro_buffer_t streambuff = { fstr, sizeof(fstr) - 1, 0 };
         float f2;
 
         it.stream = gmio_istream_buffer(&streambuff);
@@ -174,18 +171,14 @@ const char* test_internal__safe_cast()
     return NULL;
 }
 
-static const char test_internal__stringstream__text[] =
-        "Une    citation,\to je crois qu'elle est de moi :"
-        "Parfois le chemin est rude.\n"
-        "pi : 3.1415926535897932384626433832795";
-
 const char* test_internal__stringstream()
 {
+    static const char text[] =
+            "Une    citation,\to je crois qu'elle est de moi :"
+            "Parfois le chemin est rude.\n"
+            "pi : 3.1415926535897932384626433832795";
     {
-        gmio_ro_buffer_t buff = {
-            &test_internal__stringstream__text[0],
-            sizeof(test_internal__stringstream__text) - 1,
-            0 };
+        gmio_ro_buffer_t buff = { text, sizeof(text) - 1, 0 };
 
         char small_fwd_it_str[4];
         char fwd_it_str[32];
@@ -241,10 +234,7 @@ const char* test_internal__stringstream()
     }
 
     {
-        gmio_ro_buffer_t buff = {
-            &test_internal__stringstream__text[0],
-            sizeof(test_internal__stringstream__text) - 1,
-            0 };
+        gmio_ro_buffer_t buff = { text, sizeof(text) - 1, 0 };
 
         char fwd_it_str[32];
         gmio_stringstream_t fwd_it = {0};
