@@ -17,15 +17,16 @@ C library for geometry input/output
 gmio is a reusable C library whose purpose is to provide complete I/O
 support for various CAD file formats (eg. STL)
 
-gmio aims to be fast, portable (ISO-C90 conformance) and feature-rich.
+gmio aims to be [fast](https://github.com/fougue/gmio/wiki/4.-Benchmarks),
+portable (ISO-C90 conformance) and feature-rich.
 Main highlights:
 
-  * "Abstract" streams that does not tie the user to C stream (`FILE*`).
+  * [x] "Abstract" streams that does not tie the user to C stream (`FILE*`).
     gmio provides a general stream structure based on callbacks, so that
     any kind of device can be used (memory, file, socket, ...)
-  * Operations can be easily aborted
-  * Buffering of input/ouput for efficient device usage
-  * Available under the CeCILL-B license, which is fully BSD compatible
+  * [x] Operations can be easily aborted
+  * [x] Buffering of input/ouput for efficient device usage
+  * [x] Available under the CeCILL-B license, which is fully BSD compatible
 
 
 Supported CAD files format
@@ -33,19 +34,19 @@ Supported CAD files format
 
 Current version only supports the STL file format (STereoLithography), but support is complete :
 
-  * Binary(little/big endian) and ASCII formats
-  * Header data and "attribute byte count" for binary format
-  * Name of solid for ASCII format
-  * Detection of the input data format
-  * Ability to specify the text formatting to represent float values (ASCII formats)
+  * [x] Binary(little/big endian) and ASCII formats
+  * [x] Header data and "attribute byte count" for binary format
+  * [x] Name of solid for ASCII format
+  * [x] Detection of the input data format
+  * [x] Ability to specify the text formatting to represent float values
 
 In addition, the STL module has the following advatanges:
 
-  * The user keeps its own geometry data structures, no conversion needed.
+  * [x] The user keeps its own geometry data structures, no conversion needed.
     This reduces the effort so that the user just specifies callbacks for
     retrieval/creation of geometry data
-  * No dynamic memory allocations
-  * Extended support of OpenCascade's `StlMesh_Mesh`
+  * [x] No dynamic memory allocations
+  * [x] Extended support of OpenCascade's `StlMesh_Mesh`
 
 
 Building gmio
@@ -53,17 +54,8 @@ Building gmio
 
 gmio can be built with CMake, by default a static library is generated.
 
-  1. For an out-of-source build, create a directory where the build will take
-     place (say `build/`)
-  2. Call `cmake`, passing as argument the directory where is located
-     CMakeLists.txt
-  3. `(n)make`
-  4. `(n)make install`
+Read the [Build instructions](https://github.com/fougue/gmio/wiki/2.-Build-instructions)
 
-Read CMakeLists.txt to figure out how to build debug and release libraries.
-
-For the first use of gmio, you should run unit tests:
-    `(n)make check`
 
 
 How to report a bug
