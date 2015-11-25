@@ -1,3 +1,6 @@
+<img src="doc/gmio.png" height="91" alt="gmio_logo"/>
+======================================================
+
 [![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio) 
 [![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio) 
 <a href="https://scan.coverity.com/projects/5721">
@@ -8,7 +11,7 @@
 [![License](https://img.shields.io/badge/license-CeCILL--B-blue.svg)](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)  
 
 
-gmio: C library for geometry input/output
+C library for geometry input/output
 ===========================================
 
 gmio is a reusable C library whose purpose is to provide complete I/O
