@@ -17,19 +17,20 @@
 
 #include "helper_stream.h"
 
-void gmio_stringstream_init(struct gmio_stringstream *it)
+void gmio_stringstream_init(struct gmio_stringstream *sstream)
 {
     /* Trick: declaring the buffer exhausted will actually trigger the first
      * call to gmio_stream_read() inside gmio_next_char()
      */
-    it->strbuff.len = 0;
-    it->strbuff_end = it->strbuff.ptr;
-    it->strbuff_at = it->strbuff_end;
-    gmio_stringstream_next_char(it);
+    sstream->strbuff.len = 0;
+    sstream->strbuff_end = sstream->strbuff.ptr;
+    sstream->strbuff_at = sstream->strbuff_end;
+    gmio_stringstream_next_char(sstream);
 }
 
 enum gmio_eat_word_error gmio_stringstream_eat_word(
-        struct gmio_stringstream *it, struct gmio_string *str)
+        struct gmio_stringstream *sstream,
+        struct gmio_string *str)
 {
     char* str_ptr_at = str->ptr + str->len;
     const char* str_ptr_end = str->ptr + str->max_len;
@@ -37,7 +38,7 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
 
     /* assert(str != NULL && str->ptr != NULL); */
 
-    stream_curr_char = gmio_stringstream_skip_ascii_spaces(it);
+    stream_curr_char = gmio_stringstream_skip_ascii_spaces(sstream);
     if (stream_curr_char == NULL) { /* Empty word */
         *str_ptr_at = 0;
         return GMIO_EAT_WORD_ERROR_EMPTY;
@@ -45,7 +46,7 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
 
     do {
         *str_ptr_at = *stream_curr_char;
-        stream_curr_char = gmio_stringstream_next_char(it);
+        stream_curr_char = gmio_stringstream_next_char(sstream);
         ++str_ptr_at;
     } while (stream_curr_char != NULL
              && !gmio_ascii_isspace(*stream_curr_char)
@@ -61,14 +62,14 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
 
 #if 0
 gmio_bool_t gmio_stringstream_checked_next_chars(
-        struct gmio_stringstream *it, const char *str)
+        struct gmio_stringstream *sstream, const char *str)
 {
     size_t pos = 0;
-    const char* curr_char = gmio_stringstream_current_char(it);
+    const char* curr_char = gmio_stringstream_current_char(sstream);
     gmio_bool_t same = curr_char != NULL && *curr_char == *str;
 
     while (same) {
-        curr_char = gmio_stringstream_next_char(it);
+        curr_char = gmio_stringstream_next_char(sstream);
         same = curr_char != NULL && *curr_char == str[++pos];
     }
 

@@ -117,8 +117,8 @@ struct gmio_stla_parse_data
 {
     enum gmio_stla_token token;
     gmio_bool_t error;
-    struct gmio_stringstream stream_iterator;
-    struct gmio_stringstream_stla_cookie stream_iterator_cookie;
+    struct gmio_stringstream strstream;
+    struct gmio_stringstream_stla_cookie strstream_cookie;
     struct gmio_string string_buffer;
     struct gmio_stl_mesh_creator* creator;
 };
@@ -161,19 +161,19 @@ int gmio_stla_read(
     parse_data.token = unknown_token;
     parse_data.error = GMIO_FALSE;
 
-    parse_data.stream_iterator_cookie.rwargs = args;
-    parse_data.stream_iterator_cookie.stream_offset = 0;
-    parse_data.stream_iterator_cookie.stream_size =
+    parse_data.strstream_cookie.rwargs = args;
+    parse_data.strstream_cookie.stream_offset = 0;
+    parse_data.strstream_cookie.stream_size =
             gmio_stream_size(&args->stream);
-    parse_data.stream_iterator_cookie.is_stop_requested = GMIO_FALSE;
+    parse_data.strstream_cookie.is_stop_requested = GMIO_FALSE;
 
-    parse_data.stream_iterator.stream = args->stream;
-    parse_data.stream_iterator.strbuff.ptr = args->memblock.ptr;
-    parse_data.stream_iterator.strbuff.max_len = args->memblock.size;
-    parse_data.stream_iterator.cookie = &parse_data.stream_iterator_cookie;
-    parse_data.stream_iterator.func_stream_read_hook =
+    parse_data.strstream.stream = args->stream;
+    parse_data.strstream.strbuff.ptr = args->memblock.ptr;
+    parse_data.strstream.strbuff.max_len = args->memblock.size;
+    parse_data.strstream.cookie = &parse_data.strstream_cookie;
+    parse_data.strstream.func_stream_read_hook =
             gmio_stringstream_stla_read_hook;
-    gmio_stringstream_init(&parse_data.stream_iterator);
+    gmio_stringstream_init(&parse_data.strstream);
 
     parse_data.string_buffer.ptr = &fixed_buffer[0];
     parse_data.string_buffer.len = 0;
@@ -185,7 +185,7 @@ int gmio_stla_read(
 
     if (parse_data.error)
         return GMIO_STL_ERROR_PARSING;
-    if (parse_data.stream_iterator_cookie.is_stop_requested)
+    if (parse_data.strstream_cookie.is_stop_requested)
         return GMIO_ERROR_TRANSFER_STOPPED;
     return GMIO_ERROR_OK;
 }
@@ -461,7 +461,7 @@ int stla_eat_next_token(
     enum gmio_eat_word_error eat_error;
 
     strbuff->len = 0;
-    eat_error = gmio_stringstream_eat_word(&data->stream_iterator, strbuff);
+    eat_error = gmio_stringstream_eat_word(&data->strstream, strbuff);
     if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
         const char* expected_token_str = stla_token_to_string(expected_token);
         if (gmio_ascii_stricmp(strbuff->ptr, expected_token_str) == 0) {
@@ -484,13 +484,13 @@ int stla_eat_next_token_inplace(
         struct gmio_stla_parse_data* data,
         enum gmio_stla_token expected_token)
 {
-    struct gmio_stringstream* it = &data->stream_iterator;
+    struct gmio_stringstream* sstream = &data->strstream;
     const char* stream_char = NULL;
     const char* expected_token_str = stla_token_to_string(expected_token);
     gmio_bool_t error = GMIO_FALSE;
 
     data->token = unknown_token;
-    stream_char = gmio_stringstream_skip_ascii_spaces(it);
+    stream_char = gmio_stringstream_skip_ascii_spaces(sstream);
     while (!error) {
         if (stream_char == NULL || gmio_ascii_isspace(*stream_char)) {
             if (*expected_token_str == 0) {
@@ -504,7 +504,7 @@ int stla_eat_next_token_inplace(
         {
             error = GMIO_TRUE;
         }
-        stream_char = gmio_stringstream_next_char(it);
+        stream_char = gmio_stringstream_next_char(sstream);
         ++expected_token_str;
     }
 
@@ -519,7 +519,7 @@ int stla_eat_until_token(
         struct gmio_stla_parse_data* data, const enum gmio_stla_token* end_tokens)
 {
     if (!stla_token_match_candidate(data->token, end_tokens)) {
-        struct gmio_stringstream* stream_it = &data->stream_iterator;
+        struct gmio_stringstream* sstream = &data->strstream;
         struct gmio_string* strbuff = &data->string_buffer;
         gmio_bool_t end_token_found = GMIO_FALSE;
 
@@ -529,10 +529,10 @@ int stla_eat_until_token(
             const char* next_word = NULL; /* Pointer on next word string */
             size_t next_word_len = 0; /* Length of next word string */
 
-            gmio_stringstream_copy_ascii_spaces(stream_it, strbuff);
+            gmio_stringstream_copy_ascii_spaces(sstream, strbuff);
             /* Next word */
             next_word = strbuff->ptr + strbuff->len;
-            eat_word_err = gmio_stringstream_eat_word(stream_it, strbuff);
+            eat_word_err = gmio_stringstream_eat_word(sstream, strbuff);
             next_word_len = (strbuff->ptr + strbuff->len) - next_word;
             /* Qualify token */
             data->token =
@@ -560,7 +560,7 @@ int stla_eat_until_token(
 
 gmio_bool_t stla_parsing_can_continue(const struct gmio_stla_parse_data* data)
 {
-    return !data->error && !data->stream_iterator_cookie.is_stop_requested;
+    return !data->error && !data->strstream_cookie.is_stop_requested;
 }
 
 /* --------------------------------------------------------------------------
@@ -598,7 +598,7 @@ int parse_beginsolid(struct gmio_stla_parse_data* data)
         if (parse_solidname_beg(data) == 0) {
             gmio_stl_mesh_creator_ascii_begin_solid(
                         data->creator,
-                        data->stream_iterator_cookie.stream_size,
+                        data->strstream_cookie.stream_size,
                         data->string_buffer.ptr);
             return 0;
         }
@@ -633,20 +633,20 @@ GMIO_INLINE int is_float_char(const char* str)
 int parse_xyz_coords(struct gmio_stla_parse_data* data, struct gmio_stl_coords* coords)
 {
     int errc = 0;
-    struct gmio_stringstream* it = &data->stream_iterator;
+    struct gmio_stringstream* sstream = &data->strstream;
     const char* strbuff = NULL;
 
-    strbuff = gmio_stringstream_skip_ascii_spaces(it);
+    strbuff = gmio_stringstream_skip_ascii_spaces(sstream);
     errc += !is_float_char(strbuff);
-    coords->x = gmio_stringstream_parse_float32(it);
+    coords->x = gmio_stringstream_parse_float32(sstream);
 
-    strbuff = gmio_stringstream_skip_ascii_spaces(it);
+    strbuff = gmio_stringstream_skip_ascii_spaces(sstream);
     errc += !is_float_char(strbuff);
-    coords->y = gmio_stringstream_parse_float32(it);
+    coords->y = gmio_stringstream_parse_float32(sstream);
 
-    strbuff = gmio_stringstream_skip_ascii_spaces(it);
+    strbuff = gmio_stringstream_skip_ascii_spaces(sstream);
     errc += !is_float_char(strbuff);
-    coords->z = gmio_stringstream_parse_float32(it);
+    coords->z = gmio_stringstream_parse_float32(sstream);
 
     data->string_buffer.len = 0;
     data->token = unknown_token;
@@ -654,7 +654,9 @@ int parse_xyz_coords(struct gmio_stla_parse_data* data, struct gmio_stl_coords* 
     return errc;
 }
 
-int parse_facet(struct gmio_stla_parse_data* data, struct gmio_stl_triangle* facet)
+int parse_facet(
+        struct gmio_stla_parse_data* data,
+        struct gmio_stl_triangle* facet)
 {
     int errc = 0;
     if (data->token != FACET_token)
@@ -696,7 +698,7 @@ void parse_facets(struct gmio_stla_parse_data* data)
                 func_add_triangle(creator_cookie, i_facet, &facet);
             /* Eat next unknown token */
             strbuff->len = 0;
-            gmio_stringstream_eat_word(&data->stream_iterator, strbuff);
+            gmio_stringstream_eat_word(&data->strstream, strbuff);
             data->token = stla_find_token_from_string(strbuff);
             ++i_facet;
         }

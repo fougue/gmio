@@ -131,16 +131,16 @@ const char* test_internal__gmio_fast_atof()
 
     {
         char strbuff[2048] = {0};
-        struct gmio_stringstream it = {0};
+        struct gmio_stringstream sstream = {0};
         gmio_ro_buffer_t streambuff = { fstr, sizeof(fstr) - 1, 0 };
         float f2;
 
-        it.stream = gmio_istream_buffer(&streambuff);
-        it.strbuff.ptr = &strbuff[0];
-        it.strbuff.max_len = sizeof(strbuff) - 1;
-        gmio_stringstream_init(&it);
+        sstream.stream = gmio_istream_buffer(&streambuff);
+        sstream.strbuff.ptr = &strbuff[0];
+        sstream.strbuff.max_len = sizeof(strbuff) - 1;
+        gmio_stringstream_init(&sstream);
 
-        f2 = gmio_stringstream_fast_atof(&it);
+        f2 = gmio_stringstream_fast_atof(&sstream);
 
         UTEST_ASSERT(gmio_float32_equals_by_ulp(f1, f2, 1));
     }
