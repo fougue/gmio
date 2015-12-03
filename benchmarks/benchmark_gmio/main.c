@@ -74,7 +74,7 @@ enum { STL_TRIANGLE_ARRAY_SIZE = 512 };
 struct stl_readwrite_conv
 {
     struct gmio_rwargs rwargs;
-    struct gmio_stream_pos out_stream_pos_begin;
+    struct gmio_streampos out_stream_pos_begin;
     enum gmio_stl_format in_format;
     enum gmio_stl_format out_format;
     struct gmio_stl_triangle triangle_array[STL_TRIANGLE_ARRAY_SIZE];

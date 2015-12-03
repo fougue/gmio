@@ -24,7 +24,7 @@
 #define GMIO_STREAM_H
 
 #include "global.h"
-#include "stream_pos.h"
+#include "streampos.h"
 #include <stdio.h>
 
 #ifdef GMIO_HAVE_INT64_TYPE
@@ -108,7 +108,7 @@ struct gmio_stream
      *  \retval 0 on success
      *  \retval !=0 on error
      */
-    int (*func_get_pos)(void* cookie, struct gmio_stream_pos* pos);
+    int (*func_get_pos)(void* cookie, struct gmio_streampos* pos);
 
     /*! Pointer on a function that restores the current position in the stream
      *  to \p pos
@@ -116,7 +116,7 @@ struct gmio_stream
      *  \retval 0 on success
      *  \retval !=0 on error
      */
-    int (*func_set_pos)(void* cookie, const struct gmio_stream_pos* pos);
+    int (*func_set_pos)(void* cookie, const struct gmio_streampos* pos);
 };
 
 

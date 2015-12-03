@@ -84,14 +84,14 @@ static gmio_streamsize_t gmio_stream_buffer_size(void* cookie)
     return buff->len;
 }
 
-static int gmio_stream_buffer_get_pos(void* cookie, struct gmio_stream_pos* pos)
+static int gmio_stream_buffer_get_pos(void* cookie, struct gmio_streampos* pos)
 {
     gmio_ro_buffer_t* buff = (gmio_ro_buffer_t*)cookie;
     memcpy(&pos->cookie[0], &buff->pos, sizeof(size_t));
     return 0;
 }
 
-static int gmio_stream_buffer_set_pos(void* cookie, const struct gmio_stream_pos* pos)
+static int gmio_stream_buffer_set_pos(void* cookie, const struct gmio_streampos* pos)
 {
     gmio_ro_buffer_t* buff = (gmio_ro_buffer_t*)cookie;
     memcpy(&buff->pos, &pos->cookie[0], sizeof(size_t));

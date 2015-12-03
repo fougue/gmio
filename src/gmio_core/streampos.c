@@ -13,13 +13,13 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "stream_pos.h"
+#include "streampos.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-struct gmio_stream_pos gmio_stream_pos_null()
+struct gmio_streampos gmio_streampos_null()
 {
-    struct gmio_stream_pos pos = {0};
+    struct gmio_streampos pos = {0};
     return pos;
 }

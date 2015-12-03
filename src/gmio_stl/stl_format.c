@@ -38,7 +38,7 @@ enum gmio_stl_format gmio_stl_get_format(struct gmio_stream *stream)
 {
     char fixed_buffer[GMIO_FIXED_BUFFER_SIZE] = {0};
     size_t read_size = 0;
-    struct gmio_stream_pos stream_start_pos = gmio_stream_pos_null();
+    struct gmio_streampos stream_start_pos = gmio_streampos_null();
 
     if (stream == NULL)
         return GMIO_STL_FORMAT_UNKNOWN;
