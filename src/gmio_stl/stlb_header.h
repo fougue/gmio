@@ -33,7 +33,6 @@ struct gmio_stlb_header
 {
     uint8_t data[GMIO_STLB_HEADER_SIZE];
 };
-typedef struct gmio_stlb_header gmio_stlb_header_t;
 
 #endif /* GMIO_STLB_HEADER_H */
 /*! @} */

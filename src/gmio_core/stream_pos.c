@@ -18,8 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-gmio_stream_pos_t gmio_stream_pos_null()
+struct gmio_stream_pos gmio_stream_pos_null()
 {
-    gmio_stream_pos_t pos = {0};
+    struct gmio_stream_pos pos = {0};
     return pos;
 }

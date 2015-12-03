@@ -64,7 +64,7 @@ static gmio_streamsize_t gmio_stream_qiodevice_size(void* cookie)
     return device->size();
 }
 
-static int gmio_stream_qiodevice_get_pos(void* cookie, gmio_stream_pos_t* pos)
+static int gmio_stream_qiodevice_get_pos(void* cookie, struct gmio_stream_pos* pos)
 {
     QIODevice* device = static_cast<QIODevice*>(cookie);
     qint64 qpos = device->pos();
@@ -73,7 +73,7 @@ static int gmio_stream_qiodevice_get_pos(void* cookie, gmio_stream_pos_t* pos)
 }
 
 static int gmio_stream_qiodevice_set_pos(
-        void* cookie, const gmio_stream_pos_t* pos)
+        void* cookie, const struct gmio_stream_pos* pos)
 {
     QIODevice* device = static_cast<QIODevice*>(cookie);
     qint64 qpos;
@@ -83,9 +83,9 @@ static int gmio_stream_qiodevice_set_pos(
     return -1; /* TODO: return error code */
 }
 
-gmio_stream_t gmio_stream_qiodevice(QIODevice* device)
+struct gmio_stream gmio_stream_qiodevice(QIODevice* device)
 {
-    gmio_stream_t stream = {0};
+    struct gmio_stream stream = {0};
     stream.cookie = device;
     stream.func_at_end = gmio_stream_qiodevice_at_end;
     stream.func_error = gmio_stream_qiodevice_error;

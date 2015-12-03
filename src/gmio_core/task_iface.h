@@ -50,7 +50,5 @@ struct gmio_task_iface
     void (*func_handle_progress)(void* cookie, size_t value, size_t max_value);
 };
 
-typedef struct gmio_task_iface gmio_task_iface_t;
-
 #endif /* GMIO_TASK_IFACE_H */
 /*! @} */

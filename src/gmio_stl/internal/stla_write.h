@@ -16,20 +16,19 @@
 #ifndef GMIO_INTERNAL_STLA_WRITE_H
 #define GMIO_INTERNAL_STLA_WRITE_H
 
-#include "../stl_mesh.h"
-#include "../stl_io_options.h"
-#include "../../gmio_core/text_format.h"
-#include "../../gmio_core/transfer.h"
+struct gmio_rwargs;
+struct gmio_stl_mesh;
+struct gmio_stl_write_options;
 
 /*! Writes geometry in the STL ascii format
  *
  *  \return Error code (see error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>trsf->memblock.size < 512</tt>
+ *          if <tt>args->memblock.size < 512</tt>
  */
 int gmio_stla_write(
-        gmio_transfer_t* trsf,
-        const gmio_stl_mesh_t* mesh,
-        const gmio_stl_write_options_t* options);
+        struct gmio_rwargs* args,
+        const struct gmio_stl_mesh* mesh,
+        const struct gmio_stl_write_options* options);
 
 #endif /* GMIO_INTERNAL_STLA_WRITE_H */

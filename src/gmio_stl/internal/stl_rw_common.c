@@ -16,30 +16,31 @@
 #include "stl_rw_common.h"
 
 #include "../../gmio_core/error.h"
+#include "../../gmio_core/rwargs.h"
 #include "../stl_error.h"
 #include "../stl_io.h"
 
-gmio_bool_t gmio_check_transfer(int *error, const gmio_transfer_t* trsf)
+gmio_bool_t gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
 {
-    if (trsf == NULL) {
-        *error = GMIO_ERROR_NULL_TRANSFER;
+    if (args == NULL) {
+        *error = GMIO_ERROR_NULL_RWARGS;
     }
     else {
-        if (trsf->memblock.ptr == NULL)
+        if (args->memblock.ptr == NULL)
             *error = GMIO_ERROR_NULL_MEMBLOCK;
-        else if (trsf->memblock.size == 0)
+        else if (args->memblock.size == 0)
             *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     }
 
     return gmio_no_error(*error);
 }
 
-gmio_bool_t gmio_stl_check_mesh(int *error, const gmio_stl_mesh_t* mesh)
+gmio_bool_t gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
 {
     if (mesh == NULL
             || (mesh->triangle_count > 0 && mesh->func_get_triangle == NULL))
     {
-        *error = GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC;
+        *error = GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE;
     }
 
     return gmio_no_error(*error);
@@ -47,13 +48,13 @@ gmio_bool_t gmio_stl_check_mesh(int *error, const gmio_stl_mesh_t* mesh)
 
 gmio_bool_t gmio_stlb_check_params(
         int *error,
-        const gmio_transfer_t *trsf,
-        gmio_endianness_t byte_order)
+        const struct gmio_rwargs* args,
+        enum gmio_endianness byte_order)
 {
-    if (!gmio_check_transfer(error, trsf))
+    if (!gmio_check_rwargs(error, args))
         return GMIO_FALSE;
 
-    if (trsf->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
+    if (args->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
         *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     if (byte_order != GMIO_ENDIANNESS_LITTLE
             && byte_order != GMIO_ENDIANNESS_BIG)

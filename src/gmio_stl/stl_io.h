@@ -25,20 +25,21 @@
 
 #include "stl_global.h"
 #include "stl_format.h"
-#include "stl_mesh.h"
-#include "stl_mesh_creator.h"
-#include "stl_io_options.h"
 #include "../gmio_core/endian.h"
-#include "../gmio_core/transfer.h"
+
+struct gmio_rwargs;
+struct gmio_stream;
+struct gmio_stl_mesh;
+struct gmio_stl_mesh_creator;
+struct gmio_stl_write_options;
+struct gmio_stlb_header;
+
+enum gmio_endianness;
+enum gmio_stl_format;
 
 GMIO_C_LINKAGE_BEGIN
 
 /*! Reads STL mesh from file, format is automatically guessed
- *
- *  Internally, it uses:
- *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
- *    \li the global default function to construct a temporary gmio_memblock
- *        object (see gmio_memblock_default())
  *
  *  \return Error code (see error.h and stl_error.h)
  */
@@ -49,12 +50,13 @@ int gmio_stl_read_file(
          *  name specifications of the running environment */
         const char* filepath,
 
-        /*! Defines the callbacks for the mesh creation */
-        gmio_stl_mesh_creator_t* creator,
+        /*! Common objects needed for the read operation
+         *  gmio_read_args::stream is internally initialized with the
+         *  builtin stream wrapper around \c FILE* (see gmio_stream_stdio()) */
+        struct gmio_rwargs* args,
 
-        /*! The interface object by which the read operation can be controlled.
-         *  Optional, can be safely set to NULL */
-        gmio_task_iface_t* task_iface
+        /*! Defines the callbacks for the mesh creation */
+        struct gmio_stl_mesh_creator* creator
 );
 
 /*! Reads STL mesh from stream, format is automatically guessed
@@ -63,11 +65,11 @@ int gmio_stl_read_file(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_read(
-        /*! Defines needed objects for the read operation */
-        gmio_transfer_t* trsf,
+        /*! Common objects needed for the read operation */
+        struct gmio_rwargs* args,
 
         /*! Defines the callbacks for the mesh creation */
-        gmio_stl_mesh_creator_t* creator
+        struct gmio_stl_mesh_creator* creator
 );
 
 /*! Writes STL mesh to file
@@ -81,24 +83,25 @@ int gmio_stl_read(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_write_file(
-        /*! STL format of the output file */
-        gmio_stl_format_t format,
-
         /*! Path to the STL file. A stream is opened with fopen() so the string
          *  shall follow the file name specifications of the running
          *  environment */
         const char* filepath,
 
-        /*! Defines the mesh to output */
-        const gmio_stl_mesh_t* mesh,
+        /*! Common objects needed for the write operation
+         *  gmio_read_args::stream is internally initialized with the
+         *  builtin stream wrapper around \c FILE* (see gmio_stream_stdio()) */
+        struct gmio_rwargs* args,
 
-        /*! The interface object by which the write operation can be controlled.
-         *  Optional, can be safely set to NULL */
-        gmio_task_iface_t* task_iface,
+        /*! Defines the mesh to output */
+        const struct gmio_stl_mesh* mesh,
+
+        /*! STL format of the output file */
+        enum gmio_stl_format format,
 
         /*! Options for the write operation, can be safely set to NULL to use
          *  default values */
-        const gmio_stl_write_options_t* options
+        const struct gmio_stl_write_options* options
 );
 
 /*! Writes STL mesh to stream
@@ -107,18 +110,18 @@ int gmio_stl_write_file(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_write(
-        /*! STL format of the output */
-        gmio_stl_format_t format,
-
-        /*! Defines needed objects for the write operation */
-        gmio_transfer_t* trsf,
+        /*! Common objects needed for the write operation */
+        struct gmio_rwargs* args,
 
         /*! Defines the mesh to output */
-        const gmio_stl_mesh_t* mesh,
+        const struct gmio_stl_mesh* mesh,
+
+        /*! STL format of the output */
+        enum gmio_stl_format format,
 
         /*! Options for the write operation, can be safely set to NULL to use
          *  default values */
-        const gmio_stl_write_options_t* options
+        const struct gmio_stl_write_options* options
 );
 
 /*! Reads geometry from STL ascii stream
@@ -134,11 +137,11 @@ int gmio_stl_write(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stla_read(
-        /*! Defines needed objects for the read operation */
-        gmio_transfer_t* trsf,
+        /*! Common objects needed for the read operation */
+        struct gmio_rwargs* args,
 
         /*! Defines the callbacks for the mesh creation */
-        gmio_stl_mesh_creator_t* creator
+        struct gmio_stl_mesh_creator* creator
 );
 
 /*! Size(in bytes) of the minimum contents possible with the STL binary format */
@@ -152,14 +155,14 @@ enum { GMIO_STLB_MIN_CONTENTS_SIZE = 284 };
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_read(
-        /*! Defines needed objects for the read operation */
-        gmio_transfer_t* trsf,
+        /*! Common objects needed for the read operation */
+        struct gmio_rwargs* args,
 
         /*! Defines the callbacks for the mesh creation */
-        gmio_stl_mesh_creator_t* creator,
+        struct gmio_stl_mesh_creator* creator,
 
         /*! Byte order of the input STL binary data */
-        gmio_endianness_t byte_order
+        enum gmio_endianness byte_order
 );
 
 /*! Writes STL binary header data to stream
@@ -172,14 +175,14 @@ int gmio_stlb_read(
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_write_header(
         /*! Output stream where is written the header data */
-        gmio_stream_t* stream,
+        struct gmio_stream* stream,
 
         /*! Byte order of the output STL data */
-        gmio_endianness_t byte_order,
+        enum gmio_endianness byte_order,
 
         /*! 80-bytes array of header data, can be safely set to NULL to generate
          * an array of zeroes */
-        const gmio_stlb_header_t* header,
+        const struct gmio_stlb_header* header,
 
         /*! Total count of facets (triangles) in the mesh to be written */
         uint32_t facet_count

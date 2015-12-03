@@ -25,12 +25,12 @@
 
 #include "stl_global.h"
 
-#include "../gmio_core/transfer.h"
+#include "../gmio_core/rwargs.h"
 #include "../gmio_core/internal/helper_stream.h"
 
 #include <stddef.h>
 
-/*! Statistics of some STL ascii solid */
+/*! Statistics of some STL ascii contents(eg. file) */
 struct gmio_stla_stats
 {
     /*! Count of facets(triangles) */
@@ -43,7 +43,6 @@ struct gmio_stla_stats
     /*! Size of the STL ascii contents in bytes, including the "endsolid" tag */
     size_t size;
 };
-typedef struct gmio_stla_stats gmio_stla_stats_t;
 
 /*! Flags(OR-combinations) for each STL ascii statistic */
 enum gmio_stla_stat_flag
@@ -53,13 +52,12 @@ enum gmio_stla_stat_flag
     GMIO_STLA_STAT_FLAG_SIZE = 0x04,
     GMIO_STLA_STAT_FLAG_ALL = 0xFF
 };
-typedef enum gmio_stla_stat_flag gmio_stla_stat_flag_t;
 
 GMIO_C_LINKAGE_BEGIN
 
 GMIO_LIBSTL_EXPORT
-gmio_stla_stats_t gmio_stla_stats_get(
-        gmio_transfer_t* trsf, unsigned stat_flags, size_t size_limit);
+struct gmio_stla_stats gmio_stla_stats_get(
+        struct gmio_rwargs* args, unsigned stat_flags);
 
 GMIO_C_LINKAGE_END
 

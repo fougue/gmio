@@ -13,31 +13,31 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_HELPER_TRANSFER_H
-#define GMIO_INTERNAL_HELPER_TRANSFER_H
+#ifndef GMIO_INTERNAL_HELPER_RWARGS_H
+#define GMIO_INTERNAL_HELPER_RWARGS_H
 
-#include "../transfer.h"
+#include "../rwargs.h"
 #include "helper_task_iface.h"
 
 /*! Safe and convenient function for gmio_task_iface::func_is_stop_requested()
  *  through gmio_transfer::task_iface
  */
-GMIO_INLINE gmio_bool_t gmio_transfer_is_stop_requested(
-        const gmio_transfer_t* trsf)
+GMIO_INLINE gmio_bool_t gmio_rwargs_is_stop_requested(
+        const struct gmio_rwargs* args)
 {
-    if (trsf != NULL)
-        return gmio_task_iface_is_stop_requested(&trsf->task_iface);
+    if (args != NULL)
+        return gmio_task_iface_is_stop_requested(&args->task_iface);
     return GMIO_FALSE;
 }
 
 /*! Safe and convenient function for gmio_task_iface::func_handle_progress()
  *  through gmio_transfer::task_iface
  */
-GMIO_INLINE void gmio_transfer_handle_progress(
-        const gmio_transfer_t* trsf, size_t value, size_t max_value)
+GMIO_INLINE void gmio_rwargs_handle_progress(
+        const struct gmio_rwargs* args, size_t value, size_t max_value)
 {
-    if (trsf != NULL)
-        gmio_task_iface_handle_progress(&trsf->task_iface, value, max_value);
+    if (args != NULL)
+        gmio_task_iface_handle_progress(&args->task_iface, value, max_value);
 }
 
-#endif /* GMIO_INTERNAL_HELPER_TRANSFER_H */
+#endif /* GMIO_INTERNAL_HELPER_RWARGS_H */

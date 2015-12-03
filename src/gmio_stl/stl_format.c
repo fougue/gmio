@@ -34,11 +34,11 @@ GMIO_INLINE gmio_streamsize_t gmio_stlb_streamsize(uint32_t facet_count)
     return GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE;
 }
 
-gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
+enum gmio_stl_format gmio_stl_get_format(struct gmio_stream *stream)
 {
     char fixed_buffer[GMIO_FIXED_BUFFER_SIZE] = {0};
     size_t read_size = 0;
-    gmio_stream_pos_t stream_start_pos = gmio_stream_pos_null();
+    struct gmio_stream_pos stream_start_pos = gmio_stream_pos_null();
 
     if (stream == NULL)
         return GMIO_STL_FORMAT_UNKNOWN;
@@ -89,13 +89,13 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t *stream)
     return GMIO_STL_FORMAT_UNKNOWN;
 }
 
-gmio_stl_format_t gmio_stl_get_format_file(const char* filepath)
+enum gmio_stl_format gmio_stl_get_format_file(const char* filepath)
 {
-    gmio_stl_format_t format = GMIO_STL_FORMAT_UNKNOWN;
+    enum gmio_stl_format format = GMIO_STL_FORMAT_UNKNOWN;
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
-        gmio_stream_t stream = gmio_stream_stdio(file);
+        struct gmio_stream stream = gmio_stream_stdio(file);
         format = gmio_stl_get_format(&stream);
         fclose(file);
     }

@@ -21,7 +21,7 @@
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::func_ascii_begin_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
-        gmio_stl_mesh_creator_t* creator,
+        struct gmio_stl_mesh_creator* creator,
         gmio_streamsize_t stream_size,
         const char* solid_name)
 {
@@ -34,9 +34,9 @@ GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::func_binary_begin_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_binary_begin_solid(
-        gmio_stl_mesh_creator_t* creator,
+        struct gmio_stl_mesh_creator* creator,
         uint32_t tri_count,
-        const gmio_stlb_header_t* header)
+        const struct gmio_stlb_header* header)
 {
     if (creator != NULL && creator->func_binary_begin_solid != NULL)
         creator->func_binary_begin_solid(creator->cookie, tri_count, header);
@@ -45,9 +45,9 @@ GMIO_INLINE void gmio_stl_mesh_creator_binary_begin_solid(
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::func_add_triangle() */
 GMIO_INLINE void gmio_stl_mesh_creator_add_triangle(
-        gmio_stl_mesh_creator_t* creator,
+        struct gmio_stl_mesh_creator* creator,
         uint32_t tri_id,
-        const gmio_stl_triangle_t* triangle)
+        const struct gmio_stl_triangle* triangle)
 {
     if (creator != NULL && creator->func_add_triangle != NULL)
         creator->func_add_triangle(creator->cookie, tri_id, triangle);
@@ -56,7 +56,7 @@ GMIO_INLINE void gmio_stl_mesh_creator_add_triangle(
 /*! Safe and convenient function for
  *  gmio_stl_mesh_creator::func_end_solid() */
 GMIO_INLINE void gmio_stl_mesh_creator_end_solid(
-        gmio_stl_mesh_creator_t* creator)
+        struct gmio_stl_mesh_creator* creator)
 {
     if (creator != NULL && creator->func_end_solid != NULL)
         creator->func_end_solid(creator->cookie);

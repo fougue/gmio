@@ -41,7 +41,6 @@ enum gmio_float_text_format
     /*! Use the shortest representation: decimal or scientific uppercase */
     GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE
 };
-typedef enum gmio_float_text_format gmio_float_text_format_t;
 
 #endif /* GMIO_TEXT_FORMAT_H */
 /*! @} */

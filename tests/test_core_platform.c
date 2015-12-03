@@ -16,7 +16,7 @@
 #include "utest_assert.h"
 
 #include "../src/gmio_core/global.h"
-#include "../src/gmio_core/transfer.h"
+#include "../src/gmio_core/rwargs.h"
 #include "../src/gmio_stl/stl_triangle.h"
 
 #include <stddef.h>
@@ -27,17 +27,17 @@ GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
 
 const char* test_platform__alignment()
 {
-    UTEST_ASSERT(offsetof(gmio_stl_coords_t, x) == 0);
-    UTEST_ASSERT(offsetof(gmio_stl_coords_t, y) == 4);
-    UTEST_ASSERT(offsetof(gmio_stl_coords_t, z) == 8);
-    UTEST_ASSERT(sizeof(gmio_stl_coords_t) == GMIO_STL_COORDS_RAWSIZE);
+    UTEST_ASSERT(offsetof(struct gmio_stl_coords, x) == 0);
+    UTEST_ASSERT(offsetof(struct gmio_stl_coords, y) == 4);
+    UTEST_ASSERT(offsetof(struct gmio_stl_coords, z) == 8);
+    UTEST_ASSERT(sizeof(struct gmio_stl_coords) == GMIO_STL_COORDS_RAWSIZE);
 
-    UTEST_ASSERT(offsetof(gmio_stl_triangle_t, normal) == 0);
-    UTEST_ASSERT(offsetof(gmio_stl_triangle_t, v1) == GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(offsetof(gmio_stl_triangle_t, v2) == 2*GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(offsetof(gmio_stl_triangle_t, v3) == 3*GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(offsetof(gmio_stl_triangle_t, attribute_byte_count) == 4*GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(sizeof(gmio_stl_triangle_t) >= GMIO_STLB_TRIANGLE_RAWSIZE);
+    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, normal) == 0);
+    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v1) == GMIO_STL_COORDS_RAWSIZE);
+    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v2) == 2*GMIO_STL_COORDS_RAWSIZE);
+    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v3) == 3*GMIO_STL_COORDS_RAWSIZE);
+    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, attribute_byte_count) == 4*GMIO_STL_COORDS_RAWSIZE);
+    UTEST_ASSERT(sizeof(struct gmio_stl_triangle) >= GMIO_STLB_TRIANGLE_RAWSIZE);
 
     return NULL;
 }
@@ -75,20 +75,21 @@ const char* test_platform__compiler()
      * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
      */
     {
-        const gmio_transfer_t trsf_null_bracket0 = {0};
-        gmio_transfer_t trsf_null_memset0;
+        const struct gmio_rwargs args_null_bracket0 = {0};
+        struct gmio_rwargs args_null_memset0;
 
-        memset(&trsf_null_memset0, 0, sizeof(gmio_transfer_t));
+        memset(&args_null_memset0, 0, sizeof(struct gmio_rwargs));
 
         UTEST_ASSERT(memcmp(
-                         &trsf_null_bracket0,
-                         &trsf_null_memset0,
-                         sizeof(gmio_transfer_t))
+                         &args_null_bracket0,
+                         &args_null_memset0,
+                         sizeof(struct gmio_rwargs))
                      == 0);
 
-        UTEST_ASSERT(sizeof(gmio_transfer_t) >= (sizeof(gmio_stream_t)
-                                                 + sizeof(gmio_memblock_t)
-                                                 + sizeof(gmio_task_iface_t)));
+        UTEST_ASSERT(sizeof(struct gmio_rwargs)
+                     >= (sizeof(struct gmio_stream)
+                         + sizeof(struct gmio_memblock)
+                         + sizeof(struct gmio_task_iface)));
     }
 
     /* Check sizeof() operator with fixed-size arrays */

@@ -19,7 +19,7 @@
 #include "../stream.h"
 
 /*! Safe and convenient function for gmio_stream::func_at_end() */
-GMIO_INLINE gmio_bool_t gmio_stream_at_end(gmio_stream_t* stream)
+GMIO_INLINE gmio_bool_t gmio_stream_at_end(struct gmio_stream* stream)
 {
     if (stream != NULL && stream->func_at_end != NULL)
         return stream->func_at_end(stream->cookie);
@@ -27,7 +27,7 @@ GMIO_INLINE gmio_bool_t gmio_stream_at_end(gmio_stream_t* stream)
 }
 
 /*! Safe and convenient function for gmio_stream::func_error()  */
-GMIO_INLINE int gmio_stream_error(gmio_stream_t* stream)
+GMIO_INLINE int gmio_stream_error(struct gmio_stream* stream)
 {
     if (stream != NULL && stream->func_error != NULL)
         return stream->func_error(stream->cookie);
@@ -36,7 +36,7 @@ GMIO_INLINE int gmio_stream_error(gmio_stream_t* stream)
 
 /*! Safe and convenient function for gmio_stream::func_read() */
 GMIO_INLINE size_t gmio_stream_read(
-        gmio_stream_t* stream, void *ptr, size_t size, size_t count)
+        struct gmio_stream* stream, void *ptr, size_t size, size_t count)
 {
     if (stream != NULL && stream->func_read != NULL)
         return stream->func_read(stream->cookie, ptr, size, count);
@@ -45,7 +45,7 @@ GMIO_INLINE size_t gmio_stream_read(
 
 /*! Safe and convenient function for gmio_stream::func_write() */
 GMIO_INLINE size_t gmio_stream_write(
-        gmio_stream_t* stream, const void *ptr, size_t size, size_t count)
+        struct gmio_stream* stream, const void *ptr, size_t size, size_t count)
 {
     if (stream != NULL && stream->func_write != NULL)
         return stream->func_write(stream->cookie, ptr, size, count);
@@ -53,7 +53,7 @@ GMIO_INLINE size_t gmio_stream_write(
 }
 
 /*! Safe and convenient function for gmio_stream::func_size() */
-GMIO_INLINE gmio_streamsize_t gmio_stream_size(gmio_stream_t* stream)
+GMIO_INLINE gmio_streamsize_t gmio_stream_size(struct gmio_stream* stream)
 {
     if (stream != NULL && stream->func_size != NULL)
         return stream->func_size(stream->cookie);
@@ -62,7 +62,7 @@ GMIO_INLINE gmio_streamsize_t gmio_stream_size(gmio_stream_t* stream)
 
 /*! Safe and convenient function for gmio_stream::func_get_pos() */
 GMIO_INLINE int gmio_stream_get_pos(
-        gmio_stream_t* stream, gmio_stream_pos_t* pos)
+        struct gmio_stream* stream, struct gmio_stream_pos* pos)
 {
     if (stream != NULL && stream->func_get_pos != NULL)
         return stream->func_get_pos(stream->cookie, pos);
@@ -71,7 +71,7 @@ GMIO_INLINE int gmio_stream_get_pos(
 
 /*! Safe and convenient function for gmio_stream::func_set_pos() */
 GMIO_INLINE int gmio_stream_set_pos(
-        gmio_stream_t* stream, const gmio_stream_pos_t* pos)
+        struct gmio_stream* stream, const struct gmio_stream_pos* pos)
 {
     if (stream != NULL && stream->func_set_pos != NULL)
         return stream->func_set_pos(stream->cookie, pos);

@@ -13,35 +13,31 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/*! \file transfer.h
- *  Declaration of gmio_transfer
- *
- *  \addtogroup gmio_core
- *  @{
- */
+#include "utest_assert.h"
 
-#ifndef GMIO_TRANSFER_H
-#define GMIO_TRANSFER_H
+#include "../src/gmio_stl/stla_stats.h"
 
-#include "global.h"
-#include "memblock.h"
-#include "stream.h"
-#include "task_iface.h"
+#include <stdio.h>
 
-/*! Defines objects required for any transfer(read/write) operation */
-struct gmio_transfer
+static const char stl_jburkardt_sphere_filepath[] =
+        "models/solid_jburkardt_sphere.stla";
+
+const char* test_stla_stats()
 {
-    /*! The stream object to be used for I/O */
-    gmio_stream_t stream;
+    FILE* stla_file = fopen(stl_jburkardt_sphere_filepath, "rb");
+    struct gmio_rwargs rwargs = {0};
+    struct gmio_stla_stats stats = {0};
 
-    /*! The memory block used by the transfer for stream buffering */
-    gmio_memblock_t memblock;
+    rwargs.memblock = gmio_memblock_malloc(8 * 1024); /* 8Ko */
+    rwargs.stream = gmio_stream_stdio(stla_file);
 
-    /*! The interface object by which the transfer task can be controlled */
-    gmio_task_iface_t task_iface;
-};
+    stats = gmio_stla_stats_get(&rwargs, GMIO_STLA_STAT_FLAG_ALL);
 
-typedef struct gmio_transfer gmio_transfer_t;
+    gmio_memblock_deallocate(&rwargs.memblock);
+    fclose(stla_file);
 
-#endif /* GMIO_TRANSFER_H */
-/*! @} */
+    UTEST_ASSERT(stats.facet_count == 228);
+    /*UTEST_ASSERT(stats.size == 54297);*/
+
+    return NULL;
+}

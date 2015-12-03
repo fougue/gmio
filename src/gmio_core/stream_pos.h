@@ -42,12 +42,11 @@ struct gmio_stream_pos
     /*! Stores the actual(concrete) stream position object */
     uint8_t cookie[GMIO_STREAM_POS_COOKIE_SIZE];
 };
-typedef struct gmio_stream_pos gmio_stream_pos_t;
 
 GMIO_C_LINKAGE_BEGIN
 
 /*! Returns a null stream position */
-GMIO_LIB_EXPORT gmio_stream_pos_t gmio_stream_pos_null();
+GMIO_LIB_EXPORT struct gmio_stream_pos gmio_stream_pos_null();
 
 GMIO_C_LINKAGE_END
 

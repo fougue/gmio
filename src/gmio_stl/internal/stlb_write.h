@@ -16,10 +16,10 @@
 #ifndef GMIO_INTERNAL_STLB_WRITE_H
 #define GMIO_INTERNAL_STLB_WRITE_H
 
-#include "../stl_mesh.h"
-#include "../stl_io_options.h"
-#include "../../gmio_core/endian.h"
-#include "../../gmio_core/transfer.h"
+struct gmio_rwargs;
+struct gmio_stl_mesh;
+struct gmio_stl_write_options;
+enum gmio_endianness;
 
 /*! Writes geometry in the STL binary format
  *
@@ -28,9 +28,9 @@
  *          if <tt>trsf->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 int gmio_stlb_write(
-        gmio_transfer_t* trsf,
-        const gmio_stl_mesh_t* mesh,
-        const gmio_stl_write_options_t* options,
-        gmio_endianness_t byte_order);
+        struct gmio_rwargs* args,
+        const struct gmio_stl_mesh* mesh,
+        const struct gmio_stl_write_options* options,
+        enum gmio_endianness byte_order);
 
 #endif /* GMIO_INTERNAL_STLB_WRITE_H */

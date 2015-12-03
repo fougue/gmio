@@ -31,7 +31,7 @@ static StlMesh_Mesh* occMeshPtr(const Handle_StlMesh_Mesh& mesh)
 }
 
 static void occmesh_add_triangle(
-        void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* tri)
+        void* cookie, uint32_t tri_id, const struct gmio_stl_triangle* tri)
 {
     StlMesh_Mesh* mesh = static_cast<StlMesh_Mesh*>(cookie);
     if (tri_id == 0)
@@ -47,10 +47,10 @@ static void occmesh_add_triangle(
 }
 
 static void occmesh_get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* tri)
+        const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* tri)
 {
-    const gmio_occ_stl_mesh_domain_t* mesh_domain =
-            static_cast<const gmio_occ_stl_mesh_domain_t*>(cookie);
+    const struct gmio_occ_stl_mesh_domain* mesh_domain =
+            static_cast<const struct gmio_occ_stl_mesh_domain*>(cookie);
     const Handle_StlMesh_MeshTriangle& occTri =
             mesh_domain->triangles()->Value(tri_id + 1);
     int idV1;
@@ -87,9 +87,9 @@ static void occmesh_get_triangle(
 
 } // namespace internal
 
-gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain)
+struct gmio_stl_mesh gmio_stl_occmesh(const struct gmio_occ_stl_mesh_domain* mesh_domain)
 {
-    gmio_stl_mesh_t mesh = {0};
+    struct gmio_stl_mesh mesh = {0};
     mesh.cookie = mesh_domain;
     if (mesh_domain != NULL && mesh_domain->mesh() != NULL) {
         mesh.triangle_count =
@@ -99,15 +99,15 @@ gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain)
     return mesh;
 }
 
-gmio_stl_mesh_creator_t gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
+struct gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
 {
-    gmio_stl_mesh_creator_t creator = {0};
+    struct gmio_stl_mesh_creator creator = {0};
     creator.cookie = mesh;
     creator.func_add_triangle = internal::occmesh_add_triangle;
     return creator;
 }
 
-gmio_stl_mesh_creator_t gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh &hnd)
+struct gmio_stl_mesh_creator gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh &hnd)
 {
     return gmio_stl_occmesh_creator(internal::occMeshPtr(hnd));
 }

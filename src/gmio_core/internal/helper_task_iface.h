@@ -22,7 +22,7 @@
 
 /*! Safe and convenient function for gmio_task_iface::func_is_stop_requested() */
 GMIO_INLINE gmio_bool_t gmio_task_iface_is_stop_requested(
-        const gmio_task_iface_t* itask)
+        const struct gmio_task_iface* itask)
 {
     if (itask != NULL && itask->func_is_stop_requested != NULL)
         return itask->func_is_stop_requested(itask->cookie);
@@ -31,7 +31,7 @@ GMIO_INLINE gmio_bool_t gmio_task_iface_is_stop_requested(
 
 /*! Safe and convenient function for gmio_task_iface::func_handle_progress() */
 GMIO_INLINE void gmio_task_iface_handle_progress(
-        const gmio_task_iface_t* itask, size_t value, size_t max_value)
+        const struct gmio_task_iface* itask, size_t value, size_t max_value)
 {
     if (itask != NULL && itask->func_handle_progress != NULL)
         itask->func_handle_progress(itask->cookie, value, max_value);

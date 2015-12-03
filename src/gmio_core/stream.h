@@ -108,7 +108,7 @@ struct gmio_stream
      *  \retval 0 on success
      *  \retval !=0 on error
      */
-    int (*func_get_pos)(void* cookie, gmio_stream_pos_t* pos);
+    int (*func_get_pos)(void* cookie, struct gmio_stream_pos* pos);
 
     /*! Pointer on a function that restores the current position in the stream
      *  to \p pos
@@ -116,10 +116,8 @@ struct gmio_stream
      *  \retval 0 on success
      *  \retval !=0 on error
      */
-    int (*func_set_pos)(void* cookie, const gmio_stream_pos_t* pos);
+    int (*func_set_pos)(void* cookie, const struct gmio_stream_pos* pos);
 };
-
-typedef struct gmio_stream gmio_stream_t;
 
 
 GMIO_C_LINKAGE_BEGIN
@@ -127,10 +125,10 @@ GMIO_C_LINKAGE_BEGIN
 /* Initialization */
 
 /*! Returns a null stream */
-GMIO_LIB_EXPORT gmio_stream_t gmio_stream_null();
+GMIO_LIB_EXPORT struct gmio_stream gmio_stream_null();
 
 /*! Returns a stream for standard FILE* (cookie will hold \p file) */
-GMIO_LIB_EXPORT gmio_stream_t gmio_stream_stdio(FILE* file);
+GMIO_LIB_EXPORT struct gmio_stream gmio_stream_stdio(FILE* file);
 
 GMIO_C_LINKAGE_END
 

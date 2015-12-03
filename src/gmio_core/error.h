@@ -31,8 +31,8 @@ enum gmio_error
     /*! No error occurred, success */
     GMIO_ERROR_OK = 0,
 
-    /*! Pointer on argument gmio_transfer_t is NULL */
-    GMIO_ERROR_NULL_TRANSFER,
+    /*! Pointer on argument gmio_rwargs is NULL */
+    GMIO_ERROR_NULL_RWARGS,
 
     /*! Pointer on argument memory block is NULL */
     GMIO_ERROR_NULL_MEMBLOCK,
@@ -56,8 +56,6 @@ enum gmio_error
     /*! Unknown error */
     GMIO_ERROR_UNKNOWN
 };
-
-typedef enum gmio_error gmio_error_t;
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
 GMIO_INLINE gmio_bool_t gmio_no_error(int code)

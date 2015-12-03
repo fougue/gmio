@@ -35,8 +35,6 @@ enum gmio_stl_format
     GMIO_STL_FORMAT_BINARY_BE    /*!< STL binary (big-endian) */
 };
 
-typedef enum gmio_stl_format gmio_stl_format_t;
-
 GMIO_C_LINKAGE_BEGIN
 
 /*! Returns the format of the STL data in \p stream
@@ -47,7 +45,7 @@ GMIO_C_LINKAGE_BEGIN
  *  \retval GMIO_STL_FORMAT_UNKNOWN in case of error.
  */
 GMIO_LIBSTL_EXPORT
-gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream);
+enum gmio_stl_format gmio_stl_get_format(struct gmio_stream* stream);
 
 /*! Returns the format of the STL data in file at location \p filepath
  *
@@ -58,7 +56,7 @@ gmio_stl_format_t gmio_stl_get_format(gmio_stream_t* stream);
  *         environment
  */
 GMIO_LIBSTL_EXPORT
-gmio_stl_format_t gmio_stl_get_format_file(const char* filepath);
+enum gmio_stl_format gmio_stl_get_format_file(const char* filepath);
 
 GMIO_C_LINKAGE_END
 

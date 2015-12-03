@@ -17,7 +17,7 @@
 
 #include "../../gmio_core/internal/byte_swap.h"
 
-void gmio_stl_triangle_bswap(gmio_stl_triangle_t* triangle)
+void gmio_stl_triangle_bswap(struct gmio_stl_triangle* triangle)
 {
     int i;
     uint32_t* uintcoord_ptr = (uint32_t*)&(triangle->normal.x);

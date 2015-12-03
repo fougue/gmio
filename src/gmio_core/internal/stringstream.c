@@ -17,7 +17,7 @@
 
 #include "helper_stream.h"
 
-void gmio_stringstream_init(gmio_stringstream_t *it)
+void gmio_stringstream_init(struct gmio_stringstream *it)
 {
     /* Trick: declaring the buffer exhausted will actually trigger the first
      * call to gmio_stream_read() inside gmio_next_char()
@@ -28,8 +28,8 @@ void gmio_stringstream_init(gmio_stringstream_t *it)
     gmio_stringstream_next_char(it);
 }
 
-gmio_eat_word_error_t gmio_stringstream_eat_word(
-        gmio_stringstream_t *it, gmio_string_t *str)
+enum gmio_eat_word_error gmio_stringstream_eat_word(
+        struct gmio_stringstream *it, struct gmio_string *str)
 {
     char* str_ptr_at = str->ptr + str->len;
     const char* str_ptr_end = str->ptr + str->max_len;
@@ -61,7 +61,7 @@ gmio_eat_word_error_t gmio_stringstream_eat_word(
 
 #if 0
 gmio_bool_t gmio_stringstream_checked_next_chars(
-        gmio_stringstream_t *it, const char *str)
+        struct gmio_stringstream *it, const char *str)
 {
     size_t pos = 0;
     const char* curr_char = gmio_stringstream_current_char(it);

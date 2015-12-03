@@ -24,6 +24,6 @@
  *  Each XYZ coord (float32) is individually reversed (byte-swap) as well as
  *  the "attribute byte count" member.
  */
-void gmio_stl_triangle_bswap(gmio_stl_triangle_t* triangle);
+void gmio_stl_triangle_bswap(struct gmio_stl_triangle* triangle);
 
 #endif /* GMIO_INTERNAL_STLB_BYTE_SWAP_H */

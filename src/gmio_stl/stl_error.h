@@ -35,7 +35,7 @@ enum gmio_stl_error
 
     /*! Common STL write error indicating gmio_stl_mesh::func_get_triangle()
      *  pointer is NULL */
-    GMIO_STL_ERROR_NULL_GET_TRIANGLE_FUNC = GMIO_STL_ERROR_TAG + 0x02,
+    GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE = GMIO_STL_ERROR_TAG + 0x02,
 
     /* Specific error codes returned by STL_ascii read function */
 
@@ -57,8 +57,6 @@ enum gmio_stl_error
     /*! Error occured when reading facet count in gmio_stlb_read() */
     GMIO_STL_ERROR_FACET_COUNT = GMIO_STL_ERROR_TAG + 0x1002
 };
-
-typedef enum gmio_stl_error  gmio_stl_error_t;
 
 #endif /* GMIO_STL_ERROR_H */
 /*! @} */

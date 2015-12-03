@@ -59,7 +59,7 @@ struct gmio_stl_write_options
      *  Defaulted to \c GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE when calling
      *  gmio_stl_write() with \c options==NULL
      */
-    gmio_float_text_format_t stla_float32_format;
+    enum gmio_float_text_format stla_float32_format;
 
     /*! The maximum number of significant digits when writting float values
      *
@@ -78,9 +78,8 @@ struct gmio_stl_write_options
      *    \li calling gmio_stl_write() with <tt>options == NULL</tt>
      *    \li OR <tt>stlb_header_data == NULL</tt>
      */
-    const gmio_stlb_header_t* stlb_header_data;
+    const struct gmio_stlb_header* stlb_header_data;
 };
-typedef struct gmio_stl_write_options gmio_stl_write_options_t;
 
 #endif /* GMIO_STL_IO_OPTIONS_H */
 /*! @} */

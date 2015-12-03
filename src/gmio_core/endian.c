@@ -19,15 +19,15 @@
 
 #include <string.h>
 
-typedef union
+union gmio_int_bytes_32_convert
 {
     uint32_t integer;
     uint8_t  bytes[4];
-} gmio_int_bytes_32_convert_t;
+};
 
-gmio_endianness_t gmio_host_endianness()
+enum gmio_endianness gmio_host_endianness()
 {
-    gmio_int_bytes_32_convert_t conv;
+    union gmio_int_bytes_32_convert conv;
 
     conv.integer = 0x01020408;
     if (conv.bytes[0] == 0x08 && conv.bytes[3] == 0x01)

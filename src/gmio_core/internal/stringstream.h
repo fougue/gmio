@@ -28,39 +28,39 @@
  */
 struct gmio_stringstream
 {
-    gmio_stream_t stream;
-    gmio_string_t strbuff;
+    struct gmio_stream stream;
+    struct gmio_string strbuff;
     const char* strbuff_end; /*!< Position after last char in strbuff */
     const char* strbuff_at;  /*!< Position indicator in buffer */
 
     void* cookie;
-    void (*func_stream_read_hook)(void* cookie, const gmio_string_t* strbuff);
+    void (*func_stream_read_hook)(
+            void* cookie, const struct gmio_string* strbuff);
 };
-typedef struct gmio_stringstream gmio_stringstream_t;
 
 /*! Initializes iterator */
-void gmio_stringstream_init(gmio_stringstream_t* it);
+void gmio_stringstream_init(struct gmio_stringstream* it);
 
 /*! Returns the char where the iterator is currently pointing at */
 GMIO_INLINE const char* gmio_stringstream_current_char(
-        const gmio_stringstream_t* it);
+        const struct gmio_stringstream* it);
 
 /*! Moves on next char in stream */
 GMIO_INLINE const char* gmio_stringstream_next_char(
-        gmio_stringstream_t *it);
+        struct gmio_stringstream *it);
 
 /*! Moves on next char in stream */
-GMIO_INLINE gmio_stringstream_t* gmio_stringstream_move_next_char(
-        gmio_stringstream_t *it);
+GMIO_INLINE struct gmio_stringstream* gmio_stringstream_move_next_char(
+        struct gmio_stringstream *it);
 
 /*! Advances iterator until the first non-space char */
 GMIO_INLINE const char* gmio_stringstream_skip_ascii_spaces(
-        gmio_stringstream_t* it);
+        struct gmio_stringstream* it);
 
 /*! Advances iterator until the first non-space char and copies in \p str any
  *  space found */
 GMIO_INLINE void gmio_stringstream_copy_ascii_spaces(
-        gmio_stringstream_t* it, gmio_string_t* str);
+        struct gmio_stringstream* it, struct gmio_string* str);
 
 /*! Error codes returned by gmio_eat_word() */
 enum gmio_eat_word_error
@@ -69,11 +69,10 @@ enum gmio_eat_word_error
     GMIO_EAT_WORD_ERROR_EMPTY,
     GMIO_EAT_WORD_ERROR_CAPACITY_OVERFLOW
 };
-typedef enum gmio_eat_word_error gmio_eat_word_error_t;
 
 /*! Advances iterator so that next word is extracted into \p str */
-gmio_eat_word_error_t gmio_stringstream_eat_word(
-        gmio_stringstream_t* it, gmio_string_t* str);
+enum gmio_eat_word_error gmio_stringstream_eat_word(
+        struct gmio_stringstream* it, struct gmio_string* str);
 
 #if 0
 /*! Iterate over stream while it matches input string \p str
@@ -81,12 +80,12 @@ gmio_eat_word_error_t gmio_stringstream_eat_word(
  *  Returns GMIO_TRUE if \p str was fully matched
  */
 gmio_bool_t gmio_stringstream_checked_next_chars(
-        gmio_stringstream_t* it, const char* str);
+        struct gmio_stringstream* it, const char* str);
 #endif
 
 /*! Parses float from string iterator \p it */
 GMIO_INLINE gmio_float32_t gmio_stringstream_parse_float32(
-        gmio_stringstream_t* it);
+        struct gmio_stringstream* it);
 
 /*! Converts C string \p str to float
  *
@@ -119,14 +118,14 @@ GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str);
 #include <errno.h>
 #include <stdlib.h>
 
-const char* gmio_stringstream_current_char(const gmio_stringstream_t* it)
+const char* gmio_stringstream_current_char(const struct gmio_stringstream* it)
 {
     return it->strbuff_at < it->strbuff_end ?
                 it->strbuff_at :
                 NULL;
 }
 
-const char *gmio_stringstream_next_char(gmio_stringstream_t *it)
+const char *gmio_stringstream_next_char(struct gmio_stringstream *it)
 {
     ++(it->strbuff_at);
     if (it->strbuff_at < it->strbuff_end)
@@ -146,13 +145,13 @@ const char *gmio_stringstream_next_char(gmio_stringstream_t *it)
     return NULL;
 }
 
-gmio_stringstream_t* gmio_stringstream_move_next_char(gmio_stringstream_t *it)
+struct gmio_stringstream* gmio_stringstream_move_next_char(struct gmio_stringstream *it)
 {
     gmio_stringstream_next_char(it);
     return it;
 }
 
-const char* gmio_stringstream_skip_ascii_spaces(gmio_stringstream_t* it)
+const char* gmio_stringstream_skip_ascii_spaces(struct gmio_stringstream* it)
 {
     const char* curr_char = gmio_stringstream_current_char(it);
     while (curr_char != NULL && gmio_ascii_isspace(*curr_char))
@@ -161,7 +160,7 @@ const char* gmio_stringstream_skip_ascii_spaces(gmio_stringstream_t* it)
 }
 
 void gmio_stringstream_copy_ascii_spaces(
-        gmio_stringstream_t* it, gmio_string_t* str)
+        struct gmio_stringstream* it, struct gmio_string* str)
 {
     const char* curr_char = gmio_stringstream_current_char(it);
     while (curr_char != NULL
@@ -200,13 +199,13 @@ gmio_float32_t gmio_to_float32(const char* str)
 #endif
 }
 
-gmio_float32_t gmio_stringstream_parse_float32(gmio_stringstream_t* it)
+gmio_float32_t gmio_stringstream_parse_float32(struct gmio_stringstream* it)
 {
 #if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
     return gmio_stringstream_fast_atof(it);
 #else
     char strbuff_ptr[64];
-    gmio_string_t strbuff = { &strbuff_ptr[0], 0, sizeof(strbuff_ptr) };
+    struct gmio_string strbuff = { &strbuff_ptr[0], 0, sizeof(strbuff_ptr) };
     gmio_stringstream_eat_word(it, &strbuff);
     return (gmio_float32_t)atof(strbuff_ptr);
 #endif

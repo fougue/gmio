@@ -20,26 +20,27 @@
 #include "stlb_byte_swap.h"
 #include "../stl_error.h"
 #include "../stl_io.h"
+#include "../stl_io_options.h"
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_codec.h"
 #include "../../gmio_core/internal/min_max.h"
+#include "../../gmio_core/internal/helper_rwargs.h"
 #include "../../gmio_core/internal/helper_stream.h"
-#include "../../gmio_core/internal/helper_transfer.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
 
 GMIO_INLINE void write_triangle_memcpy(
-        const gmio_stl_triangle_t* triangle, uint8_t* mblock)
+        const struct gmio_stl_triangle* triangle, uint8_t* mblock)
 {
     memcpy(mblock, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
 static void gmio_stlb_write_facets(
-        const gmio_stl_mesh_t* mesh,
+        const struct gmio_stl_mesh* mesh,
         uint8_t* mblock,
-        const gmio_stlb_readwrite_helper_t* wparams)
+        const struct gmio_stlb_readwrite_helper* wparams)
 {
     const uint32_t facet_count = wparams->facet_count;
     const uint32_t i_facet_offset = wparams->i_facet_offset;
@@ -48,7 +49,7 @@ static void gmio_stlb_write_facets(
     const gmio_stl_mesh_func_get_triangle_t func_get_triangle =
             mesh->func_get_triangle;
     const void* cookie = mesh->cookie;
-    gmio_stl_triangle_t triangle;
+    struct gmio_stl_triangle triangle;
     uint32_t mblock_offset = 0;
     uint32_t i_facet = 0;
 
@@ -65,10 +66,10 @@ static void gmio_stlb_write_facets(
 }
 
 int gmio_stlb_write(
-        gmio_transfer_t* trsf,
-        const gmio_stl_mesh_t* mesh,
-        const gmio_stl_write_options_t* options,
-        gmio_endianness_t byte_order)
+        struct gmio_rwargs* args,
+        const struct gmio_stl_mesh* mesh,
+        const struct gmio_stl_write_options* options,
+        enum gmio_endianness byte_order)
 {
     /* Constants */
     const uint32_t facet_count =
@@ -76,14 +77,14 @@ int gmio_stlb_write(
     const gmio_bool_t write_triangles_only =
             options != NULL ? options->stl_write_triangles_only : GMIO_FALSE;
     /* Variables */
-    void* mblock_ptr = trsf != NULL ? trsf->memblock.ptr : NULL;
-    gmio_stlb_readwrite_helper_t wparams = {0};
+    void* mblock_ptr = args != NULL ? args->memblock.ptr : NULL;
+    struct gmio_stlb_readwrite_helper wparams = {0};
     uint32_t i_facet = 0;
     int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
     if (!gmio_stl_check_mesh(&error, mesh)
-            || !gmio_stlb_check_params(&error, trsf, byte_order))
+            || !gmio_stlb_check_params(&error, args, byte_order))
     {
         return error;
     }
@@ -94,11 +95,11 @@ int gmio_stlb_write(
     /* Note: trsf != NULL  certified by gmio_stlb_check_params() */
     /* coverity[var_deref_op : FALSE] */
     wparams.facet_count = gmio_size_to_uint32(
-                trsf->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                args->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     if (!write_triangles_only) {
         error = gmio_stlb_write_header(
-                    &trsf->stream,
+                    &args->stream,
                     byte_order,
                     options != NULL ? options->stlb_header_data : NULL,
                     facet_count);
@@ -111,7 +112,7 @@ int gmio_stlb_write(
          i_facet < facet_count && gmio_no_error(error);
          i_facet += wparams.facet_count)
     {
-        gmio_transfer_handle_progress(trsf, i_facet, facet_count);
+        gmio_rwargs_handle_progress(args, i_facet, facet_count);
 
         /* Write to memory block */
         wparams.facet_count = GMIO_MIN(wparams.facet_count,
@@ -122,7 +123,7 @@ int gmio_stlb_write(
 
         /* Write memory block to stream */
         if (gmio_stream_write(
-                    &trsf->stream,
+                    &args->stream,
                     mblock_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     wparams.facet_count)
@@ -132,7 +133,7 @@ int gmio_stlb_write(
         }
 
         /* Handle stop request */
-        if (gmio_no_error(error) && gmio_transfer_is_stop_requested(trsf))
+        if (gmio_no_error(error) && gmio_rwargs_is_stop_requested(args))
             error = GMIO_ERROR_TRANSFER_STOPPED;
     } /* end for */
 

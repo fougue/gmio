@@ -12,7 +12,7 @@
 #include "fast_atof.h"
 #include "stringstream.h"
 
-GMIO_INLINE uint32_t gmio_stringstream_strtoul10(gmio_stringstream_t* it)
+GMIO_INLINE uint32_t gmio_stringstream_strtoul10(struct gmio_stringstream* it)
 {
     unsigned int value = 0;
     const char* in = gmio_stringstream_current_char(it);
@@ -25,7 +25,7 @@ GMIO_INLINE uint32_t gmio_stringstream_strtoul10(gmio_stringstream_t* it)
     return value;
 }
 
-GMIO_INLINE int32_t gmio_stringstream_strtol10(gmio_stringstream_t* it)
+GMIO_INLINE int32_t gmio_stringstream_strtol10(struct gmio_stringstream* it)
 {
     const char* in = gmio_stringstream_current_char(it);
     const gmio_bool_t inv = (*in == '-');
@@ -39,21 +39,21 @@ GMIO_INLINE int32_t gmio_stringstream_strtol10(gmio_stringstream_t* it)
     return value;
 }
 
-typedef struct
+struct gmio_stringstream_strtof10_result
 {
     float val;
     unsigned char_diff;
-} gmio_stringstream_strtof10_result_t;
+};
 
-GMIO_INLINE gmio_stringstream_strtof10_result_t gmio_stringstream_strtof10(
-        gmio_stringstream_t* it)
+GMIO_INLINE struct gmio_stringstream_strtof10_result
+        gmio_stringstream_strtof10(struct gmio_stringstream* it)
 {
     const char* in = gmio_stringstream_current_char(it);
     const uint32_t MAX_SAFE_U32_VALUE = UINT_MAX / 10 - 10;
     uint32_t int_val = 0;
     float float_val = 0.f;
     unsigned char_diff = 0;
-    gmio_stringstream_strtof10_result_t result;
+    struct gmio_stringstream_strtof10_result result;
 
     /* Use integer arithmetic for as long as possible, for speed and
      * precision */
@@ -79,7 +79,7 @@ GMIO_INLINE gmio_stringstream_strtof10_result_t gmio_stringstream_strtof10(
     return result;
 }
 
-GMIO_INLINE float gmio_stringstream_fast_atof(gmio_stringstream_t* it)
+GMIO_INLINE float gmio_stringstream_fast_atof(struct gmio_stringstream* it)
 {
     const char* in = gmio_stringstream_current_char(it);
     const gmio_bool_t negative = ('-' == *in);
@@ -92,7 +92,7 @@ GMIO_INLINE float gmio_stringstream_fast_atof(gmio_stringstream_t* it)
     value = gmio_stringstream_strtof10(it).val;
     in = gmio_stringstream_current_char(it);
     if (is_local_decimal_point(*in)) {
-        const gmio_stringstream_strtof10_result_t decimal =
+        const struct gmio_stringstream_strtof10_result decimal =
                 gmio_stringstream_strtof10(
                     gmio_stringstream_move_next_char(it));
         value += decimal.val * fast_atof_table[decimal.char_diff];

@@ -40,7 +40,6 @@ struct gmio_memblock
      *  beginning at \p ptr */
     void (*func_deallocate)(void* ptr);
 };
-typedef struct gmio_memblock gmio_memblock_t;
 
 GMIO_C_LINKAGE_BEGIN
 
@@ -48,27 +47,27 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  If \p ptr is NULL then gmio_memblock::size is forced to \c 0
  */
-GMIO_LIB_EXPORT gmio_memblock_t gmio_memblock(
+GMIO_LIB_EXPORT struct gmio_memblock gmio_memblock(
         void* ptr, size_t size, void (*func_deallocate)(void*));
 
 /*! Returns a gmio_memblock object allocated with standard \c malloc() */
-GMIO_LIB_EXPORT gmio_memblock_t gmio_memblock_malloc(size_t size);
+GMIO_LIB_EXPORT struct gmio_memblock gmio_memblock_malloc(size_t size);
 
 /*! Returns a gmio_memblock object allocated with standard \c calloc() */
-GMIO_LIB_EXPORT gmio_memblock_t gmio_memblock_calloc(size_t num, size_t size);
+GMIO_LIB_EXPORT struct gmio_memblock gmio_memblock_calloc(size_t num, size_t size);
 
 /*! Returns a gmio_memblock object allocated with standard \c realloc() */
-GMIO_LIB_EXPORT gmio_memblock_t gmio_memblock_realloc(void* ptr, size_t size);
+GMIO_LIB_EXPORT struct gmio_memblock gmio_memblock_realloc(void* ptr, size_t size);
 
 /*! Safe and convenient call to gmio_memblock::func_deallocate() */
-GMIO_LIB_EXPORT void gmio_memblock_deallocate(gmio_memblock_t* mblock);
+GMIO_LIB_EXPORT void gmio_memblock_deallocate(struct gmio_memblock* mblock);
 
 /*! Typedef for a pointer to a function that creates an allocated mblock
  *
  *  Signature:
- *  \code gmio_memblock_t mblock_ctor(); \endcode
+ *  \code struct gmio_memblock mblock_ctor(); \endcode
  */
-typedef gmio_memblock_t (*gmio_memblock_constructor_func_t)();
+typedef struct gmio_memblock (*gmio_memblock_constructor_func_t)();
 
 /*! Installs a global function to construct gmio_memblock objects
  *
@@ -88,7 +87,7 @@ GMIO_LIB_EXPORT gmio_memblock_constructor_func_t gmio_memblock_default_construct
 
 /*! Returns a gmio_memblock object created using the function
  *  gmio_memblock_default_constructor() */
-GMIO_LIB_EXPORT gmio_memblock_t gmio_memblock_default();
+GMIO_LIB_EXPORT struct gmio_memblock gmio_memblock_default();
 
 GMIO_C_LINKAGE_END
 

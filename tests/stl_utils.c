@@ -24,19 +24,19 @@
 #include <ctype.h>
 
 void gmio_stl_nop_add_triangle(
-        void *cookie, uint32_t tri_id, const gmio_stl_triangle_t *triangle)
+        void *cookie, uint32_t tri_id, const struct gmio_stl_triangle *triangle)
 {
     GMIO_UNUSED(cookie);
     GMIO_UNUSED(tri_id);
     GMIO_UNUSED(triangle);
 }
 
-gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count)
+struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count)
 {
-    gmio_stl_triangle_array_t array = {0};
+    struct gmio_stl_triangle_array array = {0};
     if (tri_count > 0) {
         array.ptr =
-                (gmio_stl_triangle_t*)calloc(tri_count, sizeof(gmio_stl_triangle_t));
+                (struct gmio_stl_triangle*)calloc(tri_count, sizeof(struct gmio_stl_triangle));
     }
     array.count = gmio_size_to_uint32(tri_count);
     array.capacity = array.count;
@@ -46,7 +46,7 @@ gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count)
 static void gmio_stl_data__ascii_begin_solid(
         void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
 {
-    gmio_stl_data_t* data = (gmio_stl_data_t*)cookie;
+    struct gmio_stl_data* data = (struct gmio_stl_data*)cookie;
 
     memset(&data->solid_name[0], 0, sizeof(data->solid_name));
     if (solid_name != NULL) {
@@ -66,22 +66,22 @@ static void gmio_stl_data__ascii_begin_solid(
 }
 
 static void gmio_stl_data__binary_begin_solid(
-        void* cookie, uint32_t tri_count, const gmio_stlb_header_t* header)
+        void* cookie, uint32_t tri_count, const struct gmio_stlb_header* header)
 {
-    gmio_stl_data_t* data = (gmio_stl_data_t*)cookie;
+    struct gmio_stl_data* data = (struct gmio_stl_data*)cookie;
     memcpy(&data->header, header, GMIO_STLB_HEADER_SIZE);
     data->tri_array = gmio_stl_triangle_array_malloc(tri_count);
 }
 
 static void gmio_stl_data__add_triangle(
-        void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle)
+        void* cookie, uint32_t tri_id, const struct gmio_stl_triangle* triangle)
 {
-    gmio_stl_data_t* data = (gmio_stl_data_t*)cookie;
+    struct gmio_stl_data* data = (struct gmio_stl_data*)cookie;
     if (tri_id >= data->tri_array.capacity) {
         uint32_t cap = data->tri_array.capacity;
         cap += cap >> 3; /* Add 12.5% more capacity */
         data->tri_array.ptr =
-                realloc(data->tri_array.ptr, cap * sizeof(gmio_stl_triangle_t));
+                realloc(data->tri_array.ptr, cap * sizeof(struct gmio_stl_triangle));
         data->tri_array.capacity = cap;
     }
     memcpy(&data->tri_array.ptr[tri_id], triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
@@ -89,15 +89,15 @@ static void gmio_stl_data__add_triangle(
 }
 
 static void gmio_stl_data__get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle)
+        const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* triangle)
 {
-    const gmio_stl_data_t* data = (const gmio_stl_data_t*)cookie;
+    const struct gmio_stl_data* data = (const struct gmio_stl_data*)cookie;
     *triangle = data->tri_array.ptr[tri_id];
 }
 
-gmio_stl_mesh_creator_t gmio_stl_data_mesh_creator(gmio_stl_data_t *data)
+struct gmio_stl_mesh_creator gmio_stl_data_mesh_creator(struct gmio_stl_data *data)
 {
-    gmio_stl_mesh_creator_t creator = {0};
+    struct gmio_stl_mesh_creator creator = {0};
     creator.cookie = data;
     creator.func_ascii_begin_solid = &gmio_stl_data__ascii_begin_solid;
     creator.func_binary_begin_solid = &gmio_stl_data__binary_begin_solid;
@@ -105,9 +105,9 @@ gmio_stl_mesh_creator_t gmio_stl_data_mesh_creator(gmio_stl_data_t *data)
     return creator;
 }
 
-gmio_stl_mesh_t gmio_stl_data_mesh(const gmio_stl_data_t *data)
+struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data *data)
 {
-    gmio_stl_mesh_t mesh = {0};
+    struct gmio_stl_mesh mesh = {0};
     mesh.cookie = data;
     mesh.triangle_count = data->tri_array.count;
     mesh.func_get_triangle = &gmio_stl_data__get_triangle;
@@ -115,7 +115,7 @@ gmio_stl_mesh_t gmio_stl_data_mesh(const gmio_stl_data_t *data)
 }
 
 void gmio_stlb_header_to_printable_string(
-        const gmio_stlb_header_t *header, char *str, char replacement)
+        const struct gmio_stlb_header *header, char *str, char replacement)
 {
     size_t i = 0;
     for (; i < GMIO_STLB_HEADER_SIZE; ++i) {
@@ -127,8 +127,8 @@ void gmio_stlb_header_to_printable_string(
 }
 
 gmio_bool_t gmio_stl_coords_equal(
-        const gmio_stl_coords_t *lhs,
-        const gmio_stl_coords_t *rhs,
+        const struct gmio_stl_coords *lhs,
+        const struct gmio_stl_coords *rhs,
         uint32_t max_ulp_diff)
 {
     return gmio_float32_equals_by_ulp(lhs->x, rhs->x, max_ulp_diff)
@@ -137,8 +137,8 @@ gmio_bool_t gmio_stl_coords_equal(
 }
 
 gmio_bool_t gmio_stl_triangle_equal(
-        const gmio_stl_triangle_t *lhs,
-        const gmio_stl_triangle_t *rhs,
+        const struct gmio_stl_triangle *lhs,
+        const struct gmio_stl_triangle *rhs,
         uint32_t max_ulp_diff)
 {
     return gmio_stl_coords_equal(&lhs->normal, &rhs->normal, max_ulp_diff)
@@ -149,7 +149,7 @@ gmio_bool_t gmio_stl_triangle_equal(
 }
 
 void gmio_stl_nop_get_triangle(
-        const void *cookie, uint32_t tri_id, gmio_stl_triangle_t *triangle)
+        const void *cookie, uint32_t tri_id, struct gmio_stl_triangle *triangle)
 {
     GMIO_UNUSED(cookie);
     GMIO_UNUSED(tri_id);

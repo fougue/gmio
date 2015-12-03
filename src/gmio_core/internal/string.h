@@ -29,7 +29,6 @@ struct gmio_const_string
     const char* ptr; /*!< Contents */
     size_t len;      /*!< Size(length) of current contents */
 };
-typedef struct gmio_const_string gmio_const_string_t;
 
 /*! Stores a mutable string of 8-bit chars
  *
@@ -42,42 +41,60 @@ struct gmio_string
     size_t len; /*!< Size(length) of current contents */
     size_t max_len; /*!< Maximum contents size(capacity) */
 };
-typedef struct gmio_string gmio_string_t;
 
 /*! Expands to bracket initialization of a gmio_const_string from const char[]
  *
  *  Example:
  *  \code
  *      static const char token[] = "woops";
- *      gmio_const_string_t token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
+ *      struct gmio_const_string token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
  *  \endcode
  */
 #define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
 
-/*! Returns an initialized gmio_const_string_t object */
-GMIO_INLINE gmio_const_string_t gmio_const_string(const char* ptr, size_t len);
+/*! Returns an initialized struct gmio_const_string object */
+GMIO_INLINE struct gmio_const_string gmio_const_string(const char* ptr, size_t len);
+
+/*! Returns an initialized struct gmio_string object */
+GMIO_INLINE struct gmio_string gmio_string(char* ptr, size_t len, size_t max_len);
 
 /*! Clears the contents of the string \p str and makes it null */
-GMIO_INLINE void gmio_string_clear(gmio_string_t* str);
+GMIO_INLINE void gmio_string_clear(struct gmio_string* str);
 
+/*! Clears the contents of the string \p str and makes it null */
+GMIO_INLINE const char* gmio_string_end(const struct gmio_string* str);
 
 
 /*
  * -- Implementation
  */
 
-gmio_const_string_t gmio_const_string(const char* ptr, size_t len)
+struct gmio_const_string gmio_const_string(const char* ptr, size_t len)
 {
-    gmio_const_string_t cstr;
+    struct gmio_const_string cstr;
     cstr.ptr = ptr;
     cstr.len = len;
     return cstr;
 }
 
-void gmio_string_clear(gmio_string_t* str)
+struct gmio_string gmio_string(char* ptr, size_t len, size_t max_len)
+{
+    struct gmio_string str;
+    str.ptr = ptr;
+    str.len = len;
+    str.max_len = max_len;
+    return str;
+}
+
+void gmio_string_clear(struct gmio_string* str)
 {
     str->ptr[0] = 0;
     str->len = 0;
+}
+
+const char* gmio_string_end(const struct gmio_string* str)
+{
+    return &str->ptr[str->len];
 }
 
 #endif /* GMIO_INTERNAL_STRING_H */

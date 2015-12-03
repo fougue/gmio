@@ -45,9 +45,9 @@ GMIO_INLINE int gmio_fstat(int fd, gmio_stat_t* buf)
 
 #endif /* GMIO_HAVE_SYS_TYPES_H && GMIO_HAVE_SYS_STAT_H */
 
-gmio_stream_t gmio_stream_null()
+struct gmio_stream gmio_stream_null()
 {
-    gmio_stream_t null_stream = {0};
+    struct gmio_stream null_stream = {0};
     return null_stream;
 }
 
@@ -129,7 +129,7 @@ static gmio_streamsize_t gmio_stream_stdio_size(void* cookie)
 #endif
 }
 
-static int gmio_stream_stdio_get_pos(void* cookie, gmio_stream_pos_t* pos)
+static int gmio_stream_stdio_get_pos(void* cookie, struct gmio_stream_pos* pos)
 {
     fpos_t fpos;
     int res = fgetpos((FILE*)cookie, &fpos);
@@ -137,16 +137,16 @@ static int gmio_stream_stdio_get_pos(void* cookie, gmio_stream_pos_t* pos)
     return res;
 }
 
-static int gmio_stream_stdio_set_pos(void* cookie, const gmio_stream_pos_t* pos)
+static int gmio_stream_stdio_set_pos(void* cookie, const struct gmio_stream_pos* pos)
 {
     fpos_t fpos;
     memcpy(&fpos, &pos->cookie[0], sizeof(fpos_t));
     return fsetpos((FILE*)cookie, &fpos);
 }
 
-gmio_stream_t gmio_stream_stdio(FILE* file)
+struct gmio_stream gmio_stream_stdio(FILE* file)
 {
-    gmio_stream_t stream = gmio_stream_null();
+    struct gmio_stream stream = gmio_stream_null();
     stream.cookie = file;
     stream.func_at_end = gmio_stream_stdio_at_end;
     stream.func_error = gmio_stream_stdio_error;

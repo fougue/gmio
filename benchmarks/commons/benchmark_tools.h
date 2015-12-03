@@ -46,7 +46,6 @@ struct benchmark_cmp_arg
     /*! Argument passed to the 2nd function on exec */
     const char* func2_filepath;
 };
-typedef struct benchmark_cmp_arg benchmark_cmp_arg_t;
 
 /*! Holds the result of the exec time comparison between two functions */
 struct benchmark_cmp_result
@@ -63,16 +62,15 @@ struct benchmark_cmp_result
     gmio_bool_t has_func2_exec_time;
     float func2_func1_ratio;
 };
-typedef struct benchmark_cmp_result benchmark_cmp_result_t;
 
 /*! Runs func1 then func2 and measures the respective execution time */
-benchmark_cmp_result_t benchmark_cmp(benchmark_cmp_arg_t arg);
+struct benchmark_cmp_result benchmark_cmp(struct benchmark_cmp_arg arg);
 
 /*! Runs a batch(array) of comparison benchmarks */
 void benchmark_cmp_batch(
         size_t run_count,
-        const benchmark_cmp_arg_t* arg_array,
-        benchmark_cmp_result_t* result_array,
+        const struct benchmark_cmp_arg* arg_array,
+        struct benchmark_cmp_result* result_array,
         void (*func_init)(),
         void (*func_cleanup)());
 
@@ -83,15 +81,13 @@ enum benchmark_print_format
 {
     BENCHMARK_PRINT_FORMAT_MARKDOWN = 0
 };
-typedef enum benchmark_print_format benchmark_print_format_t;
 
 /*! Array of benchmark_cmp_result */
 struct benchmark_cmp_result_array
 {
-    const benchmark_cmp_result_t* ptr;
+    const struct benchmark_cmp_result* ptr;
     size_t count;
 };
-typedef struct benchmark_cmp_result_array benchmark_cmp_result_array_t;
 
 /*! Horizontal header labels for benchmark results(by column) */
 struct benchmark_cmp_result_header
@@ -99,13 +95,12 @@ struct benchmark_cmp_result_header
     const char* component_1;
     const char* component_2;
 };
-typedef struct benchmark_cmp_result_header benchmark_cmp_result_header_t;
 
 /*! Prints formatted benchmark results */
 void benchmark_print_results(
-        benchmark_print_format_t format,
-        benchmark_cmp_result_header_t header,
-        benchmark_cmp_result_array_t result_array);
+        enum benchmark_print_format format,
+        struct benchmark_cmp_result_header header,
+        struct benchmark_cmp_result_array result_array);
 
 GMIO_C_LINKAGE_END
 

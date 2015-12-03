@@ -22,9 +22,9 @@
 
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/endian.h"
-#include "../../gmio_core/transfer.h"
-#include "../stl_mesh.h"
-#include "../stl_triangle.h"
+
+struct gmio_rwargs;
+struct gmio_stl_mesh;
 
 struct gmio_stlb_readwrite_helper
 {
@@ -32,15 +32,14 @@ struct gmio_stlb_readwrite_helper
     uint32_t i_facet_offset;
     gmio_stl_triangle_func_fix_endian_t func_fix_endian;
 };
-typedef struct gmio_stlb_readwrite_helper  gmio_stlb_readwrite_helper_t;
 
-gmio_bool_t gmio_check_transfer(int* error, const gmio_transfer_t* trsf);
+gmio_bool_t gmio_check_rwargs(int* error, const struct gmio_rwargs* args);
 
-gmio_bool_t gmio_stl_check_mesh(int* error, const gmio_stl_mesh_t *mesh);
+gmio_bool_t gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
 
 gmio_bool_t gmio_stlb_check_params(
         int* error,
-        const gmio_transfer_t* trsf,
-        gmio_endianness_t byte_order);
+        const struct gmio_rwargs* args,
+        enum gmio_endianness byte_order);
 
 #endif /* GMIO_INTERNAL_STLB_RW_COMMON_H */

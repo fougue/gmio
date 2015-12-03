@@ -25,60 +25,58 @@
 #include <string.h>
 
 gmio_bool_t gmio_stl_coords_equal(
-        const gmio_stl_coords_t* lhs,
-        const gmio_stl_coords_t* rhs,
+        const struct gmio_stl_coords* lhs,
+        const struct gmio_stl_coords* rhs,
         uint32_t max_ulp_diff);
 
 gmio_bool_t gmio_stl_triangle_equal(
-        const gmio_stl_triangle_t* lhs,
-        const gmio_stl_triangle_t* rhs,
+        const struct gmio_stl_triangle* lhs,
+        const struct gmio_stl_triangle* rhs,
         uint32_t max_ulp_diff);
 
 /*! Does binary STL header \p lhs compare equal to \p rhs ? */
 GMIO_INLINE gmio_bool_t gmio_stlb_header_equal(
-        const gmio_stlb_header_t* lhs, const gmio_stlb_header_t* rhs)
+        const struct gmio_stlb_header* lhs, const struct gmio_stlb_header* rhs)
 {
     return memcmp(lhs, rhs, GMIO_STLB_HEADER_SIZE) == 0;
 }
 
 void gmio_stlb_header_to_printable_string(
-        const gmio_stlb_header_t* header, char* str, char replacement);
+        const struct gmio_stlb_header* header, char* str, char replacement);
 
 /*! Callback for gmio_stl_mesh_creator::func_add_triangle that does
  *  nothing(ie "no operation") */
 void gmio_stl_nop_add_triangle(
-        void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle);
+        void* cookie, uint32_t tri_id, const struct gmio_stl_triangle* triangle);
 
 /*! Callback for gmio_stl_mesh::func_get_triangle that does nothing */
 void gmio_stl_nop_get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle);
+        const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* triangle);
 
 /*! Holds an array of STL triangles */
 struct gmio_stl_triangle_array
 {
-    gmio_stl_triangle_t* ptr;
+    struct gmio_stl_triangle* ptr;
     uint32_t count;
     uint32_t capacity;
 };
-typedef struct gmio_stl_triangle_array gmio_stl_triangle_array_t;
 
-/*! Returns an dynamically allocated array of gmio_stl_triangle_t
+/*! Returns an dynamically allocated array of struct gmio_stl_triangle
  *
  *  Contents of the memory block beginnning at gmio_stl_triangle_array::ptr
  *  is initialized with zeroes
  */
-gmio_stl_triangle_array_t gmio_stl_triangle_array_malloc(size_t tri_count);
+struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count);
 
 /*! Holds complete STL data (usable for both binary and ascii formats) */
 struct gmio_stl_data
 {
-    gmio_stlb_header_t header;
+    struct gmio_stlb_header header;
     char solid_name[1024];
-    gmio_stl_triangle_array_t tri_array;
+    struct gmio_stl_triangle_array tri_array;
 };
-typedef struct gmio_stl_data gmio_stl_data_t;
 
-gmio_stl_mesh_creator_t gmio_stl_data_mesh_creator(gmio_stl_data_t* data);
-gmio_stl_mesh_t gmio_stl_data_mesh(const gmio_stl_data_t* data);
+struct gmio_stl_mesh_creator gmio_stl_data_mesh_creator(struct gmio_stl_data* data);
+struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data* data);
 
 #endif /* GMIO_TESTS_STL_UTILS_H */

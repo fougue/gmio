@@ -57,14 +57,13 @@ private:
     const StlMesh_SequenceOfMeshTriangle* m_triangles;
     const TColgp_SequenceOfXYZ* m_vertices;
 };
-typedef struct gmio_occ_stl_mesh_domain gmio_occ_stl_mesh_domain_t;
 
 /*! Returns a gmio_stl_mesh mapped to domain in StlMesh_Mesh
  *
  *  The mesh's cookie will point to \p mesh_domain
  */
 GMIO_LIBSUPPORT_EXPORT
-gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain);
+struct gmio_stl_mesh gmio_stl_occmesh(const struct gmio_occ_stl_mesh_domain* mesh_domain);
 
 /*! Returns a gmio_stl_mesh_creator that will build a new domain in a
  *  StlMesh_Mesh object
@@ -72,7 +71,7 @@ gmio_stl_mesh_t gmio_stl_occmesh(const gmio_occ_stl_mesh_domain_t* mesh_domain);
  *  The creator's cookie will point \p mesh
  */
 GMIO_LIBSUPPORT_EXPORT
-gmio_stl_mesh_creator_t gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
+struct gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
 
 /*! Same as gmio_stl_occmesh_creator(StlMesh_Mesh*) but takes a handle
  *
@@ -80,7 +79,7 @@ gmio_stl_mesh_creator_t gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
  *  handle \p hnd
  */
 GMIO_LIBSUPPORT_EXPORT
-gmio_stl_mesh_creator_t gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
+struct gmio_stl_mesh_creator gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
 
 
 

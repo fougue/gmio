@@ -131,7 +131,7 @@ const char* test_internal__gmio_fast_atof()
 
     {
         char strbuff[2048] = {0};
-        gmio_stringstream_t it = {0};
+        struct gmio_stringstream it = {0};
         gmio_ro_buffer_t streambuff = { fstr, sizeof(fstr) - 1, 0 };
         float f2;
 
@@ -182,10 +182,10 @@ const char* test_internal__stringstream()
 
         char small_fwd_it_str[4];
         char fwd_it_str[32];
-        gmio_stringstream_t fwd_it = {0};
+        struct gmio_stringstream fwd_it = {0};
 
         char copy_str[128];
-        gmio_string_t copy_strbuff;
+        struct gmio_string copy_strbuff;
 
         fwd_it.stream = gmio_istream_buffer(&buff);
         fwd_it.strbuff.ptr = fwd_it_str;
@@ -237,10 +237,10 @@ const char* test_internal__stringstream()
         gmio_ro_buffer_t buff = { text, sizeof(text) - 1, 0 };
 
         char fwd_it_str[32];
-        gmio_stringstream_t fwd_it = {0};
+        struct gmio_stringstream fwd_it = {0};
 
         char copy_str[128];
-        gmio_string_t copy_strbuff;
+        struct gmio_string copy_strbuff;
 
         fwd_it.stream = gmio_istream_buffer(&buff);
         fwd_it.strbuff.ptr = fwd_it_str;

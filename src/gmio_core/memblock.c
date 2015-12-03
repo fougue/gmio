@@ -17,44 +17,38 @@
 
 #include <stdlib.h>
 
-GMIO_INLINE gmio_memblock_t gmio_memblock_null()
-{
-    gmio_memblock_t buff = {0};
-    return buff;
-}
-
-gmio_memblock_t gmio_memblock(
+struct gmio_memblock gmio_memblock(
         void* ptr, size_t size, void (*func_deallocate)(void*))
 {
-    gmio_memblock_t buff;
+    struct gmio_memblock buff;
     buff.ptr = ptr;
     buff.size = ptr != NULL ? size : 0;
     buff.func_deallocate = func_deallocate;
     return buff;
 }
 
-gmio_memblock_t gmio_memblock_malloc(size_t size)
+struct gmio_memblock gmio_memblock_malloc(size_t size)
 {
     return gmio_memblock(malloc(size), size, &free);
 }
 
-gmio_memblock_t gmio_memblock_calloc(size_t num, size_t size)
+struct gmio_memblock gmio_memblock_calloc(size_t num, size_t size)
 {
     return gmio_memblock(calloc(num, size), num * size, &free);
 }
 
-gmio_memblock_t gmio_memblock_realloc(void* ptr, size_t size)
+struct gmio_memblock gmio_memblock_realloc(void* ptr, size_t size)
 {
     return gmio_memblock(realloc(ptr, size), size, &free);
 }
 
-void gmio_memblock_deallocate(gmio_memblock_t *mblock)
+void gmio_memblock_deallocate(struct gmio_memblock *mblock)
 {
     if (mblock != NULL && mblock->func_deallocate != NULL)
         mblock->func_deallocate(mblock->ptr);
 }
 
-static gmio_memblock_t gmio_memblock_default_internal_ctor()
+static struct gmio_memblock gmio_memblock_default_internal_ctor()
 {
     return gmio_memblock_malloc(128 * 1024); /* 128 KB */
 }
@@ -74,7 +68,7 @@ gmio_memblock_constructor_func_t gmio_memblock_default_constructor()
     return gmio_global_mblock_ctor;
 }
 
-gmio_memblock_t gmio_memblock_default()
+struct gmio_memblock gmio_memblock_default()
 {
     return gmio_global_mblock_ctor();
 }
