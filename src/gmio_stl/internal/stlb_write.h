@@ -16,10 +16,11 @@
 #ifndef GMIO_INTERNAL_STLB_WRITE_H
 #define GMIO_INTERNAL_STLB_WRITE_H
 
+#include "../../gmio_core/endian.h"
+
 struct gmio_rwargs;
 struct gmio_stl_mesh;
 struct gmio_stl_write_options;
-enum gmio_endianness;
 
 /*! Writes geometry in the STL binary format
  *

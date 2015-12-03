@@ -34,9 +34,6 @@ struct gmio_stl_mesh_creator;
 struct gmio_stl_write_options;
 struct gmio_stlb_header;
 
-enum gmio_endianness;
-enum gmio_stl_format;
-
 GMIO_C_LINKAGE_BEGIN
 
 /*! Reads STL mesh from file, format is automatically guessed
