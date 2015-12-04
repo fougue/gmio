@@ -78,11 +78,14 @@ endif()
 
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
 
-# Some compilers (like GCC v4.9) don't disable <stdint.h> in STRICT_ANSI mode
+# Some compilers (like GCC v4.9) don't disable <stdint.h> in C90 mode
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
 # Find size of short, int and long types
-check_type_size("short" GMIO_SIZEOF_SHORT)
+set(GMIO_SIZEOF_SHORT ${CMAKE_SIZEOF_UNSIGNED_SHORT})
+if (NOT DEFINED HAVE_CMAKE_SIZEOF_UNSIGNED_SHORT)
+    check_type_size("short" GMIO_SIZEOF_SHORT)
+endif()
 check_type_size("int" GMIO_SIZEOF_INT)
 check_type_size("long" GMIO_SIZEOF_LONG)
 
@@ -136,9 +139,18 @@ if(NOT GMIO_BUILD_STRICT_C90)
         endif()
     endif()
 
-    check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
-    check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
+    set(GMIO_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
+    if(NOT DEFINED HAVE_SYS_TYPES_H)
+        check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
+    endif()
+
+    set(GMIO_HAVE_SYS_STAT_H ${HAVE_SYS_STAT_H})
+    if (NOT DEFINED HAVE_SYS_STAT_H)
+        check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
+    endif()
+
     check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
+
     # Have fstat64() ?
     check_c_source_compiles(
         "#include <sys/stat.h>
@@ -199,7 +211,7 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
     endif()
 
-    # Disable some warnings
+    # TODO: disable these warnings with GCC < 4.9
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
 
     # Force PIC for GCC
