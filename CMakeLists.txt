@@ -211,8 +211,21 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
     endif()
 
-    # TODO: disable these warnings with GCC < 4.9
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+    # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
+    # in case GCC wrongly warns about universal zero initializer {0}
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
+    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} -Werror=missing-braces")
+    check_c_source_compiles(
+        "struct data { char array[128]; };
+         int main() {
+             struct data d = {0};
+             return d.array[0];
+         }"
+        GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
+    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}") # Restore CMAKE_REQUIRED_FLAGS
+    if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+    endif()
 
     # Force PIC for GCC
     #     See https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3

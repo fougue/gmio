@@ -66,7 +66,7 @@ const char* test_platform__global_h()
 
 const char* test_platform__compiler()
 {
-    /* Check that initialization with {0} works as expected
+    /* Check that universal zero initializer {0} works as expected
      *
      * See http://www.ex-parrot.com/~chris/random/initialise.html
      *
