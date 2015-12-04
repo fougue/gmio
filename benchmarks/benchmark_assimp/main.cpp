@@ -23,6 +23,10 @@
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
+#include <gmio_stl/stl_io_options.h>
+#include <gmio_stl/stl_triangle.h>
+#include <gmio_stl/stl_mesh.h>
+#include <gmio_stl/stl_mesh_creator.h>
 
 #include <cstring>
 #include <iostream>
@@ -40,15 +44,15 @@ static unsigned totalTriangleCount(const aiScene* scene)
 }
 
 GMIO_INLINE void copy_gmio_stl_coords(
-        aiVector3D* vec3, const gmio_stl_coords_t& coords)
+        aiVector3D* vec3, const gmio_stl_coords& coords)
 {
     *vec3 = *((aiVector3D*)&coords);
 }
 
 GMIO_INLINE void copy_aiVector3D(
-        gmio_stl_coords_t* coords, const aiVector3D& vec3)
+        gmio_stl_coords* coords, const aiVector3D& vec3)
 {
-    *coords = *((gmio_stl_coords_t*)&vec3);
+    *coords = *((gmio_stl_coords*)&vec3);
 }
 
 namespace BmkAssimp {
@@ -149,7 +153,7 @@ static void func_ascii_begin_solid(
 }
 
 static void binary_begin_solid(
-        void* cookie, uint32_t tri_count, const gmio_stlb_header_t* /*header*/)
+        void* cookie, uint32_t tri_count, const gmio_stlb_header* /*header*/)
 {
     aiSceneHelper* helper = (aiSceneHelper*)cookie;
     helper->hasToCountTriangle = 0; // false
@@ -166,7 +170,7 @@ static void binary_begin_solid(
 }
 
 static void add_triangle(
-        void* cookie, uint32_t tri_id, const gmio_stl_triangle_t* triangle)
+        void* cookie, uint32_t tri_id, const gmio_stl_triangle* triangle)
 {
     aiSceneHelper* helper = (aiSceneHelper*)cookie;
     aiScene* pScene = helper->scene;
@@ -253,7 +257,7 @@ static void end_solid(void* cookie)
 }
 
 static void get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle_t* triangle)
+        const void* cookie, uint32_t tri_id, gmio_stl_triangle* triangle)
 {
     const aiMesh* mesh = (const aiMesh*)cookie;
     const aiFace& f = mesh->mFaces[tri_id];
@@ -280,14 +284,14 @@ static void get_triangle(
 
 static void stl_read(const char* filepath)
 {
-    gmio_stl_mesh_creator_t mesh_creator = { 0 };
+    gmio_stl_mesh_creator mesh_creator = {};
     mesh_creator.cookie = &globalSceneHelper;
     mesh_creator.func_ascii_begin_solid = func_ascii_begin_solid;
     mesh_creator.func_binary_begin_solid = binary_begin_solid;
     mesh_creator.func_add_triangle = add_triangle;
     mesh_creator.func_end_solid = end_solid;
 
-    const int error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
+    const int error = gmio_stl_read_file(filepath, NULL, &mesh_creator);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 
@@ -296,19 +300,19 @@ static void stl_read(const char* filepath)
 //              << totalTriangleCount(scene) << std::endl;
 }
 
-static void stl_write(const char* filepath, gmio_stl_format_t format)
+static void stl_write(const char* filepath, gmio_stl_format format)
 {
     const aiMesh* sceneMesh = globalSceneHelper.scene->mMeshes[0];
 
-    gmio_stl_mesh_t mesh = { 0 };
+    gmio_stl_mesh mesh = {};
     mesh.cookie = sceneMesh;
     mesh.triangle_count = sceneMesh->mNumFaces;
     mesh.func_get_triangle = get_triangle;
 
-    gmio_stl_write_options_t opts = { 0 };
+    gmio_stl_write_options opts = {};
     opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
     opts.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(format, filepath, &mesh, NULL, &opts);
+    const int error = gmio_stl_write_file(filepath, NULL, &mesh, format, &opts);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -352,7 +356,7 @@ int main(int argc, char** argv)
         std::cout << std::endl << "Input file: " << filepath << std::endl;
 
         /* Declare benchmarks */
-        const benchmark_cmp_arg_t cmp_args[] = {
+        const benchmark_cmp_arg cmp_args[] = {
             { "read",
               BmkGmio::stl_read, filepath,
               BmkAssimp::import, filepath },
@@ -369,16 +373,16 @@ int main(int argc, char** argv)
         };
 
         /* Execute benchmarks */
-        std::vector<benchmark_cmp_result_t> cmp_res_vec;
-        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg_t) - 1);
+        std::vector<benchmark_cmp_result> cmp_res_vec;
+        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg) - 1);
         benchmark_cmp_batch(
                     5, &cmp_args[0], &cmp_res_vec[0], &bmk_init, &bmk_cleanup);
 
         /* Print results */
-        const benchmark_cmp_result_array_t res_array = {
+        const benchmark_cmp_result_array res_array = {
             &cmp_res_vec.at(0), cmp_res_vec.size() };
         const std::string assimp_ver = BmkAssimp::assimp_version_str();
-        const benchmark_cmp_result_header_t header = { "gmio", assimp_ver.c_str() };
+        const benchmark_cmp_result_header header = { "gmio", assimp_ver.c_str() };
         benchmark_print_results(
                     BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
     }

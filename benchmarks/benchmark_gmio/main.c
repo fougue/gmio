@@ -120,7 +120,8 @@ static void readwrite_binary_begin_solid(
 static void readwrite_get_triangle(
         const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* triangle)
 {
-    const struct gmio_stl_triangle* tri_array = (const struct gmio_stl_triangle*)cookie;
+    const struct gmio_stl_triangle* tri_array =
+            (const struct gmio_stl_triangle*)cookie;
     *triangle = tri_array[tri_id];
 }
 

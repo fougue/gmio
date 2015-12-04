@@ -20,6 +20,7 @@
 
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
+#include <gmio_stl/stl_io_options.h>
 #include <gmio_support/stl_occ.h>
 
 #include "../commons/benchmark_tools.h"
@@ -58,21 +59,21 @@ Handle_StlMesh_Mesh stlMesh;
 static void stl_read(const char* filepath)
 {
     stlMesh = new StlMesh_Mesh;
-    gmio_stl_mesh_creator_t mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
-    int error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
+    gmio_stl_mesh_creator mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
+    int error = gmio_stl_read_file(filepath, NULL, &mesh_creator);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
 
-static void stl_write(const char* filepath, gmio_stl_format_t format)
+static void stl_write(const char* filepath, gmio_stl_format format)
 {
-    const gmio_occ_stl_mesh_domain_t occ_mesh_domain(stlMesh);
-    const gmio_stl_mesh_t mesh = gmio_stl_occmesh(&occ_mesh_domain);
+    const gmio_occ_stl_mesh_domain occ_mesh_domain(stlMesh);
+    const gmio_stl_mesh mesh = gmio_stl_occmesh(&occ_mesh_domain);
 
-    gmio_stl_write_options_t opts = { 0 };
+    gmio_stl_write_options opts = {};
     opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
     opts.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(format, filepath, &mesh, NULL, &opts);
+    const int error = gmio_stl_write_file(filepath, NULL, &mesh, format, &opts);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -101,7 +102,7 @@ int main(int argc, char** argv)
         std::cout << std::endl << "Input file: " << filepath << std::endl;
 
         /* Declare benchmarks */
-        const benchmark_cmp_arg_t cmp_args[] = {
+        const benchmark_cmp_arg cmp_args[] = {
             { "read",
               BmkGmio::stl_read, filepath,
               BmkOcc::RWStl_ReadFile, filepath },
@@ -118,14 +119,14 @@ int main(int argc, char** argv)
         };
 
         /* Execute benchmarks */
-        std::vector<benchmark_cmp_result_t> cmp_res_vec;
-        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg_t) - 1);
+        std::vector<benchmark_cmp_result> cmp_res_vec;
+        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg) - 1);
         benchmark_cmp_batch(5, &cmp_args[0], &cmp_res_vec[0], NULL, NULL);
 
         /* Print results */
-        const benchmark_cmp_result_array_t res_array = {
+        const benchmark_cmp_result_array res_array = {
             &cmp_res_vec.at(0), cmp_res_vec.size() };
-        const benchmark_cmp_result_header_t header = {
+        const benchmark_cmp_result_header header = {
             "gmio", "OpenCascade v"OCC_VERSION_COMPLETE };
         benchmark_print_results(
                     BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
