@@ -145,41 +145,39 @@ static void gmio_stringstream_stla_read_hook(
 /* Root function, parses a whole solid */
 static void parse_solid(struct gmio_stla_parse_data* data);
 
-int gmio_stla_read(
-        struct gmio_rwargs* args,
-        struct gmio_stl_mesh_creator* creator)
+int gmio_stla_read(struct gmio_stl_read_args* args)
 {
+    struct gmio_rwargs* core_args = &args->core;
     char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN];
     struct gmio_stla_parse_data parse_data;
 
     { /* Check validity of input parameters */
         int error = GMIO_ERROR_OK;
-        if (!gmio_check_rwargs(&error, args))
+        if (!gmio_check_rwargs(&error, core_args))
             return error;
     }
 
     parse_data.token = unknown_token;
     parse_data.error = GMIO_FALSE;
 
-    parse_data.strstream_cookie.rwargs = args;
+    parse_data.strstream_cookie.rwargs = core_args;
     parse_data.strstream_cookie.stream_offset = 0;
     parse_data.strstream_cookie.stream_size =
-            gmio_stream_size(&args->stream);
+            gmio_stream_size(&core_args->stream);
     parse_data.strstream_cookie.is_stop_requested = GMIO_FALSE;
 
-    parse_data.strstream.stream = args->stream;
-    parse_data.strstream.strbuff.ptr = args->memblock.ptr;
-    parse_data.strstream.strbuff.max_len = args->memblock.size;
+    parse_data.strstream.stream = core_args->stream;
+    parse_data.strstream.strbuff.ptr = core_args->memblock.ptr;
+    parse_data.strstream.strbuff.max_len = core_args->memblock.size;
     parse_data.strstream.cookie = &parse_data.strstream_cookie;
-    parse_data.strstream.func_stream_read_hook =
-            gmio_stringstream_stla_read_hook;
+    parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
     gmio_stringstream_init(&parse_data.strstream);
 
     parse_data.string_buffer.ptr = &fixed_buffer[0];
     parse_data.string_buffer.len = 0;
     parse_data.string_buffer.max_len = GMIO_STLA_READ_STRING_MAX_LEN;
 
-    parse_data.creator = creator;
+    parse_data.creator = &args->mesh_creator;
 
     parse_solid(&parse_data);
 

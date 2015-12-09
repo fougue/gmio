@@ -15,13 +15,13 @@
 
 #include "utest_assert.h"
 
-#include "core_utils.h"
 #include "stream_buffer.h"
 
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
 #include "../src/gmio_core/internal/convert.h"
 #include "../src/gmio_core/internal/fast_atof.h"
+#include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/stringstream.h"
 #include "../src/gmio_core/internal/string_utils.h"
@@ -65,7 +65,7 @@ static gmio_bool_t gmio_test_calculation_atof(const char* value_str)
     const gmio_float32_t fast_value = fast_atof(value_str);
     const gmio_float32_t std_value = (gmio_float32_t)strtod(value_str, NULL);
     const gmio_bool_t accurate =
-            gmio_float32_equals_by_ulp(fast_value, std_value, 1);
+            gmio_float32_ulp_equals(fast_value, std_value, 1);
     if (!accurate) {
         fprintf(stderr,
                 "*** ERROR: fast_atof() less accurate than strtod()\n"
@@ -142,7 +142,7 @@ const char* test_internal__gmio_fast_atof()
 
         f2 = gmio_stringstream_fast_atof(&sstream);
 
-        UTEST_ASSERT(gmio_float32_equals_by_ulp(f1, f2, 1));
+        UTEST_ASSERT(gmio_float32_ulp_equals(f1, f2, 1));
     }
 
     return NULL;

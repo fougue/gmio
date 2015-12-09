@@ -16,19 +16,14 @@
 #ifndef GMIO_INTERNAL_STLA_WRITE_H
 #define GMIO_INTERNAL_STLA_WRITE_H
 
-struct gmio_rwargs;
-struct gmio_stl_mesh;
-struct gmio_stl_write_options;
+#include "../stl_rwargs.h"
 
 /*! Writes geometry in the STL ascii format
  *
- *  \return Error code (see error.h and stl_error.h)
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>args->memblock.size < 512</tt>
+ *          if <tt>args->core.memblock.size < 512</tt>
  */
-int gmio_stla_write(
-        struct gmio_rwargs* args,
-        const struct gmio_stl_mesh* mesh,
-        const struct gmio_stl_write_options* options);
+int gmio_stla_write(struct gmio_stl_write_args* args);
 
 #endif /* GMIO_INTERNAL_STLA_WRITE_H */

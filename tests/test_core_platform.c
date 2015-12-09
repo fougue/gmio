@@ -17,6 +17,7 @@
 
 #include "../src/gmio_core/global.h"
 #include "../src/gmio_core/rwargs.h"
+#include "../src/gmio_stl/stl_constants.h"
 #include "../src/gmio_stl/stl_triangle.h"
 
 #include <stddef.h>

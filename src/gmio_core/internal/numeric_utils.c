@@ -13,31 +13,23 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "utest_assert.h"
+#include "numeric_utils.h"
 
-#include "../src/gmio_stl/stla_stats.h"
-
-#include <stdio.h>
-
-static const char stl_jburkardt_sphere_filepath[] =
-        "models/solid_jburkardt_sphere.stla";
-
-const char* test_stla_stats()
+gmio_bool_t gmio_float32_ulp_equals(
+        gmio_float32_t a, gmio_float32_t b, uint32_t max_ulp_diff)
 {
-    FILE* stla_file = fopen(stl_jburkardt_sphere_filepath, "rb");
-    struct gmio_rwargs rwargs = {0};
-    struct gmio_stla_stats stats = {0};
+    const int32_t ia = gmio_convert_int32(a);
+    const int32_t ib = gmio_convert_int32(b);
+    const int32_t slp_diff = ia - ib;
+    const uint32_t ulp_diff = slp_diff > 0 ? slp_diff : -slp_diff;
 
-    rwargs.memblock = gmio_memblock_malloc(8 * 1024); /* 8Ko */
-    rwargs.stream = gmio_stream_stdio(stla_file);
+    /* Different signs, we could maybe get difference to 0, but so close to 0
+     * using epsilons is better */
+    if (gmio_int32_sign(ia) != gmio_int32_sign(ib)) {
+        /* Check for equality to make sure +0 == -0 */
+        return ia == ib;
+    }
 
-    stats = gmio_stla_stats_get(&rwargs, GMIO_STLA_STAT_FLAG_ALL);
-
-    gmio_memblock_deallocate(&rwargs.memblock);
-    fclose(stla_file);
-
-    UTEST_ASSERT(stats.facet_count == 228);
-    /*UTEST_ASSERT(stats.size == 54297);*/
-
-    return NULL;
+    /* Find the difference in ULPs */
+    return ulp_diff <= max_ulp_diff;
 }

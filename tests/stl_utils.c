@@ -15,8 +15,8 @@
 
 #include "stl_utils.h"
 
-#include "core_utils.h"
 #include "../src/gmio_core/internal/min_max.h"
+#include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 
 #include <stdlib.h>
@@ -36,7 +36,8 @@ struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count)
     struct gmio_stl_triangle_array array = {0};
     if (tri_count > 0) {
         array.ptr =
-                (struct gmio_stl_triangle*)calloc(tri_count, sizeof(struct gmio_stl_triangle));
+                (struct gmio_stl_triangle*)calloc(
+                    tri_count, sizeof(struct gmio_stl_triangle));
     }
     array.count = gmio_size_to_uint32(tri_count);
     array.capacity = array.count;
@@ -131,9 +132,9 @@ gmio_bool_t gmio_stl_coords_equal(
         const struct gmio_stl_coords *rhs,
         uint32_t max_ulp_diff)
 {
-    return gmio_float32_equals_by_ulp(lhs->x, rhs->x, max_ulp_diff)
-            && gmio_float32_equals_by_ulp(lhs->y, rhs->y, max_ulp_diff)
-            && gmio_float32_equals_by_ulp(lhs->z, rhs->z, max_ulp_diff);
+    return gmio_float32_ulp_equals(lhs->x, rhs->x, max_ulp_diff)
+            && gmio_float32_ulp_equals(lhs->y, rhs->y, max_ulp_diff)
+            && gmio_float32_ulp_equals(lhs->z, rhs->z, max_ulp_diff);
 }
 
 gmio_bool_t gmio_stl_triangle_equal(

@@ -48,6 +48,14 @@ GMIO_INLINE gmio_bool_t gmio_ascii_char_iequals(char c1, char c2);
  */
 GMIO_INLINE int gmio_ascii_stricmp(const char* str1, const char* str2);
 
+/*! Returns 0 if the first \p n characreters of \p str1 and \p str2 compare
+ *  equal, non-zero otherwise
+ *
+ *  Comparison is case-insensitive
+ */
+GMIO_INLINE int gmio_ascii_strincmp(
+        const char* str1, const char* str2, size_t n);
+
 /*! Returns true if \p str starts with string \p begin
  *
  *  Comparison is case-insensitive
@@ -55,6 +63,11 @@ GMIO_INLINE int gmio_ascii_stricmp(const char* str1, const char* str2);
 GMIO_INLINE gmio_bool_t gmio_ascii_istarts_with(
         const char* str, const char* begin);
 
+/*! Locate substring (insensitive case string matching)
+ *
+ *  Behaves the same as strstr()
+ */
+const char* gmio_ascii_istrstr(const char *str1, const char *str2);
 
 
 /*
@@ -166,6 +179,16 @@ int gmio_ascii_stricmp(const char* str1, const char* str2)
         ++str2;
     }
     return *str1 - *str2;
+}
+
+int gmio_ascii_strincmp(const char* str1, const char* str2, size_t n)
+{
+    while (n > 0 && *str1 != 0 && gmio_ascii_char_iequals(*str1, *str2)) {
+        ++str1;
+        ++str2;
+        --n;
+    }
+    return gmio_ascii_tolower(*str1) - gmio_ascii_tolower(*str2);
 }
 
 gmio_bool_t gmio_ascii_istarts_with(const char* str, const char* begin)

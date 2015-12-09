@@ -49,7 +49,9 @@ struct gmio_stl_mesh_creator
      *  stream
      */
     void (*func_ascii_begin_solid)(
-            void* cookie, gmio_streamsize_t stream_size, const char* solid_name);
+            void* cookie,
+            gmio_streamsize_t stream_size,
+            const char* solid_name);
 
     /*! Pointer on a function that handles declaration of a mesh with
      *  \p tri_count number of triangles
@@ -66,7 +68,8 @@ struct gmio_stl_mesh_creator
     /*! Pointer on a function that adds a triangle to the user mesh
      *
      *  The argument \p triangle is the triangle to be added, note that
-     *  struct gmio_stl_triangle::attribute_byte_count is meaningless for STL ascii.
+     *  struct gmio_stl_triangle::attribute_byte_count is meaningless for STL
+     *  ascii.
      *
      *  The argument \p tri_id is the index of the mesh triangle
      */

@@ -16,151 +16,126 @@
 #include "stl_io.h"
 
 #include "stl_error.h"
-#include "stl_format.h"
-#include "stlb_header.h"
 #include "internal/stla_write.h"
 #include "internal/stlb_write.h"
 #include "../gmio_core/error.h"
-#include "../gmio_core/rwargs.h"
-#include "../gmio_core/stream.h"
 #include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/helper_stream.h"
 
-int gmio_stl_read_file(
-        const char* filepath,
-        struct gmio_rwargs* args,
-        struct gmio_stl_mesh_creator* creator)
+int gmio_stl_read(struct gmio_stl_read_args* args)
 {
     int error = GMIO_ERROR_OK;
-    FILE* file = NULL;
-
-    file = fopen(filepath, "rb");
-    if (file != NULL) {
-        struct gmio_rwargs local_args =
-                args != NULL ? *args : gmio_rwargs_null();
-        const gmio_bool_t memblock_allocated =
-                local_args.memblock.ptr == NULL;
-
-        if (memblock_allocated)
-            local_args.memblock = gmio_memblock_default();
-        local_args.stream = gmio_stream_stdio(file);
-        error = gmio_stl_read(&local_args, creator);
-        fclose(file);
-        if (memblock_allocated)
-            gmio_memblock_deallocate(&local_args.memblock);
-    }
-    else {
-        error = GMIO_ERROR_STDIO;
-    }
-
-    return error;
-}
-
-int gmio_stl_read(
-        struct gmio_rwargs* args,
-        struct gmio_stl_mesh_creator* creator)
-{
-    int error = GMIO_ERROR_OK;
-
     if (args != NULL) {
         const enum gmio_stl_format stl_format =
-                gmio_stl_get_format(&args->stream);
+                gmio_stl_get_format(&args->core.stream);
 
         switch (stl_format) {
         case GMIO_STL_FORMAT_ASCII: {
-            error = gmio_stla_read(args, creator);
+            error = gmio_stla_read(args);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_BE: {
-            error = gmio_stlb_read(args, creator, GMIO_ENDIANNESS_BIG);
+            error = gmio_stlb_read(args, GMIO_ENDIANNESS_BIG);
             break;
         }
         case GMIO_STL_FORMAT_BINARY_LE: {
-            error = gmio_stlb_read(args, creator, GMIO_ENDIANNESS_LITTLE);
+            error = gmio_stlb_read(args, GMIO_ENDIANNESS_LITTLE);
             break;
         }
         case GMIO_STL_FORMAT_UNKNOWN: {
             error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
+            break;
         }
         } /* end switch() */
     }
     else {
         error = GMIO_ERROR_NULL_RWARGS;
     }
+    return error;
+}
 
+int gmio_stl_read_file(
+        struct gmio_stl_read_args* args, const char* filepath)
+{
+    int error = GMIO_ERROR_OK;
+    if (args != NULL) {
+        FILE* file = fopen(filepath, "rb");
+        if (file != NULL) {
+            const gmio_bool_t mem_allocated = args->core.memblock.ptr == NULL;
+            if (mem_allocated)
+                args->core.memblock = gmio_memblock_default();
+            args->core.stream = gmio_stream_stdio(file);
+            error = gmio_stl_read(args);
+            fclose(file);
+            if (mem_allocated)
+                gmio_memblock_deallocate(&args->core.memblock);
+        }
+        else {
+            error = GMIO_ERROR_STDIO;
+        }
+    }
+    else {
+        error = GMIO_ERROR_NULL_RWARGS;
+    }
+    return error;
+}
+
+int gmio_stl_write(struct gmio_stl_write_args* args)
+{
+    int error = GMIO_ERROR_OK;
+    if (args != NULL) {
+        const gmio_bool_t mem_allocated = args->core.memblock.ptr == NULL;
+        if (mem_allocated)
+            args->core.memblock = gmio_memblock_default();
+        switch (args->format) {
+        case GMIO_STL_FORMAT_ASCII: {
+            error = gmio_stla_write(args);
+            break;
+        }
+        case GMIO_STL_FORMAT_BINARY_BE: {
+            error = gmio_stlb_write(args, GMIO_ENDIANNESS_BIG);
+            break;
+        }
+        case GMIO_STL_FORMAT_BINARY_LE: {
+            error = gmio_stlb_write(args, GMIO_ENDIANNESS_LITTLE);
+            break;
+        }
+        case GMIO_STL_FORMAT_UNKNOWN: {
+            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
+        }
+        } /* end switch() */
+        if (mem_allocated)
+            gmio_memblock_deallocate(&args->core.memblock);
+    }
+    else {
+        error = GMIO_ERROR_NULL_RWARGS;
+    }
     return error;
 }
 
 int gmio_stl_write_file(
-        const char* filepath,
-        struct gmio_rwargs* args,
-        const struct gmio_stl_mesh* mesh,
-        enum gmio_stl_format format,
-        const struct gmio_stl_write_options* options)
+        struct gmio_stl_write_args* args, const char* filepath)
 {
     int error = GMIO_ERROR_OK;
-    FILE* file = NULL;
-
-    file = fopen(filepath, "wb");
-    if (file != NULL) {
-        struct gmio_rwargs local_args =
-                args != NULL ? *args : gmio_rwargs_null();
-        const gmio_bool_t memblock_allocated =
-                local_args.memblock.ptr == NULL;
-
-        if (memblock_allocated)
-            local_args.memblock = gmio_memblock_default();
-        local_args.stream = gmio_stream_stdio(file);
-        error = gmio_stl_write(&local_args, mesh, format, options);
-        fclose(file);
-        if (memblock_allocated)
-            gmio_memblock_deallocate(&local_args.memblock);
-    }
-    else {
-        error = GMIO_ERROR_STDIO;
-    }
-
-    return error;
-}
-
-int gmio_stl_write(
-        struct gmio_rwargs* args,
-        const struct gmio_stl_mesh* mesh,
-        enum gmio_stl_format format,
-        const struct gmio_stl_write_options* options)
-{
-    int error = GMIO_ERROR_OK;
-
     if (args != NULL) {
-        const gmio_bool_t memblock_allocated = args->memblock.ptr == NULL;
-        if (memblock_allocated)
-            args->memblock = gmio_memblock_default();
-
-        switch (format) {
-        case GMIO_STL_FORMAT_ASCII: {
-            error = gmio_stla_write(args, mesh, options);
-            break;
+        FILE* file = fopen(filepath, "wb");
+        if (file != NULL) {
+            const gmio_bool_t mem_allocated = args->core.memblock.ptr == NULL;
+            if (mem_allocated)
+                args->core.memblock = gmio_memblock_default();
+            args->core.stream = gmio_stream_stdio(file);
+            error = gmio_stl_write(args);
+            fclose(file);
+            if (mem_allocated)
+                gmio_memblock_deallocate(&args->core.memblock);
         }
-        case GMIO_STL_FORMAT_BINARY_BE: {
-            error = gmio_stlb_write(args, mesh, options, GMIO_ENDIANNESS_BIG);
-            break;
+        else {
+            error = GMIO_ERROR_STDIO;
         }
-        case GMIO_STL_FORMAT_BINARY_LE: {
-            error = gmio_stlb_write(args, mesh, options, GMIO_ENDIANNESS_LITTLE);
-            break;
-        }
-        case GMIO_STL_FORMAT_UNKNOWN: {
-            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
-        }
-        } /* end switch() */
-
-        if (memblock_allocated)
-            gmio_memblock_deallocate(&args->memblock);
     }
     else {
         error = GMIO_ERROR_NULL_RWARGS;
     }
-
     return error;
 }
 

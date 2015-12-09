@@ -45,17 +45,5 @@ struct gmio_stl_triangle
     uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
 };
 
-/*! Constants for STL triangles */
-enum {
-    /*! Compact size of a struct gmio_stl_coords object */
-    GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(gmio_float32_t)),
-
-    /*! Compact size of a struct gmio_stl_triangle object for STL ascii format */
-    GMIO_STLA_TRIANGLE_RAWSIZE = (4 * GMIO_STL_COORDS_RAWSIZE),
-
-    /*! Compact size of a struct gmio_stl_triangle object for STL binary format */
-    GMIO_STLB_TRIANGLE_RAWSIZE = (GMIO_STLA_TRIANGLE_RAWSIZE + sizeof(uint16_t))
-};
-
 #endif /* GMIO_STL_TRIANGLE_H */
 /*! @} */

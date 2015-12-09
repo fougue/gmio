@@ -284,14 +284,14 @@ static void get_triangle(
 
 static void stl_read(const char* filepath)
 {
-    gmio_stl_mesh_creator mesh_creator = {};
-    mesh_creator.cookie = &globalSceneHelper;
-    mesh_creator.func_ascii_begin_solid = func_ascii_begin_solid;
-    mesh_creator.func_binary_begin_solid = binary_begin_solid;
-    mesh_creator.func_add_triangle = add_triangle;
-    mesh_creator.func_end_solid = end_solid;
+    gmio_stl_read_args read = {};
+    read.mesh_creator.cookie = &globalSceneHelper;
+    read.mesh_creator.func_ascii_begin_solid = func_ascii_begin_solid;
+    read.mesh_creator.func_binary_begin_solid = binary_begin_solid;
+    read.mesh_creator.func_add_triangle = add_triangle;
+    read.mesh_creator.func_end_solid = end_solid;
 
-    const int error = gmio_stl_read_file(filepath, NULL, &mesh_creator);
+    const int error = gmio_stl_read_file(&read, filepath);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 
@@ -304,15 +304,14 @@ static void stl_write(const char* filepath, gmio_stl_format format)
 {
     const aiMesh* sceneMesh = globalSceneHelper.scene->mMeshes[0];
 
-    gmio_stl_mesh mesh = {};
-    mesh.cookie = sceneMesh;
-    mesh.triangle_count = sceneMesh->mNumFaces;
-    mesh.func_get_triangle = get_triangle;
-
-    gmio_stl_write_options opts = {};
-    opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
-    opts.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(filepath, NULL, &mesh, format, &opts);
+    gmio_stl_write_args write = {};
+    write.format = format;
+    write.mesh.cookie = sceneMesh;
+    write.mesh.triangle_count = sceneMesh->mNumFaces;
+    write.mesh.func_get_triangle = get_triangle;
+    write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
+    write.options.stla_float32_prec = 7;
+    const int error = gmio_stl_write_file(&write, filepath);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }

@@ -44,8 +44,10 @@ struct gmio_memblock gmio_memblock_realloc(void* ptr, size_t size)
 
 void gmio_memblock_deallocate(struct gmio_memblock *mblock)
 {
-    if (mblock != NULL && mblock->func_deallocate != NULL)
+    if (mblock != NULL && mblock->func_deallocate != NULL) {
         mblock->func_deallocate(mblock->ptr);
+        mblock->ptr = NULL;
+    }
 }
 
 static struct gmio_memblock gmio_memblock_default_internal_ctor()

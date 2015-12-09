@@ -17,11 +17,11 @@
 
 const char* test_stl_internal__rw_common();
 
+const char* test_stl_infos();
 const char* test_stl_read();
+const char* test_stla_write();
 const char* test_stlb_write_header();
 const char* test_stlb_write();
-const char* test_stla_write();
-const char* test_stla_stats();
 
 const char* all_tests()
 {
@@ -29,11 +29,11 @@ const char* all_tests()
 
     UTEST_RUN(test_stl_internal__rw_common);
 
+    UTEST_RUN(test_stl_infos);
     UTEST_RUN(test_stl_read);
+    UTEST_RUN(test_stla_write);
     UTEST_RUN(test_stlb_write_header);
     UTEST_RUN(test_stlb_write);
-    UTEST_RUN(test_stla_write);
-    UTEST_RUN(test_stla_stats);
 
     return NULL;
 }

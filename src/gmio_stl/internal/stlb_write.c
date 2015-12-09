@@ -66,25 +66,23 @@ static void gmio_stlb_write_facets(
 }
 
 int gmio_stlb_write(
-        struct gmio_rwargs* args,
-        const struct gmio_stl_mesh* mesh,
-        const struct gmio_stl_write_options* options,
-        enum gmio_endianness byte_order)
+        struct gmio_stl_write_args* args, enum gmio_endianness byte_order)
 {
     /* Constants */
     const uint32_t facet_count =
-            mesh != NULL ? mesh->triangle_count : 0;
+            args->mesh.triangle_count;
     const gmio_bool_t write_triangles_only =
-            options != NULL ? options->stl_write_triangles_only : GMIO_FALSE;
+            args->options.stl_write_triangles_only;
     /* Variables */
-    void* mblock_ptr = args != NULL ? args->memblock.ptr : NULL;
+    struct gmio_rwargs* core_args = &args->core;
+    void* mblock_ptr = core_args->memblock.ptr;
     struct gmio_stlb_readwrite_helper wparams = {0};
     uint32_t i_facet = 0;
     int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
-    if (!gmio_stl_check_mesh(&error, mesh)
-            || !gmio_stlb_check_params(&error, args, byte_order))
+    if (!gmio_stl_check_mesh(&error, &args->mesh)
+            || !gmio_stlb_check_params(&error, core_args, byte_order))
     {
         return error;
     }
@@ -95,13 +93,13 @@ int gmio_stlb_write(
     /* Note: trsf != NULL  certified by gmio_stlb_check_params() */
     /* coverity[var_deref_op : FALSE] */
     wparams.facet_count = gmio_size_to_uint32(
-                args->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                core_args->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     if (!write_triangles_only) {
         error = gmio_stlb_write_header(
-                    &args->stream,
+                    &core_args->stream,
                     byte_order,
-                    options != NULL ? options->stlb_header_data : NULL,
+                    args->options.stlb_header_data,
                     facet_count);
         if (gmio_error(error))
             return error;
@@ -112,18 +110,18 @@ int gmio_stlb_write(
          i_facet < facet_count && gmio_no_error(error);
          i_facet += wparams.facet_count)
     {
-        gmio_rwargs_handle_progress(args, i_facet, facet_count);
+        gmio_rwargs_handle_progress(core_args, i_facet, facet_count);
 
         /* Write to memory block */
         wparams.facet_count = GMIO_MIN(wparams.facet_count,
                                        facet_count - wparams.i_facet_offset);
 
-        gmio_stlb_write_facets(mesh, mblock_ptr, &wparams);
+        gmio_stlb_write_facets(&args->mesh, mblock_ptr, &wparams);
         wparams.i_facet_offset += wparams.facet_count;
 
         /* Write memory block to stream */
         if (gmio_stream_write(
-                    &args->stream,
+                    &core_args->stream,
                     mblock_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     wparams.facet_count)
@@ -133,7 +131,7 @@ int gmio_stlb_write(
         }
 
         /* Handle stop request */
-        if (gmio_no_error(error) && gmio_rwargs_is_stop_requested(args))
+        if (gmio_no_error(error) && gmio_rwargs_is_stop_requested(core_args))
             error = GMIO_ERROR_TRANSFER_STOPPED;
     } /* end for */
 

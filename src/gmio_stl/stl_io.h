@@ -24,143 +24,67 @@
 #define GMIO_STL_IO_H
 
 #include "stl_global.h"
-#include "stl_format.h"
+#include "stl_rwargs.h"
 #include "../gmio_core/endian.h"
-
-struct gmio_rwargs;
-struct gmio_stream;
-struct gmio_stl_mesh;
-struct gmio_stl_mesh_creator;
-struct gmio_stl_write_options;
-struct gmio_stlb_header;
 
 GMIO_C_LINKAGE_BEGIN
 
-/*! Reads STL mesh from file, format is automatically guessed
- *
- *  \return Error code (see error.h and stl_error.h)
- */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_read_file(
-        /*! Path to the STL file.
-         *  A stream is opened with fopen() so the string shall follow the file
-         *  name specifications of the running environment */
-        const char* filepath,
-
-        /*! Common objects needed for the read operation
-         *  gmio_read_args::stream is internally initialized with the
-         *  builtin stream wrapper around \c FILE* (see gmio_stream_stdio()) */
-        struct gmio_rwargs* args,
-
-        /*! Defines the callbacks for the mesh creation */
-        struct gmio_stl_mesh_creator* creator
-);
-
 /*! Reads STL mesh from stream, format is automatically guessed
  *
- *  \return Error code (see error.h and stl_error.h)
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stl_read(
-        /*! Common objects needed for the read operation */
-        struct gmio_rwargs* args,
+int gmio_stl_read(struct gmio_stl_read_args* args);
 
-        /*! Defines the callbacks for the mesh creation */
-        struct gmio_stl_mesh_creator* creator
-);
-
-/*! Writes STL mesh to file
+/*! Reads STL mesh from a file, format is automatically guessed
  *
- *  Internally, it uses:
- *    \li the builtin stream wrapper around FILE* (see gmio_stream_stdio())
- *    \li the global default function to construct a temporary gmio_memblock
- *        object (see gmio_memblock_default())
+ *  This is just a facility function over gmio_stl_read(). The stream object
+ *  pointed to by \c args->core.stream is automatically initialized to read file
+ *  at \p filepath (see gmio_stream_stdio(FILE*))
  *
- *  \return Error code (see error.h and stl_error.h)
+ *  The file is opened with fopen() so \p filepath shall follow the file name
+ *  specifications of the running environment
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stl_write_file(
-        /*! Path to the STL file. A stream is opened with fopen() so the string
-         *  shall follow the file name specifications of the running
-         *  environment */
-        const char* filepath,
-
-        /*! Common objects needed for the write operation
-         *  gmio_read_args::stream is internally initialized with the
-         *  builtin stream wrapper around \c FILE* (see gmio_stream_stdio()) */
-        struct gmio_rwargs* args,
-
-        /*! Defines the mesh to output */
-        const struct gmio_stl_mesh* mesh,
-
-        /*! STL format of the output file */
-        enum gmio_stl_format format,
-
-        /*! Options for the write operation, can be safely set to NULL to use
-         *  default values */
-        const struct gmio_stl_write_options* options
-);
-
-/*! Writes STL mesh to stream
- *
- *  \return Error code (see error.h and stl_error.h)
- */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_write(
-        /*! Common objects needed for the write operation */
-        struct gmio_rwargs* args,
-
-        /*! Defines the mesh to output */
-        const struct gmio_stl_mesh* mesh,
-
-        /*! STL format of the output */
-        enum gmio_stl_format format,
-
-        /*! Options for the write operation, can be safely set to NULL to use
-         *  default values */
-        const struct gmio_stl_write_options* options
-);
+int gmio_stl_read_file(struct gmio_stl_read_args* args, const char* filepath);
 
 /*! Reads geometry from STL ascii stream
  *
- *  Stream size is passed to gmio_task_iface::func_handle_progress() as the
- *  \p max_value argument.
- *
- *  Possible options in a future version could be:
- *     - flag to force locale ?
- *     - case sensitive/insensitive ?
- *
- *  \return Error code (see error.h and stl_error.h)
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stla_read(
-        /*! Common objects needed for the read operation */
-        struct gmio_rwargs* args,
-
-        /*! Defines the callbacks for the mesh creation */
-        struct gmio_stl_mesh_creator* creator
-);
-
-/*! Size(in bytes) of the minimum contents possible with the STL binary format */
-enum { GMIO_STLB_MIN_CONTENTS_SIZE = 284 };
+int gmio_stla_read(struct gmio_stl_read_args* args);
 
 /*! Reads geometry from STL binary stream
  *
- *  \return Error code (see error.h and stl_error.h)
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>trsf->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *          if <tt>args->core.memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_read(
-        /*! Common objects needed for the read operation */
-        struct gmio_rwargs* args,
+        struct gmio_stl_read_args* args, enum gmio_endianness byte_order);
 
-        /*! Defines the callbacks for the mesh creation */
-        struct gmio_stl_mesh_creator* creator,
+/*! Writes STL mesh to stream
+ *
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT
+int gmio_stl_write(struct gmio_stl_write_args* args);
 
-        /*! Byte order of the input STL binary data */
-        enum gmio_endianness byte_order
-);
+/*! Writes STL mesh to stream
+ *
+ *  This is just a facility function over gmio_stl_write(). The stream object
+ *  pointed to by \c args->core.stream is automatically initialized to write
+ *  file to \p filepath (see gmio_stream_stdio(FILE*))
+ *
+ *  The file is opened with fopen() so \p filepath shall follow the file name
+ *  specifications of the running environment
+
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
+ */
+GMIO_LIBSTL_EXPORT
+int gmio_stl_write_file(struct gmio_stl_write_args* args, const char* filepath);
 
 /*! Writes STL binary header data to stream
  *

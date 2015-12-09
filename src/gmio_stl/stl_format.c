@@ -17,72 +17,144 @@
 
 #include "stl_triangle.h"
 #include "stlb_header.h"
+#include "internal/stlb_byte_swap.h"
 
 #include "../gmio_core/endian.h"
 #include "../gmio_core/internal/byte_codec.h"
 #include "../gmio_core/internal/byte_swap.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/min_max.h"
+#include "../gmio_core/internal/numeric_utils.h"
 #include "../gmio_core/internal/string_utils.h"
 
 #include <string.h>
 
-enum { GMIO_FIXED_BUFFER_SIZE = 512 };
+enum { GMIO_FIXED_BUFFER_SIZE = 1024 };
+
+GMIO_INLINE gmio_float32_t gmio_sqrlen(const struct gmio_stl_coords* c)
+{
+    const gmio_float32_t cx = c->x;
+    const gmio_float32_t cy = c->y;
+    const gmio_float32_t cz = c->z;
+    return cx*cx + cy*cy + cz*cz;
+}
 
 GMIO_INLINE gmio_streamsize_t gmio_stlb_streamsize(uint32_t facet_count)
 {
     return GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE;
 }
 
+/* Does \p str contains <SPC>token ? */
+static gmio_bool_t gmio_str_has_token(const char* str, const char* token)
+{
+    const char* substr = gmio_ascii_istrstr(str, token);
+    return substr != NULL
+            && gmio_ascii_isspace(*(substr - 1));
+}
+
+static enum gmio_stl_format gmio_stlb_format(
+        struct gmio_stream* stream, const uint8_t* buff, size_t read_size)
+{
+    if (read_size >= (GMIO_STLB_HEADER_SIZE + 4)) {
+        const uint32_t le_facet_count =
+                gmio_decode_uint32_le((const uint8_t*)buff + 80);
+        const uint32_t be_facet_count =
+                gmio_uint32_bswap(le_facet_count);
+
+        /* Assume the stream contains one solid */
+        {
+            const gmio_streamsize_t stream_size = gmio_stream_size(stream);
+            if (gmio_stlb_streamsize(le_facet_count) == stream_size)
+                return GMIO_STL_FORMAT_BINARY_LE;
+            if (gmio_stlb_streamsize(be_facet_count) == stream_size)
+                return GMIO_STL_FORMAT_BINARY_BE;
+        }
+
+        /* Tests failed, maybe the stream is made of multiple solids ?
+         * Investigate to check if first facet's normal has length ~1.f
+         */
+        if (le_facet_count > 0) {
+            struct gmio_stl_triangle tri;
+            memcpy(&tri,
+                   buff + GMIO_STLB_HEADER_SIZE + 4,
+                   GMIO_STLB_TRIANGLE_RAWSIZE);
+            if (gmio_float32_ulp_equals(gmio_sqrlen(&tri.normal), 1.f, 100)) {
+#ifdef GMIO_HOST_IS_BIG_ENDIAN
+                return GMIO_STL_FORMAT_BINARY_BE;
+#else
+                return GMIO_STL_FORMAT_BINARY_LE;
+#endif
+            }
+            gmio_stl_triangle_bswap(&tri);
+            if (gmio_float32_ulp_equals(gmio_sqrlen(&tri.normal), 1.f, 100)) {
+#ifdef GMIO_HOST_IS_BIG_ENDIAN
+                return GMIO_STL_FORMAT_BINARY_LE;
+#else
+                return GMIO_STL_FORMAT_BINARY_BE;
+#endif
+            }
+        }
+    }
+
+    return GMIO_STL_FORMAT_UNKNOWN;
+}
+
+static gmio_bool_t gmio_is_stl_ascii(const char* buff, size_t buff_len)
+{
+    /* Skip spaces at beginning */
+    size_t pos = 0;
+    while (pos < buff_len && gmio_ascii_isspace(buff[pos]))
+        ++pos;
+
+    /* Next token (if exists) must match "solid\s" */
+    if ((pos + 6) < buff_len
+            && gmio_ascii_istarts_with(buff + pos, "solid")
+            && gmio_ascii_isspace(buff[pos + 5]))
+    {
+        /* Try to find some STL ascii keyword */
+        pos += 6;
+        if (gmio_str_has_token(buff + pos, "facet")
+                || gmio_str_has_token(buff + pos, "endsolid"))
+        {
+            return GMIO_TRUE;
+        }
+    }
+    return GMIO_FALSE;
+}
+
 enum gmio_stl_format gmio_stl_get_format(struct gmio_stream *stream)
 {
-    char fixed_buffer[GMIO_FIXED_BUFFER_SIZE] = {0};
+    char buff[GMIO_FIXED_BUFFER_SIZE] = {0};
     size_t read_size = 0;
-    struct gmio_streampos stream_start_pos = gmio_streampos_null();
+    struct gmio_streampos stream_start_pos = {0};
 
     if (stream == NULL)
         return GMIO_STL_FORMAT_UNKNOWN;
 
-    /* Read a chunk of bytes from stream, then try to find format from that
-     *
+    /* Read a chunk of bytes from stream, then try to find format from that.
      * First keep stream start position, it will be restored after read
      */
     gmio_stream_get_pos(stream, &stream_start_pos);
-    read_size = gmio_stream_read(stream, &fixed_buffer, 1, GMIO_FIXED_BUFFER_SIZE);
+    read_size = gmio_stream_read(stream, &buff, 1, GMIO_FIXED_BUFFER_SIZE);
     read_size = GMIO_MIN(read_size, GMIO_FIXED_BUFFER_SIZE);
     gmio_stream_set_pos(stream, &stream_start_pos);
 
     /* Binary STL ? */
-    if (read_size >= (GMIO_STLB_HEADER_SIZE + 4)) {
-        const gmio_streamsize_t stream_size = gmio_stream_size(stream);
-
-        /* Try with little-endian format */
-        uint32_t facet_count =
-                gmio_decode_uint32_le((const uint8_t*)fixed_buffer + 80);
-
-        if (gmio_stlb_streamsize(facet_count) == stream_size)
-            return GMIO_STL_FORMAT_BINARY_LE;
-
-        /* Try with big-endian format */
-        facet_count = gmio_uint32_bswap(facet_count);
-        if (gmio_stlb_streamsize(facet_count) == stream_size)
-            return GMIO_STL_FORMAT_BINARY_BE;
+    {
+        const enum gmio_stl_format format =
+                gmio_stlb_format(stream, (const uint8_t*)buff, read_size);
+        if (format != GMIO_STL_FORMAT_UNKNOWN)
+            return format;
     }
 
     /* ASCII STL ? */
-    {
-        /* Skip spaces at beginning */
-        size_t pos = 0;
-        while (pos < read_size && gmio_ascii_isspace(fixed_buffer[pos]))
-            ++pos;
-
-        /* Next token (if exists) must match "solid\s" */
-        if ((pos + 6) < read_size
-                && gmio_ascii_istarts_with(fixed_buffer + pos, "solid")
-                && gmio_ascii_isspace(fixed_buffer[pos + 5]))
-        {
+    if (read_size > 0) {
+        /* End buffer with null char for the sake of gmio_str_has_token() */
+        const size_t buff_last_i =
+                GMIO_MIN(read_size, GMIO_FIXED_BUFFER_SIZE - 1);
+        buff[buff_last_i] = 0;
+        if (gmio_is_stl_ascii(buff, read_size))
             return GMIO_STL_FORMAT_ASCII;
-        }
     }
 
     /* Fallback case */

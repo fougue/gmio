@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "stla_stats.h"
+#include "stl_infos.h"
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/string.h"
@@ -57,31 +57,39 @@ enum {
     BUFF_OVERLAP_SIZE_DIV2 = BUFF_OVERLAP_SIZE / 2
 };
 
-struct gmio_stla_stats gmio_stla_stats_get(
-        struct gmio_rwargs* args, unsigned stat_flags)
+int gmio_stl_infos_get(
+        struct gmio_stl_infos_get_args* args,
+        struct gmio_stl_infos* infos,
+        unsigned flags)
 {
-    struct gmio_stla_stats stats = {0};
+    int error = GMIO_ERROR_OK;
+    return error;
 
+#if 0
     struct gmio_stream* stream = args ? &args->stream : NULL;
     void* mblock_ptr = args != NULL ? args->memblock.ptr : NULL;
     /* Leave one byte to end the string buffer with 0 */
     const size_t mblock_size = args != NULL ? args->memblock.size - 1: 0;
     struct gmio_string strbuff = gmio_string(mblock_ptr, 0, mblock_size);
 
-    const gmio_bool_t flag_size =
-            (stat_flags & GMIO_STLA_STAT_FLAG_SIZE) != 0;
-    const gmio_bool_t flag_avg_facet_size =
-            (stat_flags & GMIO_STLA_STAT_FLAG_AVERAGE_FACET_SIZE) != 0;
     const gmio_bool_t flag_facet_count =
-            (stat_flags & GMIO_STLA_STAT_FLAG_FACET_COUNT) != 0;
+            (flags & GMIO_STL_INFO_FLAG_FACET_COUNT) != 0;
+    const gmio_bool_t flag_size =
+            (flags & GMIO_STL_INFO_FLAG_SIZE) != 0;
+    const gmio_bool_t flag_stla_solidname =
+            (flags & GMIO_STLA_INFO_FLAG_SOLIDNAME) != 0;
+    const gmio_bool_t flag_stlb_header =
+            (flags & GMIO_STLB_INFO_FLAG_HEADER) != 0;
 
     int err = GMIO_ERROR_OK;
 
     /* Check validity of input transfer object */
     if (!gmio_check_rwargs(&err, args))
-        return stats;
+        return err;
 
     if (stat_flags != 0) {
+        /* 'overlap' stores the ending/starting bytes of the previous/current
+         * stream buffers(memblock) */
         char overlap[14] = {0}; /* 14 == 2*(strlen("endfacet") - 1) */
         gmio_bool_t endsolid_found = GMIO_FALSE;
 
@@ -122,11 +130,11 @@ struct gmio_stla_stats gmio_stla_stats_get(
                 /* Note: strlen("endsolid") == 8 */
                 if (endsolid_found) {
                     if (!endsolid_in_overlap)
-                        stats.size += (substr_at - strbuff.ptr) + 8;
+                        stats->size += (substr_at - strbuff.ptr) + 8;
                     /* TODO : gérer le cas où "endsolid" se trouve dans overlap */
                 }
                 else {
-                    stats.size += read_size;
+                    stats->size += read_size;
                 }
             }
 
@@ -138,9 +146,9 @@ struct gmio_stla_stats gmio_stla_stats_get(
                 const gmio_bool_t endfacet_in_overlap =
                         overlap_has_contents
                         && strstr(overlap, "endfacet") != NULL;
-                stats.facet_count += endfacet_in_overlap ? 1 : 0;
+                stats->facet_count += endfacet_in_overlap ? 1 : 0;
                 /* Check in memblock */
-                stats.facet_count += stla_facet_count(&strbuff, endsolid_ptr);
+                stats->facet_count += stla_facet_count(&strbuff, endsolid_ptr);
             }
 
             /* Copy second half of overlap buffer */
@@ -153,5 +161,6 @@ struct gmio_stla_stats gmio_stla_stats_get(
         }
     }
 
-    return stats;
+    return err;
+#endif
 }

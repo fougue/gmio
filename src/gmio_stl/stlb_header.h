@@ -24,9 +24,7 @@
 #define GMIO_STLB_HEADER_H
 
 #include "stl_global.h"
-
-/*! Size(in bytes) of the header data for STL binary */
-enum { GMIO_STLB_HEADER_SIZE = 80 };
+#include "stl_constants.h"
 
 /*! 80-byte data at the beginning of any STL binary file */
 struct gmio_stlb_header

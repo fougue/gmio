@@ -19,6 +19,7 @@
 #include <gmio_stl/stl_io_options.h>
 #include <gmio_stl/stl_mesh.h>
 #include <gmio_stl/stl_mesh_creator.h>
+#include <gmio_stl/stl_infos.h>
 
 #include "../commons/benchmark_tools.h"
 
@@ -46,12 +47,12 @@ static void dummy_process_triangle(
 static void bmk_gmio_stl_read(const char* filepath)
 {
     struct my_igeom cookie = {0};
-    struct gmio_stl_mesh_creator mesh_creator = {0};
+    struct gmio_stl_read_args read = {0};
     int error = GMIO_ERROR_OK;
 
-    mesh_creator.cookie = &cookie;
-    mesh_creator.func_add_triangle = dummy_process_triangle;
-    error = gmio_stl_read_file(filepath, NULL, &mesh_creator);
+    read.mesh_creator.cookie = &cookie;
+    read.mesh_creator.func_add_triangle = dummy_process_triangle;
+    error = gmio_stl_read_file(&read, filepath);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -127,15 +128,16 @@ static void readwrite_get_triangle(
 
 static void stl_readwrite_flush_triangles(struct stl_readwrite_conv* rw_conv)
 {
-    struct gmio_stl_mesh mesh = {0};
-    struct gmio_stl_write_options options = {0};
-    mesh.cookie = &rw_conv->triangle_array[0];
-    mesh.triangle_count = rw_conv->triangle_pos;
-    mesh.func_get_triangle = &readwrite_get_triangle;
-    options.stl_write_triangles_only = GMIO_TRUE;
-    options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
-    options.stla_float32_prec = 6;
-    gmio_stl_write(&rw_conv->rwargs, &mesh, rw_conv->out_format, &options);
+    struct gmio_stl_write_args write = {0};
+    write.core = rw_conv->rwargs;
+    write.format = rw_conv->out_format;
+    write.mesh.cookie = &rw_conv->triangle_array[0];
+    write.mesh.triangle_count = rw_conv->triangle_pos;
+    write.mesh.func_get_triangle = &readwrite_get_triangle;
+    write.options.stl_write_triangles_only = GMIO_TRUE;
+    write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
+    write.options.stla_float32_prec = 6;
+    gmio_stl_write(&write);
     rw_conv->triangle_pos = 0;
 }
 
@@ -173,18 +175,17 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
 {
     FILE* infile = fopen(filepath, "rb");
     FILE* outfile = fopen("_readwrite_conv.stl", "wb");
-    struct gmio_rwargs in_rwargs = {0};
+    struct gmio_stl_read_args read = {0};
     struct stl_readwrite_conv rw_conv = {0};
-    struct gmio_stl_mesh_creator mesh_creator = {0};
     int error = GMIO_ERROR_OK;
 
     /* rw_conv.out_format = GMIO_STL_FORMAT_BINARY_LE; */
     rw_conv.out_format = GMIO_STL_FORMAT_ASCII;
 
     if (infile != NULL) {
-        in_rwargs.memblock = gmio_memblock_malloc(512 * 1024);
-        in_rwargs.stream = gmio_stream_stdio(infile);
-        rw_conv.in_format = gmio_stl_get_format(&in_rwargs.stream);
+        read.core.memblock = gmio_memblock_malloc(512 * 1024);
+        read.core.stream = gmio_stream_stdio(infile);
+        rw_conv.in_format = gmio_stl_get_format(&read.core.stream);
     }
     if (outfile != NULL) {
         rw_conv.rwargs.memblock = gmio_memblock_malloc(512 * 1024);
@@ -194,19 +195,45 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
                     &rw_conv.out_stream_pos_begin);
     }
 
-    mesh_creator.cookie = &rw_conv;
-    mesh_creator.func_ascii_begin_solid = &readwrite_ascii_begin_solid;
-    mesh_creator.func_binary_begin_solid = &readwrite_binary_begin_solid;
-    mesh_creator.func_add_triangle = &readwrite_add_triangle;
-    mesh_creator.func_end_solid = &readwrite_end_solid;
+    read.mesh_creator.cookie = &rw_conv;
+    read.mesh_creator.func_ascii_begin_solid = &readwrite_ascii_begin_solid;
+    read.mesh_creator.func_binary_begin_solid = &readwrite_binary_begin_solid;
+    read.mesh_creator.func_add_triangle = &readwrite_add_triangle;
+    read.mesh_creator.func_end_solid = &readwrite_end_solid;
 
-    error = gmio_stl_read(&in_rwargs, &mesh_creator);
+    error = gmio_stl_read(&read);
 
-    gmio_memblock_deallocate(&in_rwargs.memblock);
+    gmio_memblock_deallocate(&read.core.memblock);
     gmio_memblock_deallocate(&rw_conv.rwargs.memblock);
 
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
+
+    fclose(infile);
+    fclose(outfile);
+}
+
+void bmk_gmio_stl_infos_get(const char* filepath)
+{
+    static gmio_bool_t already_exec = GMIO_FALSE;
+    FILE* file = fopen(filepath, "rb");
+
+    if (file != NULL) {
+        struct gmio_stl_infos infos = {0};
+        struct gmio_stl_infos_get_args args = {0};
+        int error = GMIO_ERROR_OK;
+        args.stream = gmio_stream_stdio(file);
+        args.memblock = gmio_memblock_malloc(64 * 1024); /* 64Ko */
+        args.format = GMIO_STL_FORMAT_ASCII;
+        error = gmio_stl_infos_get(&args, &infos, GMIO_STL_INFO_FLAG_ALL);
+        if (!already_exec) {
+            printf("stl_infos_get()\n  File: %s\n  Size: %uKo\n  Facets: %u\n",
+                   filepath, infos.size / 1024, infos.facet_count);
+        }
+        already_exec = GMIO_TRUE;
+    }
+
+    fclose(file);
 }
 
 int main(int argc, char** argv)
@@ -222,16 +249,22 @@ int main(int argc, char** argv)
             { "readwrite_conv()",
               bmk_gmio_stl_readwrite_conv, NULL,
               NULL, NULL },
+            { "stl_infos_get(ALL)",
+              bmk_gmio_stl_infos_get, NULL,
+              NULL, NULL },
             {0}
         };
         const size_t cmp_count =
                 sizeof(cmp_args) / sizeof(struct benchmark_cmp_arg) - 1;
-        struct benchmark_cmp_result cmp_res[2] = {0};
+        struct benchmark_cmp_result cmp_res[3] = {0};
         struct benchmark_cmp_result_array res_array = {0};
         const struct benchmark_cmp_result_header header = { "gmio", NULL };
 
-        cmp_args[0].func1_filepath = filepath;
-        cmp_args[1].func1_filepath = filepath;
+        {
+            size_t i = 0;
+            for (i = 0; i < cmp_count; ++i)
+                cmp_args[i].func1_filepath = filepath;
+        }
 
         res_array.ptr = &cmp_res[0];
         res_array.count = cmp_count;
