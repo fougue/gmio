@@ -18,6 +18,8 @@
 
 #include "../global.h"
 
+#include <stddef.h>
+
 /*! Returns non-zero if \p c is a space, zero otherwise */
 GMIO_INLINE int gmio_ascii_isspace(char c);
 
