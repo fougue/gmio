@@ -60,7 +60,7 @@ static void stl_read(const char* filepath)
 {
     stlMesh = new StlMesh_Mesh;
     gmio_stl_read_args read = {};
-    args.mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
+    read.mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
     int error = gmio_stl_read_file(&read, filepath);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
@@ -70,11 +70,10 @@ static void stl_write(const char* filepath, gmio_stl_format format)
 {
     const gmio_occ_stl_mesh_domain occ_mesh_domain(stlMesh);
     gmio_stl_write_args write = {};
-    write.format = format;
     write.mesh = gmio_stl_occmesh(&occ_mesh_domain);
     write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
     write.options.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(&write, filepath);
+    const int error = gmio_stl_write_file(&write, format, filepath);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }

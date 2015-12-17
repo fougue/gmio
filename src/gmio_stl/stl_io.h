@@ -70,7 +70,8 @@ int gmio_stlb_read(
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stl_write(struct gmio_stl_write_args* args);
+int gmio_stl_write(
+        struct gmio_stl_write_args* args, enum gmio_stl_format format);
 
 /*! Writes STL mesh to stream
  *
@@ -84,7 +85,10 @@ int gmio_stl_write(struct gmio_stl_write_args* args);
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stl_write_file(struct gmio_stl_write_args* args, const char* filepath);
+int gmio_stl_write_file(
+        struct gmio_stl_write_args* args,
+        enum gmio_stl_format format,
+        const char* filepath);
 
 /*! Writes STL binary header data to stream
  *

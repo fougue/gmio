@@ -62,9 +62,6 @@ struct gmio_stl_write_args
     /*! Defines the mesh to output */
     struct gmio_stl_mesh mesh;
 
-    /*! STL format of the output */
-    enum gmio_stl_format format;
-
     /*! Options for the write operation, can be safely set to \c {0} to use
      *  default values */
     struct gmio_stl_write_options options;

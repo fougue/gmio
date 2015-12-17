@@ -38,6 +38,7 @@ if(GMIO_BUILD_SHARED_LIBS)
     #         exports all symbols)
     set(GMIO_TEST_CORE_SRC
             ${GMIO_TEST_CORE_SRC}
+            ../src/gmio_core/internal/numeric_utils.c
             ../src/gmio_core/internal/stringstream.c)
 endif()
 
@@ -59,6 +60,7 @@ if(GMIO_BUILD_SHARED_LIBS)
     # See Note_1
     set(GMIO_TEST_STL_SRC
             ${GMIO_TEST_STL_SRC}
+            ../src/gmio_core/internal/numeric_utils.c
             ../src/gmio_stl/internal/stl_rw_common.c)
 endif()
 

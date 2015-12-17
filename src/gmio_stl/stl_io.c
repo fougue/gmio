@@ -27,10 +27,10 @@ int gmio_stl_read(struct gmio_stl_read_args* args)
 {
     int error = GMIO_ERROR_OK;
     if (args != NULL) {
-        const enum gmio_stl_format stl_format =
+        const enum gmio_stl_format format =
                 gmio_stl_get_format(&args->core.stream);
 
-        switch (stl_format) {
+        switch (format) {
         case GMIO_STL_FORMAT_ASCII: {
             error = gmio_stla_read(args);
             break;
@@ -76,13 +76,14 @@ int gmio_stl_read_file(
     return error;
 }
 
-int gmio_stl_write(struct gmio_stl_write_args* args)
+int gmio_stl_write(
+        struct gmio_stl_write_args* args, enum gmio_stl_format format)
 {
     int error = GMIO_ERROR_OK;
     if (args != NULL) {
         struct gmio_memblock_helper mblock_helper =
                 gmio_memblock_helper(&args->core.memblock);
-        switch (args->format) {
+        switch (format) {
         case GMIO_STL_FORMAT_ASCII: {
             error = gmio_stla_write(args);
             break;
@@ -108,14 +109,16 @@ int gmio_stl_write(struct gmio_stl_write_args* args)
 }
 
 int gmio_stl_write_file(
-        struct gmio_stl_write_args* args, const char* filepath)
+        struct gmio_stl_write_args* args,
+        enum gmio_stl_format format,
+        const char* filepath)
 {
     int error = GMIO_ERROR_OK;
     if (args != NULL) {
         FILE* file = fopen(filepath, "wb");
         if (file != NULL) {
             args->core.stream = gmio_stream_stdio(file);
-            error = gmio_stl_write(args);
+            error = gmio_stl_write(args, format);
             fclose(file);
         }
         else {

@@ -245,13 +245,13 @@ const char* test_stlb_write()
         struct gmio_stl_write_args write = {0};
         write.mesh = gmio_stl_data_mesh(&data);
         write.options.stlb_header_data = &data.header;
-        write.format = GMIO_STL_FORMAT_BINARY_LE;
-        error = gmio_stl_write_file(&write, model_filepath_out);
+        error = gmio_stl_write_file(
+                    &write, GMIO_STL_FORMAT_BINARY_LE, model_filepath_out);
         UTEST_ASSERT(error == GMIO_ERROR_OK);
 
         /* Big-endian version */
-        write.format = GMIO_STL_FORMAT_BINARY_BE;
-        error = gmio_stl_write_file(&write, model_filepath_out_be);
+        error = gmio_stl_write_file(
+                    &write, GMIO_STL_FORMAT_BINARY_BE, model_filepath_out_be);
     }
 
     /* Check input and output models are equal */
@@ -324,13 +324,14 @@ const char* test_stla_write()
     /* Write the model to STL ascii format */
     {
         struct gmio_stl_write_args write = {0};
-        write.format = GMIO_STL_FORMAT_ASCII;
         write.mesh = gmio_stl_data_mesh(&data);
         gmio_stlb_header_to_printable_string(&data.header, &header_str[0], '_');
         write.options.stla_solid_name = &header_str[0];
         write.options.stla_float32_prec = 7;
-        write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
-        error = gmio_stl_write_file(&write, model_filepath_out);
+        write.options.stla_float32_format =
+                GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
+        error = gmio_stl_write_file(
+                    &write, GMIO_STL_FORMAT_ASCII, model_filepath_out);
         UTEST_ASSERT(error == GMIO_ERROR_OK);
     }
 
@@ -382,9 +383,13 @@ void generate_stlb_tests_models()
         data.tri_array.count = 1;
         write.mesh = gmio_stl_data_mesh(&data);
 
-        write.format = GMIO_STL_FORMAT_BINARY_LE;
-        gmio_stl_write_file(&write, "models/solid_one_facet.le_stlb");
-        write.format = GMIO_STL_FORMAT_BINARY_BE;
-        gmio_stl_write_file(&write, "models/solid_one_facet.be_stlb");
+        gmio_stl_write_file(
+                    &write,
+                    GMIO_STL_FORMAT_BINARY_LE,
+                    "models/solid_one_facet.le_stlb");
+        gmio_stl_write_file(
+                    &write,
+                    GMIO_STL_FORMAT_BINARY_BE,
+                    "models/solid_one_facet.be_stlb");
     }
 }

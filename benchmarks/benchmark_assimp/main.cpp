@@ -305,13 +305,12 @@ static void stl_write(const char* filepath, gmio_stl_format format)
     const aiMesh* sceneMesh = globalSceneHelper.scene->mMeshes[0];
 
     gmio_stl_write_args write = {};
-    write.format = format;
     write.mesh.cookie = sceneMesh;
     write.mesh.triangle_count = sceneMesh->mNumFaces;
     write.mesh.func_get_triangle = get_triangle;
     write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
     write.options.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(&write, filepath);
+    const int error = gmio_stl_write_file(&write, format, filepath);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
