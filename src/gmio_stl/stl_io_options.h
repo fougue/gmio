@@ -78,7 +78,7 @@ struct gmio_stl_write_options
      *    \li calling gmio_stl_write() with <tt>options == NULL</tt>
      *    \li OR <tt>stlb_header_data == NULL</tt>
      */
-    const struct gmio_stlb_header* stlb_header_data;
+    const struct gmio_stlb_header* stlb_header;
 };
 
 #endif /* GMIO_STL_IO_OPTIONS_H */

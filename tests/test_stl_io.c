@@ -244,7 +244,7 @@ const char* test_stlb_write()
     {
         struct gmio_stl_write_args write = {0};
         write.mesh = gmio_stl_data_mesh(&data);
-        write.options.stlb_header_data = &data.header;
+        write.options.stlb_header = &data.header;
         error = gmio_stl_write_file(
                     &write, GMIO_STL_FORMAT_BINARY_LE, model_filepath_out);
         UTEST_ASSERT(error == GMIO_ERROR_OK);
