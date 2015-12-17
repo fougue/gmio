@@ -25,6 +25,7 @@
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_swap.h"
 #include "../gmio_core/internal/convert.h"
+#include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_rwargs.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/safe_cast.h"
@@ -72,27 +73,24 @@ static void gmio_stlb_read_facets(
 int gmio_stlb_read(
         struct gmio_stl_read_args* args, enum gmio_endianness byte_order)
 {
-    /* Constants */
-    const uint32_t max_facet_count_per_read =
-            args != NULL ?
-                gmio_size_to_uint32(
-                    args->core.memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE)
-              : 0;
     /* Variables */
-    struct gmio_rwargs* core_args =
-            args != NULL ? &args->core : NULL;
-    struct gmio_stl_mesh_creator* mesh_creator =
-            args != NULL ? &args->mesh_creator : NULL;
-    void* mblock_ptr =
-            core_args != NULL ? core_args->memblock.ptr : NULL;
+    struct gmio_memblock_helper mblock_helper =
+            gmio_memblock_helper(&args->core.memblock);
+    struct gmio_rwargs* core_args = &args->core;
+    struct gmio_stl_mesh_creator* mesh_creator = &args->mesh_creator;
+    void* mblock_ptr = core_args->memblock.ptr;
     struct gmio_stlb_readwrite_helper rparams = {0};
     struct gmio_stlb_header header;
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
     int error = GMIO_ERROR_OK; /* Helper to store function result error code */
+    /* Constants */
+    const uint32_t max_facet_count_per_read =
+                gmio_size_to_uint32(
+                    args->core.memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     /* Check validity of input parameters */
     if (!gmio_stlb_check_params(&error, core_args, byte_order))
-        return error;
+        goto label_end;
 
     /* Initialize rparams */
     if (byte_order != GMIO_ENDIANNESS_HOST)
@@ -102,14 +100,16 @@ int gmio_stlb_read(
     if (gmio_stream_read(&core_args->stream, &header, GMIO_STLB_HEADER_SIZE, 1)
             != 1)
     {
-        return GMIO_STL_ERROR_HEADER_WRONG_SIZE;
+        error = GMIO_STL_ERROR_HEADER_WRONG_SIZE;
+        goto label_end;
     }
 
     /* Read facet count */
     if (gmio_stream_read(&core_args->stream, mblock_ptr, sizeof(uint32_t), 1)
             != 1)
     {
-        return GMIO_STL_ERROR_FACET_COUNT;
+        error = GMIO_STL_ERROR_FACET_COUNT;
+        goto label_end;
     }
 
     memcpy(&total_facet_count, mblock_ptr, sizeof(uint32_t));
@@ -154,5 +154,8 @@ int gmio_stlb_read(
 
     if (gmio_no_error(error) && rparams.i_facet_offset != total_facet_count)
         error = GMIO_STL_ERROR_FACET_COUNT;
+
+label_end:
+    gmio_memblock_helper_release(&mblock_helper);
     return error;
 }

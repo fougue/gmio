@@ -24,6 +24,7 @@
 #define GMIO_STREAM_H
 
 #include "global.h"
+#include "memblock.h"
 #include "streampos.h"
 #include <stdio.h>
 

@@ -219,16 +219,14 @@ void bmk_gmio_stl_infos_get(const char* filepath)
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
-        struct gmio_stl_infos infos = {0};
-        struct gmio_stl_infos_get_args args = {0};
         int error = GMIO_ERROR_OK;
+        struct gmio_stl_infos_get_args args = {0};
         args.stream = gmio_stream_stdio(file);
-        args.memblock = gmio_memblock_malloc(64 * 1024); /* 64Ko */
-        args.format = GMIO_STL_FORMAT_ASCII;
-        error = gmio_stl_infos_get(&args, &infos, GMIO_STL_INFO_FLAG_ALL);
+        error = gmio_stl_infos_get(
+                    &args, GMIO_STL_FORMAT_ASCII, GMIO_STL_INFO_FLAG_ALL);
         if (!already_exec) {
             printf("stl_infos_get()\n  File: %s\n  Size: %uKo\n  Facets: %u\n",
-                   filepath, infos.size / 1024, infos.facet_count);
+                   filepath, args.infos.size / 1024, args.infos.facet_count);
         }
         already_exec = GMIO_TRUE;
     }

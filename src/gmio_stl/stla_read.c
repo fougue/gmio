@@ -22,6 +22,7 @@
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/rwargs.h"
+#include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_rwargs.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/min_max.h"
@@ -148,14 +149,10 @@ static void parse_solid(struct gmio_stla_parse_data* data);
 int gmio_stla_read(struct gmio_stl_read_args* args)
 {
     struct gmio_rwargs* core_args = &args->core;
+    struct gmio_memblock_helper mblock_helper =
+            gmio_memblock_helper(&core_args->memblock);
     char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN];
     struct gmio_stla_parse_data parse_data;
-
-    { /* Check validity of input parameters */
-        int error = GMIO_ERROR_OK;
-        if (!gmio_check_rwargs(&error, core_args))
-            return error;
-    }
 
     parse_data.token = unknown_token;
     parse_data.error = GMIO_FALSE;
@@ -180,6 +177,8 @@ int gmio_stla_read(struct gmio_stl_read_args* args)
     parse_data.creator = &args->mesh_creator;
 
     parse_solid(&parse_data);
+
+    gmio_memblock_helper_release(&mblock_helper);
 
     if (parse_data.error)
         return GMIO_STL_ERROR_PARSING;

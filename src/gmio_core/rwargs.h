@@ -46,17 +46,4 @@ struct gmio_rwargs
     struct gmio_task_iface task_iface;
 };
 
-GMIO_INLINE struct gmio_rwargs gmio_rwargs_null();
-
-
-
-/*
- * Implementation
- */
-struct gmio_rwargs gmio_rwargs_null()
-{
-    static const struct gmio_rwargs null = {0};
-    return null;
-}
-
 #endif /* GMIO_RWARGS_H */

@@ -42,7 +42,7 @@ struct gmio_stl_infos
     /*! Size of the STL data in bytes
      *
      *  For STL ascii it includes the "endsolid" tag */
-    size_t size;
+    gmio_streamsize_t size;
 
     /*! STL ascii only: name of the solid, the pointer has to be set by the
      *  caller of gmio_stl_infos_get() */
@@ -82,9 +82,9 @@ enum gmio_stl_info_flag
 
 struct gmio_stl_infos_get_args
 {
-    enum gmio_stl_format format;
     struct gmio_stream stream;
-    struct gmio_memblock memblock;
+    struct gmio_memblock stream_memblock;
+    struct gmio_stl_infos infos;
 };
 
 GMIO_C_LINKAGE_BEGIN
@@ -92,7 +92,7 @@ GMIO_C_LINKAGE_BEGIN
 GMIO_LIBSTL_EXPORT
 int gmio_stl_infos_get(
         struct gmio_stl_infos_get_args* args,
-        struct gmio_stl_infos* infos,
+        enum gmio_stl_format format,
         unsigned flags);
 
 GMIO_C_LINKAGE_END

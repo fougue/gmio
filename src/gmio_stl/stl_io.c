@@ -20,6 +20,7 @@
 #include "internal/stlb_write.h"
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_codec.h"
+#include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 
 int gmio_stl_read(struct gmio_stl_read_args* args)
@@ -61,14 +62,9 @@ int gmio_stl_read_file(
     if (args != NULL) {
         FILE* file = fopen(filepath, "rb");
         if (file != NULL) {
-            const gmio_bool_t mem_allocated = args->core.memblock.ptr == NULL;
-            if (mem_allocated)
-                args->core.memblock = gmio_memblock_default();
             args->core.stream = gmio_stream_stdio(file);
             error = gmio_stl_read(args);
             fclose(file);
-            if (mem_allocated)
-                gmio_memblock_deallocate(&args->core.memblock);
         }
         else {
             error = GMIO_ERROR_STDIO;
@@ -84,9 +80,8 @@ int gmio_stl_write(struct gmio_stl_write_args* args)
 {
     int error = GMIO_ERROR_OK;
     if (args != NULL) {
-        const gmio_bool_t mem_allocated = args->core.memblock.ptr == NULL;
-        if (mem_allocated)
-            args->core.memblock = gmio_memblock_default();
+        struct gmio_memblock_helper mblock_helper =
+                gmio_memblock_helper(&args->core.memblock);
         switch (args->format) {
         case GMIO_STL_FORMAT_ASCII: {
             error = gmio_stla_write(args);
@@ -104,8 +99,7 @@ int gmio_stl_write(struct gmio_stl_write_args* args)
             error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
         }
         } /* end switch() */
-        if (mem_allocated)
-            gmio_memblock_deallocate(&args->core.memblock);
+        gmio_memblock_helper_release(&mblock_helper);
     }
     else {
         error = GMIO_ERROR_NULL_RWARGS;
@@ -120,14 +114,9 @@ int gmio_stl_write_file(
     if (args != NULL) {
         FILE* file = fopen(filepath, "wb");
         if (file != NULL) {
-            const gmio_bool_t mem_allocated = args->core.memblock.ptr == NULL;
-            if (mem_allocated)
-                args->core.memblock = gmio_memblock_default();
             args->core.stream = gmio_stream_stdio(file);
             error = gmio_stl_write(args);
             fclose(file);
-            if (mem_allocated)
-                gmio_memblock_deallocate(&args->core.memblock);
         }
         else {
             error = GMIO_ERROR_STDIO;

@@ -35,6 +35,15 @@ gmio_bool_t gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
     return gmio_no_error(*error);
 }
 
+gmio_bool_t gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
+{
+    if (mblock->ptr == NULL)
+        *error = GMIO_ERROR_NULL_MEMBLOCK;
+    else if (mblock->size == 0)
+        *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
+    return gmio_no_error(*error);
+}
+
 gmio_bool_t gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
 {
     if (mesh == NULL

@@ -58,7 +58,7 @@ struct stl_testcase
 const char* test_stl_read()
 {
     const struct stl_testcase expected[] = {
-        { "models/file_empty",
+        /*{ "models/file_empty",
           GMIO_STL_ERROR_UNKNOWN_FORMAT,
           GMIO_STL_FORMAT_UNKNOWN,
           NULL
@@ -92,7 +92,7 @@ const char* test_stl_read()
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
           "a b c d e f\t\tg h"
-        },
+        },*/
         { "models/solid_grabcad_arm11_link0_hb.le_stlb",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_BINARY_LE,

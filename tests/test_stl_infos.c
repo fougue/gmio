@@ -27,16 +27,15 @@ const char* test_stl_infos()
 {
     FILE* stla_file = fopen(stl_jburkardt_sphere_filepath, "rb");
     struct gmio_stl_infos_get_args args = {0};
-    struct gmio_stl_infos infos = {0};
     int error = GMIO_ERROR_OK;
 
-    args.format = GMIO_STL_FORMAT_ASCII;
-    args.memblock = gmio_memblock_malloc(8 * 1024); /* 8Ko */
     args.stream = gmio_stream_stdio(stla_file);
+    args.stream_memblock = gmio_memblock_malloc(8 * 1024); /* 8Ko */
 
-    error = gmio_stl_infos_get(&args, &infos, GMIO_STL_INFO_FLAG_ALL);
+    error = gmio_stl_infos_get(
+                &args, GMIO_STL_FORMAT_ASCII, GMIO_STL_INFO_FLAG_ALL);
 
-    gmio_memblock_deallocate(&args.memblock);
+    gmio_memblock_deallocate(&args.stream_memblock);
     fclose(stla_file);
 
     UTEST_ASSERT(error == GMIO_ERROR_OK);

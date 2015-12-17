@@ -47,6 +47,7 @@ void gmio_memblock_deallocate(struct gmio_memblock *mblock)
     if (mblock != NULL && mblock->func_deallocate != NULL) {
         mblock->func_deallocate(mblock->ptr);
         mblock->ptr = NULL;
+        mblock->size = 0;
     }
 }
 

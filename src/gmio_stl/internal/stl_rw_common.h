@@ -23,6 +23,7 @@
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/endian.h"
 
+struct gmio_memblock;
 struct gmio_rwargs;
 struct gmio_stl_mesh;
 
@@ -34,6 +35,7 @@ struct gmio_stlb_readwrite_helper
 };
 
 gmio_bool_t gmio_check_rwargs(int* error, const struct gmio_rwargs* args);
+gmio_bool_t gmio_check_memblock(int* error, const struct gmio_memblock* mblock);
 
 gmio_bool_t gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
 
