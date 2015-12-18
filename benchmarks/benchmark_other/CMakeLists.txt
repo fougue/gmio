@@ -13,24 +13,20 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
-file(GLOB COMMONS_FILES commons/*)
-set(COMMONS_FILES  ${COMMONS_FILES})
+# Returns the list of subdirectories inside fromDir
+function(get_subdirs outList fromDir)
+    file(GLOB children RELATIVE ${fromDir} ${fromDir}/*)
+    set(dirList "")
+    foreach(child ${children})
+        if(IS_DIRECTORY ${fromDir}/${child})
+            list(APPEND dirList ${child})
+        endif()
+    endforeach()
+    set(${outList} ${dirList} PARENT_SCOPE)
+endfunction()
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
-link_libraries(gmio)
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    link_libraries(m) # -lm
-endif()
-
-add_subdirectory(benchmark_gmio)
-
-if(GMIO_BUILD_BENCHMARK_ASSIMP)
-    add_subdirectory(benchmark_assimp)
-endif()
-
-if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
-    add_subdirectory(benchmark_opencascade)
-endif()
-
-add_subdirectory(benchmark_other)
+# Lists all subdirs(targets) inside benchmark_other
+get_subdirs(OTHER_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+foreach(subdir IN LISTS OTHER_DIRS)
+    add_subdirectory(${subdir})
+endforeach()
