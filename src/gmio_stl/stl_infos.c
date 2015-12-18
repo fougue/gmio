@@ -17,6 +17,7 @@
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/helper_memblock.h"
+#include "../gmio_core/internal/helper_stream.h"
 #include "stl_error.h"
 #include "internal/stla_infos_get.h"
 #include "internal/stlb_infos_get.h"
@@ -29,6 +30,8 @@ int gmio_stl_infos_get(
     int error = GMIO_ERROR_OK;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(&args->stream_memblock);
+    const struct gmio_streampos begin_streampos =
+            gmio_streampos(&args->stream, NULL);
 
     switch (format) {
     case GMIO_STL_FORMAT_ASCII:
@@ -45,6 +48,7 @@ int gmio_stl_infos_get(
         break;
     }
     gmio_memblock_helper_release(&mblock_helper);
+    gmio_stream_set_pos(&args->stream, &begin_streampos);
 
     return error;
 }

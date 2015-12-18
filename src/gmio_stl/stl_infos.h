@@ -34,6 +34,7 @@
 #include "stl_format.h"
 #include "stlb_header.h"
 
+/*! Informations retrieved by gmio_stl_infos_get() */
 struct gmio_stl_infos
 {
     /*! Count of facets(triangles) */
@@ -82,15 +83,29 @@ enum gmio_stl_info_flag
     GMIO_STL_INFO_FLAG_ALL = 0xFFFF
 };
 
+/*! Objects to be passed to gmio_stl_infos_get() */
 struct gmio_stl_infos_get_args
 {
+    /*! Input stream */
     struct gmio_stream stream;
+
+    /*! Optional memory block used by the stream to bufferize read operations
+     *
+     *  If null, then a temporary memblock is created with the global default
+     *  constructor function (see gmio_memblock_default())
+     */
     struct gmio_memblock stream_memblock;
+
+    /*! Output informations */
     struct gmio_stl_infos infos;
 };
 
 GMIO_C_LINKAGE_BEGIN
 
+/*! Finds informations about STL contents
+ *
+ *  \return Error code (see gmio_core/error.h and stl_error.h)
+ */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_infos_get(
         struct gmio_stl_infos_get_args* args,
