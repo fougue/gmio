@@ -32,5 +32,19 @@ struct gmio_stlb_header
     uint8_t data[GMIO_STLB_HEADER_SIZE];
 };
 
+GMIO_C_LINKAGE_BEGIN
+
+/*! Returns a gmio_stlb_header object whose contents is a copy of \p str
+ *
+ *  Only the first \c GMIO_STLB_HEADER_SIZE characters are copied.
+ *
+ *  If the length of \p str is less than \c GMIO_STLB_HEADER_SIZE then the
+ *  remaining bytes are filled with zeroes.
+ */
+GMIO_LIBSTL_EXPORT
+struct gmio_stlb_header gmio_stlb_header_str(const char* str);
+
+GMIO_C_LINKAGE_END
+
 #endif /* GMIO_STLB_HEADER_H */
 /*! @} */
