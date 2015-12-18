@@ -6,3 +6,5 @@
 _*
 doc/*.tags
 doc/html
+
+benchmarks/benchmark_other/benchmark_*
