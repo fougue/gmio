@@ -99,7 +99,7 @@ int gmio_stlb_write(
         error = gmio_stlb_write_header(
                     &core_args->stream,
                     byte_order,
-                    args->options.stlb_header_data,
+                    args->options.stlb_header,
                     facet_count);
         if (gmio_error(error))
             return error;

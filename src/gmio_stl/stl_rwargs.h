@@ -42,7 +42,7 @@ struct gmio_stl_read_args
     /*! Optional pointer to a function that returns the size(in bytes) of the
      *  STL ascii data to read
      *
-     *  Useful only with STL ascii format. If set to NULL then by default the
+     *  Useful only with STL ascii format. If set to NULL then by default
      *  gmio_stream::func_size() is called.
      *
      *  The resulting stream size is passed to

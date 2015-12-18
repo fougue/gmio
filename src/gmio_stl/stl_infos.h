@@ -44,16 +44,18 @@ struct gmio_stl_infos
      *  For STL ascii it includes the "endsolid" tag */
     gmio_streamsize_t size;
 
-    /*! STL ascii only: name of the solid, the pointer has to be set by the
-     *  caller of gmio_stl_infos_get() */
+    /*! STL ascii only: name of the solid
+     *
+     *  The pointer has to be set by the caller of gmio_stl_infos_get() */
     char* stla_solidname;
 
-    /*! STL ascii only: maximum length(capacity) of stla_solidname, it has to be
-     *  set by the caller of gmio_stl_infos_get()
+    /*! STL ascii only: maximum length(capacity) of stla_solidname
+     *
+     *  The value has to be set by the caller of gmio_stl_infos_get()
      */
     size_t stla_solidname_maxlen;
 
-    /*! STL binary only */
+    /*! STL binary only: header(80-bytes) of STL data */
     struct gmio_stlb_header stlb_header;
 };
 

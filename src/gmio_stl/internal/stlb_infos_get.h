@@ -19,6 +19,7 @@
 #include "../stl_infos.h"
 #include "../../gmio_core/endian.h"
 
+/*! Find infos from a STL binary stream */
 int gmio_stlb_infos_get(
         struct gmio_stl_infos_get_args* args,
         enum gmio_endianness byte_order,

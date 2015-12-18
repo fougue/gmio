@@ -18,6 +18,7 @@
 
 #include "../stl_infos.h"
 
+/*! Find infos from a STL ASCII stream */
 int gmio_stla_infos_get(
         struct gmio_stl_infos_get_args* args, unsigned flags);
 
