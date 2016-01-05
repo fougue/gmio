@@ -231,5 +231,8 @@ typedef double gmio_float64_t;
 #  define GMIO_PRAGMA_MSVC_WARNING_POP()
 #endif
 
+/*! Expands to the size(item count) of an array */
+#define GMIO_ARRAY_SIZE(array) sizeof(array) / sizeof(*array)
+
 #endif /* GMIO_GLOBAL_H */
 /*! @} */
