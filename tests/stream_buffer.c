@@ -19,13 +19,13 @@
 
 static gmio_bool_t gmio_stream_buffer_at_end(void* cookie)
 {
-    const gmio_ro_buffer_t* buff = (const gmio_ro_buffer_t*)cookie;
+    const struct gmio_ro_buffer* buff = (const struct gmio_ro_buffer*)cookie;
     return buff->pos >= buff->len;
 }
 
 static int gmio_stream_buffer_error(void* cookie)
 {
-    const gmio_ro_buffer_t* buff = (const gmio_ro_buffer_t*)cookie;
+    const struct gmio_ro_buffer* buff = (const struct gmio_ro_buffer*)cookie;
     return buff == NULL || buff->pos > buff->len;
 }
 
@@ -33,7 +33,7 @@ static size_t gmio_stream_buffer_read(
         void* cookie, void* ptr, size_t item_size, size_t item_count)
 {
     if (item_size > 0 && item_count > 0) {
-        gmio_ro_buffer_t* buff = (gmio_ro_buffer_t*)cookie;
+        struct gmio_ro_buffer* buff = (struct gmio_ro_buffer*)cookie;
         const void* buff_ptr = buff->ptr;
         const size_t buff_remaining_size = buff->len - buff->pos;
         const size_t wanted_read_size = item_size * item_count;
@@ -80,25 +80,26 @@ static size_t gmio_stream_buffer_write(
 
 static gmio_streamsize_t gmio_stream_buffer_size(void* cookie)
 {
-    const gmio_ro_buffer_t* buff = (const gmio_ro_buffer_t*)cookie;
+    const struct gmio_ro_buffer* buff = (const struct gmio_ro_buffer*)cookie;
     return buff->len;
 }
 
 static int gmio_stream_buffer_get_pos(void* cookie, struct gmio_streampos* pos)
 {
-    gmio_ro_buffer_t* buff = (gmio_ro_buffer_t*)cookie;
+    struct gmio_ro_buffer* buff = (struct gmio_ro_buffer*)cookie;
     memcpy(&pos->cookie[0], &buff->pos, sizeof(size_t));
     return 0;
 }
 
-static int gmio_stream_buffer_set_pos(void* cookie, const struct gmio_streampos* pos)
+static int gmio_stream_buffer_set_pos(
+        void* cookie, const struct gmio_streampos* pos)
 {
-    gmio_ro_buffer_t* buff = (gmio_ro_buffer_t*)cookie;
+    struct gmio_ro_buffer* buff = (struct gmio_ro_buffer*)cookie;
     memcpy(&buff->pos, &pos->cookie[0], sizeof(size_t));
     return 0;
 }
 
-struct gmio_stream gmio_istream_buffer(gmio_ro_buffer_t* buff)
+struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff)
 {
     struct gmio_stream stream = {0};
     stream.cookie = buff;
@@ -113,7 +114,8 @@ struct gmio_stream gmio_istream_buffer(gmio_ro_buffer_t* buff)
 
 struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff)
 {
-    struct gmio_stream stream = gmio_istream_buffer((gmio_ro_buffer_t*)buff);
+    struct gmio_stream stream =
+            gmio_istream_buffer((struct gmio_ro_buffer*)buff);
     stream.func_write = gmio_stream_buffer_write;
     return stream;
 }

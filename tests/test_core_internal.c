@@ -132,7 +132,7 @@ const char* test_internal__gmio_fast_atof()
     {
         char strbuff[2048] = {0};
         struct gmio_stringstream sstream = {0};
-        gmio_ro_buffer_t streambuff = { fstr, sizeof(fstr) - 1, 0 };
+        struct gmio_ro_buffer streambuff = { fstr, sizeof(fstr) - 1, 0 };
         float f2;
 
         sstream.stream = gmio_istream_buffer(&streambuff);
@@ -178,7 +178,7 @@ const char* test_internal__stringstream()
             "Parfois le chemin est rude.\n"
             "pi : 3.1415926535897932384626433832795";
     {
-        gmio_ro_buffer_t buff = { text, sizeof(text) - 1, 0 };
+        struct gmio_ro_buffer buff = { text, sizeof(text) - 1, 0 };
 
         char small_fwd_it_str[4];
         char fwd_it_str[32];
@@ -234,7 +234,7 @@ const char* test_internal__stringstream()
     }
 
     {
-        gmio_ro_buffer_t buff = { text, sizeof(text) - 1, 0 };
+        struct gmio_ro_buffer buff = { text, sizeof(text) - 1, 0 };
 
         char fwd_it_str[32];
         struct gmio_stringstream fwd_it = {0};
