@@ -32,9 +32,9 @@ GMIO_INLINE int32_t gmio_stringstream_strtol10(
     const char* in = gmio_stringstream_current_char(sstream);
     const gmio_bool_t inv = (*in == '-');
     int value = 0;
+
     if (inv || *in == '+')
         in = gmio_stringstream_next_char(sstream);
-
     value = gmio_stringstream_strtoul10(sstream);
     if (inv)
         value = -value;

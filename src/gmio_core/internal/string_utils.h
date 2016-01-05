@@ -106,7 +106,7 @@ int gmio_ascii_isdigit(char c)
     return isdigit(c);
 #else
     /* 48 <= c <= 57 */
-    return (uint8_t) (c - 48) < 10;
+    return (uint8_t)(c - 48) < 10;
 #endif
 }
 
@@ -116,7 +116,7 @@ int gmio_ascii_isupper(char c)
     return isupper(c);
 #else
     /* 65 <= c <= 90; */
-    return (uint8_t) (c - 65) < 26;
+    return (uint8_t)(c - 65) < 26;
 #endif
 }
 
@@ -126,7 +126,7 @@ int gmio_ascii_islower(char c)
     return islower(c);
 #else
     /* 97 <= c <= 122; */
-    return (uint8_t) (c - 97) < 26;
+    return (uint8_t)(c - 97) < 26;
 #endif
 }
 
