@@ -126,7 +126,7 @@ GMIO_INLINE gmio_bool_t gmio_rwargs_flush_buffer(
 {
     const size_t write_count =
             gmio_stream_write(
-                &args->stream, args->memblock.ptr, sizeof(char), n);
+                &args->stream, args->stream_memblock.ptr, sizeof(char), n);
     return write_count == n;
 }
 
@@ -136,7 +136,8 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
     const uint32_t total_facet_count =
             args->mesh.triangle_count;
     const uint32_t buffer_facet_count =
-            gmio_size_to_uint32(args->core.memblock.size / GMIO_STLA_FACET_SIZE_P2);
+            gmio_size_to_uint32(
+                args->core.stream_memblock.size / GMIO_STLA_FACET_SIZE_P2);
     const char* opt_solid_name =
             args->options.stla_solid_name;
     const char* solid_name =
@@ -152,7 +153,7 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
     /* Variables */
     struct gmio_rwargs* core_args = &args->core;
     uint32_t ifacet = 0;
-    void* mblock_ptr = core_args->memblock.ptr;
+    void* mblock_ptr = core_args->stream_memblock.ptr;
     char* buffc = mblock_ptr;
     char coords_format[64];
     int error = GMIO_ERROR_OK;
@@ -164,7 +165,7 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
         return error;
     if (float32_prec == 0 || float32_prec > 9)
         return GMIO_STL_ERROR_INVALID_FLOAT32_PREC;
-    if (core_args->memblock.size < GMIO_STLA_FACET_SIZE_P2)
+    if (core_args->stream_memblock.size < GMIO_STLA_FACET_SIZE_P2)
         return GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
 
     { /* Create XYZ coords format string (for normal and vertex coords) */

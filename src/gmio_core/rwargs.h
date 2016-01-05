@@ -40,7 +40,7 @@ struct gmio_rwargs
      *  is created with the global default constructor function (see
      *  gmio_memblock_default())
      */
-    struct gmio_memblock memblock;
+    struct gmio_memblock stream_memblock;
 
     /*! Optional interface by which the I/O operation can be controlled */
     struct gmio_task_iface task_iface;

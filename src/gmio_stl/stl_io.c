@@ -82,7 +82,7 @@ int gmio_stl_write(
     int error = GMIO_ERROR_OK;
     if (args != NULL) {
         struct gmio_memblock_helper mblock_helper =
-                gmio_memblock_helper(&args->core.memblock);
+                gmio_memblock_helper(&args->core.stream_memblock);
         switch (format) {
         case GMIO_STL_FORMAT_ASCII: {
             error = gmio_stla_write(args);

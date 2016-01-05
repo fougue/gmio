@@ -26,9 +26,9 @@ gmio_bool_t gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
         *error = GMIO_ERROR_NULL_RWARGS;
     }
     else {
-        if (args->memblock.ptr == NULL)
+        if (args->stream_memblock.ptr == NULL)
             *error = GMIO_ERROR_NULL_MEMBLOCK;
-        else if (args->memblock.size == 0)
+        else if (args->stream_memblock.size == 0)
             *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     }
 
@@ -63,7 +63,7 @@ gmio_bool_t gmio_stlb_check_params(
     if (!gmio_check_rwargs(error, args))
         return GMIO_FALSE;
 
-    if (args->memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
+    if (args->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
         *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     if (byte_order != GMIO_ENDIANNESS_LITTLE
             && byte_order != GMIO_ENDIANNESS_BIG)

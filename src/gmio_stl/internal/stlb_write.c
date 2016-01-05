@@ -75,7 +75,7 @@ int gmio_stlb_write(
             args->options.stl_write_triangles_only;
     /* Variables */
     struct gmio_rwargs* core_args = &args->core;
-    void* mblock_ptr = core_args->memblock.ptr;
+    void* mblock_ptr = core_args->stream_memblock.ptr;
     struct gmio_stlb_readwrite_helper wparams = {0};
     uint32_t i_facet = 0;
     int error = GMIO_ERROR_OK;
@@ -93,7 +93,7 @@ int gmio_stlb_write(
     /* Note: trsf != NULL  certified by gmio_stlb_check_params() */
     /* coverity[var_deref_op : FALSE] */
     wparams.facet_count = gmio_size_to_uint32(
-                core_args->memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                core_args->stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     if (!write_triangles_only) {
         error = gmio_stlb_write_header(

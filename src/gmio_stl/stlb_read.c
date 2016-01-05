@@ -75,10 +75,10 @@ int gmio_stlb_read(
 {
     /* Variables */
     struct gmio_memblock_helper mblock_helper =
-            gmio_memblock_helper(&args->core.memblock);
+            gmio_memblock_helper(&args->core.stream_memblock);
     struct gmio_rwargs* core_args = &args->core;
     struct gmio_stl_mesh_creator* mesh_creator = &args->mesh_creator;
-    void* mblock_ptr = core_args->memblock.ptr;
+    void* mblock_ptr = core_args->stream_memblock.ptr;
     struct gmio_stlb_readwrite_helper rparams = {0};
     struct gmio_stlb_header header;
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
@@ -86,7 +86,7 @@ int gmio_stlb_read(
     /* Constants */
     const uint32_t max_facet_count_per_read =
                 gmio_size_to_uint32(
-                    args->core.memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                    args->core.stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     /* Check validity of input parameters */
     if (!gmio_stlb_check_params(&error, core_args, byte_order))

@@ -39,13 +39,13 @@ const char* test_stl_internal__rw_common()
         UTEST_ASSERT(!gmio_check_rwargs(&error, &rwargs));
         UTEST_ASSERT(error == GMIO_ERROR_NULL_MEMBLOCK);
 
-        rwargs.memblock = gmio_memblock(&buff[0], 0, NULL);
+        rwargs.stream_memblock = gmio_memblock(&buff[0], 0, NULL);
         UTEST_ASSERT(!gmio_check_rwargs(&error, &rwargs));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
 
         /* Verify that gmio_check_transfer() doesn't touch error when in case of
          * success */
-        rwargs.memblock = gmio_memblock(&buff[0], sizeof(buff), NULL);
+        rwargs.stream_memblock = gmio_memblock(&buff[0], sizeof(buff), NULL);
         UTEST_ASSERT(!gmio_check_rwargs(&error, &rwargs));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
 
@@ -88,12 +88,14 @@ const char* test_stl_internal__rw_common()
         UTEST_ASSERT(error == GMIO_ERROR_NULL_RWARGS);
 
         error = GMIO_ERROR_OK;
-        rwargs.memblock = gmio_memblock(&buff[0], GMIO_STLB_MIN_CONTENTS_SIZE / 2, NULL);
+        rwargs.stream_memblock =
+                gmio_memblock(&buff[0], GMIO_STLB_MIN_CONTENTS_SIZE / 2, NULL);
         UTEST_ASSERT(!gmio_stlb_check_params(&error, &rwargs, GMIO_ENDIANNESS_HOST));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
 
         error = GMIO_ERROR_OK;
-        rwargs.memblock = gmio_memblock(&buff[0], sizeof(buff), NULL);
+        rwargs.stream_memblock =
+                gmio_memblock(&buff[0], sizeof(buff), NULL);
         UTEST_ASSERT(gmio_stlb_check_params(&error, &rwargs, GMIO_ENDIANNESS_HOST));
         UTEST_ASSERT(error == GMIO_ERROR_OK);
 

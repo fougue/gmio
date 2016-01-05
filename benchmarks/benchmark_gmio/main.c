@@ -182,12 +182,12 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
     rw_conv.out_format = GMIO_STL_FORMAT_ASCII;
 
     if (infile != NULL) {
-        read.core.memblock = gmio_memblock_malloc(512 * 1024);
+        read.core.stream_memblock = gmio_memblock_malloc(512 * 1024);
         read.core.stream = gmio_stream_stdio(infile);
         rw_conv.in_format = gmio_stl_get_format(&read.core.stream);
     }
     if (outfile != NULL) {
-        rw_conv.rwargs.memblock = gmio_memblock_malloc(512 * 1024);
+        rw_conv.rwargs.stream_memblock = gmio_memblock_malloc(512 * 1024);
         rw_conv.rwargs.stream = gmio_stream_stdio(outfile);
         rw_conv.rwargs.stream.func_get_pos(
                     rw_conv.rwargs.stream.cookie,
@@ -202,8 +202,8 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
 
     error = gmio_stl_read(&read);
 
-    gmio_memblock_deallocate(&read.core.memblock);
-    gmio_memblock_deallocate(&rw_conv.rwargs.memblock);
+    gmio_memblock_deallocate(&read.core.stream_memblock);
+    gmio_memblock_deallocate(&rw_conv.rwargs.stream_memblock);
 
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
