@@ -25,35 +25,33 @@ int gmio_stlb_infos_get(
         enum gmio_endianness byte_order,
         unsigned flags)
 {
-    struct gmio_stl_infos* infos = &args->infos;
-    int error = GMIO_ERROR_OK;
-
     if (flags != 0) {
+        struct gmio_stl_infos* infos = &args->infos;
+        uint32_t facet_count = 0;
         uint8_t buff[GMIO_STLB_HEADER_SIZE + sizeof(uint32_t)];
-        if (gmio_stream_read(&args->stream, buff, 1, sizeof(buff))
-                == sizeof(buff))
-        {
-            uint32_t facet_count = 0;
 
-            memcpy(&facet_count, buff + GMIO_STLB_HEADER_SIZE, sizeof(uint32_t));
-            if (byte_order != GMIO_ENDIANNESS_HOST)
-                facet_count = gmio_uint32_bswap(facet_count);
-
-            if (flags & GMIO_STLB_INFO_FLAG_HEADER)
-                memcpy(infos->stlb_header.data, buff, GMIO_STLB_HEADER_SIZE);
-            if (flags & GMIO_STL_INFO_FLAG_FACET_COUNT)
-                infos->facet_count = facet_count;
-            if (flags & GMIO_STL_INFO_FLAG_SIZE) {
-                infos->size =
-                        GMIO_STLB_HEADER_SIZE
-                        + sizeof(uint32_t)
-                        + facet_count * GMIO_STLB_TRIANGLE_RAWSIZE;
-            }
+        { /* Read header and facet count into buff */
+            const size_t read_size =
+                    gmio_stream_read(&args->stream, buff, 1, sizeof(buff));
+            if (read_size != sizeof(buff))
+                return GMIO_ERROR_STREAM;
         }
-        else {
-            error = GMIO_ERROR_STREAM;
+
+        memcpy(&facet_count, buff + GMIO_STLB_HEADER_SIZE, sizeof(uint32_t));
+        if (byte_order != GMIO_ENDIANNESS_HOST)
+            facet_count = gmio_uint32_bswap(facet_count);
+
+        if (flags & GMIO_STLB_INFO_FLAG_HEADER)
+            memcpy(infos->stlb_header.data, buff, GMIO_STLB_HEADER_SIZE);
+        if (flags & GMIO_STL_INFO_FLAG_FACET_COUNT)
+            infos->facet_count = facet_count;
+        if (flags & GMIO_STL_INFO_FLAG_SIZE) {
+            infos->size =
+                    GMIO_STLB_HEADER_SIZE
+                    + sizeof(uint32_t)
+                    + facet_count * GMIO_STLB_TRIANGLE_RAWSIZE;
         }
     }
 
-    return error;
+    return GMIO_ERROR_OK;
 }
