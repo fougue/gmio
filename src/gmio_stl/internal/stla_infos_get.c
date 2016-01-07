@@ -18,15 +18,10 @@
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/string.h"
+#include "../../gmio_core/internal/string_utils.h"
 #include "stl_rw_common.h"
 
 #include <string.h>
-
-GMIO_INLINE const char* find_substr(
-        const struct gmio_string* str, size_t str_offset, const char* substr)
-{
-    return strstr(str->ptr + str_offset, substr);
-}
 
 static uint32_t stla_facet_count(
         const struct gmio_string* strbuff, const char* end_ptr)
@@ -36,7 +31,7 @@ static uint32_t stla_facet_count(
     uint32_t facet_count = 0;
 
     do {
-        substr_at = find_substr(strbuff, strbuff_pos, "endfacet");
+        substr_at = gmio_ascii_istrstr(strbuff->ptr + strbuff_pos, "endfacet");
         if (substr_at != NULL && substr_at < end_ptr) {
             ++facet_count;
             /* Note: strlen("endfacet") == 8 */
@@ -111,7 +106,7 @@ int gmio_stla_infos_get(
 
             /* Find "endsolid" in memblock */
             if (!endsolid_found) {
-                substr_at = find_substr(&strbuff, 0, "endsolid");
+                substr_at = gmio_ascii_istrstr(strbuff.ptr, "endsolid");
                 endsolid_found = substr_at != NULL;
             }
 
