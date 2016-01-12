@@ -17,6 +17,16 @@
 
 #include "helper_stream.h"
 
+struct gmio_stringstream gmio_stringstream(
+        const struct gmio_stream stream, const struct gmio_string strbuff)
+{
+    struct gmio_stringstream sstream = {0};
+    sstream.stream = stream;
+    sstream.strbuff = strbuff;
+    gmio_stringstream_init(&sstream);
+    return sstream;
+}
+
 void gmio_stringstream_init(struct gmio_stringstream *sstream)
 {
     /* Trick: declaring the buffer exhausted will actually trigger the first

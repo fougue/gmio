@@ -38,7 +38,15 @@ struct gmio_stringstream
             void* cookie, const struct gmio_string* strbuff);
 };
 
-/*! Initializes iterator */
+/*! Returns an initialized gmio_stringstream object */
+struct gmio_stringstream gmio_stringstream(
+        const struct gmio_stream stream,
+        const struct gmio_string strbuff);
+
+/*! Initializes position indicator
+ *
+ *  TODO: rename to gmio_stringstream_initpos()
+ */
 void gmio_stringstream_init(struct gmio_stringstream* sstream);
 
 /*! Returns the char where the iterator is currently pointing at */
