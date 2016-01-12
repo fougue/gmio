@@ -261,7 +261,8 @@ static size_t find_maxlen_cmp_result_ratio(
     return max_len;
 }
 
-static void update_benchmark_cmp_result_ratio(struct benchmark_cmp_result* result)
+static void update_benchmark_cmp_result_ratio(
+        struct benchmark_cmp_result* result)
 {
     if (result->has_func1_exec_time && result->has_func2_exec_time) {
         if (result->func2_exec_time_ms > 0) {
