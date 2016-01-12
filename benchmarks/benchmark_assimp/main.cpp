@@ -70,10 +70,11 @@ static std::string assimp_version_str()
 Assimp::Importer* globalImporter = NULL;
 const aiScene* globalScene = NULL;
 
-static void import(const char* filepath)
+static void import(const void* filepath)
 {
     Assimp::Importer* importer = globalImporter;
-    const aiScene* scene = importer->ReadFile(filepath, 0);
+    const aiScene* scene =
+            importer->ReadFile(static_cast<const char*>(filepath), 0);
     const char* aiErrorStr = aiGetErrorString();
     if (std::strlen(aiErrorStr) > 0)
         std::cerr << aiErrorStr << std::endl;
@@ -85,7 +86,7 @@ static void import(const char* filepath)
 //              << totalTriangleCount(scene) << std::endl;
 }
 
-static void export_stla(const char* filepath)
+static void export_stla(const void* filepath)
 {
     Assimp::Exporter exporter;
 //    for (std::size_t i = 0; i < exporter.GetExportFormatCount(); ++i) {
@@ -93,13 +94,13 @@ static void export_stla(const char* filepath)
 //                  << exporter.GetExportFormatDescription(i)->description
 //                  << std::endl;
 //    }
-    exporter.Export(globalScene, "stl", filepath);
+    exporter.Export(globalScene, "stl", static_cast<const char*>(filepath));
 }
 
-static void export_stlb(const char* filepath)
+static void export_stlb(const void* filepath)
 {
     Assimp::Exporter exporter;
-    exporter.Export(globalScene, "stlb", filepath);
+    exporter.Export(globalScene, "stlb", static_cast<const char*>(filepath));
 }
 
 } // namespace BmkAssimp
@@ -282,7 +283,7 @@ static void get_triangle(
     copy_aiVector3D(&triangle->v3, mesh->mVertices[f.mIndices[2]]);
 }
 
-static void stl_read(const char* filepath)
+static void stl_read(const void* filepath)
 {
     gmio_stl_read_args read = {};
     read.mesh_creator.cookie = &globalSceneHelper;
@@ -291,7 +292,8 @@ static void stl_read(const char* filepath)
     read.mesh_creator.func_add_triangle = add_triangle;
     read.mesh_creator.func_end_solid = end_solid;
 
-    const int error = gmio_stl_read_file(&read, filepath);
+    const int error =
+            gmio_stl_read_file(&read, static_cast<const char*>(filepath));
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 
@@ -315,19 +317,19 @@ static void stl_write(const char* filepath, gmio_stl_format format)
         printf("gmio error: 0x%X\n", error);
 }
 
-static void stla_write(const char* filepath)
+static void stla_write(const void* filepath)
 {
-    stl_write(filepath, GMIO_STL_FORMAT_ASCII);
+    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
 }
 
-static void stlb_write_le(const char* filepath)
+static void stlb_write_le(const void* filepath)
 {
-    stl_write(filepath, GMIO_STL_FORMAT_BINARY_LE);
+    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
 }
 
-static void stlb_write_be(const char* filepath)
+static void stlb_write_be(const void* filepath)
 {
-    stl_write(filepath, GMIO_STL_FORMAT_BINARY_BE);
+    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
 }
 
 } // namespace BmkGmio

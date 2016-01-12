@@ -44,7 +44,7 @@ static void dummy_process_triangle(
         ++(my_igeom->facet_count);
 }
 
-static void bmk_gmio_stl_read(const char* filepath)
+static void bmk_gmio_stl_read(const void* filepath)
 {
     struct my_igeom cookie = {0};
     struct gmio_stl_read_args read = {0};
@@ -170,7 +170,7 @@ static void readwrite_end_solid(void* cookie)
     }
 }
 
-static void bmk_gmio_stl_readwrite_conv(const char* filepath)
+static void bmk_gmio_stl_readwrite_conv(const void* filepath)
 {
     FILE* infile = fopen(filepath, "rb");
     FILE* outfile = fopen("_readwrite_conv.stl", "wb");
@@ -212,7 +212,7 @@ static void bmk_gmio_stl_readwrite_conv(const char* filepath)
     fclose(outfile);
 }
 
-void bmk_gmio_stl_infos_get(const char* filepath)
+void bmk_gmio_stl_infos_get(const void* filepath)
 {
     static gmio_bool_t already_exec = GMIO_FALSE;
     FILE* file = fopen(filepath, "rb");
@@ -260,7 +260,7 @@ int main(int argc, char** argv)
         {
             size_t i = 0;
             for (i = 0; i < cmp_count; ++i)
-                cmp_args[i].func1_filepath = filepath;
+                cmp_args[i].func1_arg = filepath;
         }
 
         res_array.ptr = &cmp_res[0];

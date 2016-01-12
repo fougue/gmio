@@ -28,7 +28,7 @@ typedef size_t gmio_time_ms_t;
 #endif
 
 /*! Typedef on pointer to function to be benchmarked(execution time) */
-typedef void (*benchmark_file_func_t)(const char*);
+typedef void (*benchmark_func_t)(const void*);
 
 /* benchmark_cmp */
 
@@ -38,13 +38,13 @@ struct benchmark_cmp_arg
     /*! Brief description of the comparison(eg. "Write to file") */
     const char* tag;
     /*! Pointer to the 1st function */
-    benchmark_file_func_t func1;
+    benchmark_func_t func1;
     /*! Argument passed to the 1st function on exec */
-    const char* func1_filepath;
+    const void* func1_arg;
     /*! Pointer to the 2nd function */
-    benchmark_file_func_t func2;
+    benchmark_func_t func2;
     /*! Argument passed to the 2nd function on exec */
-    const char* func2_filepath;
+    const void* func2_arg;
 };
 
 /*! Holds the result of the exec time comparison between two functions */

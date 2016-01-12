@@ -146,13 +146,13 @@ static float float_strtod(const char* str)
     return (float)strtod(str, NULL);
 }
 
-static void benchmark_fast_atof(const char* dummy)
+static void benchmark_fast_atof(const void* dummy)
 {
     GMIO_UNUSED(dummy);
     test_internal__run_atof(&fast_atof);
 }
 
-static void benchmark_strtod(const char* dummy)
+static void benchmark_strtod(const void* dummy)
 {
     GMIO_UNUSED(dummy);
     test_internal__run_atof(&float_strtod);

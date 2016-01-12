@@ -289,14 +289,14 @@ struct benchmark_cmp_result benchmark_cmp(struct benchmark_cmp_arg arg)
     if (arg.func1 != NULL) {
         struct benchmark_timer timer = {0};
         benchmark_timer_start(&timer);
-        (*arg.func1)(arg.func1_filepath);
+        (*arg.func1)(arg.func1_arg);
         result.func1_exec_time_ms = benchmark_timer_elapsed_ms(&timer);
         result.has_func1_exec_time = GMIO_TRUE;
     }
     if (arg.func2 != NULL) {
         struct benchmark_timer timer = {0};
         benchmark_timer_start(&timer);
-        (*arg.func2)(arg.func2_filepath);
+        (*arg.func2)(arg.func2_arg);
         result.func2_exec_time_ms = benchmark_timer_elapsed_ms(&timer);
         result.has_func2_exec_time = GMIO_TRUE;
     }

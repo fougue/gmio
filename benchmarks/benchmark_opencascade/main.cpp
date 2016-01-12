@@ -31,22 +31,22 @@ namespace BmkOcc {
 
 Handle_StlMesh_Mesh stlMesh;
 
-static void RWStl_ReadFile(const char* filepath)
+static void RWStl_ReadFile(const void* filepath)
 {
-    stlMesh = RWStl::ReadFile(OSD_Path(filepath));
+    stlMesh = RWStl::ReadFile(OSD_Path(static_cast<const char*>(filepath)));
     if (stlMesh.IsNull())
         printf("RWStl::ReadFile(): null mesh\n");
 }
 
-static void RWStl_WriteAscii(const char* filepath)
+static void RWStl_WriteAscii(const void* filepath)
 {
-    if (!RWStl::WriteAscii(stlMesh, OSD_Path(filepath)))
+    if (!RWStl::WriteAscii(stlMesh, OSD_Path(static_cast<const char*>(filepath))))
         printf("RWStl::WriteAscii() failure\n");
 }
 
-static void RWStl_WriteBinary(const char* filepath)
+static void RWStl_WriteBinary(const void* filepath)
 {
-    if (!RWStl::WriteBinary(stlMesh, OSD_Path(filepath)))
+    if (!RWStl::WriteBinary(stlMesh, OSD_Path(static_cast<const char*>(filepath))))
         printf("RWStl::WriteBinary() failure\n");
 }
 
@@ -56,12 +56,12 @@ namespace BmkGmio {
 
 Handle_StlMesh_Mesh stlMesh;
 
-static void stl_read(const char* filepath)
+static void stl_read(const void* filepath)
 {
     stlMesh = new StlMesh_Mesh;
     gmio_stl_read_args read = {};
     read.mesh_creator = gmio_stl_hnd_occmesh_creator(stlMesh);
-    int error = gmio_stl_read_file(&read, filepath);
+    int error = gmio_stl_read_file(&read, static_cast<const char*>(filepath));
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -73,24 +73,25 @@ static void stl_write(const char* filepath, gmio_stl_format format)
     write.mesh = gmio_stl_occmesh(&occ_mesh_domain);
     write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
     write.options.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(&write, format, filepath);
+    const int error =
+            gmio_stl_write_file(&write, format, static_cast<const char*>(filepath));
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
 
-static void stla_write(const char* filepath)
+static void stla_write(const void* filepath)
 {
-    stl_write(filepath, GMIO_STL_FORMAT_ASCII);
+    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
 }
 
-static void stlb_write_le(const char* filepath)
+static void stlb_write_le(const void* filepath)
 {
-    stl_write(filepath, GMIO_STL_FORMAT_BINARY_LE);
+    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
 }
 
-static void stlb_write_be(const char* filepath)
+static void stlb_write_be(const void* filepath)
 {
-    stl_write(filepath, GMIO_STL_FORMAT_BINARY_BE);
+    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
 }
 
 } // namespace BmkGmio
