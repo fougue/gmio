@@ -24,6 +24,7 @@
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/stringstream.h"
+#include "../src/gmio_core/internal/stringstream_fast_atof.h"
 #include "../src/gmio_core/internal/string_utils.h"
 
 #include <stdlib.h>
@@ -60,29 +61,59 @@ const char* test_internal__byte_codec()
     return NULL;
 }
 
-static gmio_bool_t gmio_test_calculation_atof(const char* value_str)
+static void gmio_test_atof_fprintf_err(
+        const char* func_fast_atof_str,
+        const char* val_str,
+        float fast_val,
+        float std_val)
 {
-    const gmio_float32_t fast_value = fast_atof(value_str);
-    const gmio_float32_t std_value = (gmio_float32_t)strtod(value_str, NULL);
-    const gmio_bool_t accurate =
-            gmio_float32_ulp_equals(fast_value, std_value, 1);
-    if (!accurate) {
-        fprintf(stderr,
-                "*** ERROR: fast_atof() less accurate than strtod()\n"
-                "    value_str : \"%s\"\n"
-                "    fast_value: %.12f (%s) as_int: 0x%x\n"
-                "    std_value : %.12f (%s) as_int: 0x%x\n"
-                "    ulp_diff  : %u\n",
-                value_str,
-                fast_value,
-                gmio_float32_sign(fast_value) > 0 ? "+" : "-",
-                gmio_convert_uint32(fast_value),
-                std_value,
-                gmio_float32_sign(std_value) > 0 ? "+" : "-",
-                gmio_convert_uint32(std_value),
-                gmio_float32_ulp_diff(fast_value, std_value));
+    fprintf(stderr,
+            "*** ERROR: %s() less accurate than strtod()\n"
+            "    value_str : \"%s\"\n"
+            "    fast_value: %.12f (%s) as_int: 0x%x\n"
+            "    std_value : %.12f (%s) as_int: 0x%x\n"
+            "    ulp_diff  : %u\n",
+            func_fast_atof_str,
+            val_str,
+            fast_val,
+            gmio_float32_sign(fast_val) > 0 ? "+" : "-",
+            gmio_convert_uint32(fast_val),
+            std_val,
+            gmio_float32_sign(std_val) > 0 ? "+" : "-",
+            gmio_convert_uint32(std_val),
+            gmio_float32_ulp_diff(fast_val, std_val));
+}
+
+static gmio_bool_t gmio_test_calculation_atof(const char* val_str)
+{
+    const gmio_float32_t std_val = (gmio_float32_t)strtod(val_str, NULL);
+    int accurate_count = 0;
+
+    { /* Test fast_atof() */
+        const gmio_float32_t fast_val = fast_atof(val_str);
+        if (gmio_float32_ulp_equals(fast_val, std_val, 1))
+            ++accurate_count;
+        else
+            gmio_test_atof_fprintf_err("fast_atof", val_str, fast_val, std_val);
     }
-    return accurate;
+
+    { /* Test gmio_stringstream_fast_atof() */
+        char iobuff[512] = {0};
+        struct gmio_ro_buffer ibuff = gmio_ro_buffer(val_str, strlen(val_str), 0);
+        struct gmio_stringstream sstream = gmio_stringstream(
+                    gmio_istream_buffer(&ibuff),
+                    gmio_string(iobuff, 0, GMIO_ARRAY_SIZE(iobuff)));
+        const gmio_float32_t fast_val = gmio_stringstream_fast_atof(&sstream);
+        if (gmio_float32_ulp_equals(fast_val, std_val, 1)) {
+            ++accurate_count;
+        }
+        else {
+            gmio_test_atof_fprintf_err(
+                        "gmio_stringstream_fast_atof", val_str, fast_val, std_val);
+        }
+    }
+
+    return accurate_count == 2;
 }
 
 const char* test_internal__fast_atof()
@@ -120,30 +151,6 @@ const char* test_internal__fast_atof()
     accurate &= gmio_test_calculation_atof("-0.0690462109446526");
 
     UTEST_ASSERT(accurate == GMIO_TRUE);
-
-    return NULL;
-}
-
-const char* test_internal__gmio_fast_atof()
-{
-    static const char fstr[] = "1234.567E05";
-    const float f1 = fast_atof(fstr);
-
-    {
-        char strbuff[2048] = {0};
-        struct gmio_stringstream sstream = {0};
-        struct gmio_ro_buffer streambuff = { fstr, sizeof(fstr) - 1, 0 };
-        float f2;
-
-        sstream.stream = gmio_istream_buffer(&streambuff);
-        sstream.strbuff.ptr = &strbuff[0];
-        sstream.strbuff.max_len = sizeof(strbuff) - 1;
-        gmio_stringstream_init(&sstream);
-
-        f2 = gmio_stringstream_fast_atof(&sstream);
-
-        UTEST_ASSERT(gmio_float32_ulp_equals(f1, f2, 1));
-    }
 
     return NULL;
 }

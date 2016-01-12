@@ -29,10 +29,12 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 set(GMIO_TEST_CORE_SRC
         main_test_core.c
         test_core.c
+        test_core_benchmark_fast_atof.c
         test_core_internal.c
         test_core_platform.c
         core_utils.c
-        stream_buffer.c)
+        stream_buffer.c
+        ../benchmarks/commons/benchmark_tools.c)
 if(GMIO_BUILD_SHARED_LIBS)
     # Note_1: MSVC wants it because internal symbols are not exported (GCC
     #         exports all symbols)

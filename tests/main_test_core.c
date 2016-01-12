@@ -23,10 +23,10 @@ const char* test_core__stream();
 const char* test_internal__byte_swap();
 const char* test_internal__byte_codec();
 const char* test_internal__fast_atof();
-const char* test_internal__gmio_fast_atof();
 const char* test_internal__safe_cast();
 const char* test_internal__stringstream();
 const char* test_internal__string_utils();
+const char* test_internal__benchmark_gmio_fast_atof();
 
 const char* test_platform__alignment();
 const char* test_platform__global_h();
@@ -44,10 +44,10 @@ const char* all_tests()
     UTEST_RUN(test_internal__byte_swap);
     UTEST_RUN(test_internal__byte_codec);
     UTEST_RUN(test_internal__fast_atof);
-    UTEST_RUN(test_internal__gmio_fast_atof);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__stringstream);
     UTEST_RUN(test_internal__string_utils);
+    UTEST_RUN(test_internal__benchmark_gmio_fast_atof);
 
     UTEST_RUN(test_platform__alignment);
     UTEST_RUN(test_platform__global_h);
