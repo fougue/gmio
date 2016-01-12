@@ -34,6 +34,9 @@ struct gmio_rw_buffer
     size_t pos;
 };
 
+struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
+struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+
 struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
 struct gmio_stream gmio_iostream_buffer(struct gmio_rw_buffer* buff);
 

@@ -119,3 +119,21 @@ struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff)
     stream.func_write = gmio_stream_buffer_write;
     return stream;
 }
+
+struct gmio_ro_buffer gmio_ro_buffer(const void *ptr, size_t len, size_t pos)
+{
+    struct gmio_ro_buffer buff = {0};
+    buff.ptr = ptr;
+    buff.len = len;
+    buff.pos = pos;
+    return buff;
+}
+
+struct gmio_rw_buffer gmio_rw_buffer(void *ptr, size_t len, size_t pos)
+{
+    struct gmio_rw_buffer buff = {0};
+    buff.ptr = ptr;
+    buff.len = len;
+    buff.pos = pos;
+    return buff;
+}
