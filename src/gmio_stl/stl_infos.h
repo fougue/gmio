@@ -30,7 +30,6 @@
 
 #include <stddef.h>
 
-
 #include "stl_format.h"
 #include "stlb_header.h"
 
@@ -47,12 +46,12 @@ struct gmio_stl_infos
 
     /*! STL ascii only: name of the solid
      *
-     *  The pointer has to be set by the caller of gmio_stl_infos_get() */
+     *  The pointer has to be set before calling gmio_stl_infos_get() */
     char* stla_solidname;
 
     /*! STL ascii only: maximum length(capacity) of stla_solidname
      *
-     *  The value has to be set by the caller of gmio_stl_infos_get()
+     *  The value has to be set before calling gmio_stl_infos_get()
      */
     size_t stla_solidname_maxlen;
 
@@ -92,8 +91,7 @@ struct gmio_stl_infos_get_args
     /*! Optional memory block used by the stream to bufferize read operations
      *
      *  If null, then a temporary memblock is created with the global default
-     *  constructor function (see gmio_memblock_default())
-     */
+     *  constructor function (see gmio_memblock_default()) */
     struct gmio_memblock stream_memblock;
 
     /*! Output informations */

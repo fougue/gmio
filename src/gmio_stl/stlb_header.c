@@ -15,6 +15,7 @@
 
 #include "stlb_header.h"
 
+#include <ctype.h>
 #include <string.h>
 
 struct gmio_stlb_header gmio_stlb_header_str(const char* str)
@@ -23,4 +24,15 @@ struct gmio_stlb_header gmio_stlb_header_str(const char* str)
     if (str != NULL)
         strncpy((char*)header.data, str, GMIO_STLB_HEADER_SIZE);
     return header;
+}
+
+void gmio_stlb_header_to_printable_str(
+        const struct gmio_stlb_header* header, char* str, char replacement)
+{
+    size_t i;
+    for (i = 0; i < GMIO_STLB_HEADER_SIZE; ++i) {
+        const int header_char = (int)header->data[i];
+        str[i] = isprint(header_char) ? (char)header_char : replacement;
+    }
+    str[GMIO_STLB_HEADER_SIZE] = 0;
 }

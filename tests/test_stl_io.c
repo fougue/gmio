@@ -325,7 +325,7 @@ const char* test_stla_write()
     {
         struct gmio_stl_write_args write = {0};
         write.mesh = gmio_stl_data_mesh(&data);
-        gmio_stlb_header_to_printable_string(&data.header, &header_str[0], '_');
+        gmio_stlb_header_to_printable_str(&data.header, &header_str[0], '_');
         write.options.stla_solid_name = &header_str[0];
         write.options.stla_float32_prec = 7;
         write.options.stla_float32_format =

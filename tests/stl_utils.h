@@ -41,9 +41,6 @@ GMIO_INLINE gmio_bool_t gmio_stlb_header_equal(
     return memcmp(lhs, rhs, GMIO_STLB_HEADER_SIZE) == 0;
 }
 
-void gmio_stlb_header_to_printable_string(
-        const struct gmio_stlb_header* header, char* str, char replacement);
-
 /*! Callback for gmio_stl_mesh_creator::func_add_triangle that does
  *  nothing(ie "no operation") */
 void gmio_stl_nop_add_triangle(

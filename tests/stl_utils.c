@@ -115,18 +115,6 @@ struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data *data)
     return mesh;
 }
 
-void gmio_stlb_header_to_printable_string(
-        const struct gmio_stlb_header *header, char *str, char replacement)
-{
-    size_t i = 0;
-    for (; i < GMIO_STLB_HEADER_SIZE; ++i) {
-        str[i] = isprint((int)header->data[i]) ?
-                    (char) header->data[i] :
-                    replacement;
-    }
-    str[GMIO_STLB_HEADER_SIZE] = 0;
-}
-
 gmio_bool_t gmio_stl_coords_equal(
         const struct gmio_stl_coords *lhs,
         const struct gmio_stl_coords *rhs,
