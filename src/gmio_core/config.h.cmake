@@ -70,11 +70,11 @@
 
 /* Header: gmio_core/internal/stringstream.h */
 #ifndef GMIO_STRINGSTREAM_USE_FAST_ATOF
-/* Use fast_atof() instead of std string-to-float functions */
+/* Use fast_atof() instead of std string-to-float functions(eg strtod()) */
 #  define GMIO_STRINGSTREAM_USE_FAST_ATOF
 #endif
 
-/* Header: gmio_core/internal/string_utils.h */
-/*#define GMIO_STRINGUTILS_CTYPE_H*/
+/* Header: gmio_core/internal/string_ascii_utils.h */
+/*#define GMIO_STRING_ASCII_UTILS_CTYPE_H*/
 
 #endif /* GMIO_CONFIG_H_CMAKE */

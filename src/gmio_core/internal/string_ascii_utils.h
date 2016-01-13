@@ -78,13 +78,13 @@ const char* gmio_ascii_istrstr(const char *str1, const char *str2);
 
 #include <string.h>
 
-#ifdef GMIO_STRINGUTILS_CTYPE_H
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
 #  include <ctype.h>
 #endif
 
 int gmio_ascii_isspace(char c)
 {
-#if defined(GMIO_STRINGUTILS_CTYPE_H)
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
     return isspace(c);
 #else
     /* 0x20 : space (SPC)
@@ -102,7 +102,7 @@ int gmio_ascii_isspace(char c)
 
 int gmio_ascii_isdigit(char c)
 {
-#if defined(GMIO_STRINGUTILS_CTYPE_H)
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
     return isdigit(c);
 #else
     /* 48 <= c <= 57 */
@@ -112,7 +112,7 @@ int gmio_ascii_isdigit(char c)
 
 int gmio_ascii_isupper(char c)
 {
-#if defined(GMIO_STRINGUTILS_CTYPE_H)
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
     return isupper(c);
 #else
     /* 65 <= c <= 90; */
@@ -122,7 +122,7 @@ int gmio_ascii_isupper(char c)
 
 int gmio_ascii_islower(char c)
 {
-#if defined(GMIO_STRINGUTILS_CTYPE_H)
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
     return islower(c);
 #else
     /* 97 <= c <= 122; */
@@ -132,7 +132,7 @@ int gmio_ascii_islower(char c)
 
 char gmio_ascii_toupper(char c)
 {
-#if defined(GMIO_STRINGUTILS_CTYPE_H)
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
     return (char)toupper(c);
 #else
     static const char table_toupper[128] = {
@@ -151,7 +151,7 @@ char gmio_ascii_toupper(char c)
 
 char gmio_ascii_tolower(char c)
 {
-#if defined(GMIO_STRINGUTILS_CTYPE_H)
+#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
     return (char)tolower(c);
 #else
     static const char table_tolower[128] = {
