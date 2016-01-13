@@ -50,7 +50,7 @@ struct gmio_stl_read_args
      */
     gmio_streamsize_t (*func_stla_get_streamsize)(
             struct gmio_stream* stream,
-            struct gmio_memblock* memblock);
+            struct gmio_memblock* stream_memblock);
 };
 
 /*! Arguments for STL write functions */

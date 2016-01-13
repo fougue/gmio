@@ -59,7 +59,7 @@ int gmio_stla_read(struct gmio_stl_read_args* args);
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>args->core.memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *          if <tt>args->core.stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_read(
