@@ -13,8 +13,8 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STRING_UTILS_H
-#define GMIO_INTERNAL_STRING_UTILS_H
+#ifndef GMIO_INTERNAL_STRING_ASCII_UTILS_H
+#define GMIO_INTERNAL_STRING_ASCII_UTILS_H
 
 #include "../global.h"
 
@@ -204,4 +204,4 @@ gmio_bool_t gmio_ascii_istarts_with(const char* str, const char* begin)
     return GMIO_TRUE;
 }
 
-#endif /* GMIO_INTERNAL_STRING_UTILS_H */
+#endif /* GMIO_INTERNAL_STRING_ASCII_UTILS_H */

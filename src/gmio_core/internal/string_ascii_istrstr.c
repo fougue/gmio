@@ -13,7 +13,7 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "string_utils.h"
+#include "string_ascii_utils.h"
 
 static int gmio_ascii_ustrincmp(
         const unsigned char* str1, const unsigned char* str2, size_t n)

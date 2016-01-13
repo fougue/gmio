@@ -17,7 +17,7 @@
 #define GMIO_TESTS_CORE_UTILS_H
 
 #include "../src/gmio_core/global.h"
-#include "../src/gmio_core/internal/string_utils.h"
+#include "../src/gmio_core/internal/string_ascii_utils.h"
 
 #include <stddef.h>
 

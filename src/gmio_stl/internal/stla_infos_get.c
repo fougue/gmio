@@ -18,7 +18,7 @@
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/string.h"
-#include "../../gmio_core/internal/string_utils.h"
+#include "../../gmio_core/internal/string_ascii_utils.h"
 #include "stl_rw_common.h"
 
 #include <string.h>

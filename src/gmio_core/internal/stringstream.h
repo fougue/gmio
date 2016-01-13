@@ -125,7 +125,7 @@ GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str);
  */
 
 #include "helper_stream.h"
-#include "string_utils.h"
+#include "string_ascii_utils.h"
 #ifdef GMIO_STRINGSTREAM_USE_FAST_ATOF
 #  include "fast_atof.h"
 #  include "stringstream_fast_atof.h"

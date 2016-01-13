@@ -27,7 +27,7 @@
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/stringstream.h"
-#include "../gmio_core/internal/string_utils.h"
+#include "../gmio_core/internal/string_ascii_utils.h"
 
 #include <ctype.h>
 #include <stdlib.h>

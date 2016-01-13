@@ -25,7 +25,7 @@
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/stringstream.h"
 #include "../src/gmio_core/internal/stringstream_fast_atof.h"
-#include "../src/gmio_core/internal/string_utils.h"
+#include "../src/gmio_core/internal/string_ascii_utils.h"
 
 #include <stdlib.h>
 #include <stdio.h>

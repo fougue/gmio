@@ -10,7 +10,7 @@
 #define GMIO_INTERNAL_FAST_ATOF_H
 
 #include "../global.h"
-#include "string_utils.h"
+#include "string_ascii_utils.h"
 
 #include <float.h>
 #include <limits.h>
