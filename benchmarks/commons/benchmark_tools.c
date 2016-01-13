@@ -108,7 +108,7 @@ static void print_string_n(const char* str, size_t n)
 {
     size_t i; /* for-loop index*/
     for (i = 0; i < n; ++i)
-        printf(str);
+        fputs(str, stdout);
 }
 
 /*! Safe wrapper around strlen() for NULL strings */
