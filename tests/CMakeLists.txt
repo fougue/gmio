@@ -14,7 +14,7 @@
 #############################################################################
 
 enable_testing()
-set(CMAKE_CTEST_COMMAND ctest -VV --debug --timeout 120)
+set(CMAKE_CTEST_COMMAND ctest -V --timeout 120)
 if(WIN32 AND GMIO_BUILD_SHARED_LIBS)
     configure_file(win_ctest_cmd.bat.cmake win_ctest_cmd.bat @ONLY)
     set(CMAKE_CTEST_COMMAND win_ctest_cmd.bat)
