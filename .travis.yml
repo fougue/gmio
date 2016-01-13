@@ -1,15 +1,27 @@
 language: cpp
 
+sudo: false
+
+_anchors:
+  - &gcc49-packages
+    apt:
+      sources:
+      - ubuntu-toolchain-r-test
+      packages:
+      - gcc-4.9
+      - g++-4.9
+
 matrix:
   include:
-    # Linux GCC debug static coveralls
+    # Linux GCC-4.6 debug static coveralls
     - compiler: gcc
       env: TRAVIS_BUILD_TYPE=Debug   TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=OFF TRAVIS_MAKE_CHECK=ON  TRAVIS_COVERALLS=ON
-    # Linux GCC debug dll c90
+    # Linux GCC-4.6 debug dll c90
     - compiler: gcc
       env: TRAVIS_BUILD_TYPE=Debug   TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=ON  TRAVIS_MAKE_CHECK=ON  TRAVIS_COVERALLS=OFF
-    # Linux GCC release static
-    - compiler: gcc
+    # Linux GCC-4.9 release static
+    - compiler: gcc-4.9
+      addons: *gcc49-packages
       env: TRAVIS_BUILD_TYPE=Release TRAVIS_SHARED_LIBS=OFF TRAVIS_STRICT_C90=OFF TRAVIS_MAKE_CHECK=ON  TRAVIS_COVERALLS=OFF
     # OSX Clang debug static
     - os: osx
