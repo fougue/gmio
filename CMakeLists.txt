@@ -43,6 +43,14 @@ if(CMAKE_COMPILER_IS_GNUCC
     set(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE 1) # Compatible with GNUCC options
 endif()
 
+# Build type
+string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
+if(CMAKE_BUILD_TYPE_LOWER MATCHES "debug")
+    set(GMIO_DEBUG_BUILD 1)
+else()
+    set(GMIO_DEBUG_BUILD 0)
+endif()
+
 # Options
 option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
 option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
