@@ -99,10 +99,12 @@ static gmio_bool_t gmio_test_calculation_atof(const char* val_str)
 
     { /* Test gmio_stringstream_fast_atof() */
         char iobuff[512] = {0};
-        struct gmio_ro_buffer ibuff = gmio_ro_buffer(val_str, strlen(val_str), 0);
-        struct gmio_stringstream sstream = gmio_stringstream(
+        struct gmio_ro_buffer ibuff =
+                gmio_ro_buffer(val_str, strlen(val_str), 0);
+        struct gmio_stringstream sstream =
+                gmio_stringstream(
                     gmio_istream_buffer(&ibuff),
-                    gmio_string(iobuff, 0, GMIO_ARRAY_SIZE(iobuff)));
+                    gmio_string(iobuff, 0, sizeof(iobuff)));
         const gmio_float32_t fast_val = gmio_stringstream_fast_atof(&sstream);
         if (gmio_float32_ulp_equals(fast_val, std_val, 1)) {
             ++accurate_count;
@@ -185,86 +187,79 @@ const char* test_internal__stringstream()
             "Parfois le chemin est rude.\n"
             "pi : 3.1415926535897932384626433832795";
     {
-        struct gmio_ro_buffer buff = { text, sizeof(text) - 1, 0 };
+        struct gmio_ro_buffer buff =
+                gmio_ro_buffer(text, sizeof(text) - 1, 0);
 
-        char small_fwd_it_str[4];
-        char fwd_it_str[32];
-        struct gmio_stringstream fwd_it = {0};
+        char cstr_small[4];
+        char cstr[32];
+        struct gmio_stringstream sstream =
+                gmio_stringstream(
+                    gmio_istream_buffer(&buff),
+                    gmio_string(cstr, 0, sizeof(cstr)));
 
-        char copy_str[128];
-        struct gmio_string copy_strbuff;
+        char cstr_copy[128];
+        struct gmio_string str_copy =
+                gmio_string(cstr_copy, 0, sizeof(cstr_copy));
 
-        fwd_it.stream = gmio_istream_buffer(&buff);
-        fwd_it.strbuff.ptr = fwd_it_str;
-        fwd_it.strbuff.max_len = sizeof(fwd_it_str);
-        gmio_stringstream_init(&fwd_it);
+        UTEST_ASSERT(gmio_stringstream_current_char(&sstream) != NULL);
+        UTEST_ASSERT(*gmio_stringstream_current_char(&sstream) == 'U');
 
-        copy_strbuff.ptr = copy_str;
-        copy_strbuff.max_len = sizeof(copy_str);
-
-        UTEST_ASSERT(gmio_stringstream_current_char(&fwd_it) != NULL);
-        UTEST_ASSERT(*gmio_stringstream_current_char(&fwd_it) == 'U');
-
-        copy_strbuff.len = 0;
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
+        str_copy.len = 0;
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
         /* printf("\ncopy_strbuff.ptr = \"%s\"\n", copy_strbuff.ptr); */
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Une") == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "Une") == 0);
 
-        copy_strbuff.len = 0;
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
+        str_copy.len = 0;
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "citation,") == 0);
 
-        copy_strbuff.len = 0;
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "o") == 0);
+        str_copy.len = 0;
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "o") == 0);
 
-        copy_strbuff.len = 0;
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "je") == 0);
+        str_copy.len = 0;
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "je") == 0);
 
-        gmio_stringstream_skip_ascii_spaces(&fwd_it);
-        UTEST_ASSERT(gmio_stringstream_next_char(&fwd_it) != NULL);
-        UTEST_ASSERT(*gmio_stringstream_current_char(&fwd_it) == 'r');
+        gmio_stringstream_skip_ascii_spaces(&sstream);
+        UTEST_ASSERT(gmio_stringstream_next_char(&sstream) != NULL);
+        UTEST_ASSERT(*gmio_stringstream_current_char(&sstream) == 'r');
 
         /* Test with very small string buffer */
         buff.pos = 0;
-        fwd_it.strbuff.ptr = small_fwd_it_str;
-        fwd_it.strbuff.max_len = sizeof(small_fwd_it_str);
-        gmio_stringstream_init(&fwd_it);
+        sstream.strbuff.ptr = cstr_small;
+        sstream.strbuff.max_len = sizeof(cstr_small);
+        gmio_stringstream_init_pos(&sstream);
 
-        UTEST_ASSERT(*gmio_stringstream_current_char(&fwd_it) == 'U');
-        copy_strbuff.len = 0;
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        copy_strbuff.len = 0;
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "citation,") == 0);
+        UTEST_ASSERT(*gmio_stringstream_current_char(&sstream) == 'U');
+        str_copy.len = 0;
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        str_copy.len = 0;
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "citation,") == 0);
     }
 
     {
-        struct gmio_ro_buffer buff = { text, sizeof(text) - 1, 0 };
+        struct gmio_ro_buffer buff =
+                gmio_ro_buffer(text, sizeof(text) - 1, 0);
 
-        char fwd_it_str[32];
-        struct gmio_stringstream fwd_it = {0};
+        char cstr[32];
+        struct gmio_stringstream sstream =
+                gmio_stringstream(
+                    gmio_istream_buffer(&buff),
+                    gmio_string(cstr, 0, sizeof(cstr)));
 
-        char copy_str[128];
-        struct gmio_string copy_strbuff;
+        char cstr_copy[128];
+        struct gmio_string str_copy =
+                gmio_string(cstr_copy, 0, sizeof(cstr_copy));
 
-        fwd_it.stream = gmio_istream_buffer(&buff);
-        fwd_it.strbuff.ptr = fwd_it_str;
-        fwd_it.strbuff.max_len = sizeof(fwd_it_str);
-        gmio_stringstream_init(&fwd_it);
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "Une") == 0);
 
-        copy_strbuff.ptr = copy_str;
-        copy_strbuff.len = 0;
-        copy_strbuff.max_len = sizeof(copy_str);
-
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Une") == 0);
-
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Unecitation,") == 0);
-        UTEST_ASSERT(gmio_stringstream_eat_word(&fwd_it, &copy_strbuff) == 0);
-        UTEST_ASSERT(strcmp(copy_strbuff.ptr, "Unecitation,o") == 0);
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "Unecitation,") == 0);
+        UTEST_ASSERT(gmio_stringstream_eat_word(&sstream, &str_copy) == 0);
+        UTEST_ASSERT(strcmp(str_copy.ptr, "Unecitation,o") == 0);
     }
 
     return NULL;

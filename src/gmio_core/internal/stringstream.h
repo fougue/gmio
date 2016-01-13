@@ -43,11 +43,8 @@ struct gmio_stringstream gmio_stringstream(
         const struct gmio_stream stream,
         const struct gmio_string strbuff);
 
-/*! Initializes position indicator
- *
- *  TODO: rename to gmio_stringstream_initpos()
- */
-void gmio_stringstream_init(struct gmio_stringstream* sstream);
+/*! Initializes position indicator */
+void gmio_stringstream_init_pos(struct gmio_stringstream* sstream);
 
 /*! Returns the char where the iterator is currently pointing at */
 GMIO_INLINE const char* gmio_stringstream_current_char(

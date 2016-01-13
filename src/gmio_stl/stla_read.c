@@ -168,7 +168,7 @@ int gmio_stla_read(struct gmio_stl_read_args* args)
     parse_data.strstream.strbuff.max_len = core_args->stream_memblock.size;
     parse_data.strstream.cookie = &parse_data.strstream_cookie;
     parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
-    gmio_stringstream_init(&parse_data.strstream);
+    gmio_stringstream_init_pos(&parse_data.strstream);
 
     parse_data.string_buffer.ptr = &fixed_buffer[0];
     parse_data.string_buffer.len = 0;

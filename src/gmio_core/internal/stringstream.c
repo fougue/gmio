@@ -23,11 +23,11 @@ struct gmio_stringstream gmio_stringstream(
     struct gmio_stringstream sstream = {0};
     sstream.stream = stream;
     sstream.strbuff = strbuff;
-    gmio_stringstream_init(&sstream);
+    gmio_stringstream_init_pos(&sstream);
     return sstream;
 }
 
-void gmio_stringstream_init(struct gmio_stringstream *sstream)
+void gmio_stringstream_init_pos(struct gmio_stringstream *sstream)
 {
     /* Trick: declaring the buffer exhausted will actually trigger the first
      * call to gmio_stream_read() inside gmio_next_char()
