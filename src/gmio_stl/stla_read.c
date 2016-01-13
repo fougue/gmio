@@ -105,7 +105,7 @@ struct gmio_stringstream_stla_cookie
 {
     /* Copy of gmio_stla_read() corresponding argument */
     struct gmio_rwargs* rwargs;
-    /* Cache for gmio_stream_size(&transfer->stream) */
+    /* Cache for the input stream size */
     gmio_streamsize_t stream_size;
     /* Offset (in bytes) from beginning of stream : current position */
     gmio_streamoffset_t stream_offset;
@@ -120,7 +120,7 @@ struct gmio_stla_parse_data
     gmio_bool_t error;
     struct gmio_stringstream strstream;
     struct gmio_stringstream_stla_cookie strstream_cookie;
-    struct gmio_string string_buffer;
+    struct gmio_string strbuff;
     struct gmio_stl_mesh_creator* creator;
 };
 
@@ -159,8 +159,13 @@ int gmio_stla_read(struct gmio_stl_read_args* args)
 
     parse_data.strstream_cookie.rwargs = core_args;
     parse_data.strstream_cookie.stream_offset = 0;
+
     parse_data.strstream_cookie.stream_size =
-            gmio_stream_size(&core_args->stream);
+            args->func_stla_get_streamsize != NULL ?
+                args->func_stla_get_streamsize(
+                    &core_args->stream, &core_args->stream_memblock) :
+                gmio_stream_size(&core_args->stream);
+
     parse_data.strstream_cookie.is_stop_requested = GMIO_FALSE;
 
     parse_data.strstream.stream = core_args->stream;
@@ -170,9 +175,7 @@ int gmio_stla_read(struct gmio_stl_read_args* args)
     parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
     gmio_stringstream_init_pos(&parse_data.strstream);
 
-    parse_data.string_buffer.ptr = &fixed_buffer[0];
-    parse_data.string_buffer.len = 0;
-    parse_data.string_buffer.max_len = GMIO_STLA_READ_STRING_MAX_LEN;
+    parse_data.strbuff = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
 
     parse_data.creator = &args->mesh_creator;
 
@@ -259,7 +262,7 @@ static void stla_error_token_expected(
 /* Eats next token string and checks it against an expected token
  *
  * This procedure copies the token string into internal
- * struct gmio_stla_parse_data::string_buffer
+ * struct gmio_stla_parse_data::strbuff
  */
 static int stla_eat_next_token(
         struct gmio_stla_parse_data* data, enum gmio_stla_token expected_token);
@@ -430,7 +433,7 @@ void stla_error_msg(struct gmio_stla_parse_data* data, const char* msg)
             "                 current token string: \"%s\"\n",
             msg,
             stla_token_to_string(data->token),
-            data->string_buffer.ptr);
+            data->strbuff.ptr);
     data->error = GMIO_TRUE;
     data->token = unknown_token;
 }
@@ -454,7 +457,7 @@ int stla_eat_next_token(
         struct gmio_stla_parse_data* data,
         enum gmio_stla_token expected_token)
 {
-    struct gmio_string* strbuff = &data->string_buffer;
+    struct gmio_string* strbuff = &data->strbuff;
     enum gmio_eat_word_error eat_error;
 
     strbuff->len = 0;
@@ -517,7 +520,7 @@ int stla_eat_until_token(
 {
     if (!stla_token_match_candidate(data->token, end_tokens)) {
         struct gmio_stringstream* sstream = &data->strstream;
-        struct gmio_string* strbuff = &data->string_buffer;
+        struct gmio_string* strbuff = &data->strbuff;
         gmio_bool_t end_token_found = GMIO_FALSE;
 
         do {
@@ -567,9 +570,9 @@ gmio_bool_t stla_parsing_can_continue(const struct gmio_stla_parse_data* data)
 int parse_solidname_beg(struct gmio_stla_parse_data* data)
 {
     if (stla_eat_next_token(data, unknown_token) == 0) {
-        data->token = stla_find_token_from_string(&data->string_buffer);
+        data->token = stla_find_token_from_string(&data->strbuff);
         if (data->token == FACET_token || data->token == ENDSOLID_token) {
-            gmio_string_clear(&data->string_buffer);
+            gmio_string_clear(&data->strbuff);
             return 0;
         }
         else {
@@ -596,7 +599,7 @@ int parse_beginsolid(struct gmio_stla_parse_data* data)
             gmio_stl_mesh_creator_ascii_begin_solid(
                         data->creator,
                         data->strstream_cookie.stream_size,
-                        data->string_buffer.ptr);
+                        data->strbuff.ptr);
             return 0;
         }
     }
@@ -645,7 +648,7 @@ int parse_xyz_coords(struct gmio_stla_parse_data* data, struct gmio_stl_coords* 
     errc += !is_float_char(strbuff);
     coords->z = gmio_stringstream_parse_float32(sstream);
 
-    data->string_buffer.len = 0;
+    data->strbuff.len = 0;
     data->token = unknown_token;
 
     return errc;
@@ -683,7 +686,7 @@ void parse_facets(struct gmio_stla_parse_data* data)
     const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
             data->creator->func_add_triangle;
     void* creator_cookie = data->creator->cookie;
-    struct gmio_string* strbuff = &data->string_buffer;
+    struct gmio_string* strbuff = &data->strbuff;
     uint32_t i_facet = 0;
     struct gmio_stl_triangle facet;
 
