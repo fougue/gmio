@@ -27,13 +27,13 @@
 
 enum gmio_stl_constants
 {
-    /*! Compact size of a struct gmio_stl_coords object */
+    /*! Compact size of a gmio_stl_coords object */
     GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(gmio_float32_t)),
 
-    /*! Compact size of a struct gmio_stl_triangle object, STL ascii format */
+    /*! Compact size of a gmio_stl_triangle object, STL ascii format */
     GMIO_STLA_TRIANGLE_RAWSIZE = (4 * GMIO_STL_COORDS_RAWSIZE),
 
-    /*! Compact size of a struct gmio_stl_triangle object, STL binary format */
+    /*! Compact size of a gmio_stl_triangle object, STL binary format */
     GMIO_STLB_TRIANGLE_RAWSIZE = (GMIO_STLA_TRIANGLE_RAWSIZE + sizeof(uint16_t)),
 
     /*! Size(in bytes) of the header data for STL binary */

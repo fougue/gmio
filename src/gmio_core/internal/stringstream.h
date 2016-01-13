@@ -22,18 +22,29 @@
 
 /*! Stream that operates on a string
  *
- *  To be used with API below.
  *  It allows to iterate over a stream (until end is reached) as if it was a
  *  string.
+ *
+ *  To be used with API below.
  */
 struct gmio_stringstream
 {
+    /*! Stream to iterate over */
     struct gmio_stream stream;
-    struct gmio_string strbuff;
-    const char* strbuff_end; /*!< Position after last char in strbuff */
-    const char* strbuff_at;  /*!< Position indicator in buffer */
 
+    /*! Holds contents read from stream */
+    struct gmio_string strbuff;
+
+    /*! Position after last char in strbuff */
+    const char* strbuff_end;
+
+    /*! Position indicator in strbuff */
+    const char* strbuff_at;
+
+    /*! User data to be passed to callback func_stream_read_hook */
     void* cookie;
+
+    /*! Pointer on user function called each time next contents is read */
     void (*func_stream_read_hook)(
             void* cookie, const struct gmio_string* strbuff);
 };
