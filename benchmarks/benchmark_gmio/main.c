@@ -20,6 +20,7 @@
 #include <gmio_stl/stl_mesh.h>
 #include <gmio_stl/stl_mesh_creator.h>
 #include <gmio_stl/stl_infos.h>
+#include <gmio_stl/stl_format.h>
 
 #include "../commons/benchmark_tools.h"
 
@@ -218,14 +219,30 @@ void bmk_gmio_stl_infos_get(const void* filepath)
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
-        int error = GMIO_ERROR_OK;
+        struct gmio_stream stream = gmio_stream_stdio(file);
         struct gmio_stl_infos_get_args args = {0};
-        args.stream = gmio_stream_stdio(file);
-        error = gmio_stl_infos_get(
-                    &args, GMIO_STL_FORMAT_ASCII, GMIO_STL_INFO_FLAG_ALL);
+        const enum gmio_stl_format format = gmio_stl_get_format(&stream);
+
+        args.stream = stream;
+        gmio_stl_infos_get(&args, format, GMIO_STL_INFO_FLAG_ALL);
         if (!already_exec) {
-            printf("stl_infos_get()\n  File: %s\n  Size: %uKo\n  Facets: %u\n",
-                   filepath, args.infos.size / 1024, args.infos.facet_count);
+            printf("stl_infos_get()\n"
+                   "    File: %s\n"
+                   "    Size: %uKo\n"
+                   "    Facets: %u\n",
+                   (const char*)filepath,
+                   args.infos.size / 1024,
+                   args.infos.facet_count);
+            if (format == GMIO_STL_FORMAT_ASCII) {
+                printf("    [STLA]Solid name: %s\n",
+                       args.infos.stla_solidname);
+            }
+            else if (format == GMIO_STL_FORMAT_BINARY_LE
+                     || format == GMIO_STL_FORMAT_BINARY_BE)
+            {
+                printf("    [STLB]Header: %80.80s\n",
+                       args.infos.stlb_header.data);
+            }
         }
         already_exec = GMIO_TRUE;
     }
@@ -251,9 +268,8 @@ int main(int argc, char** argv)
               NULL, NULL },
             {0}
         };
-        const size_t cmp_count =
-                sizeof(cmp_args) / sizeof(struct benchmark_cmp_arg) - 1;
-        struct benchmark_cmp_result cmp_res[3] = {0};
+        const size_t cmp_count = GMIO_ARRAY_SIZE(cmp_args) - 1;
+        struct benchmark_cmp_result cmp_res[GMIO_ARRAY_SIZE(cmp_args)] = {0};
         struct benchmark_cmp_result_array res_array = {0};
         const struct benchmark_cmp_result_header header = { "gmio", NULL };
 
@@ -267,7 +283,7 @@ int main(int argc, char** argv)
         res_array.count = cmp_count;
 
         /* Execute benchmarks */
-        benchmark_cmp_batch(5, &cmp_args[0], &cmp_res[0], NULL, NULL);
+        benchmark_cmp_batch(5, cmp_args, cmp_res, NULL, NULL);
 
         /* Print results */
         benchmark_print_results(

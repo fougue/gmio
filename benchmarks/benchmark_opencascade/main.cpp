@@ -121,7 +121,7 @@ int main(int argc, char** argv)
 
         /* Execute benchmarks */
         std::vector<benchmark_cmp_result> cmp_res_vec;
-        cmp_res_vec.resize(sizeof(cmp_args) / sizeof(benchmark_cmp_arg) - 1);
+        cmp_res_vec.resize(GMIO_ARRAY_SIZE(cmp_args) - 1);
         benchmark_cmp_batch(5, &cmp_args[0], &cmp_res_vec[0], NULL, NULL);
 
         /* Print results */
