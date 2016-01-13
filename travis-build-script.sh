@@ -18,6 +18,12 @@ echo TRAVIS_COVERALLS=$TRAVIS_COVERALLS
 # CMake
 mkdir build && cd build
 cmake --version
+
+if [ -n "${TRAVIS_GCC_VERSION}" ]; then
+    export CC=gcc-4.9;
+    export CXX=g++-4.9;
+fi
+
 cmake .. -G "Unix Makefiles"       \
          -DCMAKE_DEBUG_POSTFIX=_d  \
          -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE \
