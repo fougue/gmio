@@ -15,14 +15,23 @@ else
 fi
 echo TRAVIS_COVERALLS=$TRAVIS_COVERALLS
 
-# CMake
+# CMake options as environment variables
+if [ -n "${TRAVIS_GCC_VERSION}" ]; then
+    export CC=gcc-$TRAVIS_GCC_VERSION;
+    export CXX=g++-$TRAVIS_GCC_VERSION;
+fi
+
+if [ -z "${TRAVIS_SHARED_LIBS}" ]; then
+    export TRAVIS_SHARED_LIBS=OFF;
+fi
+
+if [ -z "${TRAVIS_STRICT_C90}" ]; then
+    export TRAVIS_STRICT_C90=OFF;
+fi
+
+# Run CMake
 mkdir build && cd build
 cmake --version
-
-if [ -n "${TRAVIS_GCC_VERSION}" ]; then
-    export CC=gcc-4.9;
-    export CXX=g++-4.9;
-fi
 
 cmake .. -G "Unix Makefiles"       \
          -DCMAKE_DEBUG_POSTFIX=_d  \
@@ -36,11 +45,7 @@ cmake .. -G "Unix Makefiles"       \
 # Make
 make -j4
 make install
-
-# Run unit tests
-if [ "${TRAVIS_MAKE_CHECK}" = "ON" ]; then
-    make check;
-fi
+make check  # Unit tests
 
 # Coveralls
 if [ "${TRAVIS_COVERALLS}" = "ON" ]; then
