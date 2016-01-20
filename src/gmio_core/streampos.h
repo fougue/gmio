@@ -43,12 +43,5 @@ struct gmio_streampos
     uint8_t cookie[GMIO_STREAMPOS_COOKIE_SIZE];
 };
 
-GMIO_C_LINKAGE_BEGIN
-
-/*! Returns a null stream position */
-GMIO_LIB_EXPORT struct gmio_streampos gmio_streampos_null();
-
-GMIO_C_LINKAGE_END
-
 #endif /* GMIO_STREAMPOS_H */
 /*! @} */
