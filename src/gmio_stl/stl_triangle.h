@@ -38,7 +38,7 @@ struct gmio_stl_coords
  *  orientation(normal) */
 struct gmio_stl_triangle
 {
-    struct gmio_stl_coords normal; /*!< Normal vector */
+    struct gmio_stl_coords n; /*!< Normal vector */
     struct gmio_stl_coords v1; /*!< Vertex 1 */
     struct gmio_stl_coords v2; /*!< Vertex 2 */
     struct gmio_stl_coords v3; /*!< Vertex 3 */

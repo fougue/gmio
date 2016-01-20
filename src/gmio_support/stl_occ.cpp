@@ -39,7 +39,7 @@ static void occmesh_add_triangle(
     const gmio_stl_coords& v1 = tri->v1;
     const gmio_stl_coords& v2 = tri->v2;
     const gmio_stl_coords& v3 = tri->v3;
-    const gmio_stl_coords& n = tri->normal;
+    const gmio_stl_coords& n = tri->n;
     mesh->AddTriangle(mesh->AddOnlyNewVertex(v1.x, v1.y, v1.z),
                       mesh->AddOnlyNewVertex(v2.x, v2.y, v2.z),
                       mesh->AddOnlyNewVertex(v3.x, v3.y, v3.z),
@@ -60,7 +60,7 @@ static void occmesh_get_triangle(
     double yN;
     double zN;
     occTri->GetVertexAndOrientation(idV1, idV2, idV3, xN, yN, zN);
-    gmio_stl_coords& n = tri->normal;
+    gmio_stl_coords& n = tri->n;
     n.x = static_cast<float>(xN);
     n.y = static_cast<float>(yN);
     n.z = static_cast<float>(zN);

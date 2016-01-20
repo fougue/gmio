@@ -207,7 +207,7 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
             func_mesh_get_triangle(mesh_cookie, ibuffer_facet, &tri);
 
             buffpos = gmio_write_rawstr(buffpos, "facet normal ");
-            buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.normal);
+            buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.n);
 
             buffpos = gmio_write_rawstr(buffpos, "\nouter loop");
             buffpos = gmio_write_rawstr(buffpos, "\n vertex ");

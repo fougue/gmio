@@ -33,7 +33,7 @@ const char* test_platform__alignment()
     UTEST_ASSERT(offsetof(struct gmio_stl_coords, z) == 8);
     UTEST_ASSERT(sizeof(struct gmio_stl_coords) == GMIO_STL_COORDS_RAWSIZE);
 
-    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, normal) == 0);
+    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, n) == 0);
     UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v1) == GMIO_STL_COORDS_RAWSIZE);
     UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v2) == 2*GMIO_STL_COORDS_RAWSIZE);
     UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v3) == 3*GMIO_STL_COORDS_RAWSIZE);

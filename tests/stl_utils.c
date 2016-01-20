@@ -130,7 +130,7 @@ gmio_bool_t gmio_stl_triangle_equal(
         const struct gmio_stl_triangle *rhs,
         uint32_t max_ulp_diff)
 {
-    return gmio_stl_coords_equal(&lhs->normal, &rhs->normal, max_ulp_diff)
+    return gmio_stl_coords_equal(&lhs->n, &rhs->n, max_ulp_diff)
             && gmio_stl_coords_equal(&lhs->v1, &rhs->v1, max_ulp_diff)
             && gmio_stl_coords_equal(&lhs->v2, &rhs->v2, max_ulp_diff)
             && gmio_stl_coords_equal(&lhs->v3, &rhs->v3, max_ulp_diff)

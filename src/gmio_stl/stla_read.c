@@ -663,7 +663,7 @@ int parse_facet(
         errc += stla_eat_next_token_inplace(data, FACET_token);
 
     errc += stla_eat_next_token_inplace(data, NORMAL_token);
-    parse_xyz_coords(data, &facet->normal);
+    parse_xyz_coords(data, &facet->n);
 
     errc += stla_eat_next_token_inplace(data, OUTER_token);
     errc += stla_eat_next_token_inplace(data, LOOP_token);

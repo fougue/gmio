@@ -206,7 +206,7 @@ static void add_triangle(
     aiVector3D* vp = &pMesh->mVertices[tri_id * 3];
     aiVector3D* vn = &pMesh->mNormals[tri_id * 3];
 
-    copy_gmio_stl_coords(vn, triangle->normal);
+    copy_gmio_stl_coords(vn, triangle->n);
     *(vn+1) = *vn;
     *(vn+2) = *vn;
 
@@ -273,9 +273,9 @@ static void get_triangle(
         }
         nor.Normalize();
     }
-    copy_aiVector3D(&triangle->normal, nor);
+    copy_aiVector3D(&triangle->n, nor);
 #if 0
-    copy_aiVector3D(&triangle->normal, mesh->mNormals[f.mIndices[0]]);
+    copy_aiVector3D(&triangle->n, mesh->mNormals[f.mIndices[0]]);
 #endif
 
     copy_aiVector3D(&triangle->v1, mesh->mVertices[f.mIndices[0]]);
