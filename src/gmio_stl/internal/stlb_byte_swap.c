@@ -19,12 +19,12 @@
 
 void gmio_stl_triangle_bswap(struct gmio_stl_triangle* triangle)
 {
-    int i;
     uint32_t* uintcoord_ptr = (uint32_t*)&(triangle->normal.x);
     const uint16_t attr_byte_count = triangle->attribute_byte_count;
+    int i;
 
     for (i = 0; i < 12; ++i)
-        *(uintcoord_ptr + i) = gmio_uint32_bswap(*(uintcoord_ptr + i));
+        uintcoord_ptr[i] = gmio_uint32_bswap(uintcoord_ptr[i]);
     if (attr_byte_count != 0)
         triangle->attribute_byte_count = gmio_uint16_bswap(attr_byte_count);
 }
