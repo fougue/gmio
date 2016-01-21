@@ -16,29 +16,74 @@
 #include "utest_assert.h"
 
 #include "../src/gmio_core/error.h"
+#include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
 
 #include <stdio.h>
 
-static const char stl_jburkardt_sphere_filepath[] =
-        "models/solid_jburkardt_sphere.stla";
-
-const char* test_stl_infos()
+struct gmio_test_stl_infos
 {
-    FILE* stla_file = fopen(stl_jburkardt_sphere_filepath, "rb");
+    const char* filepath;
+    enum gmio_stl_format format;
+    uint32_t expected_facet_count;
+    gmio_streamsize_t expected_size; /* -2: don't check size
+                                      * -1: check against actual file size */
+};
+
+static const struct gmio_test_stl_infos tests[] = {
+    { "models/file_empty", GMIO_STL_FORMAT_UNKNOWN, 0, 0 },
+    { "models/solid_4vertex.stla", GMIO_STL_FORMAT_ASCII, 1, -2 },
+    { "models/solid_anonymous_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
+    { "models/solid_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
+    { "models/solid_empty.stlb", GMIO_STL_FORMAT_BINARY_LE, 0, -1 },
+    { "models/solid_empty_name_many_words.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
+    { "models/solid_empty_name_many_words_single_letters.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
+    { "models/solid_grabcad_arm11_link0_hb.le_stlb", GMIO_STL_FORMAT_BINARY_LE, 1436, -1 },
+    { "models/solid_jburkardt_sphere.stla", GMIO_STL_FORMAT_ASCII, 228, -2 },
+    { "models/solid_lack_z.stla", GMIO_STL_FORMAT_ASCII, 1, -2 },
+    { "models/solid_one_facet.be_stlb", GMIO_STL_FORMAT_BINARY_BE, 1, -1 },
+    { "models/solid_one_facet.le_stlb", GMIO_STL_FORMAT_BINARY_LE, 1, -1 },
+    { "models/solid_one_facet.stla", GMIO_STL_FORMAT_ASCII, 1, -2 },
+    { "models/solid_one_facet_uppercase.stla", GMIO_STL_FORMAT_ASCII, 1, -2 }
+};
+
+const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
+{
+    FILE* file = fopen(test->filepath, "rb");
+    gmio_streamsize_t expected_size = test->expected_size;
     struct gmio_stl_infos_get_args args = {0};
     int error = GMIO_ERROR_OK;
 
-    args.stream = gmio_stream_stdio(stla_file);
+    args.stream = gmio_stream_stdio(file);
 
     error = gmio_stl_infos_get(
-                &args, GMIO_STL_FORMAT_ASCII, GMIO_STL_INFO_FLAG_ALL);
+                &args, test->format, GMIO_STL_INFO_FLAG_ALL);
+    if (test->format != GMIO_STL_FORMAT_UNKNOWN) {
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+    else {
+        UTEST_ASSERT(error == GMIO_STL_ERROR_UNKNOWN_FORMAT);
+    }
 
-    fclose(stla_file);
+    if (test->expected_size == -1)
+        expected_size = gmio_stream_size(&args.stream);
 
-    UTEST_ASSERT(error == GMIO_ERROR_OK);
-    /*UTEST_ASSERT(infos.facet_count == 228);*/
-    /*UTEST_ASSERT(stats.size == 54297);*/
+    fclose(file);
+
+    if (test->expected_size != -2)
+        UTEST_COMPARE_UINT(expected_size, args.infos.size);
+
+    return NULL;
+}
+
+const char* test_stl_infos()
+{
+    size_t i;
+    for (i = 0; i < GMIO_ARRAY_SIZE(tests); ++i) {
+        const char* error = generic_test_stl_infos(tests + i);
+        if (error != NULL)
+            return error;
+    }
 
     return NULL;
 }
