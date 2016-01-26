@@ -49,14 +49,14 @@ struct gmio_stringstream_stla_cookie
     /* Offset (in bytes) from beginning of stream : current position */
     gmio_streamoffset_t stream_offset;
     /* Cache for gmio_transfer::func_is_stop_requested() */
-    gmio_bool_t is_stop_requested;
+    bool is_stop_requested;
 };
 
 /* gmio_stla_parse_data */
 struct gmio_stla_parse_data
 {
     enum gmio_stla_token token;
-    gmio_bool_t error;
+    bool error;
     struct gmio_stringstream strstream;
     struct gmio_stringstream_stla_cookie strstream_cookie;
     struct gmio_string strbuff;

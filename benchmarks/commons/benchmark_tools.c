@@ -152,7 +152,7 @@ static void gprintf_func_exec_time(
         func_gprintf_t func_gprintf,
         size_t width_column,
         gmio_time_ms_t time,
-        gmio_bool_t has_time)
+        bool has_time)
 {
     if (has_time) {
         char str_time[128] = {0};
@@ -186,7 +186,7 @@ static void gprintf_func_exec_ratio(
 static void printf_func_exec_time(
         size_t width_column,
         gmio_time_ms_t time_ms,
-        gmio_bool_t has_time)
+        bool has_time)
 {
     gprintf_func_exec_time(
                 NULL, &printf_wrap, width_column, time_ms, has_time);
@@ -208,7 +208,7 @@ static size_t find_maxlen_cmp_result_tag(struct benchmark_cmp_result_array res_a
 static void select_cmp_result_func1_exec_infos(
         const struct benchmark_cmp_result* cmp,
         gmio_time_ms_t* time,
-        gmio_bool_t* has_time)
+        bool* has_time)
 {
     *time = cmp->func1_exec_time_ms;
     *has_time = cmp->has_func1_exec_time;
@@ -218,7 +218,7 @@ static void select_cmp_result_func1_exec_infos(
 static void select_cmp_result_func2_exec_infos(
         const struct benchmark_cmp_result* cmp,
         gmio_time_ms_t* time,
-        gmio_bool_t* has_time)
+        bool* has_time)
 {
     *time = cmp->func2_exec_time_ms;
     *has_time = cmp->has_func2_exec_time;
@@ -226,7 +226,7 @@ static void select_cmp_result_func2_exec_infos(
 
 /*! Typedef on pointer to functions like select_cmp_result_funcX_exec_infos() */
 typedef void (*func_select_cmp_result_func_exec_infos_t)(
-        const struct benchmark_cmp_result*, gmio_time_ms_t*, gmio_bool_t*);
+        const struct benchmark_cmp_result*, gmio_time_ms_t*, bool*);
 
 /*! Returns the strlen of the longest execution time string */
 static size_t find_maxlen_cmp_result_func_exec_time(
@@ -238,7 +238,7 @@ static size_t find_maxlen_cmp_result_func_exec_time(
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
         gmio_time_ms_t time = 0;
-        gmio_bool_t has_time = GMIO_FALSE;
+        bool has_time = false;
         func_select_exec_infos(&res_array.ptr[i], &time, &has_time);
         gprintf_func_exec_time(strbuff, &sprintf_wrap, 0, time, has_time);
         max_len = size_t_max(safe_strlen(strbuff), max_len);
@@ -291,14 +291,14 @@ struct benchmark_cmp_result benchmark_cmp(struct benchmark_cmp_arg arg)
         benchmark_timer_start(&timer);
         (*arg.func1)(arg.func1_arg);
         result.func1_exec_time_ms = benchmark_timer_elapsed_ms(&timer);
-        result.has_func1_exec_time = GMIO_TRUE;
+        result.has_func1_exec_time = true;
     }
     if (arg.func2 != NULL) {
         struct benchmark_timer timer = {0};
         benchmark_timer_start(&timer);
         (*arg.func2)(arg.func2_arg);
         result.func2_exec_time_ms = benchmark_timer_elapsed_ms(&timer);
-        result.has_func2_exec_time = GMIO_TRUE;
+        result.has_func2_exec_time = true;
     }
     update_benchmark_cmp_result_ratio(&result);
 

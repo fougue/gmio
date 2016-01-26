@@ -84,7 +84,7 @@ static void gmio_test_atof_fprintf_err(
             gmio_float32_ulp_diff(fast_val, std_val));
 }
 
-static gmio_bool_t gmio_test_calculation_atof(const char* val_str)
+static bool gmio_test_calculation_atof(const char* val_str)
 {
     const float std_val = (float)strtod(val_str, NULL);
     int accurate_count = 0;
@@ -120,39 +120,39 @@ static gmio_bool_t gmio_test_calculation_atof(const char* val_str)
 
 const char* test_internal__fast_atof()
 {
-    gmio_bool_t accurate = GMIO_TRUE;
+    bool ok = true;
 
-    accurate &= gmio_test_calculation_atof("340282346638528859811704183484516925440.000000");
-    accurate &= gmio_test_calculation_atof("3.402823466e+38F");
-    accurate &= gmio_test_calculation_atof("3402823466e+29F");
-    accurate &= gmio_test_calculation_atof("-340282346638528859811704183484516925440.000000");
-    accurate &= gmio_test_calculation_atof("-3.402823466e+38F");
-    accurate &= gmio_test_calculation_atof("-3402823466e+29F");
-    accurate &= gmio_test_calculation_atof("34028234663852885981170418348451692544.000000");
-    accurate &= gmio_test_calculation_atof("3.402823466e+37F");
-    accurate &= gmio_test_calculation_atof("3402823466e+28F");
-    accurate &= gmio_test_calculation_atof("-34028234663852885981170418348451692544.000000");
-    accurate &= gmio_test_calculation_atof("-3.402823466e+37F");
-    accurate &= gmio_test_calculation_atof("-3402823466e+28F");
-    accurate &= gmio_test_calculation_atof(".00234567");
-    accurate &= gmio_test_calculation_atof("-.00234567");
-    accurate &= gmio_test_calculation_atof("0.00234567");
-    accurate &= gmio_test_calculation_atof("-0.00234567");
-    accurate &= gmio_test_calculation_atof("1.175494351e-38F");
+    ok = ok && gmio_test_calculation_atof("340282346638528859811704183484516925440.000000");
+    ok = ok && gmio_test_calculation_atof("3.402823466e+38F");
+    ok = ok && gmio_test_calculation_atof("3402823466e+29F");
+    ok = ok && gmio_test_calculation_atof("-340282346638528859811704183484516925440.000000");
+    ok = ok && gmio_test_calculation_atof("-3.402823466e+38F");
+    ok = ok && gmio_test_calculation_atof("-3402823466e+29F");
+    ok = ok && gmio_test_calculation_atof("34028234663852885981170418348451692544.000000");
+    ok = ok && gmio_test_calculation_atof("3.402823466e+37F");
+    ok = ok && gmio_test_calculation_atof("3402823466e+28F");
+    ok = ok && gmio_test_calculation_atof("-34028234663852885981170418348451692544.000000");
+    ok = ok && gmio_test_calculation_atof("-3.402823466e+37F");
+    ok = ok && gmio_test_calculation_atof("-3402823466e+28F");
+    ok = ok && gmio_test_calculation_atof(".00234567");
+    ok = ok && gmio_test_calculation_atof("-.00234567");
+    ok = ok && gmio_test_calculation_atof("0.00234567");
+    ok = ok && gmio_test_calculation_atof("-0.00234567");
+    ok = ok && gmio_test_calculation_atof("1.175494351e-38F");
 #if 0
     /* This check fails */
-    accurate &= gmio_test_calculation_atof("1175494351e-47F");
+    ok = ok && gmio_test_calculation_atof("1175494351e-47F");
 #endif
-    accurate &= gmio_test_calculation_atof("1.175494351e-37F");
-    accurate &= gmio_test_calculation_atof("1.175494351e-36F");
-    accurate &= gmio_test_calculation_atof("-1.175494351e-36F");
-    accurate &= gmio_test_calculation_atof("123456.789");
-    accurate &= gmio_test_calculation_atof("-123456.789");
-    accurate &= gmio_test_calculation_atof("0000123456.789");
-    accurate &= gmio_test_calculation_atof("-0000123456.789");
-    accurate &= gmio_test_calculation_atof("-0.0690462109446526");
+    ok = ok && gmio_test_calculation_atof("1.175494351e-37F");
+    ok = ok && gmio_test_calculation_atof("1.175494351e-36F");
+    ok = ok && gmio_test_calculation_atof("-1.175494351e-36F");
+    ok = ok && gmio_test_calculation_atof("123456.789");
+    ok = ok && gmio_test_calculation_atof("-123456.789");
+    ok = ok && gmio_test_calculation_atof("0000123456.789");
+    ok = ok && gmio_test_calculation_atof("-0000123456.789");
+    ok = ok && gmio_test_calculation_atof("-0.0690462109446526");
 
-    UTEST_ASSERT(accurate == GMIO_TRUE);
+    UTEST_ASSERT(ok);
 
     return NULL;
 }

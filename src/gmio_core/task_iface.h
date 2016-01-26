@@ -35,10 +35,10 @@ struct gmio_task_iface
     /*! Optional pointer on a function that says if the currently running
      *  task must stop
      *
-     *  If \c GMIO_TRUE is returned then the current task should abort as
+     *  If \c true is returned then the current task should abort as
      *  soon as possible, otherwise it can continue execution.
      */
-    gmio_bool_t (*func_is_stop_requested)(void* cookie);
+    bool (*func_is_stop_requested)(void* cookie);
 
     /*! Optional pointer on a function that is called anytime some new progress
      *  was done

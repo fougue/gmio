@@ -71,12 +71,12 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
 }
 
 #if 0
-gmio_bool_t gmio_stringstream_checked_next_chars(
+bool gmio_stringstream_checked_next_chars(
         struct gmio_stringstream *sstream, const char *str)
 {
     size_t pos = 0;
     const char* curr_char = gmio_stringstream_current_char(sstream);
-    gmio_bool_t same = curr_char != NULL && *curr_char == *str;
+    bool same = curr_char != NULL && *curr_char == *str;
 
     while (same) {
         curr_char = gmio_stringstream_next_char(sstream);

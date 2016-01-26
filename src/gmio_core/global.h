@@ -120,37 +120,17 @@ typedef unsigned long long uint64_t;
 #  define GMIO_HAVE_INT64_TYPE
 #endif
 
-/* gmio_bool_t */
-/* GMIO_TRUE and GMIO_FALSE */
+/* GMIO_HAVE_STDBOOL_H */
 #ifdef GMIO_HAVE_STDBOOL_H
 #  include <stdbool.h>
-
-typedef bool gmio_bool_t;
-
-#  define GMIO_FALSE false
-#  define GMIO_TRUE  true
-#elif !defined(DOXYGEN)
-typedef int gmio_bool_t;
-
+#elif !defined(DOXYGEN) && !defined(__cplusplus)
+typedef int bool;
 enum gmio_bool_value
 {
-    GMIO_FALSE = 0,
-    GMIO_TRUE = 1
+    false = 0,
+    true = 1
 };
-#else
-/* For documentation only */
-/*! Boolean type alias
- *
- *  If strict ISO-C90 or if \c <stdbool.h> does not exists then:
- *      \li \c gmio_bool_t is an alias of \c int
- *      \li <tt>GMIO_FALSE == 0</tt> and <tt>GMIO_TRUE == 1</tt>
- *
- *  Otherwise:
- *      \li \c gmio_bool_t is an alias of \c bool
- *      \li \c GMIO_FALSE expands to \c false and \c GMIO_TRUE to \c true
- */
-typedef int_or_bool gmio_bool_t;
-#endif /* GMIO_HAVE_STDBOOL_H */
+#endif
 
 /* GMIO_UNUSED */
 /*! Tells the compiler that a parameter is not used in the body of a function */

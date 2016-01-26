@@ -134,7 +134,7 @@ static void stl_readwrite_flush_triangles(struct stl_readwrite_conv* rw_conv)
     write.mesh.cookie = &rw_conv->triangle_array[0];
     write.mesh.triangle_count = rw_conv->triangle_pos;
     write.mesh.func_get_triangle = &readwrite_get_triangle;
-    write.options.stl_write_triangles_only = GMIO_TRUE;
+    write.options.stl_write_triangles_only = true;
     write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
     write.options.stla_float32_prec = 6;
     gmio_stl_write(&write, rw_conv->out_format);
@@ -215,7 +215,7 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
 
 void bmk_gmio_stl_infos_get(const void* filepath)
 {
-    static gmio_bool_t already_exec = GMIO_FALSE;
+    static bool already_exec = false;
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
@@ -244,7 +244,7 @@ void bmk_gmio_stl_infos_get(const void* filepath)
                        args.infos.stlb_header.data);
             }
         }
-        already_exec = GMIO_TRUE;
+        already_exec = true;
     }
 
     fclose(file);

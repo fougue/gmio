@@ -111,11 +111,11 @@ static void gmio_stringstream_stla_read_hook(
 int gmio_stla_infos_get(
         struct gmio_stl_infos_get_args* args, unsigned flags)
 {
-    const gmio_bool_t flag_facet_count =
+    const bool flag_facet_count =
             (flags & GMIO_STL_INFO_FLAG_FACET_COUNT) != 0;
-    const gmio_bool_t flag_size =
+    const bool flag_size =
             (flags & GMIO_STL_INFO_FLAG_SIZE) != 0;
-    const gmio_bool_t flag_stla_solidname =
+    const bool flag_stla_solidname =
             (flags & GMIO_STLA_INFO_FLAG_SOLIDNAME) != 0;
 
     struct gmio_stl_infos* infos = &args->infos;
@@ -237,11 +237,11 @@ int gmio_stla_infos_get(
     const size_t mblock_size = args->stream_memblock.size - 1;
     struct gmio_string strbuff = gmio_string(mblock_ptr, 0, mblock_size);
 
-    const gmio_bool_t flag_facet_count =
+    const bool flag_facet_count =
             (flags & GMIO_STL_INFO_FLAG_FACET_COUNT) != 0;
-    const gmio_bool_t flag_size =
+    const bool flag_size =
             (flags & GMIO_STL_INFO_FLAG_SIZE) != 0;
-    const gmio_bool_t flag_stla_solidname =
+    const bool flag_stla_solidname =
             (flags & GMIO_STLA_INFO_FLAG_SOLIDNAME) != 0;
 
     int err = GMIO_ERROR_OK;
@@ -253,15 +253,15 @@ int gmio_stla_infos_get(
         /* 'overlap' stores the ending/starting bytes of the previous/current
          * stream buffers(memblock) */
         char overlap[14] = {0}; /* 14 == 2*(strlen("endfacet") - 1) */
-        gmio_bool_t endsolid_found = GMIO_FALSE;
+        bool endsolid_found = false;
 
         while (!endsolid_found && gmio_no_error(err)) {
             const char* substr_at = NULL;
             const size_t read_size =
                     gmio_stream_read(stream, mblock_ptr, 1, mblock_size);
             const int stream_err = gmio_stream_error(&args->stream);
-            const gmio_bool_t overlap_has_contents = overlap[0] != 0;
-            gmio_bool_t endsolid_in_overlap = GMIO_FALSE;
+            const bool overlap_has_contents = overlap[0] != 0;
+            bool endsolid_in_overlap = false;
 
             err = stream_err;
             strbuff.len = read_size;
@@ -305,7 +305,7 @@ int gmio_stla_infos_get(
                 const char* endsolid_ptr =
                         endsolid_found ? substr_at : gmio_string_end(&strbuff);
                 /* Check in overlap */
-                const gmio_bool_t endfacet_in_overlap =
+                const bool endfacet_in_overlap =
                         overlap_has_contents
                         && strstr(overlap, "endfacet") != NULL;
                 infos->facet_count += endfacet_in_overlap ? 1 : 0;

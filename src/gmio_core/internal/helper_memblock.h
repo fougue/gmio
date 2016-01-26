@@ -23,7 +23,7 @@
 struct gmio_memblock_helper
 {
     struct gmio_memblock* memblock;
-    gmio_bool_t was_allocated;
+    bool was_allocated;
 };
 
 GMIO_INLINE
@@ -44,7 +44,7 @@ struct gmio_memblock_helper gmio_memblock_helper(struct gmio_memblock* mblock)
     helper.memblock = mblock;
     if (mblock != NULL && (mblock->ptr == NULL || mblock->size == 0)) {
         *(helper.memblock) = gmio_memblock_default();
-        helper.was_allocated = GMIO_TRUE;
+        helper.was_allocated = true;
     }
     return helper;
 }
@@ -54,7 +54,7 @@ void gmio_memblock_helper_release(struct gmio_memblock_helper* helper)
     if (helper != NULL && helper->was_allocated) {
         gmio_memblock_deallocate(helper->memblock);
         helper->memblock = NULL;
-        helper->was_allocated = GMIO_FALSE;
+        helper->was_allocated = false;
     }
 }
 

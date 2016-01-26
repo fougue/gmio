@@ -93,9 +93,9 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
 #if 0
 /*! Iterate over stream while it matches input string \p str
  *
- *  Returns GMIO_TRUE if \p str was fully matched
+ *  Returns true if \p str was fully matched
  */
-gmio_bool_t gmio_stringstream_checked_next_chars(
+bool gmio_stringstream_checked_next_chars(
         struct gmio_stringstream* sstream, const char* str);
 #endif
 

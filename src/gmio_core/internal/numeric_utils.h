@@ -28,7 +28,7 @@
  *  See:
  *    http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
  */
-gmio_bool_t gmio_float32_ulp_equals(float a, float b, uint32_t max_ulp_diff);
+bool gmio_float32_ulp_equals(float a, float b, uint32_t max_ulp_diff);
 
 /*! Count of ULP between \p a and \p b */
 GMIO_INLINE uint32_t gmio_float32_ulp_diff(float a, float b);

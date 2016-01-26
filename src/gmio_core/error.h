@@ -44,7 +44,7 @@ enum gmio_error
     GMIO_ERROR_STREAM,
 
     /*! Transfer was stopped by user, that is to say
-     *  gmio_transfer::func_is_stop_requested() returned GMIO_TRUE */
+     *  gmio_transfer::func_is_stop_requested() returned true */
     GMIO_ERROR_TRANSFER_STOPPED,
 
     /*! An error occured after a call to a <stdio.h> function
@@ -58,12 +58,12 @@ enum gmio_error
 };
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
-GMIO_INLINE gmio_bool_t gmio_no_error(int code)
-{ return code == GMIO_ERROR_OK ? GMIO_TRUE : GMIO_FALSE; }
+GMIO_INLINE bool gmio_no_error(int code)
+{ return code == GMIO_ERROR_OK ? true : false; }
 
 /*! Returns true if <tt>code != GMIO_NO_ERROR</tt> */
-GMIO_INLINE gmio_bool_t gmio_error(int code)
-{ return code != GMIO_ERROR_OK ? GMIO_TRUE : GMIO_FALSE; }
+GMIO_INLINE bool gmio_error(int code)
+{ return code != GMIO_ERROR_OK ? true : false; }
 
 #endif /* GMIO_ERROR_H */
 /*! @} */

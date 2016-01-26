@@ -24,18 +24,18 @@
 
 #include <string.h>
 
-gmio_bool_t gmio_stl_coords_equal(
+bool gmio_stl_coords_equal(
         const struct gmio_stl_coords* lhs,
         const struct gmio_stl_coords* rhs,
         uint32_t max_ulp_diff);
 
-gmio_bool_t gmio_stl_triangle_equal(
+bool gmio_stl_triangle_equal(
         const struct gmio_stl_triangle* lhs,
         const struct gmio_stl_triangle* rhs,
         uint32_t max_ulp_diff);
 
 /*! Does binary STL header \p lhs compare equal to \p rhs ? */
-GMIO_INLINE gmio_bool_t gmio_stlb_header_equal(
+GMIO_INLINE bool gmio_stlb_header_equal(
         const struct gmio_stlb_header* lhs, const struct gmio_stlb_header* rhs)
 {
     return memcmp(lhs, rhs, GMIO_STLB_HEADER_SIZE) == 0;

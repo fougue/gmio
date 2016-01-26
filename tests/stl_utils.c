@@ -115,7 +115,7 @@ struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data *data)
     return mesh;
 }
 
-gmio_bool_t gmio_stl_coords_equal(
+bool gmio_stl_coords_equal(
         const struct gmio_stl_coords *lhs,
         const struct gmio_stl_coords *rhs,
         uint32_t max_ulp_diff)
@@ -125,7 +125,7 @@ gmio_bool_t gmio_stl_coords_equal(
             && gmio_float32_ulp_equals(lhs->z, rhs->z, max_ulp_diff);
 }
 
-gmio_bool_t gmio_stl_triangle_equal(
+bool gmio_stl_triangle_equal(
         const struct gmio_stl_triangle *lhs,
         const struct gmio_stl_triangle *rhs,
         uint32_t max_ulp_diff)

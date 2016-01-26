@@ -51,7 +51,7 @@ struct gmio_stream gmio_stream_null()
     return null_stream;
 }
 
-static gmio_bool_t gmio_stream_stdio_at_end(void* cookie)
+static bool gmio_stream_stdio_at_end(void* cookie)
 {
     return feof((FILE*)cookie);
 }

@@ -121,7 +121,7 @@ GMIO_INLINE char* gmio_write_coords(
                             coords_format, coords->x, coords->y, coords->z);
 }
 
-GMIO_INLINE gmio_bool_t gmio_rwargs_flush_buffer(
+GMIO_INLINE bool gmio_rwargs_flush_buffer(
         struct gmio_rwargs* args, size_t n)
 {
     const size_t write_count =
@@ -146,7 +146,7 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
     const enum gmio_float_text_format f32_format = options->stla_float32_format;
     const uint8_t opt_f32_prec = options->stla_float32_prec;
     const uint8_t f32_prec = opt_f32_prec != 0 ? opt_f32_prec : 9;
-    const gmio_bool_t write_triangles_only = options->stl_write_triangles_only;
+    const bool write_triangles_only = options->stl_write_triangles_only;
 
     /* Variables */
     struct gmio_rwargs* core_args = &args->core;

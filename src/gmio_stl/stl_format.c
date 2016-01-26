@@ -45,7 +45,7 @@ GMIO_INLINE gmio_streamsize_t gmio_stlb_streamsize(uint32_t facet_count)
 }
 
 /* Does \p str contains <SPC>token ? */
-static gmio_bool_t gmio_str_has_token(const char* str, const char* token)
+static bool gmio_str_has_token(const char* str, const char* token)
 {
     const char* substr = gmio_ascii_istrstr(str, token);
     return substr != NULL
@@ -99,7 +99,7 @@ static enum gmio_stl_format gmio_stlb_format(
     return GMIO_STL_FORMAT_UNKNOWN;
 }
 
-static gmio_bool_t gmio_is_stl_ascii(const char* buff, size_t buff_len)
+static bool gmio_is_stl_ascii(const char* buff, size_t buff_len)
 {
     /* Skip spaces at beginning */
     size_t pos = 0;
@@ -116,10 +116,10 @@ static gmio_bool_t gmio_is_stl_ascii(const char* buff, size_t buff_len)
         if (gmio_str_has_token(buff + pos, "facet")
                 || gmio_str_has_token(buff + pos, "endsolid"))
         {
-            return GMIO_TRUE;
+            return true;
         }
     }
-    return GMIO_FALSE;
+    return false;
 }
 
 enum gmio_stl_format gmio_stl_get_format(struct gmio_stream *stream)

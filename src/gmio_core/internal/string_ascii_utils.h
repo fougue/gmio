@@ -42,7 +42,7 @@ GMIO_INLINE char gmio_ascii_tolower(char c);
  *
  *  Comparison is case-insensitive
  */
-GMIO_INLINE gmio_bool_t gmio_ascii_char_iequals(char c1, char c2);
+GMIO_INLINE bool gmio_ascii_char_iequals(char c1, char c2);
 
 /*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise
  *
@@ -62,7 +62,7 @@ GMIO_INLINE int gmio_ascii_strincmp(
  *
  *  Comparison is case-insensitive
  */
-GMIO_INLINE gmio_bool_t gmio_ascii_istarts_with(
+GMIO_INLINE bool gmio_ascii_istarts_with(
         const char* str, const char* begin);
 
 /*! Locate substring (insensitive case string matching)
@@ -168,7 +168,7 @@ char gmio_ascii_tolower(char c)
 #endif
 }
 
-gmio_bool_t gmio_ascii_char_iequals(char c1, char c2)
+bool gmio_ascii_char_iequals(char c1, char c2)
 {
     /* TODO: eliminate branch */
     return c1 == c2 || (gmio_ascii_toupper(c1) == gmio_ascii_toupper(c2));
@@ -193,15 +193,15 @@ int gmio_ascii_strincmp(const char* str1, const char* str2, size_t n)
     return gmio_ascii_tolower(*str1) - gmio_ascii_tolower(*str2);
 }
 
-gmio_bool_t gmio_ascii_istarts_with(const char* str, const char* begin)
+bool gmio_ascii_istarts_with(const char* str, const char* begin)
 {
     while (*begin != 0) {
         if (*str == 0 || !gmio_ascii_char_iequals(*str, *begin))
-            return GMIO_FALSE;
+            return false;
         ++str;
         ++begin;
     }
-    return GMIO_TRUE;
+    return true;
 }
 
 #endif /* GMIO_INTERNAL_STRING_ASCII_UTILS_H */

@@ -53,7 +53,7 @@ namespace gmio {
 namespace internal {
 
 template<typename STREAM>
-gmio_bool_t stream_cpp_at_end(void* cookie)
+bool stream_cpp_at_end(void* cookie)
 {
     STREAM* s = static_cast<STREAM*>(cookie);
     return s->eof();

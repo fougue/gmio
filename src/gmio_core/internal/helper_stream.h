@@ -19,7 +19,7 @@
 #include "../stream.h"
 
 /*! Safe and convenient function for gmio_stream::func_at_end() */
-GMIO_INLINE gmio_bool_t gmio_stream_at_end(struct gmio_stream* stream);
+GMIO_INLINE bool gmio_stream_at_end(struct gmio_stream* stream);
 
 /*! Safe and convenient function for gmio_stream::func_error() */
 GMIO_INLINE int gmio_stream_error(struct gmio_stream* stream);
@@ -53,11 +53,11 @@ GMIO_INLINE int gmio_stream_set_pos(
  * Implementation
  */
 
-gmio_bool_t gmio_stream_at_end(struct gmio_stream* stream)
+bool gmio_stream_at_end(struct gmio_stream* stream)
 {
     if (stream != NULL && stream->func_at_end != NULL)
         return stream->func_at_end(stream->cookie);
-    return GMIO_FALSE;
+    return false;
 }
 
 int gmio_stream_error(struct gmio_stream* stream)

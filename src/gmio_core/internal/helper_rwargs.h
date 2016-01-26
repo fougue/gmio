@@ -22,12 +22,12 @@
 /*! Safe and convenient function for gmio_task_iface::func_is_stop_requested()
  *  through gmio_transfer::task_iface
  */
-GMIO_INLINE gmio_bool_t gmio_rwargs_is_stop_requested(
+GMIO_INLINE bool gmio_rwargs_is_stop_requested(
         const struct gmio_rwargs* args)
 {
     if (args != NULL)
         return gmio_task_iface_is_stop_requested(&args->task_iface);
-    return GMIO_FALSE;
+    return false;
 }
 
 /*! Safe and convenient function for gmio_task_iface::func_handle_progress()

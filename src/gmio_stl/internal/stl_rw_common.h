@@ -27,12 +27,12 @@ struct gmio_memblock;
 struct gmio_rwargs;
 struct gmio_stl_mesh;
 
-gmio_bool_t gmio_check_rwargs(int* error, const struct gmio_rwargs* args);
-gmio_bool_t gmio_check_memblock(int* error, const struct gmio_memblock* mblock);
+bool gmio_check_rwargs(int* error, const struct gmio_rwargs* args);
+bool gmio_check_memblock(int* error, const struct gmio_memblock* mblock);
 
-gmio_bool_t gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
+bool gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
 
-gmio_bool_t gmio_stlb_check_params(
+bool gmio_stlb_check_params(
         int* error,
         const struct gmio_rwargs* args,
         enum gmio_endianness byte_order);

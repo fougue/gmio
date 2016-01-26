@@ -55,11 +55,11 @@ struct benchmark_cmp_result
     /*! Execution time(in ms) of the 1st function */
     gmio_time_ms_t func1_exec_time_ms;
     /*! Is exec time of the 1st function valid ? */
-    gmio_bool_t has_func1_exec_time;
+    bool has_func1_exec_time;
     /*! Execution time(in ms) of the 2nd function */
     gmio_time_ms_t func2_exec_time_ms;
     /*! Is exec time of the 2nd function valid ? */
-    gmio_bool_t has_func2_exec_time;
+    bool has_func2_exec_time;
     float func2_func1_ratio;
 };
 

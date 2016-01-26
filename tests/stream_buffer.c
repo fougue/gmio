@@ -17,7 +17,7 @@
 
 #include <string.h>
 
-static gmio_bool_t gmio_stream_buffer_at_end(void* cookie)
+static bool gmio_stream_buffer_at_end(void* cookie)
 {
     const struct gmio_ro_buffer* buff = (const struct gmio_ro_buffer*)cookie;
     return buff->pos >= buff->len;

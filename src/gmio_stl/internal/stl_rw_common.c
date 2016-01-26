@@ -20,7 +20,7 @@
 #include "../stl_error.h"
 #include "../stl_io.h"
 
-gmio_bool_t gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
+bool gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
 {
     if (args == NULL) {
         *error = GMIO_ERROR_NULL_RWARGS;
@@ -35,7 +35,7 @@ gmio_bool_t gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
     return gmio_no_error(*error);
 }
 
-gmio_bool_t gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
+bool gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
 {
     if (mblock->ptr == NULL)
         *error = GMIO_ERROR_NULL_MEMBLOCK;
@@ -44,7 +44,7 @@ gmio_bool_t gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
     return gmio_no_error(*error);
 }
 
-gmio_bool_t gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
+bool gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
 {
     if (mesh == NULL
             || (mesh->triangle_count > 0 && mesh->func_get_triangle == NULL))
@@ -55,13 +55,13 @@ gmio_bool_t gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
     return gmio_no_error(*error);
 }
 
-gmio_bool_t gmio_stlb_check_params(
+bool gmio_stlb_check_params(
         int *error,
         const struct gmio_rwargs* args,
         enum gmio_endianness byte_order)
 {
     if (!gmio_check_rwargs(error, args))
-        return GMIO_FALSE;
+        return false;
 
     if (args->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
         *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;

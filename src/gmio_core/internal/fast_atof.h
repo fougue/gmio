@@ -16,7 +16,7 @@
 #include <limits.h>
 #include <math.h>
 
-GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
+GMIO_INLINE bool is_local_decimal_point(char in)
 {
     /*! Selection of characters which count as decimal point in fast_atof
      * TODO: This should probably also be used in irr::core::string, but
@@ -57,7 +57,7 @@ GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned in
 {
     unsigned int cur = 0;
     uint64_t value = 0;
-    const gmio_bool_t running = GMIO_TRUE;
+    const bool running = true;
 
     if ( !gmio_ascii_isdigit(*in) )
         return value;
@@ -104,7 +104,7 @@ GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned in
  * ------------------------------------------------------------------------------------*/
 GMIO_INLINE int64_t strtol10_64(const char* in, const char** out, unsigned int* max_inout)
 {
-    const gmio_bool_t inv = (*in == '-');
+    const bool inv = (*in == '-');
     int64_t value;
     if (inv || *in == '+')
         ++in;
@@ -125,10 +125,10 @@ GMIO_INLINE int64_t strtol10_64(const char* in, const char** out, unsigned int* 
  * about 6 times faster than atof in win32.
  * If you find any bugs, please send them to me, niko (at) irrlicht3d.org.
  * ------------------------------------------------------------------------------------*/
-GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, gmio_bool_t check_comma)
+GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, bool check_comma)
 {
     double f = 0;
-    const gmio_bool_t inv = (*c == '-');
+    const bool inv = (*c == '-');
 
     if (inv || *c == '+') {
         ++c;
@@ -198,7 +198,7 @@ GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, gmio_bool_
     /* A major 'E' must be allowed. Necessary for proper reading of some DXF files.
      * Thanks to Zhao Lei to point out that this if() must be outside the if (*c == '.' ..) */
     if (*c == 'e' || *c == 'E') {
-        const gmio_bool_t einv = (*(c+1)=='-');
+        const bool einv = (*(c+1)=='-');
         double exp;
 
         ++c;
@@ -226,14 +226,14 @@ GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, gmio_bool_
 GMIO_INLINE float fast_atof(const char* c)
 {
     double ret;
-    fast_atoreal_move(c, &ret, GMIO_TRUE);
+    fast_atoreal_move(c, &ret, true);
     return (float)ret;
 }
 
 GMIO_INLINE double fast_atod(const char* c)
 {
     double ret;
-    fast_atoreal_move(c, &ret, GMIO_TRUE);
+    fast_atoreal_move(c, &ret, true);
     return ret;
 }
 
@@ -241,9 +241,9 @@ GMIO_INLINE float fast_strtof(const char* str, const char** out)
 {
     double ret;
     if (out)
-        *out = fast_atoreal_move(str, &ret, GMIO_TRUE);
+        *out = fast_atoreal_move(str, &ret, true);
     else
-        fast_atoreal_move(str, &ret, GMIO_TRUE);
+        fast_atoreal_move(str, &ret, true);
     return (float)ret;
 }
 
@@ -303,7 +303,7 @@ GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
  */
 GMIO_INLINE int32_t strtol10(const char* in, const char** out)
 {
-    const gmio_bool_t inv = (*in == '-');
+    const bool inv = (*in == '-');
     int value = 0;
     if (inv || *in == '+')
         ++in;
@@ -355,7 +355,7 @@ GMIO_INLINE float strtof10(const char* in, const char** out)
  */
 GMIO_INLINE const char* fast_atof_move(const char* in, float* result)
 {
-    const gmio_bool_t negative = ('-' == *in);
+    const bool negative = ('-' == *in);
     float value = 0.f;
 
     /* Please run the regression test when making any modifications to this

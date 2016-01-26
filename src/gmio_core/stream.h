@@ -58,12 +58,12 @@ struct gmio_stream
     /*! Pointer on a function that checks end-of-stream indicator
      *
      *  Checks whether the end-of-stream indicator associated with stream
-     *  pointed by \p cookie is set, returning GMIO_TRUE if is.
+     *  pointed by \p cookie is set, returning true if is.
      *
      *  The function should behaves like C standard [feof()]
      *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/feof.html)
      */
-    gmio_bool_t (*func_at_end)(void* cookie);
+    bool (*func_at_end)(void* cookie);
 
     /*! Pointer on a function that checks error indicator
      *

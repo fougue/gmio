@@ -351,7 +351,7 @@ const char* test_stla_write()
         for (i = 0; i < data.tri_array.count; ++i) {
             const struct gmio_stl_triangle* lhs = &data.tri_array.ptr[i];
             const struct gmio_stl_triangle* rhs = &data_stla.tri_array.ptr[i];
-            const gmio_bool_t tri_equal = gmio_stl_triangle_equal(lhs, rhs, 5);
+            const bool tri_equal = gmio_stl_triangle_equal(lhs, rhs, 5);
             UTEST_ASSERT(tri_equal);
         }
     }

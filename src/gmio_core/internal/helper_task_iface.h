@@ -21,12 +21,12 @@
 #include <stddef.h>
 
 /*! Safe and convenient function for gmio_task_iface::func_is_stop_requested() */
-GMIO_INLINE gmio_bool_t gmio_task_iface_is_stop_requested(
+GMIO_INLINE bool gmio_task_iface_is_stop_requested(
         const struct gmio_task_iface* itask)
 {
     if (itask != NULL && itask->func_is_stop_requested != NULL)
         return itask->func_is_stop_requested(itask->cookie);
-    return GMIO_FALSE;
+    return false;
 }
 
 /*! Safe and convenient function for gmio_task_iface::func_handle_progress() */

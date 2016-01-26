@@ -30,7 +30,7 @@ GMIO_INLINE int32_t gmio_stringstream_strtol10(
         struct gmio_stringstream* sstream)
 {
     const char* in = gmio_stringstream_current_char(sstream);
-    const gmio_bool_t inv = (*in == '-');
+    const bool inv = (*in == '-');
     int value = 0;
 
     if (inv || *in == '+')
@@ -84,7 +84,7 @@ GMIO_INLINE struct gmio_stringstream_strtof10_result
 GMIO_INLINE float gmio_stringstream_fast_atof(struct gmio_stringstream* sstream)
 {
     const char* in = gmio_stringstream_current_char(sstream);
-    const gmio_bool_t negative = ('-' == *in);
+    const bool negative = ('-' == *in);
     float value = 0.f;
 
     /* Please run the regression test when making any modifications to this
