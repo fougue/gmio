@@ -55,6 +55,7 @@ set(GMIO_TEST_STL_SRC
         test_stl_internal.c
         test_stl_io.c
         test_stl_infos.c
+        test_stlb_header.c
         core_utils.c
         stl_utils.c)
 if(GMIO_BUILD_SHARED_LIBS)

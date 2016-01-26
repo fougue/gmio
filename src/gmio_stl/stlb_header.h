@@ -47,7 +47,7 @@ struct gmio_stlb_header gmio_stlb_header_str(const char* str);
 /*! Copies \p header into C string \p str
  *
  *  It replaces non-printable bytes with \p replacement char.
- *  \p str must be at least \c GMIO_STLB_HEADER_SIZE long, a terminating null
+ *  \p str must be at least \c GMIO_STLB_HEADER_SIZE+1 long, a terminating null
  *  character ('\0') is copied at position \c GMIO_STLB_HEADER_SIZE
  */
 GMIO_LIBSTL_EXPORT
