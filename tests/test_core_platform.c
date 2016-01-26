@@ -59,8 +59,8 @@ const char* test_platform__global_h()
     UTEST_ASSERT(sizeof(uint64_t) == 8);
 #endif
 
-    UTEST_ASSERT(sizeof(gmio_float32_t) == 4);
-    UTEST_ASSERT(sizeof(gmio_float64_t) == 8);
+    UTEST_ASSERT(sizeof(float) == 4);
+    UTEST_ASSERT(sizeof(double) == 8);
 
     return NULL;
 }

@@ -86,11 +86,11 @@ static void gmio_test_atof_fprintf_err(
 
 static gmio_bool_t gmio_test_calculation_atof(const char* val_str)
 {
-    const gmio_float32_t std_val = (gmio_float32_t)strtod(val_str, NULL);
+    const float std_val = (float)strtod(val_str, NULL);
     int accurate_count = 0;
 
     { /* Test fast_atof() */
-        const gmio_float32_t fast_val = fast_atof(val_str);
+        const float fast_val = fast_atof(val_str);
         if (gmio_float32_ulp_equals(fast_val, std_val, 1))
             ++accurate_count;
         else
@@ -105,7 +105,7 @@ static gmio_bool_t gmio_test_calculation_atof(const char* val_str)
                 gmio_stringstream(
                     gmio_istream_buffer(&ibuff),
                     gmio_string(iobuff, 0, sizeof(iobuff)));
-        const gmio_float32_t fast_val = gmio_stringstream_fast_atof(&sstream);
+        const float fast_val = gmio_stringstream_fast_atof(&sstream);
         if (gmio_float32_ulp_equals(fast_val, std_val, 1)) {
             ++accurate_count;
         }

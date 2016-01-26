@@ -152,13 +152,6 @@ enum gmio_bool_value
 typedef int_or_bool gmio_bool_t;
 #endif /* GMIO_HAVE_STDBOOL_H */
 
-/* Float types */
-/*! Typedef for 32bit real type (float) */
-typedef float  gmio_float32_t;
-
-/*! Typedef for 64bit real type (double) */
-typedef double gmio_float64_t;
-
 /* GMIO_UNUSED */
 /*! Tells the compiler that a parameter is not used in the body of a function */
 #define GMIO_UNUSED(x) (void)x;

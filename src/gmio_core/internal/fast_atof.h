@@ -25,6 +25,231 @@ GMIO_INLINE gmio_bool_t is_local_decimal_point(char in)
     return in == '.';
 }
 
+/* #define ASSIMP_FAST_ATOF */
+#define IRRLICH_FAST_ATOF
+
+#if defined(ASSIMP_FAST_ATOF)
+
+static const double fast_atof_table[16] =  {  // we write [16] here instead of [] to work around a swig bug
+    0.0,
+    0.1,
+    0.01,
+    0.001,
+    0.0001,
+    0.00001,
+    0.000001,
+    0.0000001,
+    0.00000001,
+    0.000000001,
+    0.0000000001,
+    0.00000000001,
+    0.000000000001,
+    0.0000000000001,
+    0.00000000000001,
+    0.000000000000001
+};
+
+/* ------------------------------------------------------------------------------------
+ * Special version of the function, providing higher accuracy and safety
+ * It is mainly used by fast_atof to prevent ugly and unwanted integer overflows.
+ * ------------------------------------------------------------------------------------ */
+GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned int* max_inout)
+{
+    unsigned int cur = 0;
+    uint64_t value = 0;
+    const gmio_bool_t running = GMIO_TRUE;
+
+    if ( !gmio_ascii_isdigit(*in) )
+        return value;
+        /* throw std::invalid_argument(std::string("The string \"") + in + "\" cannot be converted into a value."); */
+
+    while ( running )
+    {
+        const uint64_t new_value = ( value * 10 ) + ( *in - '0' );
+
+        if ( !gmio_ascii_isdigit(*in) )
+            break;
+
+        if (new_value < value) /* numeric overflow, we rely on you */
+            return value;
+            /* throw std::overflow_error(std::string("Converting the string \"") + in + "\" into a value resulted in overflow."); */
+
+        value = new_value;
+
+        ++in;
+        ++cur;
+
+        if (max_inout && *max_inout == cur) {
+
+            if (out) { /* skip to end */
+                while (gmio_ascii_isdigit(*in))
+                    ++in;
+                *out = in;
+            }
+
+            return value;
+        }
+    }
+    if (out)
+        *out = in;
+
+    if (max_inout)
+        *max_inout = cur;
+
+    return value;
+}
+
+/* ------------------------------------------------------------------------------------
+ * signed variant of strtoul10_64
+ * ------------------------------------------------------------------------------------*/
+GMIO_INLINE int64_t strtol10_64(const char* in, const char** out, unsigned int* max_inout)
+{
+    const gmio_bool_t inv = (*in == '-');
+    int64_t value;
+    if (inv || *in == '+')
+        ++in;
+
+    value = strtoul10_64(in, out, max_inout);
+    if (inv) {
+        value = -value;
+    }
+    return value;
+}
+
+
+/* Number of relevant decimals for floating-point parsing. */
+#define AI_FAST_ATOF_RELAVANT_DECIMALS 15
+
+/* ------------------------------------------------------------------------------------
+ * Provides a fast function for converting a string into a float,
+ * about 6 times faster than atof in win32.
+ * If you find any bugs, please send them to me, niko (at) irrlicht3d.org.
+ * ------------------------------------------------------------------------------------*/
+GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, gmio_bool_t check_comma)
+{
+    double f = 0;
+    const gmio_bool_t inv = (*c == '-');
+
+    if (inv || *c == '+') {
+        ++c;
+    }
+
+    if ((c[0] == 'N' || c[0] == 'n') && gmio_ascii_strincmp(c, "nan", 3) == 0)
+    {
+        /* TODO: write NAN */
+        /* out = std::numeric_limits<Real>::quiet_NaN(); */
+        c += 3;
+        return c;
+    }
+
+    if ((c[0] == 'I' || c[0] == 'i') && gmio_ascii_strincmp(c, "inf", 3) == 0)
+    {
+        /* TODO: write INF */
+        /* out = std::numeric_limits<Real>::infinity(); */
+        if (inv) {
+            *out = -(*out);
+        }
+        c += 3;
+        if ((c[0] == 'I' || c[0] == 'i') && gmio_ascii_strincmp(c, "inity", 5) == 0)
+        {
+            c += 5;
+        }
+        return c;
+    }
+
+    if (!gmio_ascii_isdigit(c[0]) &&
+        !((c[0] == '.' || (check_comma && c[0] == ',')) && gmio_ascii_isdigit(c[1])))
+    {
+        return c;
+        /*throw std::invalid_argument("Cannot parse string "
+                                    "as real number: does not start with digit "
+                                    "or decimal point followed by digit.");*/
+    }
+
+    if (*c != '.' && (!check_comma || c[0] != ','))
+    {
+        f = (double)strtoul10_64(c, &c, NULL);
+    }
+
+    if ((*c == '.' || (check_comma && c[0] == ',')) && gmio_ascii_isdigit(c[1]))
+    {
+        unsigned int diff = AI_FAST_ATOF_RELAVANT_DECIMALS;
+        double pl;
+        ++c;
+
+        /* NOTE: The original implementation is highly inaccurate here. The precision of a single
+         * IEEE 754 float is not high enough, everything behind the 6th digit tends to be more
+         * inaccurate than it would need to be. Casting to double seems to solve the problem.
+         * strtol_64 is used to prevent integer overflow.
+         *
+         * Another fix: this tends to become 0 for long numbers if we don't limit the maximum
+         * number of digits to be read. AI_FAST_ATOF_RELAVANT_DECIMALS can be a value between
+         * 1 and 15. */
+        pl = (double)strtoul10_64(c, &c, &diff);
+
+        pl *= fast_atof_table[diff];
+        f += pl;
+    }
+    /* For backwards compatibility: eat trailing dots, but not trailing commas. */
+    else if (*c == '.') {
+        ++c;
+    }
+
+    /* A major 'E' must be allowed. Necessary for proper reading of some DXF files.
+     * Thanks to Zhao Lei to point out that this if() must be outside the if (*c == '.' ..) */
+    if (*c == 'e' || *c == 'E') {
+        const gmio_bool_t einv = (*(c+1)=='-');
+        double exp;
+
+        ++c;
+        if (einv || *c=='+') {
+            ++c;
+        }
+
+        /* The reason float constants are used here is that we've seen cases where compilers
+         * would perform such casts on compile-time constants at runtime, which would be
+         * bad considering how frequently fast_atoreal_move<float> is called in Assimp. */
+        exp = (double)strtoul10_64(c, &c, NULL);
+        if (einv) {
+            exp = -exp;
+        }
+        f *= pow(10.0, exp);
+    }
+
+    if (inv) {
+        f = -f;
+    }
+    *out = f;
+    return c;
+}
+
+GMIO_INLINE float fast_atof(const char* c)
+{
+    double ret;
+    fast_atoreal_move(c, &ret, GMIO_TRUE);
+    return (float)ret;
+}
+
+GMIO_INLINE double fast_atod(const char* c)
+{
+    double ret;
+    fast_atoreal_move(c, &ret, GMIO_TRUE);
+    return ret;
+}
+
+GMIO_INLINE float fast_strtof(const char* str, const char** out)
+{
+    double ret;
+    if (out)
+        *out = fast_atoreal_move(str, &ret, GMIO_TRUE);
+    else
+        fast_atoreal_move(str, &ret, GMIO_TRUE);
+    return (float)ret;
+}
+
+
+#elif defined(IRRLICH_FAST_ATOF)
+
 /* we write [17] here instead of [] to work around a swig bug */
 static const float fast_atof_table[17] = {
     0.f,
@@ -184,5 +409,6 @@ GMIO_INLINE float fast_atof(const char* str)
     fast_atof_move(str, &ret);
     return ret;
 }
+#endif
 
 #endif /* GMIO_INTERNAL_FAST_ATOF_H */

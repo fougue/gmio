@@ -15,8 +15,7 @@
 
 #include "numeric_utils.h"
 
-gmio_bool_t gmio_float32_ulp_equals(
-        gmio_float32_t a, gmio_float32_t b, uint32_t max_ulp_diff)
+gmio_bool_t gmio_float32_ulp_equals(float a, float b, uint32_t max_ulp_diff)
 {
     const int32_t ia = gmio_convert_int32(a);
     const int32_t ib = gmio_convert_int32(b);

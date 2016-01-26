@@ -31,11 +31,11 @@
 
 enum { GMIO_FIXED_BUFFER_SIZE = 1024 };
 
-GMIO_INLINE gmio_float32_t gmio_sqrlen(const struct gmio_stl_coords* c)
+GMIO_INLINE float gmio_sqrlen(const struct gmio_stl_coords* c)
 {
-    const gmio_float32_t cx = c->x;
-    const gmio_float32_t cy = c->y;
-    const gmio_float32_t cz = c->z;
+    const float cx = c->x;
+    const float cy = c->y;
+    const float cz = c->z;
     return cx*cx + cy*cy + cz*cz;
 }
 

@@ -100,7 +100,7 @@ gmio_bool_t gmio_stringstream_checked_next_chars(
 #endif
 
 /*! Parses float from stringstream \p sstream */
-GMIO_INLINE gmio_float32_t gmio_stringstream_parse_float32(
+GMIO_INLINE float gmio_stringstream_parse_float32(
         struct gmio_stringstream* sstream);
 
 /*! Converts C string \p str to float
@@ -110,13 +110,13 @@ GMIO_INLINE gmio_float32_t gmio_stringstream_parse_float32(
  *
  *  TODO: move to another header
  */
-GMIO_INLINE int gmio_get_float32(const char* str, gmio_float32_t* value_ptr);
+GMIO_INLINE int gmio_get_float32(const char* str, float* value_ptr);
 
 /*! Converts C string \p str to float
  *
  *  TODO: move to another header
  */
-GMIO_INLINE gmio_float32_t gmio_to_float32(const char* str);
+GMIO_INLINE float gmio_to_float32(const char* str);
 
 
 
@@ -191,7 +191,7 @@ void gmio_stringstream_copy_ascii_spaces(
     }
 }
 
-int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
+int gmio_get_float32(const char* str, float* value_ptr)
 {
 #if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
     const char* end_ptr = NULL;
@@ -201,23 +201,23 @@ int gmio_get_float32(const char* str, gmio_float32_t* value_ptr)
     *value_ptr = strtof(str, &end_ptr);
 #else
     char* end_ptr = NULL;
-    *value_ptr = (gmio_float32_t)strtod(str, &end_ptr);
+    *value_ptr = (float)strtod(str, &end_ptr);
 #endif
     return (end_ptr == str || errno == ERANGE) ? -1 : 0;
 }
 
-gmio_float32_t gmio_to_float32(const char* str)
+float gmio_to_float32(const char* str)
 {
 #if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
     return fast_atof(str);
 #elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
     return strtof(str, NULL);
 #else
-    return (gmio_float32_t)strtod(str, NULL);
+    return (float)strtod(str, NULL);
 #endif
 }
 
-gmio_float32_t gmio_stringstream_parse_float32(struct gmio_stringstream* sstream)
+float gmio_stringstream_parse_float32(struct gmio_stringstream* sstream)
 {
 #if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
     return gmio_stringstream_fast_atof(sstream);
@@ -225,7 +225,7 @@ gmio_float32_t gmio_stringstream_parse_float32(struct gmio_stringstream* sstream
     char strbuff_ptr[64];
     struct gmio_string strbuff = { &strbuff_ptr[0], 0, sizeof(strbuff_ptr) };
     gmio_stringstream_eat_word(sstream, &strbuff);
-    return (gmio_float32_t)atof(strbuff_ptr);
+    return (float)atof(strbuff_ptr);
 #endif
 }
 

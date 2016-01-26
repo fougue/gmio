@@ -29,9 +29,9 @@
  *  STL needs (single-float) */
 struct gmio_stl_coords
 {
-    gmio_float32_t x;
-    gmio_float32_t y;
-    gmio_float32_t z;
+    float x;
+    float y;
+    float z;
 };
 
 /*! STL mesh triangle defined three geometric vertices and an
