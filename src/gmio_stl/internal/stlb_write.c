@@ -31,53 +31,76 @@
 
 #include <string.h>
 
-GMIO_INLINE void write_triangle_memcpy(
-        const struct gmio_stl_triangle* triangle, uint8_t* mblock)
+GMIO_INLINE void encode_facet(
+        const struct gmio_stl_triangle* triangle, uint8_t* buffer)
 {
-    memcpy(mblock, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
+    memcpy(buffer, triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
-static void gmio_stlb_write_facets(
+typedef void (*func_gmio_stlb_encode_facets_t)(
+        const struct gmio_stl_mesh*,
+        uint8_t*,        /* buffer */
+        const uint32_t,  /* facet_count */
+        const uint32_t); /* i_facet_offset */
+
+static void gmio_stlb_encode_facets(
         const struct gmio_stl_mesh* mesh,
-        uint8_t* mblock,
-        const struct gmio_stlb_readwrite_helper* wparams)
+        uint8_t* buffer,
+        const uint32_t facet_count,
+        const uint32_t i_facet_offset)
 {
-    const uint32_t facet_count = wparams->facet_count;
-    const uint32_t i_facet_offset = wparams->i_facet_offset;
-    const gmio_stl_triangle_func_fix_endian_t func_fix_endian =
-            wparams->func_fix_endian;
     const gmio_stl_mesh_func_get_triangle_t func_get_triangle =
             mesh->func_get_triangle;
     const void* cookie = mesh->cookie;
     struct gmio_stl_triangle triangle;
-    uint32_t mblock_offset = 0;
-    uint32_t i_facet = 0;
+    uint32_t i_facet;
 
     triangle.attribute_byte_count = 0;
     for (i_facet = 0; i_facet < facet_count; ++i_facet) {
         func_get_triangle(cookie, i_facet_offset + i_facet, &triangle);
+        encode_facet(&triangle, buffer);
+        buffer += GMIO_STLB_TRIANGLE_RAWSIZE;
+    }
+}
 
-        if (func_fix_endian != NULL)
-            func_fix_endian(&triangle);
+static void gmio_stlb_encode_facets_byteswap(
+        const struct gmio_stl_mesh* mesh,
+        uint8_t* buffer,
+        const uint32_t facet_count,
+        const uint32_t i_facet_offset)
+{
+    const gmio_stl_mesh_func_get_triangle_t func_get_triangle =
+            mesh->func_get_triangle;
+    const void* cookie = mesh->cookie;
+    struct gmio_stl_triangle triangle;
+    uint32_t i_facet;
 
-        write_triangle_memcpy(&triangle, mblock + mblock_offset);
-        mblock_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
-    } /* end for */
+    triangle.attribute_byte_count = 0;
+    for (i_facet = 0; i_facet < facet_count; ++i_facet) {
+        func_get_triangle(cookie, i_facet_offset + i_facet, &triangle);
+        gmio_stl_triangle_bswap(&triangle);
+        encode_facet(&triangle, buffer);
+        buffer += GMIO_STLB_TRIANGLE_RAWSIZE;
+    }
 }
 
 int gmio_stlb_write(
         struct gmio_stl_write_args* args, enum gmio_endianness byte_order)
 {
     /* Constants */
-    const uint32_t facet_count =
-            args->mesh.triangle_count;
-    const gmio_bool_t write_triangles_only =
-            args->options.stl_write_triangles_only;
+    const uint32_t facet_count = args->mesh.triangle_count;
+    const func_gmio_stlb_encode_facets_t func_encode_facets =
+            byte_order != GMIO_ENDIANNESS_HOST ?
+                gmio_stlb_encode_facets_byteswap :
+                gmio_stlb_encode_facets;
+
     /* Variables */
     struct gmio_rwargs* core_args = &args->core;
+    uint32_t i_facet = 0; /* Facet counter */
+    uint32_t write_facet_count =
+            gmio_size_to_uint32(
+                core_args->stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
     void* mblock_ptr = core_args->stream_memblock.ptr;
-    struct gmio_stlb_readwrite_helper wparams = {0};
-    uint32_t i_facet = 0;
     int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
@@ -87,15 +110,7 @@ int gmio_stlb_write(
         return error;
     }
 
-    /* Initialize wparams */
-    if (byte_order != GMIO_ENDIANNESS_HOST)
-        wparams.func_fix_endian = gmio_stl_triangle_bswap;
-    /* Note: trsf != NULL  certified by gmio_stlb_check_params() */
-    /* coverity[var_deref_op : FALSE] */
-    wparams.facet_count = gmio_size_to_uint32(
-                core_args->stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
-
-    if (!write_triangles_only) {
+    if (!args->options.stl_write_triangles_only) {
         error = gmio_stlb_write_header(
                     &core_args->stream,
                     byte_order,
@@ -108,24 +123,22 @@ int gmio_stlb_write(
     /* Write triangles */
     for (i_facet = 0;
          i_facet < facet_count && gmio_no_error(error);
-         i_facet += wparams.facet_count)
+         i_facet += write_facet_count)
     {
         gmio_rwargs_handle_progress(core_args, i_facet, facet_count);
 
         /* Write to memory block */
-        wparams.facet_count = GMIO_MIN(wparams.facet_count,
-                                       facet_count - wparams.i_facet_offset);
-
-        gmio_stlb_write_facets(&args->mesh, mblock_ptr, &wparams);
-        wparams.i_facet_offset += wparams.facet_count;
+        write_facet_count = GMIO_MIN(write_facet_count, facet_count - i_facet);
+        func_encode_facets(
+                    &args->mesh, mblock_ptr, write_facet_count, i_facet);
 
         /* Write memory block to stream */
         if (gmio_stream_write(
                     &core_args->stream,
                     mblock_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
-                    wparams.facet_count)
-                != wparams.facet_count)
+                    write_facet_count)
+                != write_facet_count)
         {
             error = GMIO_ERROR_STREAM;
         }

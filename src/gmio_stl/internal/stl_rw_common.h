@@ -27,13 +27,6 @@ struct gmio_memblock;
 struct gmio_rwargs;
 struct gmio_stl_mesh;
 
-struct gmio_stlb_readwrite_helper
-{
-    uint32_t facet_count;
-    uint32_t i_facet_offset;
-    gmio_stl_triangle_func_fix_endian_t func_fix_endian;
-};
-
 gmio_bool_t gmio_check_rwargs(int* error, const struct gmio_rwargs* args);
 gmio_bool_t gmio_check_memblock(int* error, const struct gmio_memblock* mblock);
 

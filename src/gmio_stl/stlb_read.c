@@ -32,41 +32,59 @@
 
 #include <string.h>
 
-GMIO_INLINE void read_triangle_memcpy(
+GMIO_INLINE void decode_facet(
         const uint8_t* buffer, struct gmio_stl_triangle* triangle)
 {
     /* *triangle = *((struct gmio_stl_triangle*)(buffer)); */
     memcpy(triangle, buffer, GMIO_STLB_TRIANGLE_RAWSIZE);
 }
 
-static void gmio_stlb_read_facets(
+typedef void (*func_gmio_stlb_decode_facets_t)(
+        struct gmio_stl_mesh_creator*,
+        const uint8_t*,  /* buffer */
+        const uint32_t,  /* facet_count */
+        const uint32_t); /* i_facet_offset */
+
+static void gmio_stlb_decode_facets(
         struct gmio_stl_mesh_creator* creator,
         const uint8_t* buffer,
-        const struct gmio_stlb_readwrite_helper* rparams)
+        const uint32_t facet_count,
+        const uint32_t i_facet_offset)
 {
-    const uint32_t facet_count = rparams->facet_count;
-    const uint32_t i_facet_offset = rparams->i_facet_offset;
-    const gmio_stl_triangle_func_fix_endian_t func_fix_endian =
-            rparams->func_fix_endian;
-    /* coverity[var_deref_op : FALSE] */
     const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
-            creator != NULL ? creator->func_add_triangle : NULL;
+            creator->func_add_triangle;
     void* cookie = creator->cookie;
-    struct gmio_stl_triangle triangle;
-    uint32_t buffer_offset = 0;
-    uint32_t i_facet = 0;
 
-    if (func_add_triangle == NULL)
-        return;
+    if (func_add_triangle != NULL) {
+        struct gmio_stl_triangle triangle;
+        uint32_t i_facet;
+        for (i_facet = 0; i_facet < facet_count; ++i_facet) {
+            decode_facet(buffer, &triangle);
+            buffer += GMIO_STLB_TRIANGLE_RAWSIZE;
+            func_add_triangle(cookie, i_facet_offset + i_facet, &triangle);
+        }
+    }
+}
 
-    for (i_facet = 0; i_facet < facet_count; ++i_facet) {
-        read_triangle_memcpy(buffer + buffer_offset, &triangle);
-        buffer_offset += GMIO_STLB_TRIANGLE_RAWSIZE;
+static void gmio_stlb_decode_facets_byteswap(
+        struct gmio_stl_mesh_creator* creator,
+        const uint8_t* buffer,
+        const uint32_t facet_count,
+        const uint32_t i_facet_offset)
+{
+    const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
+            creator->func_add_triangle;
+    void* cookie = creator->cookie;
 
-        if (func_fix_endian != NULL)
-            func_fix_endian(&triangle);
-
-        func_add_triangle(cookie, i_facet_offset + i_facet, &triangle);
+    if (func_add_triangle != NULL) {
+        struct gmio_stl_triangle triangle;
+        uint32_t i_facet;
+        for (i_facet = 0; i_facet < facet_count; ++i_facet) {
+            decode_facet(buffer, &triangle);
+            buffer += GMIO_STLB_TRIANGLE_RAWSIZE;
+            gmio_stl_triangle_bswap(&triangle);
+            func_add_triangle(cookie, i_facet_offset + i_facet, &triangle);
+        }
     }
 }
 
@@ -79,11 +97,15 @@ int gmio_stlb_read(
     struct gmio_rwargs* core_args = &args->core;
     struct gmio_stl_mesh_creator* mesh_creator = &args->mesh_creator;
     void* mblock_ptr = core_args->stream_memblock.ptr;
-    struct gmio_stlb_readwrite_helper rparams = {0};
     struct gmio_stlb_header header;
+    uint32_t i_facet = 0; /* Facet counter */
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
     int error = GMIO_ERROR_OK; /* Helper to store function result error code */
     /* Constants */
+    const func_gmio_stlb_decode_facets_t func_decode_facets =
+            byte_order != GMIO_ENDIANNESS_HOST ?
+                gmio_stlb_decode_facets_byteswap :
+                gmio_stlb_decode_facets;
     const uint32_t max_facet_count_per_read =
                 gmio_size_to_uint32(
                     args->core.stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
@@ -91,10 +113,6 @@ int gmio_stlb_read(
     /* Check validity of input parameters */
     if (!gmio_stlb_check_params(&error, core_args, byte_order))
         goto label_end;
-
-    /* Initialize rparams */
-    if (byte_order != GMIO_ENDIANNESS_HOST)
-        rparams.func_fix_endian = gmio_stl_triangle_bswap;
 
     /* Read header */
     if (gmio_stream_read(&core_args->stream, &header, GMIO_STLB_HEADER_SIZE, 1)
@@ -121,38 +139,37 @@ int gmio_stlb_read(
                 mesh_creator, total_facet_count, &header);
 
     /* Read triangles */
-    while (gmio_no_error(error)
-           && rparams.i_facet_offset < total_facet_count)
-    {
-        gmio_rwargs_handle_progress(
-                    core_args, rparams.i_facet_offset, total_facet_count);
-
-        rparams.facet_count =
+    gmio_rwargs_handle_progress(core_args, 0, total_facet_count);
+    while (gmio_no_error(error) && i_facet < total_facet_count) {
+        const uint32_t read_facet_count =
                 gmio_size_to_uint32(
                     gmio_stream_read(
                         &core_args->stream,
                         mblock_ptr,
                         GMIO_STLB_TRIANGLE_RAWSIZE,
                         max_facet_count_per_read));
+
         if (gmio_stream_error(&core_args->stream) != 0)
             error = GMIO_ERROR_STREAM;
-        else if (rparams.facet_count > 0)
+        else if (read_facet_count > 0)
             error = GMIO_ERROR_OK;
         else
             break; /* Exit if no facet to read */
 
         if (gmio_no_error(error)) {
-            gmio_stlb_read_facets(mesh_creator, mblock_ptr, &rparams);
-            rparams.i_facet_offset += rparams.facet_count;
+            func_decode_facets(
+                        mesh_creator, mblock_ptr, read_facet_count, i_facet);
+            i_facet += read_facet_count;
             if (gmio_rwargs_is_stop_requested(core_args))
                 error = GMIO_ERROR_TRANSFER_STOPPED;
         }
+        gmio_rwargs_handle_progress(core_args, i_facet, total_facet_count);
     } /* end while */
 
     if (gmio_no_error(error))
         gmio_stl_mesh_creator_end_solid(mesh_creator);
 
-    if (gmio_no_error(error) && rparams.i_facet_offset != total_facet_count)
+    if (gmio_no_error(error) && i_facet != total_facet_count)
         error = GMIO_STL_ERROR_FACET_COUNT;
 
 label_end:
