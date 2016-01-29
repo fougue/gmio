@@ -24,17 +24,17 @@
 #include "../../gmio_core/endian.h"
 
 struct gmio_memblock;
-struct gmio_rwargs;
 struct gmio_stl_mesh;
 
-bool gmio_check_rwargs(int* error, const struct gmio_rwargs* args);
 bool gmio_check_memblock(int* error, const struct gmio_memblock* mblock);
+
+bool gmio_check_memblock_size(
+        int* error, const struct gmio_memblock* mblock, size_t minsize);
 
 bool gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
 
-bool gmio_stlb_check_params(
-        int* error,
-        const struct gmio_rwargs* args,
-        enum gmio_endianness byte_order);
+bool gmio_stla_check_float32_precision(int* error, uint8_t prec);
+
+bool gmio_stlb_check_byteorder(int* error, enum gmio_endianness byte_order);
 
 #endif /* GMIO_INTERNAL_STLB_RW_COMMON_H */

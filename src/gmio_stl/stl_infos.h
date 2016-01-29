@@ -14,7 +14,7 @@
 ****************************************************************************/
 
 /*! \file stl_infos.h
- *  TODO: description
+ *  Retrieval of STL infos from input stream
  *
  *  \addtogroup gmio_stl
  *  @{
@@ -25,7 +25,6 @@
 
 #include "stl_global.h"
 
-#include "../gmio_core/rwargs.h"
 #include "../gmio_core/internal/helper_stream.h"
 
 #include <stddef.h>
@@ -36,6 +35,9 @@
 /*! Informations retrieved by gmio_stl_infos_get() */
 struct gmio_stl_infos
 {
+    /*! STL format of the input stream */
+    enum stl_format format;
+
     /*! Count of facets(triangles) */
     uint32_t facet_count;
 
@@ -78,24 +80,28 @@ enum gmio_stl_info_flag
     GMIO_STL_INFO_FLAG_SOLIDNAME_OR_HEADER =
         GMIO_STLA_INFO_FLAG_SOLIDNAME | GMIO_STLB_INFO_FLAG_HEADER,
 
+    /*! -> gmio_stl_infos::format */
+    GMIO_STL_INFO_FLAG_FORMAT = 0x0010,
+
     /*! All infos */
     GMIO_STL_INFO_FLAG_ALL = 0xFFFF
 };
 
-/*! Objects to be passed to gmio_stl_infos_get() */
-struct gmio_stl_infos_get_args
+/*! Optional parameters of gmio_stl_infos_get() */
+struct gmio_stl_infos_get_options
 {
-    /*! Input stream */
-    struct gmio_stream stream;
-
-    /*! Optional memory block used by the stream to bufferize read operations
-     *
-     *  If null, then a temporary memblock is created with the global default
-     *  constructor function (see gmio_memblock_default()) */
+    /*! See gmio_core_readwrite_options::stream_memblock */
     struct gmio_memblock stream_memblock;
 
-    /*! Output informations */
-    struct gmio_stl_infos infos;
+    /*! Assume STL input format, if GMIO_STL_FORMAT_UNKNOWN then it is
+     *  automatically guessed */
+    enum gmio_stl_format format_hint;
+
+    /*! Restrict gmio_stl_infos_get() to not read further this limit
+     *
+     *  Not yet supported
+     */
+    gmio_streamsize_t size_limit;
 };
 
 GMIO_C_LINKAGE_BEGIN
@@ -106,9 +112,10 @@ GMIO_C_LINKAGE_BEGIN
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_infos_get(
-        struct gmio_stl_infos_get_args* args,
-        enum gmio_stl_format format,
-        unsigned flags);
+        struct gmio_stl_infos* infos,
+        struct gmio_stream stream,
+        unsigned flags, /*!< Bitor combination of gmio_stl_info_flag values */
+        const struct gmio_stl_infos_get_options* options);
 
 GMIO_C_LINKAGE_END
 

@@ -24,8 +24,9 @@
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_codec.h"
+#include "../../gmio_core/internal/helper_memblock.h"
+#include "../../gmio_core/internal/helper_task_iface.h"
 #include "../../gmio_core/internal/min_max.h"
-#include "../../gmio_core/internal/helper_rwargs.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
@@ -85,39 +86,45 @@ static void gmio_stlb_encode_facets_byteswap(
 }
 
 int gmio_stlb_write(
-        struct gmio_stl_write_args* args, enum gmio_endianness byte_order)
+        enum gmio_endianness byte_order,
+        struct gmio_stream stream,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* opts)
 {
     /* Constants */
-    const uint32_t facet_count = args->mesh.triangle_count;
+    const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
+    struct gmio_memblock_helper mblock_helper =
+            gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
+    const size_t mblock_size = mblock_helper.memblock.size;
+    const uint32_t facet_count = mesh.triangle_count;
     const func_gmio_stlb_encode_facets_t func_encode_facets =
             byte_order != GMIO_ENDIANNESS_HOST ?
                 gmio_stlb_encode_facets_byteswap :
                 gmio_stlb_encode_facets;
+    const bool write_triangles_only =
+            opts != NULL ? opts->stl_write_triangles_only : false;
+    const struct gmio_stlb_header* header =
+            opts != NULL ? &opts->stlb_header : NULL;
 
     /* Variables */
-    struct gmio_rwargs* core_args = &args->core;
     uint32_t i_facet = 0; /* Facet counter */
     uint32_t write_facet_count =
-            gmio_size_to_uint32(
-                core_args->stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
-    void* mblock_ptr = core_args->stream_memblock.ptr;
+            gmio_size_to_uint32(mblock_size / GMIO_STLB_TRIANGLE_RAWSIZE);
+    void* const mblock_ptr = mblock_helper.memblock.ptr;
     int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
-    if (!gmio_stl_check_mesh(&error, &args->mesh)
-            || !gmio_stlb_check_params(&error, core_args, byte_order))
-    {
-        return error;
-    }
+    if (!gmio_check_memblock(&error, &mblock_helper.memblock))
+        goto label_end;
+    if (!gmio_stl_check_mesh(&error, &mesh))
+        goto label_end;
+    if (!gmio_stlb_check_byteorder(&error, byte_order))
+        goto label_end;
 
-    if (!args->options.stl_write_triangles_only) {
-        error = gmio_stlb_write_header(
-                    &core_args->stream,
-                    byte_order,
-                    args->options.stlb_header,
-                    facet_count);
+    if (!write_triangles_only) {
+        error = gmio_stlb_write_header(&stream, byte_order, header, facet_count);
         if (gmio_error(error))
-            return error;
+            goto label_end;
     }
 
     /* Write triangles */
@@ -125,16 +132,15 @@ int gmio_stlb_write(
          i_facet < facet_count && gmio_no_error(error);
          i_facet += write_facet_count)
     {
-        gmio_rwargs_handle_progress(core_args, i_facet, facet_count);
+        gmio_task_iface_handle_progress(task, i_facet, facet_count);
 
         /* Write to memory block */
         write_facet_count = GMIO_MIN(write_facet_count, facet_count - i_facet);
-        func_encode_facets(
-                    &args->mesh, mblock_ptr, write_facet_count, i_facet);
+        func_encode_facets(&mesh, mblock_ptr, write_facet_count, i_facet);
 
         /* Write memory block to stream */
         if (gmio_stream_write(
-                    &core_args->stream,
+                    &stream,
                     mblock_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     write_facet_count)
@@ -144,9 +150,11 @@ int gmio_stlb_write(
         }
 
         /* Handle stop request */
-        if (gmio_no_error(error) && gmio_rwargs_is_stop_requested(core_args))
+        if (gmio_no_error(error) && gmio_task_iface_is_stop_requested(task))
             error = GMIO_ERROR_TRANSFER_STOPPED;
     } /* end for */
 
+label_end:
+    gmio_memblock_helper_release(&mblock_helper);
     return error;
 }

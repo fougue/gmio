@@ -43,7 +43,7 @@ void stl_testcase_result__ascii_begin_solid(
     if (res != NULL) {
         res->solid_name[0] = 0;
         if (solid_name != NULL)
-            strcpy(&res->solid_name[0], solid_name);
+            strcpy(res->solid_name, solid_name);
     }
 }
 
@@ -127,18 +127,18 @@ const char* test_stl_read()
     const size_t expected_count =
             sizeof(expected) / sizeof(struct stl_testcase);
     size_t i; /* for loop counter */
-    struct gmio_stl_read_args read = {0};
+    struct gmio_stl_mesh_creator mesh_creator = {0};
     struct stl_testcase_result result = {0};
 
-    read.mesh_creator.cookie = &result;
-    read.mesh_creator.func_ascii_begin_solid = &stl_testcase_result__ascii_begin_solid;
-    read.mesh_creator.func_add_triangle = &gmio_stl_nop_add_triangle;
+    mesh_creator.cookie = &result;
+    mesh_creator.func_ascii_begin_solid = &stl_testcase_result__ascii_begin_solid;
+    mesh_creator.func_add_triangle = &gmio_stl_nop_add_triangle;
 
     for (i = 0; i < expected_count; ++i) {
         const enum gmio_stl_format format =
                 gmio_stl_get_format_file(expected[i].filepath);
         const int err =
-                gmio_stl_read_file(&read, expected[i].filepath);
+                gmio_stl_read_file(expected[i].filepath, mesh_creator, NULL);
 
         /* Check format */
         if (format != expected[i].format) {
@@ -149,7 +149,7 @@ const char* test_stl_read()
                    expected[i].format,
                    format);
         }
-        UTEST_ASSERT(format == expected[i].format);
+        UTEST_COMPARE_UINT(expected[i].format, format);
 
         /* Check error code */
         if (err != expected[i].errorcode) {
@@ -160,7 +160,7 @@ const char* test_stl_read()
                    expected[i].errorcode,
                    err);
         }
-        UTEST_ASSERT(err == expected[i].errorcode);
+        UTEST_COMPARE_UINT(expected[i].errorcode, err);
 
         /* Check solid name */
         if (expected[i].format == GMIO_STL_FORMAT_ASCII) {
@@ -174,7 +174,7 @@ const char* test_stl_read()
                        expected_name,
                        result.solid_name);
             }
-            UTEST_ASSERT(strcmp(result.solid_name, expected_name) == 0);
+            UTEST_COMPARE_CSTR(expected_name, result.solid_name);
         }
     }
 
@@ -197,17 +197,16 @@ const char* test_stlb_write_header()
         error = gmio_stlb_write_header(
                     &stream, GMIO_ENDIANNESS_LITTLE, &header, 0);
         fclose(outfile);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
     {
-        struct gmio_stl_read_args read = {0};
         struct gmio_stl_data data = {0};
-        read.mesh_creator = gmio_stl_data_mesh_creator(&data);
-        error = gmio_stl_read_file(&read, filepath);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        error = gmio_stl_read_file(
+                    filepath, gmio_stl_data_mesh_creator(&data), NULL);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
         UTEST_ASSERT(gmio_stlb_header_equal(&header, &data.header));
-        UTEST_ASSERT(data.tri_array.count == 0);
+        UTEST_COMPARE_UINT(0, data.tri_array.count);
     }
 
     return NULL;
@@ -232,26 +231,30 @@ const char* test_stlb_write()
 
     /* Read input model file */
     {
-        struct gmio_stl_read_args read = {0};
-        read.mesh_creator = gmio_stl_data_mesh_creator(&data);
-        error = gmio_stl_read_file(&read, model_filepath);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        error = gmio_stl_read_file(
+                    model_filepath, gmio_stl_data_mesh_creator(&data), NULL);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
     /* Write back input model file
      * Write also the model file in big-endian STL format
      */
     {
-        struct gmio_stl_write_args write = {0};
-        write.mesh = gmio_stl_data_mesh(&data);
-        write.options.stlb_header = &data.header;
+        struct gmio_stl_write_options opts = {0};
+        opts.stlb_header = data.header;
         error = gmio_stl_write_file(
-                    &write, GMIO_STL_FORMAT_BINARY_LE, model_filepath_out);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+                    GMIO_STL_FORMAT_BINARY_LE,
+                    model_filepath_out,
+                    gmio_stl_data_mesh(&data),
+                    &opts);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
 
         /* Big-endian version */
         error = gmio_stl_write_file(
-                    &write, GMIO_STL_FORMAT_BINARY_BE, model_filepath_out_be);
+                    GMIO_STL_FORMAT_BINARY_BE,
+                    model_filepath_out_be,
+                    gmio_stl_data_mesh(&data),
+                    &opts);
     }
 
     /* Check input and output models are equal */
@@ -269,13 +272,13 @@ const char* test_stlb_write()
             UTEST_FAIL("fopen() error for in/out model files");
         }
         do {
-            bytes_read_in = fread(&buffer_in[0], 1, buff_size, in);
-            bytes_read_out = fread(&buffer_out[0], 1, buff_size, out);
+            bytes_read_in = fread(buffer_in, 1, buff_size, in);
+            bytes_read_out = fread(buffer_out, 1, buff_size, out);
             if (bytes_read_in != bytes_read_out) {
                 fclose_2(in, out);
                 UTEST_FAIL("Different byte count between in/out");
             }
-            if (memcmp(&buffer_in[0], &buffer_out[0], buff_size) != 0) {
+            if (memcmp(buffer_in, buffer_out, buff_size) != 0) {
                 fclose_2(in, out);
                 UTEST_FAIL("Different buffer contents between in/out");
             }
@@ -287,12 +290,13 @@ const char* test_stlb_write()
     /* Check output LE/BE models are equal */
     {
         struct gmio_stl_data data_be = {0};
-        struct gmio_stl_read_args read = {0};
-        read.mesh_creator = gmio_stl_data_mesh_creator(&data_be);
-        error = gmio_stl_read_file(&read, model_filepath_out_be);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        error = gmio_stl_read_file(
+                    model_filepath_out_be,
+                    gmio_stl_data_mesh_creator(&data_be),
+                    NULL);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
         UTEST_ASSERT(gmio_stlb_header_equal(&data.header, &data_be.header));
-        UTEST_ASSERT(data.tri_array.count == data_be.tri_array.count);
+        UTEST_COMPARE_UINT(data.tri_array.count, data_be.tri_array.count);
         UTEST_ASSERT(memcmp(data.tri_array.ptr,
                             data_be.tri_array.ptr,
                             data.tri_array.count * sizeof(struct gmio_stl_triangle))
@@ -315,39 +319,40 @@ const char* test_stla_write()
 
     /* Read input model file */
     {
-        struct gmio_stl_read_args read = {0};
-        read.mesh_creator = gmio_stl_data_mesh_creator(&data);
-        error = gmio_stl_read_file(&read, model_filepath);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        error = gmio_stl_read_file(
+                    model_filepath, gmio_stl_data_mesh_creator(&data), NULL);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
     /* Write the model to STL ascii format */
     {
-        struct gmio_stl_write_args write = {0};
-        write.mesh = gmio_stl_data_mesh(&data);
-        gmio_stlb_header_to_printable_str(&data.header, &header_str[0], '_');
-        write.options.stla_solid_name = &header_str[0];
-        write.options.stla_float32_prec = 7;
-        write.options.stla_float32_format =
-                GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
+        struct gmio_stl_write_options opts = {0};
+        gmio_stlb_header_to_printable_str(&data.header, header_str, '_');
+        opts.stla_solid_name = header_str;
+        opts.stla_float32_prec = 7;
+        opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
         error = gmio_stl_write_file(
-                    &write, GMIO_STL_FORMAT_ASCII, model_filepath_out);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+                    GMIO_STL_FORMAT_ASCII,
+                    model_filepath_out,
+                    gmio_stl_data_mesh(&data),
+                    &opts);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
     /* Read the output STL ascii model */
     {
         char trim_header_str[sizeof(header_str)] = {0};
         struct gmio_stl_data data_stla = {0};
-        struct gmio_stl_read_args read = {0};
         size_t i = 0;
-        read.mesh_creator = gmio_stl_data_mesh_creator(&data_stla);
-        strncpy(&trim_header_str[0], &header_str[0], sizeof(header_str));
+        strncpy(trim_header_str, header_str, sizeof(header_str));
         gmio_string_trim_from_end(trim_header_str, sizeof(header_str));
-        error = gmio_stl_read_file(&read, model_filepath_out);
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
-        UTEST_ASSERT(data.tri_array.count == data_stla.tri_array.count);
-        UTEST_ASSERT(strcmp(&trim_header_str[0], &data_stla.solid_name[0]) == 0);
+        error = gmio_stl_read_file(
+                    model_filepath_out,
+                    gmio_stl_data_mesh_creator(&data_stla),
+                    NULL);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(data.tri_array.count, data_stla.tri_array.count);
+        UTEST_COMPARE_CSTR(trim_header_str, data_stla.solid_name);
         for (i = 0; i < data.tri_array.count; ++i) {
             const struct gmio_stl_triangle* lhs = &data.tri_array.ptr[i];
             const struct gmio_stl_triangle* rhs = &data_stla.tri_array.ptr[i];
@@ -377,19 +382,19 @@ void generate_stlb_tests_models()
             0                   /* attr */
         };
         struct gmio_stl_data data = {0};
-        struct gmio_stl_write_args write = {0};
 
         data.tri_array.ptr = &tri;
         data.tri_array.count = 1;
-        write.mesh = gmio_stl_data_mesh(&data);
 
         gmio_stl_write_file(
-                    &write,
                     GMIO_STL_FORMAT_BINARY_LE,
-                    "models/solid_one_facet.le_stlb");
+                    "models/solid_one_facet.le_stlb",
+                    gmio_stl_data_mesh(&data),
+                    NULL);
         gmio_stl_write_file(
-                    &write,
                     GMIO_STL_FORMAT_BINARY_BE,
-                    "models/solid_one_facet.be_stlb");
+                    "models/solid_one_facet.be_stlb",
+                    gmio_stl_data_mesh(&data),
+                    NULL);
     }
 }

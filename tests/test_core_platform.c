@@ -16,7 +16,7 @@
 #include "utest_assert.h"
 
 #include "../src/gmio_core/global.h"
-#include "../src/gmio_core/rwargs.h"
+#include "../src/gmio_core/stream.h"
 #include "../src/gmio_stl/stl_constants.h"
 #include "../src/gmio_stl/stl_triangle.h"
 
@@ -76,21 +76,16 @@ const char* test_platform__compiler()
      * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
      */
     {
-        const struct gmio_rwargs args_null_bracket0 = {0};
-        struct gmio_rwargs args_null_memset0;
+        const struct gmio_stream null_bracket0 = {0};
+        struct gmio_stream null_memset0;
 
-        memset(&args_null_memset0, 0, sizeof(struct gmio_rwargs));
+        memset(&null_memset0, 0, sizeof(struct gmio_stream));
 
         UTEST_ASSERT(memcmp(
-                         &args_null_bracket0,
-                         &args_null_memset0,
-                         sizeof(struct gmio_rwargs))
+                         &null_bracket0,
+                         &null_memset0,
+                         sizeof(struct gmio_stream))
                      == 0);
-
-        UTEST_ASSERT(sizeof(struct gmio_rwargs)
-                     >= (sizeof(struct gmio_stream)
-                         + sizeof(struct gmio_memblock)
-                         + sizeof(struct gmio_task_iface)));
     }
 
     /* Check sizeof() operator with fixed-size arrays */

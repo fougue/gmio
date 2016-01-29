@@ -45,3 +45,4 @@ enum gmio_stl_constants
 };
 
 #endif /* GMIO_STL_CONSTANTS_H */
+/*! @} */

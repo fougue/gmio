@@ -14,7 +14,6 @@
 ****************************************************************************/
 
 #include <gmio_core/error.h>
-#include <gmio_core/rwargs.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_stl/stl_io_options.h>
 #include <gmio_stl/stl_mesh.h>
@@ -48,12 +47,12 @@ static void dummy_process_triangle(
 static void bmk_gmio_stl_read(const void* filepath)
 {
     struct my_igeom cookie = {0};
-    struct gmio_stl_read_args read = {0};
+    struct gmio_stl_mesh_creator mesh_creator = {0};
     int error = GMIO_ERROR_OK;
 
-    read.mesh_creator.cookie = &cookie;
-    read.mesh_creator.func_add_triangle = dummy_process_triangle;
-    error = gmio_stl_read_file(&read, filepath);
+    mesh_creator.cookie = &cookie;
+    mesh_creator.func_add_triangle = dummy_process_triangle;
+    error = gmio_stl_read_file(filepath, mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -75,7 +74,7 @@ static enum gmio_endianness to_byte_order(enum gmio_stl_format format)
 enum { STL_TRIANGLE_ARRAY_SIZE = 512 };
 struct stl_readwrite_conv
 {
-    struct gmio_rwargs rwargs;
+    struct gmio_stream stream;
     struct gmio_streampos out_stream_pos_begin;
     enum gmio_stl_format in_format;
     enum gmio_stl_format out_format;
@@ -88,7 +87,7 @@ static void readwrite_ascii_begin_solid(
         void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
 {
     struct stl_readwrite_conv* rw_conv = (struct stl_readwrite_conv*)cookie;
-    struct gmio_stream* stream = &rw_conv->rwargs.stream;
+    struct gmio_stream* stream = &rw_conv->stream;
     GMIO_UNUSED(stream_size);
     if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
         stream->func_write(stream->cookie, "solid ", 1, 6);
@@ -109,7 +108,7 @@ static void readwrite_binary_begin_solid(
         void* cookie, uint32_t tri_count, const struct gmio_stlb_header* header)
 {
     struct stl_readwrite_conv* rw_conv = (struct stl_readwrite_conv*)cookie;
-    struct gmio_stream* stream = &rw_conv->rwargs.stream;
+    struct gmio_stream* stream = &rw_conv->stream;
     if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
         stream->func_write(stream->cookie, "solid\n", 1, 6);
     }
@@ -129,15 +128,18 @@ static void readwrite_get_triangle(
 
 static void stl_readwrite_flush_triangles(struct stl_readwrite_conv* rw_conv)
 {
-    struct gmio_stl_write_args write = {0};
-    write.core = rw_conv->rwargs;
-    write.mesh.cookie = &rw_conv->triangle_array[0];
-    write.mesh.triangle_count = rw_conv->triangle_pos;
-    write.mesh.func_get_triangle = &readwrite_get_triangle;
-    write.options.stl_write_triangles_only = true;
-    write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
-    write.options.stla_float32_prec = 6;
-    gmio_stl_write(&write, rw_conv->out_format);
+    struct gmio_stl_mesh mesh = {0};
+    struct gmio_stl_write_options options = {0};
+
+    mesh.cookie = &rw_conv->triangle_array[0];
+    mesh.triangle_count = rw_conv->triangle_pos;
+    mesh.func_get_triangle = &readwrite_get_triangle;
+
+    options.stl_write_triangles_only = true;
+    options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
+    options.stla_float32_prec = 6;
+
+    gmio_stl_write(rw_conv->out_format, rw_conv->stream, mesh, &options);
     rw_conv->triangle_pos = 0;
 }
 
@@ -155,7 +157,7 @@ static void readwrite_add_triangle(
 static void readwrite_end_solid(void* cookie)
 {
     struct stl_readwrite_conv* rw_conv = (struct stl_readwrite_conv*)cookie;
-    struct gmio_stream* stream = &rw_conv->rwargs.stream;
+    struct gmio_stream* stream = &rw_conv->stream;
     if (rw_conv->triangle_pos != 0)
         stl_readwrite_flush_triangles(rw_conv);
     if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
@@ -175,36 +177,32 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
 {
     FILE* infile = fopen(filepath, "rb");
     FILE* outfile = fopen("_readwrite_conv.stl", "wb");
-    struct gmio_stl_read_args read = {0};
+    struct gmio_stream instream = {0};
     struct stl_readwrite_conv rw_conv = {0};
+    struct gmio_stl_mesh_creator mesh_creator = {0};
     int error = GMIO_ERROR_OK;
 
     /* rw_conv.out_format = GMIO_STL_FORMAT_BINARY_LE; */
     rw_conv.out_format = GMIO_STL_FORMAT_ASCII;
 
     if (infile != NULL) {
-        read.core.stream_memblock = gmio_memblock_malloc(512 * 1024);
-        read.core.stream = gmio_stream_stdio(infile);
-        rw_conv.in_format = gmio_stl_get_format(&read.core.stream);
+        instream = gmio_stream_stdio(infile);
+        rw_conv.in_format = gmio_stl_get_format(&instream);
     }
     if (outfile != NULL) {
-        rw_conv.rwargs.stream_memblock = gmio_memblock_malloc(512 * 1024);
-        rw_conv.rwargs.stream = gmio_stream_stdio(outfile);
-        rw_conv.rwargs.stream.func_get_pos(
-                    rw_conv.rwargs.stream.cookie,
+        rw_conv.stream = gmio_stream_stdio(outfile);
+        rw_conv.stream.func_get_pos(
+                    rw_conv.stream.cookie,
                     &rw_conv.out_stream_pos_begin);
     }
 
-    read.mesh_creator.cookie = &rw_conv;
-    read.mesh_creator.func_ascii_begin_solid = &readwrite_ascii_begin_solid;
-    read.mesh_creator.func_binary_begin_solid = &readwrite_binary_begin_solid;
-    read.mesh_creator.func_add_triangle = &readwrite_add_triangle;
-    read.mesh_creator.func_end_solid = &readwrite_end_solid;
+    mesh_creator.cookie = &rw_conv;
+    mesh_creator.func_ascii_begin_solid = &readwrite_ascii_begin_solid;
+    mesh_creator.func_binary_begin_solid = &readwrite_binary_begin_solid;
+    mesh_creator.func_add_triangle = &readwrite_add_triangle;
+    mesh_creator.func_end_solid = &readwrite_end_solid;
 
-    error = gmio_stl_read(&read);
-
-    gmio_memblock_deallocate(&read.core.stream_memblock);
-    gmio_memblock_deallocate(&rw_conv.rwargs.stream_memblock);
+    error = gmio_stl_read(instream, mesh_creator, NULL);
 
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
@@ -219,29 +217,25 @@ void bmk_gmio_stl_infos_get(const void* filepath)
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
-        struct gmio_stream stream = gmio_stream_stdio(file);
-        struct gmio_stl_infos_get_args args = {0};
-        const enum gmio_stl_format format = gmio_stl_get_format(&stream);
+        const struct gmio_stream stream = gmio_stream_stdio(file);
+        struct gmio_stl_infos infos = {0};
+        gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
 
-        args.stream = stream;
-        gmio_stl_infos_get(&args, format, GMIO_STL_INFO_FLAG_ALL);
         if (!already_exec) {
             printf("stl_infos_get()\n"
                    "    File: %s\n"
                    "    Size: %uKo\n"
                    "    Facets: %u\n",
                    (const char*)filepath,
-                   args.infos.size / 1024,
-                   args.infos.facet_count);
-            if (format == GMIO_STL_FORMAT_ASCII) {
-                printf("    [STLA]Solid name: %s\n",
-                       args.infos.stla_solidname);
+                   infos.size / 1024,
+                   infos.facet_count);
+            if (infos.format == GMIO_STL_FORMAT_ASCII) {
+                printf("    [STLA]Solid name: %s\n", infos.stla_solidname);
             }
-            else if (format == GMIO_STL_FORMAT_BINARY_LE
-                     || format == GMIO_STL_FORMAT_BINARY_BE)
+            else if (infos.format == GMIO_STL_FORMAT_BINARY_LE
+                     || infos.format == GMIO_STL_FORMAT_BINARY_BE)
             {
-                printf("    [STLB]Header: %80.80s\n",
-                       args.infos.stlb_header.data);
+                printf("    [STLB]Header: %80.80s\n", infos.stlb_header.data);
             }
         }
         already_exec = true;

@@ -31,9 +31,6 @@ enum gmio_error
     /*! No error occurred, success */
     GMIO_ERROR_OK = 0,
 
-    /*! Pointer on argument gmio_rwargs is NULL */
-    GMIO_ERROR_NULL_RWARGS,
-
     /*! Pointer on argument memory block is NULL */
     GMIO_ERROR_NULL_MEMBLOCK,
 

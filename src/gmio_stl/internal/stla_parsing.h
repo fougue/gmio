@@ -43,12 +43,12 @@ enum gmio_stla_token
 struct gmio_stringstream_stla_cookie
 {
     /* Copy of gmio_stla_read() corresponding argument */
-    struct gmio_rwargs* rwargs;
+    const struct gmio_task_iface* task;
     /* Cache for the input stream size */
     gmio_streamsize_t stream_size;
     /* Offset (in bytes) from beginning of stream : current position */
     gmio_streamoffset_t stream_offset;
-    /* Cache for gmio_transfer::func_is_stop_requested() */
+    /* Cache for gmio_task_iface::func_is_stop_requested() */
     bool is_stop_requested;
 };
 

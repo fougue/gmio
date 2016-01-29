@@ -20,19 +20,31 @@
 
 #include <string.h>
 
+static enum gmio_endianness gmio_stl_format_to_endianness(
+        enum gmio_stl_format format)
+{
+    if (format == GMIO_STL_FORMAT_BINARY_BE)
+        return GMIO_ENDIANNESS_BIG;
+    else if (format == GMIO_STL_FORMAT_BINARY_LE)
+        return GMIO_ENDIANNESS_LITTLE;
+    return GMIO_ENDIANNESS_UNKNOWN;
+}
+
 int gmio_stlb_infos_get(
-        struct gmio_stl_infos_get_args* args,
-        enum gmio_endianness byte_order,
-        unsigned flags)
+        struct gmio_stl_infos* infos,
+        struct gmio_stream stream,
+        unsigned flags,
+        const struct gmio_stl_infos_get_options* opts)
 {
     if (flags != 0) {
-        struct gmio_stl_infos* infos = &args->infos;
+        const enum gmio_endianness byte_order =
+                gmio_stl_format_to_endianness(opts->format_hint);
         uint32_t facet_count = 0;
         uint8_t buff[GMIO_STLB_HEADER_SIZE + sizeof(uint32_t)];
 
         { /* Read header and facet count into buff */
             const size_t read_size =
-                    gmio_stream_read(&args->stream, buff, 1, sizeof(buff));
+                    gmio_stream_read(&stream, buff, 1, sizeof(buff));
             if (read_size != sizeof(buff))
                 return GMIO_ERROR_STREAM;
         }

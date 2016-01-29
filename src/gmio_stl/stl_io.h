@@ -24,7 +24,12 @@
 #define GMIO_STL_IO_H
 
 #include "stl_global.h"
-#include "stl_rwargs.h"
+
+#include "stl_format.h"
+#include "stl_io_options.h"
+#include "stl_mesh.h"
+#include "stl_mesh_creator.h"
+#include "../gmio_core/stream.h"
 #include "../gmio_core/endian.h"
 
 GMIO_C_LINKAGE_BEGIN
@@ -33,37 +38,46 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_read(struct gmio_stl_read_args* args);
+GMIO_LIBSTL_EXPORT int gmio_stl_read(
+        struct gmio_stream stream,
+        struct gmio_stl_mesh_creator mesh_creator,
+        const struct gmio_stl_read_options* options);
 
 /*! Reads STL mesh from a file, format is automatically guessed
  *
- *  This is just a facility function over gmio_stl_read(). The stream object
- *  pointed to by \c args->core.stream is automatically initialized to read file
- *  at \p filepath (see gmio_stream_stdio(FILE*))
+ *  This is just a facility function over gmio_stl_read(). The internal stream
+ *  object is created to read file at \p filepath (see gmio_stream_stdio(FILE*))
  *
  *  The file is opened with fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_read_file(struct gmio_stl_read_args* args, const char* filepath);
+GMIO_LIBSTL_EXPORT int gmio_stl_read_file(
+        const char* filepath,
+        struct gmio_stl_mesh_creator mesh_creator,
+        const struct gmio_stl_read_options* options);
 
 /*! Reads geometry from STL ascii stream
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT
-int gmio_stla_read(struct gmio_stl_read_args* args);
+int gmio_stla_read(
+        struct gmio_stream stream,
+        struct gmio_stl_mesh_creator mesh_creator,
+        const struct gmio_stl_read_options* options);
 
 /*! Reads geometry from STL binary stream
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>args->core.stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *          if <tt>options->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_read(
-        struct gmio_stl_read_args* args, enum gmio_endianness byte_order);
+        struct gmio_stream stream,
+        struct gmio_stl_mesh_creator mesh_creator,
+        enum gmio_endianness byte_order,
+        const struct gmio_stl_read_options* options);
 
 /*! Writes STL mesh to stream
  *
@@ -71,13 +85,15 @@ int gmio_stlb_read(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_write(
-        struct gmio_stl_write_args* args, enum gmio_stl_format format);
+        enum gmio_stl_format format,
+        struct gmio_stream stream,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* options);
 
 /*! Writes STL mesh to stream
  *
- *  This is just a facility function over gmio_stl_write(). The stream object
- *  pointed to by \c args->core.stream is automatically initialized to write
- *  file to \p filepath (see gmio_stream_stdio(FILE*))
+ *  This is just a facility function over gmio_stl_write(). The internal stream
+ *  object is created to read file at \p filepath (see gmio_stream_stdio(FILE*))
  *
  *  The file is opened with fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
@@ -86,9 +102,10 @@ int gmio_stl_write(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stl_write_file(
-        struct gmio_stl_write_args* args,
         enum gmio_stl_format format,
-        const char* filepath);
+        const char* filepath,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* options);
 
 /*! Writes STL binary header data to stream
  *

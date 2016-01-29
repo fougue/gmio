@@ -122,7 +122,7 @@ int main(int argc, char** argv)
         /* Execute benchmarks */
         std::vector<benchmark_cmp_result> cmp_res_vec;
         cmp_res_vec.resize(GMIO_ARRAY_SIZE(cmp_args) - 1);
-        benchmark_cmp_batch(5, &cmp_args[0], &cmp_res_vec[0], NULL, NULL);
+        benchmark_cmp_batch(5, cmp_args, &cmp_res_vec[0], NULL, NULL);
 
         /* Print results */
         const benchmark_cmp_result_array res_array = {

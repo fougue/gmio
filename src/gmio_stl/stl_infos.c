@@ -19,36 +19,57 @@
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "stl_error.h"
+#include "stl_format.h"
 #include "internal/stla_infos_get.h"
 #include "internal/stlb_infos_get.h"
 
 int gmio_stl_infos_get(
-        struct gmio_stl_infos_get_args* args,
-        enum gmio_stl_format format,
-        unsigned flags)
+        struct gmio_stl_infos* infos,
+        struct gmio_stream stream,
+        unsigned flags,
+        const struct gmio_stl_infos_get_options* opts)
 {
     int error = GMIO_ERROR_OK;
+    const struct gmio_streampos begin_streampos = gmio_streampos(&stream, NULL);
     struct gmio_memblock_helper mblock_helper =
-            gmio_memblock_helper(&args->stream_memblock);
-    const struct gmio_streampos begin_streampos =
-            gmio_streampos(&args->stream, NULL);
+            gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
+    enum gmio_stl_format format =
+            opts != NULL ? opts->format_hint : GMIO_STL_FORMAT_UNKNOWN;
+    struct gmio_stl_infos_get_options ovrdn_opts = {0};
 
+    if (opts != NULL)
+        ovrdn_opts = *opts;
+    ovrdn_opts.stream_memblock = mblock_helper.memblock;
+
+    /* Guess format when left unspecified */
+    if (format == GMIO_STL_FORMAT_UNKNOWN) {
+        format = gmio_stl_get_format(&stream);
+        if (format == GMIO_STL_FORMAT_UNKNOWN) {
+            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
+            goto label_end;
+        }
+        ovrdn_opts.format_hint = format;
+    }
+
+    if (flags & GMIO_STL_INFO_FLAG_FORMAT)
+        infos->format = format;
+
+    /* Dispatch to the sub-function */
     switch (format) {
     case GMIO_STL_FORMAT_ASCII:
-        error = gmio_stla_infos_get(args, flags);
+        error = gmio_stla_infos_get(infos, stream, flags, &ovrdn_opts);
         break;
     case GMIO_STL_FORMAT_BINARY_LE:
-        error = gmio_stlb_infos_get(args, GMIO_ENDIANNESS_LITTLE, flags);
-        break;
     case GMIO_STL_FORMAT_BINARY_BE:
-        error = gmio_stlb_infos_get(args, GMIO_ENDIANNESS_BIG, flags);
+        error = gmio_stlb_infos_get(infos, stream, flags, &ovrdn_opts);
         break;
     default:
         error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
         break;
     }
-    gmio_memblock_helper_release(&mblock_helper);
-    gmio_stream_set_pos(&args->stream, &begin_streampos);
 
+label_end:
+    gmio_stream_set_pos(&stream, &begin_streampos);
+    gmio_memblock_helper_release(&mblock_helper);
     return error;
 }

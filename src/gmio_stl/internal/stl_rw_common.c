@@ -16,30 +16,22 @@
 #include "stl_rw_common.h"
 
 #include "../../gmio_core/error.h"
-#include "../../gmio_core/rwargs.h"
 #include "../stl_error.h"
 #include "../stl_io.h"
 
-bool gmio_check_rwargs(int *error, const struct gmio_rwargs* args)
+bool gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
 {
-    if (args == NULL) {
-        *error = GMIO_ERROR_NULL_RWARGS;
-    }
-    else {
-        if (args->stream_memblock.ptr == NULL)
-            *error = GMIO_ERROR_NULL_MEMBLOCK;
-        else if (args->stream_memblock.size == 0)
-            *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
-    }
-
+    if (mblock == NULL || mblock->ptr == NULL)
+        *error = GMIO_ERROR_NULL_MEMBLOCK;
+    else if (mblock->size == 0)
+        *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     return gmio_no_error(*error);
 }
 
-bool gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
+bool gmio_check_memblock_size(
+        int *error, const struct gmio_memblock *mblock, size_t minsize)
 {
-    if (mblock->ptr == NULL)
-        *error = GMIO_ERROR_NULL_MEMBLOCK;
-    else if (mblock->size == 0)
+    if (gmio_check_memblock(error, mblock) && mblock->size < minsize)
         *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     return gmio_no_error(*error);
 }
@@ -51,25 +43,22 @@ bool gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
     {
         *error = GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE;
     }
-
     return gmio_no_error(*error);
 }
 
-bool gmio_stlb_check_params(
-        int *error,
-        const struct gmio_rwargs* args,
-        enum gmio_endianness byte_order)
+bool gmio_stlb_check_byteorder(int* error, enum gmio_endianness byte_order)
 {
-    if (!gmio_check_rwargs(error, args))
-        return false;
-
-    if (args->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE)
-        *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
     if (byte_order != GMIO_ENDIANNESS_LITTLE
             && byte_order != GMIO_ENDIANNESS_BIG)
     {
         *error = GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER;
     }
+    return gmio_no_error(*error);
+}
 
+bool gmio_stla_check_float32_precision(int *error, uint8_t prec)
+{
+    if (prec == 0 || prec > 9)
+        *error = GMIO_STL_ERROR_INVALID_FLOAT32_PREC;
     return gmio_no_error(*error);
 }

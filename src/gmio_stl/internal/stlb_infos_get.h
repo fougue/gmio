@@ -21,8 +21,9 @@
 
 /*! Find infos from a STL binary stream */
 int gmio_stlb_infos_get(
-        struct gmio_stl_infos_get_args* args,
-        enum gmio_endianness byte_order,
-        unsigned flags);
+        struct gmio_stl_infos* infos,
+        struct gmio_stream stream,
+        unsigned flags,
+        const struct gmio_stl_infos_get_options* opts);
 
 #endif /* GMIO_INTERNAL_STLB_INFOS_GET_H */

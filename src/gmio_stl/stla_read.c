@@ -22,10 +22,9 @@
 #include "internal/stla_parsing.h"
 
 #include "../gmio_core/error.h"
-#include "../gmio_core/rwargs.h"
 #include "../gmio_core/internal/helper_memblock.h"
-#include "../gmio_core/internal/helper_rwargs.h"
 #include "../gmio_core/internal/helper_stream.h"
+#include "../gmio_core/internal/helper_task_iface.h"
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/stringstream.h"
 #include "../gmio_core/internal/string_ascii_utils.h"
@@ -89,51 +88,51 @@ static void gmio_stringstream_stla_read_hook(
 {
     struct gmio_stringstream_stla_cookie* tcookie =
             (struct gmio_stringstream_stla_cookie*)(cookie);
-    const struct gmio_rwargs* rwargs =
-            tcookie != NULL ? tcookie->rwargs : NULL;
     if (tcookie != NULL) {
+        const struct gmio_task_iface* task = tcookie->task;
         tcookie->stream_offset += strbuff->len;
-        tcookie->is_stop_requested = gmio_rwargs_is_stop_requested(rwargs);
-        gmio_rwargs_handle_progress(
-                    rwargs, tcookie->stream_offset, tcookie->stream_size);
+        tcookie->is_stop_requested = gmio_task_iface_is_stop_requested(task);
+        gmio_task_iface_handle_progress(
+                    task, tcookie->stream_offset, tcookie->stream_size);
     }
 }
 
 /* Root function, parses a whole solid */
 static void parse_solid(struct gmio_stla_parse_data* data);
 
-int gmio_stla_read(struct gmio_stl_read_args* args)
+int gmio_stla_read(
+        struct gmio_stream stream,
+        struct gmio_stl_mesh_creator mesh_creator,
+        const struct gmio_stl_read_options* opts)
 {
-    struct gmio_rwargs* core_args = &args->core;
     struct gmio_memblock_helper mblock_helper =
-            gmio_memblock_helper(&core_args->stream_memblock);
+            gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
+    struct gmio_memblock* const mblock = &mblock_helper.memblock;
     char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN];
     struct gmio_stla_parse_data parse_data;
 
     parse_data.token = unknown_token;
     parse_data.error = false;
 
-    parse_data.strstream_cookie.rwargs = core_args;
+    parse_data.strstream_cookie.task = opts != NULL ? &opts->task_iface : NULL;
     parse_data.strstream_cookie.stream_offset = 0;
 
     parse_data.strstream_cookie.stream_size =
-            args->func_stla_get_streamsize != NULL ?
-                args->func_stla_get_streamsize(
-                    &core_args->stream, &core_args->stream_memblock) :
-                gmio_stream_size(&core_args->stream);
-
+            opts != NULL && opts->func_stla_get_streamsize != NULL ?
+                opts->func_stla_get_streamsize(&stream, mblock) :
+                gmio_stream_size(&stream);
     parse_data.strstream_cookie.is_stop_requested = false;
 
-    parse_data.strstream.stream = core_args->stream;
-    parse_data.strstream.strbuff.ptr = core_args->stream_memblock.ptr;
-    parse_data.strstream.strbuff.max_len = core_args->stream_memblock.size;
+    parse_data.strstream.stream = stream;
+    parse_data.strstream.strbuff.ptr = mblock->ptr;
+    parse_data.strstream.strbuff.max_len = mblock->size;
     parse_data.strstream.cookie = &parse_data.strstream_cookie;
     parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
     gmio_stringstream_init_pos(&parse_data.strstream);
 
     parse_data.strbuff = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
 
-    parse_data.creator = &args->mesh_creator;
+    parse_data.creator = &mesh_creator;
 
     parse_solid(&parse_data);
 

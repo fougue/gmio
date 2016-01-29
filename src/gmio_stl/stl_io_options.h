@@ -26,11 +26,45 @@
 #include "stl_global.h"
 #include "stlb_header.h"
 #include "../gmio_core/endian.h"
+#include "../gmio_core/stream.h"
+#include "../gmio_core/task_iface.h"
 #include "../gmio_core/text_format.h"
+
+struct gmio_stl_read_options
+{
+    /*! Used by the stream to bufferize I/O operations
+     *
+     *  If null(see gmio_memblock_isnull()), then a temporary memblock is
+     *  created with the global default constructor function
+     *  (see gmio_memblock_default()) */
+    struct gmio_memblock stream_memblock;
+
+    /*! Optional interface by which the I/O operation can be controlled */
+    struct gmio_task_iface task_iface;
+
+    /*! Optional pointer to a function that returns the size(in bytes) of the
+     *  STL ascii data to read
+     *
+     *  Useful only with STL ascii format. If set to NULL then by default
+     *  gmio_stream::func_size() is called.
+     *
+     *  The resulting stream size is passed to
+     *  gmio_task_iface::func_handle_progress() as the \p max_value argument.
+     */
+    gmio_streamsize_t (*func_stla_get_streamsize)(
+            struct gmio_stream* stream,
+            struct gmio_memblock* stream_memblock);
+};
 
 /*! Options for gmio_stl_write() */
 struct gmio_stl_write_options
 {
+    /*! See gmio_stl_read_options::stream_memblock */
+    struct gmio_memblock stream_memblock;
+
+    /*! See gmio_stl_read_options::task_iface */
+    struct gmio_task_iface task_iface;
+
     /*! Flag allowing to skip writting of any header/footer data, but just
      *  triangles
      *
@@ -78,7 +112,7 @@ struct gmio_stl_write_options
      *    \li calling gmio_stl_write() with <tt>options == NULL</tt>
      *    \li OR <tt>stlb_header_data == NULL</tt>
      */
-    const struct gmio_stlb_header* stlb_header;
+    struct gmio_stlb_header stlb_header;
 };
 
 #endif /* GMIO_STL_IO_OPTIONS_H */

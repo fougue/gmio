@@ -17,6 +17,11 @@
 
 #include <stdlib.h>
 
+bool gmio_memblock_isnull(const struct gmio_memblock *mblock)
+{
+    return mblock == NULL || mblock->ptr == NULL || mblock->size == 0;
+}
+
 struct gmio_memblock gmio_memblock(
         void* ptr, size_t size, void (*func_deallocate)(void*))
 {

@@ -285,15 +285,15 @@ static void get_triangle(
 
 static void stl_read(const void* filepath)
 {
-    gmio_stl_read_args read = {};
-    read.mesh_creator.cookie = &globalSceneHelper;
-    read.mesh_creator.func_ascii_begin_solid = func_ascii_begin_solid;
-    read.mesh_creator.func_binary_begin_solid = binary_begin_solid;
-    read.mesh_creator.func_add_triangle = add_triangle;
-    read.mesh_creator.func_end_solid = end_solid;
+    const char* str_filepath = static_cast<const char*>(filepath);
+    gmio_stl_mesh_creator mesh_creator = {};
+    mesh_creator.cookie = &globalSceneHelper;
+    mesh_creator.func_ascii_begin_solid = func_ascii_begin_solid;
+    mesh_creator.func_binary_begin_solid = binary_begin_solid;
+    mesh_creator.func_add_triangle = add_triangle;
+    mesh_creator.func_end_solid = end_solid;
 
-    const int error =
-            gmio_stl_read_file(&read, static_cast<const char*>(filepath));
+    const int error = gmio_stl_read_file(str_filepath, mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 
@@ -306,13 +306,15 @@ static void stl_write(const char* filepath, gmio_stl_format format)
 {
     const aiMesh* sceneMesh = globalSceneHelper.scene->mMeshes[0];
 
-    gmio_stl_write_args write = {};
-    write.mesh.cookie = sceneMesh;
-    write.mesh.triangle_count = sceneMesh->mNumFaces;
-    write.mesh.func_get_triangle = get_triangle;
-    write.options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
-    write.options.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(&write, format, filepath);
+    gmio_stl_mesh mesh = {};
+    mesh.cookie = sceneMesh;
+    mesh.triangle_count = sceneMesh->mNumFaces;
+    mesh.func_get_triangle = get_triangle;
+
+    gmio_stl_write_options opts = {};
+    opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
+    opts.stla_float32_prec = 7;
+    const int error = gmio_stl_write_file(format, filepath, mesh, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -376,7 +378,7 @@ int main(int argc, char** argv)
         std::vector<benchmark_cmp_result> cmp_res_vec;
         cmp_res_vec.resize(GMIO_ARRAY_SIZE(cmp_args) - 1);
         benchmark_cmp_batch(
-                    5, &cmp_args[0], &cmp_res_vec[0], bmk_init, bmk_cleanup);
+                    5, cmp_args, &cmp_res_vec[0], bmk_init, bmk_cleanup);
 
         /* Print results */
         const benchmark_cmp_result_array res_array = {

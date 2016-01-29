@@ -49,11 +49,11 @@ static void gmio_stl_data__ascii_begin_solid(
 {
     struct gmio_stl_data* data = (struct gmio_stl_data*)cookie;
 
-    memset(&data->solid_name[0], 0, sizeof(data->solid_name));
+    memset(data->solid_name, 0, sizeof(data->solid_name));
     if (solid_name != NULL) {
         const size_t len =
                 GMIO_MIN(sizeof(data->solid_name), strlen(solid_name));
-        strncpy(&data->solid_name[0], solid_name, len);
+        strncpy(data->solid_name, solid_name, len);
     }
 
     /* Try to guess how many vertices we could have assume we'll need 200 bytes
@@ -86,7 +86,7 @@ static void gmio_stl_data__add_triangle(
         data->tri_array.capacity = cap;
     }
     memcpy(&data->tri_array.ptr[tri_id], triangle, GMIO_STLB_TRIANGLE_RAWSIZE);
-    data->tri_array.count = GMIO_MAX(data->tri_array.count, tri_id + 1);
+    data->tri_array.count = tri_id + 1;
 }
 
 static void gmio_stl_data__get_triangle(

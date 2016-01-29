@@ -23,112 +23,75 @@
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 
-int gmio_stl_read(struct gmio_stl_read_args* args)
+int gmio_stl_read(
+        struct gmio_stream stream,
+        struct gmio_stl_mesh_creator mesh_creator,
+        const struct gmio_stl_read_options* options)
 {
-    int error = GMIO_ERROR_OK;
-    if (args != NULL) {
-        const enum gmio_stl_format format =
-                gmio_stl_get_format(&args->core.stream);
-
-        switch (format) {
-        case GMIO_STL_FORMAT_ASCII: {
-            error = gmio_stla_read(args);
-            break;
-        }
-        case GMIO_STL_FORMAT_BINARY_BE: {
-            error = gmio_stlb_read(args, GMIO_ENDIANNESS_BIG);
-            break;
-        }
-        case GMIO_STL_FORMAT_BINARY_LE: {
-            error = gmio_stlb_read(args, GMIO_ENDIANNESS_LITTLE);
-            break;
-        }
-        case GMIO_STL_FORMAT_UNKNOWN: {
-            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
-            break;
-        }
-        } /* end switch() */
+    const enum gmio_stl_format format = gmio_stl_get_format(&stream);
+    switch (format) {
+    case GMIO_STL_FORMAT_ASCII:
+        return gmio_stla_read(stream, mesh_creator, options);
+    case GMIO_STL_FORMAT_BINARY_BE:
+        return gmio_stlb_read(
+                    stream, mesh_creator, GMIO_ENDIANNESS_BIG, options);
+    case GMIO_STL_FORMAT_BINARY_LE:
+        return gmio_stlb_read(
+                    stream, mesh_creator, GMIO_ENDIANNESS_LITTLE, options);
+    case GMIO_STL_FORMAT_UNKNOWN:
+        return GMIO_STL_ERROR_UNKNOWN_FORMAT;
     }
-    else {
-        error = GMIO_ERROR_NULL_RWARGS;
-    }
-    return error;
+    return GMIO_ERROR_UNKNOWN;
 }
 
 int gmio_stl_read_file(
-        struct gmio_stl_read_args* args, const char* filepath)
+        const char* filepath,
+        struct gmio_stl_mesh_creator mesh_creator,
+        const struct gmio_stl_read_options* options)
 {
-    int error = GMIO_ERROR_OK;
-    if (args != NULL) {
-        FILE* file = fopen(filepath, "rb");
-        if (file != NULL) {
-            args->core.stream = gmio_stream_stdio(file);
-            error = gmio_stl_read(args);
-            fclose(file);
-        }
-        else {
-            error = GMIO_ERROR_STDIO;
-        }
+    FILE* file = fopen(filepath, "rb");
+    if (file != NULL) {
+        const int error =
+                gmio_stl_read(gmio_stream_stdio(file), mesh_creator, options);
+        fclose(file);
+        return error;
     }
-    else {
-        error = GMIO_ERROR_NULL_RWARGS;
-    }
-    return error;
+    return GMIO_ERROR_STDIO;
 }
 
 int gmio_stl_write(
-        struct gmio_stl_write_args* args, enum gmio_stl_format format)
+        enum gmio_stl_format format,
+        struct gmio_stream stream,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* options)
 {
-    int error = GMIO_ERROR_OK;
-    if (args != NULL) {
-        struct gmio_memblock_helper mblock_helper =
-                gmio_memblock_helper(&args->core.stream_memblock);
-        switch (format) {
-        case GMIO_STL_FORMAT_ASCII: {
-            error = gmio_stla_write(args);
-            break;
-        }
-        case GMIO_STL_FORMAT_BINARY_BE: {
-            error = gmio_stlb_write(args, GMIO_ENDIANNESS_BIG);
-            break;
-        }
-        case GMIO_STL_FORMAT_BINARY_LE: {
-            error = gmio_stlb_write(args, GMIO_ENDIANNESS_LITTLE);
-            break;
-        }
-        case GMIO_STL_FORMAT_UNKNOWN: {
-            error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
-        }
-        } /* end switch() */
-        gmio_memblock_helper_release(&mblock_helper);
+    switch (format) {
+    case GMIO_STL_FORMAT_ASCII:
+        return gmio_stla_write(stream, mesh, options);
+    case GMIO_STL_FORMAT_BINARY_BE:
+        return gmio_stlb_write(GMIO_ENDIANNESS_BIG, stream, mesh, options);
+    case GMIO_STL_FORMAT_BINARY_LE:
+        return gmio_stlb_write(GMIO_ENDIANNESS_LITTLE, stream, mesh, options);
+    case GMIO_STL_FORMAT_UNKNOWN:
+        return GMIO_STL_ERROR_UNKNOWN_FORMAT;
     }
-    else {
-        error = GMIO_ERROR_NULL_RWARGS;
-    }
-    return error;
+    return GMIO_ERROR_UNKNOWN;
 }
 
 int gmio_stl_write_file(
-        struct gmio_stl_write_args* args,
         enum gmio_stl_format format,
-        const char* filepath)
+        const char* filepath,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* options)
 {
-    int error = GMIO_ERROR_OK;
-    if (args != NULL) {
-        FILE* file = fopen(filepath, "wb");
-        if (file != NULL) {
-            args->core.stream = gmio_stream_stdio(file);
-            error = gmio_stl_write(args, format);
-            fclose(file);
-        }
-        else {
-            error = GMIO_ERROR_STDIO;
-        }
+    FILE* file = fopen(filepath, "wb");
+    if (file != NULL) {
+        const int error =
+                gmio_stl_write(format, gmio_stream_stdio(file), mesh, options);
+        fclose(file);
+        return error;
     }
-    else {
-        error = GMIO_ERROR_NULL_RWARGS;
-    }
-    return error;
+    return GMIO_ERROR_STDIO;
 }
 
 static const struct gmio_stlb_header internal_stlb_zero_header = {0};

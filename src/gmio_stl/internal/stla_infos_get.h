@@ -20,6 +20,9 @@
 
 /*! Find infos from a STL ASCII stream */
 int gmio_stla_infos_get(
-        struct gmio_stl_infos_get_args* args, unsigned flags);
+        struct gmio_stl_infos* infos,
+        struct gmio_stream stream,
+        unsigned flags,
+        const struct gmio_stl_infos_get_options* opts);
 
 #endif /* GMIO_INTERNAL_STLA_INFOS_GET_H */

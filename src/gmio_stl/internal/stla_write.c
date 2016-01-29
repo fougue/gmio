@@ -20,9 +20,11 @@
 #include "../stl_error.h"
 
 #include "../../gmio_core/error.h"
+#include "../../gmio_core/task_iface.h"
 #include "../../gmio_core/text_format.h"
-#include "../../gmio_core/internal/helper_rwargs.h"
+#include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
+#include "../../gmio_core/internal/helper_task_iface.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
@@ -47,9 +49,11 @@
  * Total with EOL(2 chars) = 307 + 7*2 = 321
  */
 
-enum { GMIO_STLA_FACET_SIZE = 321 };
-enum { GMIO_STLA_FACET_SIZE_P2 = 512 };
-enum { GMIO_STLA_SOLID_NAME_MAX_LEN = 512 };
+enum {
+    GMIO_STLA_FACET_SIZE = 321,
+    GMIO_STLA_FACET_SIZE_P2 = 512,
+    GMIO_STLA_SOLID_NAME_MAX_LEN = 512
+};
 
 /* Fucntions for raw strings(ie. "const char*") */
 
@@ -121,49 +125,52 @@ GMIO_INLINE char* gmio_write_coords(
                             coords_format, coords->x, coords->y, coords->z);
 }
 
-GMIO_INLINE bool gmio_rwargs_flush_buffer(
-        struct gmio_rwargs* args, size_t n)
+GMIO_INLINE bool gmio_stream_flush_buffer(
+        struct gmio_stream* stream, char* buffer, const char* buffer_offset)
 {
-    const size_t write_count =
-            gmio_stream_write(
-                &args->stream, args->stream_memblock.ptr, sizeof(char), n);
+    const size_t n = buffer_offset - buffer;
+    const size_t write_count = gmio_stream_write(stream, buffer, 1, n);
     return write_count == n;
 }
 
-int gmio_stla_write(struct gmio_stl_write_args* args)
+int gmio_stla_write(
+        struct gmio_stream stream,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* opts)
 {
     /* Constants */
-    const struct gmio_stl_write_options* options = &args->options;
-    const gmio_stl_mesh_func_get_triangle_t func_mesh_get_triangle =
-            args->mesh.func_get_triangle;
-    const void* mesh_cookie = args->mesh.cookie;
-    const uint32_t total_facet_count = args->mesh.triangle_count;
+    const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
+    struct gmio_memblock_helper mblock_helper =
+            gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
+    const size_t mblock_size = mblock_helper.memblock.size;
+    const uint32_t total_facet_count = mesh.triangle_count;
     const uint32_t buffer_facet_count =
-            gmio_size_to_uint32(
-                args->core.stream_memblock.size / GMIO_STLA_FACET_SIZE_P2);
-    const char* opt_solid_name = options->stla_solid_name;
+            gmio_size_to_uint32(mblock_size / GMIO_STLA_FACET_SIZE_P2);
+    const char* opt_solid_name = opts != NULL ? opts->stla_solid_name : NULL;
     const char* solid_name = opt_solid_name != NULL ? opt_solid_name : "";
-    const enum gmio_float_text_format f32_format = options->stla_float32_format;
-    const uint8_t opt_f32_prec = options->stla_float32_prec;
+    const enum gmio_float_text_format f32_format =
+            opts != NULL ?
+                opts->stla_float32_format :
+                GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
+    const uint8_t opt_f32_prec = opts != NULL ? opts->stla_float32_prec : 9;
     const uint8_t f32_prec = opt_f32_prec != 0 ? opt_f32_prec : 9;
-    const bool write_triangles_only = options->stl_write_triangles_only;
+    const bool write_triangles_only =
+            opts != NULL ? opts->stl_write_triangles_only : false;
 
     /* Variables */
-    struct gmio_rwargs* core_args = &args->core;
-    void* const mblock_ptr = core_args->stream_memblock.ptr;
+    struct gmio_memblock* const mblock = &mblock_helper.memblock;
+    void* const mblock_ptr = mblock->ptr;
     uint32_t ifacet = 0; /* for-loop counter on facets */
     char coords_format_str[64] = {0}; /* printf-like format for XYZ coords */
     int error = GMIO_ERROR_OK;
 
     /* Check validity of input parameters */
-    if (!gmio_check_rwargs(&error, core_args))
-        return error;
-    if (!gmio_stl_check_mesh(&error, &args->mesh))
-        return error;
-    if (f32_prec == 0 || f32_prec > 9)
-        return GMIO_STL_ERROR_INVALID_FLOAT32_PREC;
-    if (core_args->stream_memblock.size < GMIO_STLA_FACET_SIZE_P2)
-        return GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
+    if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
+        goto label_end;
+    if (!gmio_stl_check_mesh(&error, &mesh))
+        goto label_end;
+    if (!gmio_stla_check_float32_precision(&error, f32_prec))
+        goto label_end;
 
     /* Create XYZ coords format string (for normal and vertex coords) */
     {
@@ -182,8 +189,10 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "solid ");
         buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
-        if (!gmio_rwargs_flush_buffer(core_args, buffpos - (char*)mblock_ptr))
-            return GMIO_ERROR_STREAM;
+        if (!gmio_stream_flush_buffer(&stream, mblock_ptr, buffpos)) {
+            error = GMIO_ERROR_STREAM;
+            goto label_end;
+        }
     }
 
     /* Write solid's facets */
@@ -197,14 +206,14 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
         uint32_t ibuffer_facet;
         char* buffpos = mblock_ptr;
 
-        gmio_rwargs_handle_progress(core_args, ifacet, total_facet_count);
+        gmio_task_iface_handle_progress(task, ifacet, total_facet_count);
 
         /* Writing of facets is buffered */
         for (ibuffer_facet = ifacet;
              ibuffer_facet < clamped_facet_count;
              ++ibuffer_facet)
         {
-            func_mesh_get_triangle(mesh_cookie, ibuffer_facet, &tri);
+            mesh.func_get_triangle(mesh.cookie, ibuffer_facet, &tri);
 
             buffpos = gmio_write_rawstr(buffpos, "facet normal ");
             buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.n);
@@ -221,11 +230,11 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
             buffpos = gmio_write_rawstr(buffpos, "\nendfacet\n");
         } /* end for (ibuffer_facet) */
 
-        if (!gmio_rwargs_flush_buffer(core_args, buffpos - (char*)mblock_ptr))
+        if (!gmio_stream_flush_buffer(&stream, mblock_ptr, buffpos))
             error = GMIO_ERROR_STREAM;
 
         /* Task control */
-        if (gmio_no_error(error) && gmio_rwargs_is_stop_requested(core_args))
+        if (gmio_no_error(error) && gmio_task_iface_is_stop_requested(task))
             error = GMIO_ERROR_TRANSFER_STOPPED;
     } /* end for (ifacet) */
 
@@ -234,9 +243,11 @@ int gmio_stla_write(struct gmio_stl_write_args* args)
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "endsolid ");
         buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
-        if (!gmio_rwargs_flush_buffer(core_args, buffpos - (char*)mblock_ptr))
+        if (!gmio_stream_flush_buffer(&stream, mblock_ptr, buffpos))
             error = GMIO_ERROR_STREAM;
     }
 
+label_end:
+    gmio_memblock_helper_release(&mblock_helper);
     return error;
 }

@@ -16,16 +16,21 @@
 #ifndef GMIO_INTERNAL_STLB_WRITE_H
 #define GMIO_INTERNAL_STLB_WRITE_H
 
-#include "../stl_rwargs.h"
 #include "../../gmio_core/endian.h"
+#include "../../gmio_core/stream.h"
+#include "../stl_io_options.h"
+#include "../stl_mesh.h"
 
 /*! Writes geometry in the STL binary format
  *
  *  \return Error code (see error.h and stl_error.h)
  *  \retval GMIO_INVALID_MEMBLOCK_SIZE_ERROR
- *          if <tt>args->core.memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *          if <tt>opts->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 int gmio_stlb_write(
-        struct gmio_stl_write_args* args, enum gmio_endianness byte_order);
+        enum gmio_endianness byte_order,
+        struct gmio_stream stream,
+        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_write_options* opts);
 
 #endif /* GMIO_INTERNAL_STLB_WRITE_H */

@@ -26,8 +26,8 @@
 #include "../gmio_core/internal/byte_swap.h"
 #include "../gmio_core/internal/convert.h"
 #include "../gmio_core/internal/helper_memblock.h"
-#include "../gmio_core/internal/helper_rwargs.h"
 #include "../gmio_core/internal/helper_stream.h"
+#include "../gmio_core/internal/helper_task_iface.h"
 #include "../gmio_core/internal/safe_cast.h"
 
 #include <string.h>
@@ -89,14 +89,17 @@ static void gmio_stlb_decode_facets_byteswap(
 }
 
 int gmio_stlb_read(
-        struct gmio_stl_read_args* args, enum gmio_endianness byte_order)
+        struct gmio_stream stream,
+        struct gmio_stl_mesh_creator mesh_creator,
+        enum gmio_endianness byte_order,
+        const struct gmio_stl_read_options* opts)
 {
     /* Variables */
     struct gmio_memblock_helper mblock_helper =
-            gmio_memblock_helper(&args->core.stream_memblock);
-    struct gmio_rwargs* core_args = &args->core;
-    struct gmio_stl_mesh_creator* mesh_creator = &args->mesh_creator;
-    void* mblock_ptr = core_args->stream_memblock.ptr;
+            gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
+    struct gmio_memblock* mblock = &mblock_helper.memblock;
+    void* mblock_ptr = mblock->ptr;
+    const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
     struct gmio_stlb_header header;
     uint32_t i_facet = 0; /* Facet counter */
     uint32_t total_facet_count = 0; /* Facet count, as declared in the stream */
@@ -107,15 +110,16 @@ int gmio_stlb_read(
                 gmio_stlb_decode_facets_byteswap :
                 gmio_stlb_decode_facets;
     const uint32_t max_facet_count_per_read =
-                gmio_size_to_uint32(
-                    args->core.stream_memblock.size / GMIO_STLB_TRIANGLE_RAWSIZE);
+                gmio_size_to_uint32(mblock->size / GMIO_STLB_TRIANGLE_RAWSIZE);
 
     /* Check validity of input parameters */
-    if (!gmio_stlb_check_params(&error, core_args, byte_order))
+    if (!gmio_check_memblock_size(&error, mblock, GMIO_STLB_MIN_CONTENTS_SIZE))
+        goto label_end;
+    if (!gmio_stlb_check_byteorder(&error, byte_order))
         goto label_end;
 
     /* Read header */
-    if (gmio_stream_read(&core_args->stream, &header, GMIO_STLB_HEADER_SIZE, 1)
+    if (gmio_stream_read(&stream, &header, GMIO_STLB_HEADER_SIZE, 1)
             != 1)
     {
         error = GMIO_STL_ERROR_HEADER_WRONG_SIZE;
@@ -123,7 +127,7 @@ int gmio_stlb_read(
     }
 
     /* Read facet count */
-    if (gmio_stream_read(&core_args->stream, mblock_ptr, sizeof(uint32_t), 1)
+    if (gmio_stream_read(&stream, mblock_ptr, sizeof(uint32_t), 1)
             != 1)
     {
         error = GMIO_STL_ERROR_FACET_COUNT;
@@ -136,20 +140,20 @@ int gmio_stlb_read(
 
     /* Callback to notify triangle count and header data */
     gmio_stl_mesh_creator_binary_begin_solid(
-                mesh_creator, total_facet_count, &header);
+                &mesh_creator, total_facet_count, &header);
 
     /* Read triangles */
-    gmio_rwargs_handle_progress(core_args, 0, total_facet_count);
+    gmio_task_iface_handle_progress(task, 0, total_facet_count);
     while (gmio_no_error(error) && i_facet < total_facet_count) {
         const uint32_t read_facet_count =
                 gmio_size_to_uint32(
                     gmio_stream_read(
-                        &core_args->stream,
+                        &stream,
                         mblock_ptr,
                         GMIO_STLB_TRIANGLE_RAWSIZE,
                         max_facet_count_per_read));
 
-        if (gmio_stream_error(&core_args->stream) != 0)
+        if (gmio_stream_error(&stream) != 0)
             error = GMIO_ERROR_STREAM;
         else if (read_facet_count > 0)
             error = GMIO_ERROR_OK;
@@ -158,16 +162,16 @@ int gmio_stlb_read(
 
         if (gmio_no_error(error)) {
             func_decode_facets(
-                        mesh_creator, mblock_ptr, read_facet_count, i_facet);
+                        &mesh_creator, mblock_ptr, read_facet_count, i_facet);
             i_facet += read_facet_count;
-            if (gmio_rwargs_is_stop_requested(core_args))
+            if (gmio_task_iface_is_stop_requested(task))
                 error = GMIO_ERROR_TRANSFER_STOPPED;
         }
-        gmio_rwargs_handle_progress(core_args, i_facet, total_facet_count);
+        gmio_task_iface_handle_progress(task, i_facet, total_facet_count);
     } /* end while */
 
     if (gmio_no_error(error))
-        gmio_stl_mesh_creator_end_solid(mesh_creator);
+        gmio_stl_mesh_creator_end_solid(&mesh_creator);
 
     if (gmio_no_error(error) && i_facet != total_facet_count)
         error = GMIO_STL_ERROR_FACET_COUNT;

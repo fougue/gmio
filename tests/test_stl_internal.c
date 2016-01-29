@@ -18,7 +18,6 @@
 #include "stl_utils.h"
 
 #include "../src/gmio_core/error.h"
-#include "../src/gmio_core/rwargs.h"
 #include "../src/gmio_stl/internal/stl_rw_common.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_io.h"
@@ -27,31 +26,43 @@
 
 const char* test_stl_internal__rw_common()
 {
-    /* gmio_check_transfer() */
+    /* gmio_check_memblock() */
     {
         int error = GMIO_ERROR_OK;
         uint8_t buff[128] = {0};
-        struct gmio_rwargs rwargs = {0};
+        struct gmio_memblock mblock = {0};
 
-        UTEST_ASSERT(!gmio_check_rwargs(&error, NULL));
-        UTEST_ASSERT(error == GMIO_ERROR_NULL_RWARGS);
-
-        UTEST_ASSERT(!gmio_check_rwargs(&error, &rwargs));
+        UTEST_ASSERT(!gmio_check_memblock(&error, NULL));
         UTEST_ASSERT(error == GMIO_ERROR_NULL_MEMBLOCK);
 
-        rwargs.stream_memblock = gmio_memblock(&buff[0], 0, NULL);
-        UTEST_ASSERT(!gmio_check_rwargs(&error, &rwargs));
+        UTEST_ASSERT(!gmio_check_memblock(&error, &mblock));
+        UTEST_ASSERT(error == GMIO_ERROR_NULL_MEMBLOCK);
+
+        mblock = gmio_memblock(buff, 0, NULL);
+        UTEST_ASSERT(!gmio_check_memblock(&error, &mblock));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
 
-        /* Verify that gmio_check_transfer() doesn't touch error when in case of
+        /* Verify that gmio_check_memblock() doesn't touch error when in case of
          * success */
-        rwargs.stream_memblock = gmio_memblock(&buff[0], sizeof(buff), NULL);
-        UTEST_ASSERT(!gmio_check_rwargs(&error, &rwargs));
+        mblock = gmio_memblock(buff, sizeof(buff), NULL);
+        UTEST_ASSERT(!gmio_check_memblock(&error, &mblock));
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
 
         error = GMIO_ERROR_OK;
-        UTEST_ASSERT(gmio_check_rwargs(&error, &rwargs));
+        UTEST_ASSERT(gmio_check_memblock(&error, &mblock));
         UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+
+    /* gmio_check_memblock_size() */
+    {
+        uint8_t buff[1024] = {0};
+        struct gmio_memblock mblock =
+                gmio_memblock(buff, GMIO_STLB_MIN_CONTENTS_SIZE / 2, NULL);
+        int error = GMIO_ERROR_OK;
+
+        UTEST_ASSERT(!gmio_check_memblock_size(
+                         &error, &mblock, GMIO_STLB_MIN_CONTENTS_SIZE));
+        UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
     }
 
     /* gmio_stl_check_mesh() */
@@ -78,28 +89,14 @@ const char* test_stl_internal__rw_common()
         UTEST_ASSERT(error == GMIO_ERROR_OK);
     }
 
-    /* gmio_stlb_check_params() */
+    /* gmio_stlb_check_byteorder() */
     {
         int error = GMIO_ERROR_OK;
-        struct gmio_rwargs rwargs = {0};
-        uint8_t buff[1024] = {0};
 
-        UTEST_ASSERT(!gmio_stlb_check_params(&error, NULL, GMIO_ENDIANNESS_HOST));
-        UTEST_ASSERT(error == GMIO_ERROR_NULL_RWARGS);
-
-        error = GMIO_ERROR_OK;
-        rwargs.stream_memblock =
-                gmio_memblock(&buff[0], GMIO_STLB_MIN_CONTENTS_SIZE / 2, NULL);
-        UTEST_ASSERT(!gmio_stlb_check_params(&error, &rwargs, GMIO_ENDIANNESS_HOST));
-        UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
-
-        error = GMIO_ERROR_OK;
-        rwargs.stream_memblock =
-                gmio_memblock(&buff[0], sizeof(buff), NULL);
-        UTEST_ASSERT(gmio_stlb_check_params(&error, &rwargs, GMIO_ENDIANNESS_HOST));
+        UTEST_ASSERT(gmio_stlb_check_byteorder(&error, GMIO_ENDIANNESS_HOST));
         UTEST_ASSERT(error == GMIO_ERROR_OK);
 
-        UTEST_ASSERT(!gmio_stlb_check_params(&error, &rwargs, GMIO_ENDIANNESS_UNKNOWN));
+        UTEST_ASSERT(!gmio_stlb_check_byteorder(&error, GMIO_ENDIANNESS_UNKNOWN));
         UTEST_ASSERT(error == GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER);
     }
 

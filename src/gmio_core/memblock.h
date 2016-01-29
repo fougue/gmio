@@ -43,6 +43,9 @@ struct gmio_memblock
 
 GMIO_C_LINKAGE_BEGIN
 
+/*! Returns true if \p mblock is NULL or points to null/void memory */
+GMIO_LIB_EXPORT bool gmio_memblock_isnull(const struct gmio_memblock* mblock);
+
 /*! Returns an initialized gmio_memblock object
  *
  *  If \p ptr is NULL then gmio_memblock::size is forced to \c 0
