@@ -95,7 +95,7 @@ const char* test_internal__benchmark_gmio_fast_atof()
                 bmk_res_array);
 
 #ifndef GMIO_DEBUG_BUILD /* Check only for release builds */
-    UTEST_ASSERT((1.2*bmk_res.func1_exec_time_ms) < bmk_res.func2_exec_time_ms);
+    UTEST_ASSERT((1.05*bmk_res.func1_exec_time_ms) < bmk_res.func2_exec_time_ms);
 #endif
 
     return NULL;
