@@ -83,38 +83,42 @@ struct stl_readwrite_conv
     uint32_t total_triangle_count;
 };
 
-static void readwrite_ascii_begin_solid(
-        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
+static void readwrite_begin_solid(
+        void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
 {
     struct stl_readwrite_conv* rw_conv = (struct stl_readwrite_conv*)cookie;
     struct gmio_stream* stream = &rw_conv->stream;
-    GMIO_UNUSED(stream_size);
-    if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
-        stream->func_write(stream->cookie, "solid ", 1, 6);
-        stream->func_write(stream->cookie, solid_name, 1, strlen(solid_name));
-        stream->func_write(stream->cookie, "\n", 1, 1);
-    }
-    else {
-        /* For binary STL, facet count <- 0 because it cannot be known at this
-         * point. Header will be correctly rewritten at the end of the read
-         * procedure (in gmio_stl_mesh_creator::func_end_solid() callback)
-         */
-        const enum gmio_endianness byte_order = to_byte_order(rw_conv->out_format);
-        gmio_stlb_write_header(stream, byte_order, NULL, 0);
-    }
-}
 
-static void readwrite_binary_begin_solid(
-        void* cookie, uint32_t tri_count, const struct gmio_stlb_header* header)
-{
-    struct stl_readwrite_conv* rw_conv = (struct stl_readwrite_conv*)cookie;
-    struct gmio_stream* stream = &rw_conv->stream;
-    if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
-        stream->func_write(stream->cookie, "solid\n", 1, 6);
+    if (infos->format == GMIO_STL_FORMAT_ASCII) {
+        if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
+            stream->func_write(stream->cookie, "solid ", 1, 6);
+            stream->func_write(
+                        stream->cookie,
+                        infos->stla_solid_name,
+                        sizeof(char),
+                        strlen(infos->stla_solid_name));
+            stream->func_write(stream->cookie, "\n", 1, 1);
+        }
+        else {
+            /* For binary STL, facet count <- 0 because it cannot be known at this
+             * point. Header will be correctly rewritten at the end of the read
+             * procedure (in gmio_stl_mesh_creator::func_end_solid() callback)
+             */
+            const enum gmio_endianness byte_order = to_byte_order(rw_conv->out_format);
+            gmio_stlb_write_header(stream, byte_order, NULL, 0);
+        }
     }
     else {
-        const enum gmio_endianness byte_order = to_byte_order(rw_conv->out_format);
-        gmio_stlb_write_header(stream, byte_order, header, tri_count);
+        if (rw_conv->out_format == GMIO_STL_FORMAT_ASCII) {
+            stream->func_write(stream->cookie, "solid\n", 1, 6);
+        }
+        else {
+            gmio_stlb_write_header(
+                        stream,
+                        to_byte_order(rw_conv->out_format),
+                        infos->stlb_header,
+                        infos->stlb_triangle_count);
+        }
     }
 }
 
@@ -197,8 +201,7 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
     }
 
     mesh_creator.cookie = &rw_conv;
-    mesh_creator.func_ascii_begin_solid = &readwrite_ascii_begin_solid;
-    mesh_creator.func_binary_begin_solid = &readwrite_binary_begin_solid;
+    mesh_creator.func_begin_solid = &readwrite_begin_solid;
     mesh_creator.func_add_triangle = &readwrite_add_triangle;
     mesh_creator.func_end_solid = &readwrite_end_solid;
 

@@ -24,14 +24,50 @@
 #define GMIO_STL_MESH_CREATOR_H
 
 #include "stl_global.h"
+#include "stl_format.h"
 #include "stl_triangle.h"
 #include "stlb_header.h"
 #include "../gmio_core/stream.h"
 
 #include <stddef.h>
 
+/*! Informations about the STL stream, used in
+ *  gmio_stl_mesh_creator::begin_solid() */
+struct gmio_stl_mesh_creator_infos
+{
+    /*! Format of the input STL mesh */
+    enum gmio_stl_format format;
+
+    /*! Null terminated C-string holding the STL mesh(solid) name
+     *
+     *  Available only if STL ASCII format, \c NULL otherwise
+     */
+    const char* stla_solid_name;
+
+    /*! Total size (in bytes) of the input stream
+     *
+     *  This is the result of gmio_stl_read_options::func_stla_get_streamsize()
+     *
+     *  Useful to roughly estimate the facet count in the input mesh.
+     *  Available only if STL ASCII format, \c 0 otherwise
+     */
+    gmio_streamsize_t stla_stream_size;
+
+    /*! Contains the header data(80 bytes)
+     *
+     *  Available only if binary STL, \c NULL otherwise
+     */
+    const struct gmio_stlb_header* stlb_header;
+
+    /*! Count of mesh facets(triangles)
+     *
+     *  Available only if binary STL, \c 0 otherwise
+     */
+    uint32_t stlb_triangle_count;
+};
+
 /*! Provides an interface for the creation of the underlying(hidden)
- *  user mesh */
+ * user mesh */
 struct gmio_stl_mesh_creator
 {
     /*! Opaque pointer on the user mesh, passed as first argument to hook
@@ -40,30 +76,9 @@ struct gmio_stl_mesh_creator
 
     /* All function pointers are optional (ie can be set to NULL) */
 
-    /*! Pointer on a function that handles declaration of a solid of
-     *  name \p solid_name
-     *
-     *  Optional function useful only with STL ascii (ie. gmio_stla_read())
-     *
-     *  The argument \p stream_size is the total size (in bytes) of the input
-     *  stream
-     */
-    void (*func_ascii_begin_solid)(
-            void* cookie,
-            gmio_streamsize_t stream_size,
-            const char* solid_name);
-
-    /*! Pointer on a function that handles declaration of a mesh with
-     *  \p tri_count number of triangles
-     *
-     *  Optional function useful only with STL binary (ie. gmio_stlb_read()).
-     *
-     *  The argument \p header contains the header data(80 bytes)
-     */
-    void (*func_binary_begin_solid)(
-            void* cookie,
-            uint32_t tri_count,
-            const struct gmio_stlb_header* header);
+    /*! Optional pointer on a function that handles declaration of a solid */
+    void (*func_begin_solid)(
+            void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
 
     /*! Pointer on a function that adds a triangle to the user mesh
      *

@@ -35,15 +35,16 @@ struct stl_testcase_result
     char solid_name[2048];
 };
 
-void stl_testcase_result__ascii_begin_solid(
-        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
+void stl_testcase_result__begin_solid(
+        void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
 {
-    struct stl_testcase_result* res = (struct stl_testcase_result*)cookie;
-    GMIO_UNUSED(stream_size);
-    if (res != NULL) {
-        res->solid_name[0] = 0;
-        if (solid_name != NULL)
-            strcpy(res->solid_name, solid_name);
+    if (infos->format == GMIO_STL_FORMAT_ASCII) {
+        struct stl_testcase_result* res = (struct stl_testcase_result*)cookie;
+        if (res != NULL) {
+            res->solid_name[0] = 0;
+            if (infos->stla_solid_name != NULL)
+                strcpy(res->solid_name, infos->stla_solid_name);
+        }
     }
 }
 
@@ -131,7 +132,7 @@ const char* test_stl_read()
     struct stl_testcase_result result = {0};
 
     mesh_creator.cookie = &result;
-    mesh_creator.func_ascii_begin_solid = &stl_testcase_result__ascii_begin_solid;
+    mesh_creator.func_begin_solid = &stl_testcase_result__begin_solid;
     mesh_creator.func_add_triangle = &gmio_stl_nop_add_triangle;
 
     for (i = 0; i < expected_count; ++i) {

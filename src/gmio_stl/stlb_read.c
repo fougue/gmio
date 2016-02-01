@@ -139,8 +139,16 @@ int gmio_stlb_read(
         total_facet_count = gmio_uint32_bswap(total_facet_count);
 
     /* Callback to notify triangle count and header data */
-    gmio_stl_mesh_creator_binary_begin_solid(
-                &mesh_creator, total_facet_count, &header);
+    {
+        struct gmio_stl_mesh_creator_infos infos = {0};
+        infos.format =
+                byte_order == GMIO_ENDIANNESS_LITTLE ?
+                    GMIO_STL_FORMAT_BINARY_LE :
+                    GMIO_STL_FORMAT_BINARY_BE;
+        infos.stlb_header = &header;
+        infos.stlb_triangle_count = total_facet_count;
+        gmio_stl_mesh_creator_begin_solid(&mesh_creator, &infos);
+    }
 
     /* Read triangles */
     gmio_task_iface_handle_progress(task, 0, total_facet_count);

@@ -131,40 +131,32 @@ static void allocate_stl_scene(aiScene* pScene)
     pScene->mRootNode->mMeshes[0] = 0;
 }
 
-static void func_ascii_begin_solid(
-        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
+static void func_begin_solid(
+        void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
 {
-    aiSceneHelper* helper = (aiSceneHelper*)cookie;
-    helper->hasToCountTriangle = 1; // true
+    aiSceneHelper* helper = static_cast<aiSceneHelper*>(cookie);
+
     aiScene* pScene = helper->scene;
     allocate_stl_scene(pScene);
     aiMesh* pMesh = pScene->mMeshes[0];
 
-    std::strcpy(pScene->mRootNode->mName.data, solid_name);
-    pScene->mRootNode->mName.length = std::strlen(solid_name);
+    if (infos->format == GMIO_STL_FORMAT_ASCII) {
+        helper->hasToCountTriangle = 1; // true
 
-    // try to guess how many vertices we could have
-    // assume we'll need 200 bytes for each face
-    const unsigned facetSize = 200u;
-    pMesh->mNumFaces =
-            std::max(1u, static_cast<unsigned>(stream_size) / facetSize);
-    pMesh->mNumVertices = pMesh->mNumFaces * 3;
-    pMesh->mVertices = new aiVector3D[pMesh->mNumVertices];
-    pMesh->mNormals  = new aiVector3D[pMesh->mNumVertices];
-}
+        std::strcpy(pScene->mRootNode->mName.data, infos->stla_solid_name);
+        pScene->mRootNode->mName.length = std::strlen(infos->stla_solid_name);
 
-static void binary_begin_solid(
-        void* cookie, uint32_t tri_count, const gmio_stlb_header* /*header*/)
-{
-    aiSceneHelper* helper = (aiSceneHelper*)cookie;
-    helper->hasToCountTriangle = 0; // false
-    aiScene* pScene = helper->scene;
-    allocate_stl_scene(pScene);
-    aiMesh* pMesh = pScene->mMeshes[0];
-
-    pScene->mRootNode->mName.Set("<STL_BINARY>");
-    pMesh->mNumFaces = tri_count;
-
+        // try to guess how many vertices we could have
+        // assume we'll need 200 bytes for each face
+        const unsigned estimatedFacetCount =
+                static_cast<unsigned>(infos->stla_stream_size) / 200u;
+        pMesh->mNumFaces = std::max(1u, estimatedFacetCount);
+    }
+    else {
+        helper->hasToCountTriangle = 0; // false
+        pScene->mRootNode->mName.Set("<STL_BINARY>");
+        pMesh->mNumFaces = infos->stlb_triangle_count;
+    }
     pMesh->mNumVertices = pMesh->mNumFaces*3;
     pMesh->mVertices = new aiVector3D[pMesh->mNumVertices];
     pMesh->mNormals = new aiVector3D[pMesh->mNumVertices];
@@ -173,7 +165,7 @@ static void binary_begin_solid(
 static void add_triangle(
         void* cookie, uint32_t tri_id, const gmio_stl_triangle* triangle)
 {
-    aiSceneHelper* helper = (aiSceneHelper*)cookie;
+    aiSceneHelper* helper = static_cast<aiSceneHelper*>(cookie);
     aiScene* pScene = helper->scene;
     aiMesh* pMesh = pScene->mMeshes[0];
     if (pMesh->mNumFaces <= tri_id) {
@@ -220,7 +212,7 @@ static void add_triangle(
 
 static void end_solid(void* cookie)
 {
-    aiSceneHelper* helper = (aiSceneHelper*)cookie;
+    aiSceneHelper* helper = static_cast<aiSceneHelper*>(cookie);
     aiScene* pScene = helper->scene;
     aiMesh* pMesh = pScene->mMeshes[0];
 
@@ -260,7 +252,7 @@ static void end_solid(void* cookie)
 static void get_triangle(
         const void* cookie, uint32_t tri_id, gmio_stl_triangle* triangle)
 {
-    const aiMesh* mesh = (const aiMesh*)cookie;
+    const aiMesh* mesh = static_cast<const aiMesh*>(cookie);
     const aiFace& f = mesh->mFaces[tri_id];
 
     // we need per-face normals. We specified aiProcess_GenNormals as
@@ -288,8 +280,7 @@ static void stl_read(const void* filepath)
     const char* str_filepath = static_cast<const char*>(filepath);
     gmio_stl_mesh_creator mesh_creator = {};
     mesh_creator.cookie = &globalSceneHelper;
-    mesh_creator.func_ascii_begin_solid = func_ascii_begin_solid;
-    mesh_creator.func_binary_begin_solid = binary_begin_solid;
+    mesh_creator.func_begin_solid = func_begin_solid;
     mesh_creator.func_add_triangle = add_triangle;
     mesh_creator.func_end_solid = end_solid;
 

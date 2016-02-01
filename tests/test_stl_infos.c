@@ -55,8 +55,6 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
     struct gmio_stream stream = gmio_stream_stdio(file);
     int error = GMIO_ERROR_OK;
 
-    printf("\n%s\n", test->filepath);
-
     error = gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
     if (test->format != GMIO_STL_FORMAT_UNKNOWN) {
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
@@ -71,7 +69,7 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
     fclose(file);
 
     if (test->expected_size != -2)
-        UTEST_COMPARE_UINT(expected_size, infos.size);
+        UTEST_COMPARE_INT(expected_size, infos.size);
 
     return NULL;
 }

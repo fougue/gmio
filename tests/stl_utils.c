@@ -44,34 +44,35 @@ struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count)
     return array;
 }
 
-static void gmio_stl_data__ascii_begin_solid(
-        void* cookie, gmio_streamsize_t stream_size, const char* solid_name)
+static void gmio_stl_data__begin_solid(
+        void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
 {
     struct gmio_stl_data* data = (struct gmio_stl_data*)cookie;
 
-    memset(data->solid_name, 0, sizeof(data->solid_name));
-    if (solid_name != NULL) {
-        const size_t len =
-                GMIO_MIN(sizeof(data->solid_name), strlen(solid_name));
-        strncpy(data->solid_name, solid_name, len);
-    }
+    if (infos->format == GMIO_STL_FORMAT_ASCII) {
+        memset(data->solid_name, 0, sizeof(data->solid_name));
+        if (infos->stla_solid_name != NULL) {
+            const size_t len =
+                    GMIO_MIN(sizeof(data->solid_name),
+                             strlen(infos->stla_solid_name));
+            strncpy(data->solid_name, infos->stla_solid_name, len);
+        }
 
-    /* Try to guess how many vertices we could have assume we'll need 200 bytes
-     * for each face */
-    {
-        const size_t facet_size = 200;
-        const size_t facet_count =
-                gmio_streamsize_to_size(GMIO_MAX(1, stream_size / facet_size));
-        data->tri_array = gmio_stl_triangle_array_malloc(facet_count);
+        /* Try to guess how many vertices we could have assume we'll need
+         * 200 bytes for each face */
+        {
+            const size_t facet_size = 200;
+            const size_t facet_count =
+                    gmio_streamsize_to_size(
+                        GMIO_MAX(1, infos->stla_stream_size / facet_size));
+            data->tri_array = gmio_stl_triangle_array_malloc(facet_count);
+        }
     }
-}
-
-static void gmio_stl_data__binary_begin_solid(
-        void* cookie, uint32_t tri_count, const struct gmio_stlb_header* header)
-{
-    struct gmio_stl_data* data = (struct gmio_stl_data*)cookie;
-    memcpy(&data->header, header, GMIO_STLB_HEADER_SIZE);
-    data->tri_array = gmio_stl_triangle_array_malloc(tri_count);
+    else {
+        memcpy(&data->header, infos->stlb_header, GMIO_STLB_HEADER_SIZE);
+        data->tri_array =
+                gmio_stl_triangle_array_malloc(infos->stlb_triangle_count);
+    }
 }
 
 static void gmio_stl_data__add_triangle(
@@ -100,8 +101,7 @@ struct gmio_stl_mesh_creator gmio_stl_data_mesh_creator(struct gmio_stl_data *da
 {
     struct gmio_stl_mesh_creator creator = {0};
     creator.cookie = data;
-    creator.func_ascii_begin_solid = &gmio_stl_data__ascii_begin_solid;
-    creator.func_binary_begin_solid = &gmio_stl_data__binary_begin_solid;
+    creator.func_begin_solid = &gmio_stl_data__begin_solid;
     creator.func_add_triangle = &gmio_stl_data__add_triangle;
     return creator;
 }

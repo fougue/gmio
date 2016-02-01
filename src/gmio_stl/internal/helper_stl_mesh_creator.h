@@ -19,27 +19,13 @@
 #include "../stl_mesh_creator.h"
 
 /*! Safe and convenient function for
- *  gmio_stl_mesh_creator::func_ascii_begin_solid() */
-GMIO_INLINE void gmio_stl_mesh_creator_ascii_begin_solid(
+ *  gmio_stl_mesh_creator::func_begin_solid() */
+GMIO_INLINE void gmio_stl_mesh_creator_begin_solid(
         struct gmio_stl_mesh_creator* creator,
-        gmio_streamsize_t stream_size,
-        const char* solid_name)
+        const struct gmio_stl_mesh_creator_infos* infos)
 {
-    if (creator != NULL && creator->func_ascii_begin_solid != NULL) {
-        creator->func_ascii_begin_solid(
-                    creator->cookie, stream_size, solid_name);
-    }
-}
-
-/*! Safe and convenient function for
- *  gmio_stl_mesh_creator::func_binary_begin_solid() */
-GMIO_INLINE void gmio_stl_mesh_creator_binary_begin_solid(
-        struct gmio_stl_mesh_creator* creator,
-        uint32_t tri_count,
-        const struct gmio_stlb_header* header)
-{
-    if (creator != NULL && creator->func_binary_begin_solid != NULL)
-        creator->func_binary_begin_solid(creator->cookie, tri_count, header);
+    if (creator != NULL && creator->func_begin_solid != NULL)
+        creator->func_begin_solid(creator->cookie, infos);
 }
 
 /*! Safe and convenient function for

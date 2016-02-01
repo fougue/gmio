@@ -518,10 +518,11 @@ int parse_beginsolid(struct gmio_stla_parse_data* data)
 {
     if (gmio_stla_eat_next_token(data, SOLID_token) == 0) {
         if (gmio_stla_parse_solidname_beg(data) == 0) {
-            gmio_stl_mesh_creator_ascii_begin_solid(
-                        data->creator,
-                        data->strstream_cookie.stream_size,
-                        data->strbuff.ptr);
+            struct gmio_stl_mesh_creator_infos infos = {0};
+            infos.format = GMIO_STL_FORMAT_ASCII;
+            infos.stla_solid_name = data->strbuff.ptr;
+            infos.stla_stream_size = data->strstream_cookie.stream_size;
+            gmio_stl_mesh_creator_begin_solid(data->creator, &infos);
             return 0;
         }
     }
