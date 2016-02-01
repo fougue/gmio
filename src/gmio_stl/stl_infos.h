@@ -36,7 +36,7 @@
 struct gmio_stl_infos
 {
     /*! STL format of the input stream */
-    enum stl_format format;
+    enum gmio_stl_format format;
 
     /*! Count of facets(triangles) */
     uint32_t facet_count;
