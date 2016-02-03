@@ -26,35 +26,39 @@ struct gmio_test_stl_infos
     const char* filepath;
     enum gmio_stl_format format;
     uint32_t expected_facet_count;
-    gmio_streamsize_t expected_size; /* -2: don't check size
-                                      * -1: check against actual file size */
+    gmio_streamsize_t expected_size; /* -1: check against actual file size */
 };
 
 static const struct gmio_test_stl_infos tests[] = {
     { "models/file_empty", GMIO_STL_FORMAT_UNKNOWN, 0, 0 },
-    { "models/solid_4vertex.stla", GMIO_STL_FORMAT_ASCII, 1, -2 },
-    { "models/solid_anonymous_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
-    { "models/solid_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
+    { "models/solid_4vertex.stla", GMIO_STL_FORMAT_ASCII, 1, -1 },
+    { "models/solid_anonymous_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
+    { "models/solid_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
     { "models/solid_empty.stlb", GMIO_STL_FORMAT_BINARY_LE, 0, -1 },
-    { "models/solid_empty_name_many_words.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
-    { "models/solid_empty_name_many_words_single_letters.stla", GMIO_STL_FORMAT_ASCII, 0, -2 },
+    { "models/solid_empty_name_many_words.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
+    { "models/solid_empty_name_many_words_single_letters.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
     { "models/solid_grabcad_arm11_link0_hb.le_stlb", GMIO_STL_FORMAT_BINARY_LE, 1436, -1 },
-    { "models/solid_jburkardt_sphere.stla", GMIO_STL_FORMAT_ASCII, 228, -2 },
-    { "models/solid_lack_z.stla", GMIO_STL_FORMAT_ASCII, 1, -2 },
+    { "models/solid_jburkardt_sphere.stla", GMIO_STL_FORMAT_ASCII, 228, -1 },
+    { "models/solid_lack_z.stla", GMIO_STL_FORMAT_ASCII, 1, -1 },
     { "models/solid_one_facet.be_stlb", GMIO_STL_FORMAT_BINARY_BE, 1, -1 },
     { "models/solid_one_facet.le_stlb", GMIO_STL_FORMAT_BINARY_LE, 1, -1 },
-    { "models/solid_one_facet.stla", GMIO_STL_FORMAT_ASCII, 1, -2 },
-    { "models/solid_one_facet_uppercase.stla", GMIO_STL_FORMAT_ASCII, 1, -2 }
+    { "models/solid_one_facet.stla", GMIO_STL_FORMAT_ASCII, 1, -1 },
+    { "models/solid_one_facet_uppercase.stla", GMIO_STL_FORMAT_ASCII, 1, -1 }
 };
 
 const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
 {
     FILE* file = fopen(test->filepath, "rb");
     gmio_streamsize_t expected_size = test->expected_size;
+    char stla_solid_name[512] = {0};
     struct gmio_stl_infos infos = {0};
     struct gmio_stream stream = gmio_stream_stdio(file);
     int error = GMIO_ERROR_OK;
 
+    puts(test->filepath);
+
+    infos.stla_solidname = stla_solid_name;
+    infos.stla_solidname_maxlen = sizeof(stla_solid_name) - 1;
     error = gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
     if (test->format != GMIO_STL_FORMAT_UNKNOWN) {
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
@@ -68,8 +72,21 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
 
     fclose(file);
 
-    if (test->expected_size != -2)
+    if (test->format == GMIO_STL_FORMAT_ASCII) {
+        const size_t name_len = strlen(stla_solid_name);
+#if 0
+        printf("expected_size=%d    "
+               "name_len=%d    "
+               "infos.size=%d    "
+               "infos.solid_name=%s\n",
+               expected_size, name_len, infos.size, infos.stla_solidname);
+#endif
+        UTEST_ASSERT((expected_size - name_len) <= infos.size);
+        UTEST_ASSERT(infos.size <= (expected_size + name_len));
+    }
+    else {
         UTEST_COMPARE_INT(expected_size, infos.size);
+    }
 
     return NULL;
 }

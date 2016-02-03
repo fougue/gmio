@@ -25,6 +25,7 @@
 
 #include <string.h>
 
+/* Skip characters until an ASCII space is met */
 static const char* gmio_stringstream_skip_until_ascii_space(
         struct gmio_stringstream* sstream)
 {
@@ -34,79 +35,27 @@ static const char* gmio_stringstream_skip_until_ascii_space(
     return curr_char;
 }
 
-static const char* gmio_stringstream_skip_word(
-        struct gmio_stringstream* sstream)
+/* Eats \p str case-insensitive, stops on any difference */
+static bool gmio_stringstream_icase_eat(
+        struct gmio_stringstream* sstream, const char* str)
 {
-    gmio_stringstream_skip_ascii_spaces(sstream);
-    return gmio_stringstream_skip_until_ascii_space(sstream);
-}
-
-static void gmio_skip_xyz_coords(struct gmio_stla_parse_data* data)
-{
-    struct gmio_stringstream* sstream = &data->strstream;
-    gmio_stringstream_skip_word(sstream);
-    gmio_stringstream_skip_word(sstream);
-    gmio_stringstream_skip_word(sstream);
-    data->strbuff.len = 0;
-    data->token = unknown_token;
-}
-
-static int gmio_skip_facet(struct gmio_stla_parse_data* data)
-{
-    int errc = 0;
-    if (data->token != FACET_token)
-        errc += gmio_stla_eat_next_token_inplace(data, FACET_token);
-
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* normal */
-    gmio_skip_xyz_coords(data);
-
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* outer */
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* loop */
-
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* vertex */
-    gmio_skip_xyz_coords(data);
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* vertex */
-    gmio_skip_xyz_coords(data);
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* vertex */
-    gmio_skip_xyz_coords(data);
-
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* endloop */
-    errc += gmio_stringstream_skip_word(&data->strstream) == NULL; /* endfacet */
-
-    return errc;
-}
-
-static int gmio_stla_check_next_token(
-        struct gmio_stringstream* sstream, const char* expected_token_str)
-{
-    const char* stream_char = NULL;
-
-    stream_char = gmio_stringstream_skip_ascii_spaces(sstream);
-    for (;;) {
-        if (stream_char == NULL || gmio_ascii_isspace(*stream_char)) {
-            if (*expected_token_str == 0)
-                return 1;
-            break;
-        }
-        else if (!gmio_ascii_char_iequals(*stream_char, *expected_token_str)
-                 || *expected_token_str == 0)
-        {
-            break;
-        }
-        stream_char = gmio_stringstream_next_char(sstream);
-        ++expected_token_str;
+    const char* c = gmio_stringstream_next_char(sstream);
+    while (c != NULL && *str != 0) {
+        if (!gmio_ascii_char_iequals(*c, *str))
+            return false;
+        c = gmio_stringstream_next_char(sstream);
+        ++str;
     }
-    gmio_stringstream_skip_word(sstream);
-    return 0;
+    return *str == 0;
 }
 
-static void gmio_stringstream_stla_read_hook(
+/* Callback invoked by gmio_stringstream */
+static void gmio_stringstream_update_streamsize(
         void* cookie, const struct gmio_string* strbuff)
 {
-    struct gmio_stringstream_stla_cookie* tcookie =
-            (struct gmio_stringstream_stla_cookie*)(cookie);
-    if (tcookie != NULL)
-        tcookie->stream_offset += strbuff->len;
+    gmio_streamsize_t* ptr_size = (gmio_streamsize_t*)(cookie);
+    if (ptr_size != NULL)
+        *ptr_size += strbuff->len;
 }
 
 int gmio_stla_infos_get(
@@ -123,13 +72,9 @@ int gmio_stla_infos_get(
             (flags & GMIO_STLA_INFO_FLAG_SOLIDNAME) != 0;
 
     void* const mblock_ptr = opts->stream_memblock.ptr;
-    /* Leave one byte to end the string buffer with 0 */
+    /* Leave one byte to end of string buffer */
     const size_t mblock_size = opts->stream_memblock.size - 1;
-    struct gmio_stla_parse_data parse_data = {0};
-    struct gmio_stringstream* sstream = &parse_data.strstream;
-    struct gmio_string* strbuff = &parse_data.strbuff;
-    char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN];
-
+    struct gmio_stringstream sstream = {0};
     int err = GMIO_ERROR_OK;
 
     if (flags == 0)
@@ -137,56 +82,96 @@ int gmio_stla_infos_get(
     if (!gmio_check_memblock(&err, &opts->stream_memblock))
         return err;
 
-    parse_data.strstream =
-            gmio_stringstream(stream, gmio_string(mblock_ptr, 0, mblock_size));
-    parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
-    parse_data.strbuff = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
+    /* Initialize string stream */
+    sstream.stream = stream;
+    sstream.strbuff = gmio_string(mblock_ptr, 0, mblock_size);
+    if (flag_size) {
+        infos->size = 0;
+        sstream.cookie = &infos->size;
+        sstream.func_stream_read_hook = gmio_stringstream_update_streamsize;
+    }
+    gmio_stringstream_init_pos(&sstream);
 
-    gmio_stringstream_skip_word(sstream); /* Skip "\s*solid" */
-    gmio_stla_parse_solidname_beg(&parse_data);
     if (flag_stla_solidname) {
-        const size_t name_len_for_cpy =
-                GMIO_MIN(infos->stla_solidname_maxlen, strbuff->len);
-        strncpy(infos->stla_solidname, strbuff->ptr, name_len_for_cpy);
-        /* Null terminate C string */
-        if (name_len_for_cpy != 0)
-            infos->stla_solidname[name_len_for_cpy - 1] = 0;
-        else if (infos->stla_solidname_maxlen != 0)
-            infos->stla_solidname[0] = 0;
-        gmio_string_clear(strbuff);
+        struct gmio_stla_parse_data parse_data = {0};
+        const struct gmio_string* strbuff = &parse_data.strbuff;
+        char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN] = {0};
+
+        parse_data.strstream = sstream;
+        parse_data.strbuff = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
+
+        /* Skip "\s*solid" */
+        gmio_stringstream_skip_ascii_spaces(&parse_data.strstream);
+        gmio_stringstream_skip_until_ascii_space(&parse_data.strstream);
+
+        /* Eat solid name */
+        gmio_stla_parse_solidname_beg(&parse_data);
+
+        /* Copy parsed solid name into infos->stla_solid_name */
+        {
+            const size_t name_len_for_cpy =
+                    GMIO_MIN(infos->stla_solidname_maxlen - 1, strbuff->len);
+
+            strncpy(infos->stla_solidname, strbuff->ptr, name_len_for_cpy);
+            /* Null terminate C string */
+            if (name_len_for_cpy != 0)
+                infos->stla_solidname[name_len_for_cpy] = 0;
+            else if (infos->stla_solidname_maxlen != 0)
+                infos->stla_solidname[0] = 0;
+        }
+        sstream = parse_data.strstream;
     }
 
     if (flag_facet_count) {
+        bool endfound = false;
+
         infos->facet_count = 0;
-        while (parse_data.token == FACET_token
-               && !parse_data.error
-               && gmio_stringstream_current_char(sstream) != NULL)
-        {
-            if (gmio_skip_facet(&parse_data) == 0) {
-                ++infos->facet_count;
-                /* Eat next unknown token */
-                strbuff->len = 0;
-                gmio_stringstream_eat_word(sstream, strbuff);
-                parse_data.token =
-                        gmio_stla_find_token(strbuff->ptr, strbuff->len);
+
+        while (!endfound) {
+            const char* c = gmio_stringstream_skip_ascii_spaces(&sstream);
+            if (c != NULL) {
+                if (gmio_ascii_char_iequals(*c, 'f')) {
+                    if (gmio_stringstream_icase_eat(&sstream, "acet"))
+                        ++infos->facet_count;
+                }
+                else {
+                    endfound =
+                            gmio_ascii_char_iequals(*c, 'e')
+                            && gmio_stringstream_icase_eat(&sstream, "ndsolid");
+                }
             }
+            else {
+                endfound = true;
+            }
+            gmio_stringstream_skip_until_ascii_space(&sstream);
         }
     }
 
     if (flag_size) {
-        if (flag_facet_count) { /* We should be near "endsolid" token */
-            if (parse_data.token != ENDSOLID_token)
-                gmio_stla_eat_next_token(&parse_data, ENDSOLID_token);
-        }
-        else {
-            while (!gmio_stla_check_next_token(sstream, "endsolid")
-                   && !parse_data.error
-                   && gmio_stringstream_current_char(sstream) != NULL)
-            {
+        /* On case flag_facet_count is on, we should already be after "endsolid"
+         * token */
+        if (!flag_facet_count) {
+            bool endfound = false;
+            while (!endfound) {
+                const char* c = gmio_stringstream_skip_ascii_spaces(&sstream);
+                if (c != NULL) {
+                    endfound =
+                            gmio_ascii_char_iequals(*c, 'e')
+                            && gmio_stringstream_icase_eat(&sstream, "ndsolid");
+                }
+                else {
+                    endfound = true;
+                }
+                gmio_stringstream_skip_until_ascii_space(&sstream);
             }
         }
-        infos->size = parse_data.strstream_cookie.stream_offset;
-        infos->size += sstream->strbuff_at - strbuff->ptr;
+        { /* Eat whole line */
+            const char* c = gmio_stringstream_current_char(&sstream);
+            while (c != NULL && *c != '\n' && *c != '\r')
+                c = gmio_stringstream_next_char(&sstream);
+        }
+        infos->size -= sstream.strbuff_end - sstream.strbuff_at;
+        infos->size = GMIO_MAX(0, infos->size);
     }
 
     return err;

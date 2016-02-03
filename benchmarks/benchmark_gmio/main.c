@@ -214,7 +214,7 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
     fclose(outfile);
 }
 
-void bmk_gmio_stl_infos_get(const void* filepath)
+void bmk_gmio_stl_infos_get_all(const void* filepath)
 {
     static bool already_exec = false;
     FILE* file = fopen(filepath, "rb");
@@ -225,7 +225,7 @@ void bmk_gmio_stl_infos_get(const void* filepath)
         gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
 
         if (!already_exec) {
-            printf("stl_infos_get()\n"
+            printf("stl_infos_get(ALL)\n"
                    "    File: %s\n"
                    "    Size: %uKo\n"
                    "    Facets: %u\n",
@@ -247,6 +247,29 @@ void bmk_gmio_stl_infos_get(const void* filepath)
     fclose(file);
 }
 
+void bmk_gmio_stl_infos_get_size(const void* filepath)
+{
+    static bool already_exec = false;
+    FILE* file = fopen(filepath, "rb");
+
+    if (file != NULL) {
+        const struct gmio_stream stream = gmio_stream_stdio(file);
+        struct gmio_stl_infos infos = {0};
+        gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_SIZE, NULL);
+
+        if (!already_exec) {
+            printf("stl_infos_get(SIZE)\n"
+                   "    File: %s\n"
+                   "    Size: %uKo\n",
+                   (const char*)filepath,
+                   infos.size / 1024);
+        }
+        already_exec = true;
+    }
+
+    fclose(file);
+}
+
 int main(int argc, char** argv)
 {
     if (argc > 1) {
@@ -261,7 +284,10 @@ int main(int argc, char** argv)
               bmk_gmio_stl_readwrite_conv, NULL,
               NULL, NULL },
             { "stl_infos_get(ALL)",
-              bmk_gmio_stl_infos_get, NULL,
+              bmk_gmio_stl_infos_get_all, NULL,
+              NULL, NULL },
+            { "stl_infos_get(size)",
+              bmk_gmio_stl_infos_get_size, NULL,
               NULL, NULL },
             {0}
         };
