@@ -438,7 +438,8 @@ int gmio_stla_eat_next_token_inplace(
 }
 
 int gmio_stla_eat_until_token(
-        struct gmio_stla_parse_data* data, const enum gmio_stla_token* end_tokens)
+        struct gmio_stla_parse_data* data,
+        const enum gmio_stla_token* end_tokens)
 {
     if (!stla_token_match_candidate(data->token, end_tokens)) {
         struct gmio_stringstream* sstream = &data->strstream;

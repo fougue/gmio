@@ -30,7 +30,7 @@ struct gmio_stringstream gmio_stringstream(
 void gmio_stringstream_init_pos(struct gmio_stringstream *sstream)
 {
     /* Trick: declaring the buffer exhausted will actually trigger the first
-     * call to gmio_stream_read() inside gmio_next_char()
+     * call to gmio_stream_read() inside gmio_stringstream_next_char()
      */
     sstream->strbuff.len = 0;
     sstream->strbuff_end = sstream->strbuff.ptr;
