@@ -55,8 +55,6 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
     struct gmio_stream stream = gmio_stream_stdio(file);
     int error = GMIO_ERROR_OK;
 
-    puts(test->filepath);
-
     infos.stla_solidname = stla_solid_name;
     infos.stla_solidname_maxlen = sizeof(stla_solid_name) - 1;
     error = gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
