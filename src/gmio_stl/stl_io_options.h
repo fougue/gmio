@@ -110,7 +110,7 @@ struct gmio_stl_write_options
      *
      *  Defaulted to an array containing 0 when :
      *    \li calling gmio_stl_write() with <tt>options == NULL</tt>
-     *    \li OR <tt>stlb_header_data == NULL</tt>
+     *    \li OR <tt>stlb_header == NULL</tt>
      */
     struct gmio_stlb_header stlb_header;
 };
