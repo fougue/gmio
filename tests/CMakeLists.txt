@@ -53,8 +53,9 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
 set(GMIO_TEST_STL_SRC
         main_test_stl.c
         test_stl_internal.c
-        test_stl_io.c
         test_stl_infos.c
+        test_stl_io.c
+        test_stl_triangle.c
         test_stlb_header.c
         core_utils.c
         stl_utils.c)

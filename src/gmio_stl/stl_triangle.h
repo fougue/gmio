@@ -45,5 +45,13 @@ struct gmio_stl_triangle
     uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
 };
 
+GMIO_C_LINKAGE_BEGIN
+
+/*! Computes the normal vector of triangle \p tri */
+GMIO_LIBSTL_EXPORT
+void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri);
+
+GMIO_C_LINKAGE_END
+
 #endif /* GMIO_STL_TRIANGLE_H */
 /*! @} */

@@ -17,31 +17,12 @@
 
 #include "../src/gmio_core/global.h"
 #include "../src/gmio_core/stream.h"
-#include "../src/gmio_stl/stl_constants.h"
-#include "../src/gmio_stl/stl_triangle.h"
 
 #include <stddef.h>
 #include <string.h>
 
 /* Disable MSVC warning "conditional expression is constant" */
 GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
-
-const char* test_platform__alignment()
-{
-    UTEST_ASSERT(offsetof(struct gmio_stl_coords, x) == 0);
-    UTEST_ASSERT(offsetof(struct gmio_stl_coords, y) == 4);
-    UTEST_ASSERT(offsetof(struct gmio_stl_coords, z) == 8);
-    UTEST_ASSERT(sizeof(struct gmio_stl_coords) == GMIO_STL_COORDS_RAWSIZE);
-
-    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, n) == 0);
-    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v1) == GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v2) == 2*GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, v3) == 3*GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(offsetof(struct gmio_stl_triangle, attribute_byte_count) == 4*GMIO_STL_COORDS_RAWSIZE);
-    UTEST_ASSERT(sizeof(struct gmio_stl_triangle) >= GMIO_STLB_TRIANGLE_RAWSIZE);
-
-    return NULL;
-}
 
 const char* test_platform__global_h()
 {

@@ -15,6 +15,10 @@
 
 #include "utest_lib.h"
 
+const char* test_stl_coords_packing();
+const char* test_stl_triangle_packing();
+const char* test_stl_triangle_compute_normal();
+
 const char* test_stl_internal__rw_common();
 
 const char* test_stl_infos();
@@ -31,13 +35,19 @@ const char* all_tests()
 {
     UTEST_SUITE_START();
 
+    UTEST_RUN(test_stl_coords_packing);
+    UTEST_RUN(test_stl_triangle_packing);
+    UTEST_RUN(test_stl_triangle_compute_normal);
+
     UTEST_RUN(test_stl_internal__rw_common);
 
     UTEST_RUN(test_stl_infos);
+
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stla_write);
     UTEST_RUN(test_stlb_write_header);
     UTEST_RUN(test_stlb_write);
+
     UTEST_RUN(test_stlb_header_str);
     UTEST_RUN(test_stlb_header_to_printable_str);
 
