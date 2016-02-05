@@ -248,6 +248,7 @@ if(MSVC)
     # Set warning level to /W4
     string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
 
     # Treat warnings as errors
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
