@@ -15,6 +15,7 @@
 
 #include "utest_assert.h"
 
+#include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_stl/stl_constants.h"
 #include "../src/gmio_stl/stl_triangle.h"
 
@@ -46,12 +47,13 @@ const char* test_stl_triangle_packing()
 
 const char* test_stl_triangle_compute_normal()
 {
+    const unsigned udiff = 5;
     { /* Doesn't fail on invalid facet */
-        const struct gmio_stl_coords null_coords = {0};
         struct gmio_stl_triangle tri = {0};
         gmio_stl_triangle_compute_normal(&tri);
-        UTEST_ASSERT(memcmp(&tri.n, &null_coords, sizeof(struct gmio_stl_triangle))
-                     == 0);
+        UTEST_ASSERT(gmio_float32_ulp_equals(tri.n.x, 0.f, udiff));
+        UTEST_ASSERT(gmio_float32_ulp_equals(tri.n.y, 0.f, udiff));
+        UTEST_ASSERT(gmio_float32_ulp_equals(tri.n.z, 0.f, udiff));
     }
     return NULL;
 }
