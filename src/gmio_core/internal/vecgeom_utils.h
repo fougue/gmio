@@ -35,6 +35,8 @@ GMIO_INLINE void gmio_cross_product_f64(
  *  Implementation
  */
 
+#include <math.h>
+
 void gmio_cross_product_f32(
         float ux, float uy, float uz,
         float vx, float vy, float vz,

@@ -240,6 +240,12 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
+# Specific flags for Clang
+if(CMAKE_COMPILER_IS_CLANG)
+    # Clang on apple-darwin13.4.0 wrongly reports many unused functions
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
+endif()
+
 # Specific flags for Visual C++
 if(MSVC)
     # Treat all files a C source files
