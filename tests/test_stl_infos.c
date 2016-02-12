@@ -20,6 +20,7 @@
 #include "../src/gmio_stl/stl_infos.h"
 
 #include <stdio.h>
+#include <string.h>
 
 struct gmio_test_stl_infos
 {
