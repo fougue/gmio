@@ -31,7 +31,7 @@ static StlMesh_Mesh* occMeshPtr(const Handle_StlMesh_Mesh& mesh)
 }
 
 static void occmesh_add_triangle(
-        void* cookie, uint32_t tri_id, const struct gmio_stl_triangle* tri)
+        void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri)
 {
     StlMesh_Mesh* mesh = static_cast<StlMesh_Mesh*>(cookie);
     if (tri_id == 0)
@@ -46,94 +46,113 @@ static void occmesh_add_triangle(
                       n.x, n.y, n.z);
 }
 
-static void occmesh_get_triangle(
-        const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* tri)
+static inline void gmio_stl_occ_copy_xyz(
+        gmio_stl_coords* stl_coords, const gp_XYZ& coords)
 {
-    const struct gmio_occ_stl_mesh_domain* mesh_domain =
-            static_cast<const struct gmio_occ_stl_mesh_domain*>(cookie);
-    const Handle_StlMesh_MeshTriangle& occTri =
-            mesh_domain->triangles()->Value(tri_id + 1);
-    int idV1;
-    int idV2;
-    int idV3;
-    double xN;
-    double yN;
-    double zN;
-    occTri->GetVertexAndOrientation(idV1, idV2, idV3, xN, yN, zN);
-    gmio_stl_coords& n = tri->n;
-    n.x = static_cast<float>(xN);
-    n.y = static_cast<float>(yN);
-    n.z = static_cast<float>(zN);
+    stl_coords->x = static_cast<float>(coords.X());
+    stl_coords->y = static_cast<float>(coords.Y());
+    stl_coords->z = static_cast<float>(coords.Z());
+}
 
-    const TColgp_SequenceOfXYZ& vertices = *mesh_domain->vertices();
-    const gp_XYZ& coordsV1 = vertices.Value(idV1);
-    gmio_stl_coords& v1 = tri->v1;
-    v1.x = static_cast<float>(coordsV1.X());
-    v1.y = static_cast<float>(coordsV1.Y());
-    v1.z = static_cast<float>(coordsV1.Z());
+static void occmesh_get_triangle(
+        const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri)
+{
+    void* wcookie = const_cast<void*>(cookie);
+    gmio_stl_occmesh_iterator* it =
+            static_cast<gmio_stl_occmesh_iterator*>(wcookie);
 
-    const gp_XYZ& coordsV2 = vertices.Value(idV2);
-    gmio_stl_coords& v2 = tri->v2;
-    v2.x = static_cast<float>(coordsV2.X());
-    v2.y = static_cast<float>(coordsV2.Y());
-    v2.z = static_cast<float>(coordsV2.Z());
+    if (it->move_to_next_tri(tri_id)) {
+        const Handle_StlMesh_MeshTriangle& occTri = it->domain_tri(tri_id);
+        int idV1, idV2, idV3;
+        double xN, yN, zN;
+        occTri->GetVertexAndOrientation(idV1, idV2, idV3, xN, yN, zN);
+        gmio_stl_coords& n = tri->n;
+        n.x = static_cast<float>(xN);
+        n.y = static_cast<float>(yN);
+        n.z = static_cast<float>(zN);
 
-    const gp_XYZ& coordsV3 = vertices.Value(idV3);
-    gmio_stl_coords& v3 = tri->v3;
-    v3.x = static_cast<float>(coordsV3.X());
-    v3.y = static_cast<float>(coordsV3.Y());
-    v3.z = static_cast<float>(coordsV3.Z());
+        const TColgp_SequenceOfXYZ& vertices = it->domain_vertices();
+        gmio_stl_occ_copy_xyz(&tri->v1, vertices.Value(idV1));
+        gmio_stl_occ_copy_xyz(&tri->v2, vertices.Value(idV2));
+        gmio_stl_occ_copy_xyz(&tri->v3, vertices.Value(idV3));
+    }
 }
 
 } // namespace internal
 
-struct gmio_stl_mesh gmio_stl_occmesh(const struct gmio_occ_stl_mesh_domain* mesh_domain)
+gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it)
 {
-    struct gmio_stl_mesh mesh = {0};
-    mesh.cookie = mesh_domain;
-    if (mesh_domain != NULL && mesh_domain->mesh() != NULL) {
-        mesh.triangle_count =
-                mesh_domain->mesh()->NbTriangles(mesh_domain->domain_id());
-    }
+    gmio_stl_mesh mesh = {};
+    mesh.cookie = &it;
+    const int domain_count = it.mesh()->NbDomains();
+    for (int dom_id = 1; dom_id <= domain_count; ++dom_id)
+        mesh.triangle_count += it.mesh()->NbTriangles(dom_id);
     mesh.func_get_triangle = internal::occmesh_get_triangle;
     return mesh;
 }
 
-struct gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
+gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
 {
-    struct gmio_stl_mesh_creator creator = {0};
+    gmio_stl_mesh_creator creator = {};
     creator.cookie = mesh;
     creator.func_add_triangle = internal::occmesh_add_triangle;
     return creator;
 }
 
-struct gmio_stl_mesh_creator gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh &hnd)
+gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh &hnd)
 {
     return gmio_stl_occmesh_creator(internal::occMeshPtr(hnd));
 }
 
-gmio_occ_stl_mesh_domain::gmio_occ_stl_mesh_domain()
-    : m_mesh(NULL),
-      m_domain_id(0),
-      m_triangles(NULL),
-      m_vertices(NULL)
+gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator()
 {
+    this->init(NULL);
 }
 
-gmio_occ_stl_mesh_domain::gmio_occ_stl_mesh_domain(
-        const StlMesh_Mesh *msh, int dom_id)
-    : m_mesh(msh),
-      m_domain_id(dom_id),
-      m_triangles(&msh->Triangles(dom_id)),
-      m_vertices(&msh->Vertices(dom_id))
+gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator(const StlMesh_Mesh *mesh)
 {
+    this->init(mesh);
 }
 
-gmio_occ_stl_mesh_domain::gmio_occ_stl_mesh_domain(
-        const Handle_StlMesh_Mesh &hnd, int dom_id)
-    : m_mesh(internal::occMeshPtr(hnd)),
-      m_domain_id(dom_id),
-      m_triangles(&m_mesh->Triangles(dom_id)),
-      m_vertices(&m_mesh->Vertices(dom_id))
+gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh &hnd)
 {
+    this->init(internal::occMeshPtr(hnd));
+}
+
+void gmio_stl_occmesh_iterator::init(const StlMesh_Mesh* mesh)
+{
+    m_mesh = mesh;
+    m_domain_id = 0;
+    m_domain_count = m_mesh != NULL ? m_mesh->NbDomains() : 0;
+    m_domain_triangles = NULL;
+    m_domain_vertices = NULL;
+    m_domain_first_tri_id = 0;
+    m_domain_last_tri_id = 0;
+    if (m_domain_count > 0)
+        this->cache_domain(1);
+}
+
+void gmio_stl_occmesh_iterator::cache_domain(int dom_id)
+{
+    m_domain_id = dom_id;
+    m_domain_triangles = &m_mesh->Triangles(dom_id);
+    m_domain_vertices = &m_mesh->Vertices(dom_id);
+    const int dom_tricnt = m_domain_triangles->Length();
+    m_domain_first_tri_id =
+            dom_tricnt > 0 ? m_domain_last_tri_id : m_domain_first_tri_id;
+    m_domain_last_tri_id +=
+            dom_tricnt > 0 ? dom_tricnt - 1 : 0;
+}
+
+bool gmio_stl_occmesh_iterator::move_to_next_tri(uint32_t tri_id)
+{
+    if (tri_id > m_domain_last_tri_id) {
+        if (m_domain_id < m_domain_count) {
+            ++m_domain_id;
+            this->cache_domain(m_domain_id);
+            return true;
+        }
+        return false;
+    }
+    return true;
 }

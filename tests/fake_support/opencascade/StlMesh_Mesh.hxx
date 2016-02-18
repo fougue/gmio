@@ -23,7 +23,10 @@ public:
             const double /*X*/, const double /*Y*/, const double /*Z*/)
     { return -1; }
 
-    virtual int NbTriangles(const int DomainIndex)  const
+    virtual int NbTriangles(const int /*DomainIndex*/)  const
+    { return 0; }
+
+    virtual int NbDomains()  const
     { return 0; }
 
     virtual const StlMesh_SequenceOfMeshTriangle& Triangles(

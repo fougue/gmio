@@ -11,6 +11,9 @@ public:
         static Handle_StlMesh_MeshTriangle meshTri;
         return meshTri;
     }
+
+    int Length() const
+    { return 0; }
 };
 
 #endif // _StlMesh_SequenceOfMeshTriangle_HeaderFile

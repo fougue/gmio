@@ -31,39 +31,70 @@
 #include "../gmio_stl/stl_mesh.h"
 #include "../gmio_stl/stl_mesh_creator.h"
 
+#include <StlMesh_SequenceOfMeshTriangle.hxx>
+
 class Handle_StlMesh_Mesh;
 class StlMesh_Mesh;
-class StlMesh_SequenceOfMeshTriangle;
+class Handle_StlMesh_MeshTriangle;
 class TColgp_SequenceOfXYZ;
 
-/*! Domain in a OpenCascade \c StlMesh_Mesh object
+/*! Forward iterator over the triangles of OpenCascade's StlMesh_Mesh
  *
- *  The domain is indicated with its index within the STL mesh
+ *  It is used to iterate efficiently over the triangles of all domains within
+ *  a StlMesh_Mesh object.
+ *
+ *  You don't have to use API of this class, it's intended to gmio_stl_mesh()
  */
-struct GMIO_LIBSUPPORT_EXPORT gmio_occ_stl_mesh_domain
+struct GMIO_LIBSUPPORT_EXPORT gmio_stl_occmesh_iterator
 {
-    gmio_occ_stl_mesh_domain();
-    gmio_occ_stl_mesh_domain(const StlMesh_Mesh* mesh, int dom_id = 1);
-    gmio_occ_stl_mesh_domain(const Handle_StlMesh_Mesh& hnd, int dom_id = 1);
+    gmio_stl_occmesh_iterator();
+    gmio_stl_occmesh_iterator(const StlMesh_Mesh* mesh);
+    gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh& hnd);
 
+    bool move_to_next_tri(uint32_t tri_id);
+    inline const Handle_StlMesh_MeshTriangle& domain_tri(uint32_t tri_id) const;
+    inline const TColgp_SequenceOfXYZ& domain_vertices() const;
     inline const StlMesh_Mesh* mesh() const;
-    inline int domain_id() const;
-    inline const StlMesh_SequenceOfMeshTriangle* triangles() const;
-    inline const TColgp_SequenceOfXYZ* vertices() const;
 
 private:
+    void init(const StlMesh_Mesh* mesh);
+    void cache_domain(int dom_id);
+
     const StlMesh_Mesh* m_mesh;
+    int m_domain_count;
     int m_domain_id;
-    const StlMesh_SequenceOfMeshTriangle* m_triangles;
-    const TColgp_SequenceOfXYZ* m_vertices;
+    const StlMesh_SequenceOfMeshTriangle* m_domain_triangles;
+    const TColgp_SequenceOfXYZ* m_domain_vertices;
+    uint32_t m_domain_first_tri_id;
+    uint32_t m_domain_last_tri_id;
 };
 
-/*! Returns a gmio_stl_mesh mapped to domain in StlMesh_Mesh
+/*! Returns a gmio_stl_mesh mapped to the OCC mesh in iterator \p it
  *
- *  The mesh's cookie will point to \p mesh_domain
+ *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
+ *  object must be at least as longer as the returned gmio_stl_mesh.
+ *  Example of use:
+ *  \code
+ *      Handle_StlMesh_Mesh occmesh = ...;
+ *      gmio_stl_write_file(
+ *              stl_format,
+ *              filepath,
+ *              gmio_stl_occmesh(occmesh), // Implicit temporary iterator
+ *              &options);
+ *  \endcode
+ *
+ *  Dangerous use:
+ *  \code
+ *      Handle_StlMesh_Mesh occmesh = ...;
+ *      const gmio_stl_mesh mesh =
+ *              gmio_stl_occmesh(gmio_stl_occmesh_iterator(occmesh));
+ *      // At this point the iterator object is destroyed, mesh.cookie points to
+ *      // some garbage. The following line may cause a crash.
+ *      gmio_stl_write_file(stl_format, filepath, mesh, &options);
+ *  \endcode
  */
 GMIO_LIBSUPPORT_EXPORT
-struct gmio_stl_mesh gmio_stl_occmesh(const struct gmio_occ_stl_mesh_domain* mesh_domain);
+gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it);
 
 /*! Returns a gmio_stl_mesh_creator that will build a new domain in a
  *  StlMesh_Mesh object
@@ -71,7 +102,7 @@ struct gmio_stl_mesh gmio_stl_occmesh(const struct gmio_occ_stl_mesh_domain* mes
  *  The creator's cookie will point \p mesh
  */
 GMIO_LIBSUPPORT_EXPORT
-struct gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
+gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
 
 /*! Same as gmio_stl_occmesh_creator(StlMesh_Mesh*) but takes a handle
  *
@@ -79,25 +110,26 @@ struct gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
  *  handle \p hnd
  */
 GMIO_LIBSUPPORT_EXPORT
-struct gmio_stl_mesh_creator gmio_stl_hnd_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
+gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
 
 
 
-// --
-// -- Implementation
-// --
+/*
+ * Implementation
+ */
 
-const StlMesh_Mesh* gmio_occ_stl_mesh_domain::mesh() const
+const Handle_StlMesh_MeshTriangle&
+gmio_stl_occmesh_iterator::domain_tri(uint32_t tri_id) const
+{
+    const int dom_tri_id = tri_id - m_domain_first_tri_id + 1;
+    return m_domain_triangles->Value(dom_tri_id);
+}
+
+const TColgp_SequenceOfXYZ &gmio_stl_occmesh_iterator::domain_vertices() const
+{ return *m_domain_vertices; }
+
+const StlMesh_Mesh *gmio_stl_occmesh_iterator::mesh() const
 { return m_mesh; }
-
-int gmio_occ_stl_mesh_domain::domain_id() const
-{ return m_domain_id; }
-
-const StlMesh_SequenceOfMeshTriangle* gmio_occ_stl_mesh_domain::triangles() const
-{ return m_triangles; }
-
-const TColgp_SequenceOfXYZ* gmio_occ_stl_mesh_domain::vertices() const
-{ return m_vertices; }
 
 #endif /* GMIO_SUPPORT_STL_OCC_H */
 /*! @} */
