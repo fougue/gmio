@@ -99,6 +99,11 @@ const char* test_stl_read()
           GMIO_STL_FORMAT_BINARY_LE,
           NULL
         },
+        { "models/solid_jburkardt_sphere.stla",
+          GMIO_ERROR_OK,
+          GMIO_STL_FORMAT_ASCII,
+          "sphere"
+        },
         { "models/solid_lack_z.stla",
           GMIO_STL_ERROR_PARSING,
           GMIO_STL_FORMAT_ASCII,
