@@ -94,11 +94,10 @@ int gmio_stla_infos_get(
 
     if (flag_stla_solidname) {
         struct gmio_stla_parse_data parse_data = {0};
-        const struct gmio_string* strbuff = &parse_data.strbuff;
         char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN] = {0};
 
         parse_data.strstream = sstream;
-        parse_data.strbuff = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
+        parse_data.token_str = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
 
         /* Skip "\s*solid" */
         gmio_stringstream_skip_ascii_spaces(&parse_data.strstream);
@@ -109,6 +108,7 @@ int gmio_stla_infos_get(
 
         /* Copy parsed solid name into infos->stla_solid_name */
         {
+            const struct gmio_string* strbuff = &parse_data.token_str;
             const size_t name_len_for_cpy =
                     GMIO_MIN(infos->stla_solidname_maxlen - 1, strbuff->len);
 

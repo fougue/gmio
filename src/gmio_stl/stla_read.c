@@ -130,7 +130,7 @@ int gmio_stla_read(
     parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
     gmio_stringstream_init_pos(&parse_data.strstream);
 
-    parse_data.strbuff = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
+    parse_data.token_str = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
 
     parse_data.creator = &mesh_creator;
 
@@ -351,11 +351,9 @@ void stla_error_msg(struct gmio_stla_parse_data* data, const char* msg)
     fprintf(stderr,
             "\n"
             "gmio_stla_read() parsing error: %s\n"
-            "                 current token: <%s>\n"
             "                 current token string: \"%s\"\n",
             msg,
-            stla_token_to_string(data->token),
-            data->strbuff.ptr);
+            data->token_str.ptr);
     data->error = true;
     data->token = unknown_token;
 }
@@ -365,7 +363,7 @@ void stla_error_token_expected(
 {
     char msg[256] = {0};
     sprintf(msg,
-            "token <%s> expected, got <%s>",
+            "expected <%s>, got <%s>",
             stla_token_to_string(token),
             stla_token_to_string(data->token));
     stla_error_msg(data, msg);
@@ -379,14 +377,14 @@ int gmio_stla_eat_next_token(
         struct gmio_stla_parse_data* data,
         enum gmio_stla_token expected_token)
 {
-    struct gmio_string* strbuff = &data->strbuff;
+    struct gmio_string* token_str = &data->token_str;
     enum gmio_eat_word_error eat_error;
 
-    strbuff->len = 0;
-    eat_error = gmio_stringstream_eat_word(&data->strstream, strbuff);
+    token_str->len = 0;
+    eat_error = gmio_stringstream_eat_word(&data->strstream, token_str);
     if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
         const char* expected_token_str = stla_token_to_string(expected_token);
-        if (gmio_ascii_stricmp(strbuff->ptr, expected_token_str) == 0) {
+        if (gmio_ascii_stricmp(token_str->ptr, expected_token_str) == 0) {
             data->token = expected_token;
             return 0;
         }
@@ -426,11 +424,35 @@ int gmio_stla_eat_next_token_inplace(
         {
             error = true;
         }
-        stream_char = gmio_stringstream_next_char(sstream);
-        ++expected_token_str;
+        else {
+            stream_char = gmio_stringstream_next_char(sstream);
+            ++expected_token_str;
+        }
     }
 
     if (error) {
+        /* Copy the wrong token in data->token_str */
+        size_t i = 0;
+        /* -- Copy the matching part of the expected token */
+        {
+            const char* it = stla_token_to_string(expected_token);
+            while (it != expected_token_str)
+                data->token_str.ptr[i++] = *(it++);
+        }
+        /* -- Copy the non matching part */
+        while (i < data->token_str.max_len
+               && stream_char != NULL
+               && !gmio_ascii_isspace(*stream_char))
+        {
+            data->token_str.ptr[i++] = *stream_char;
+            stream_char = gmio_stringstream_next_char(sstream);
+        }
+        /* -- Fill remaining space with NUL byte */
+        memset(data->token_str.ptr + i, '\0', data->token_str.max_len - i);
+        data->token_str.len = i;
+        data->token = stla_find_token_from_string(&data->token_str);
+
+        /* Notify error */
         stla_error_token_expected(data, expected_token);
         return GMIO_STLA_PARSE_ERROR;
     }
@@ -443,7 +465,7 @@ int gmio_stla_eat_until_token(
 {
     if (!stla_token_match_candidate(data->token, end_tokens)) {
         struct gmio_stringstream* sstream = &data->strstream;
-        struct gmio_string* strbuff = &data->strbuff;
+        struct gmio_string* strbuff = &data->token_str;
         bool end_token_found = false;
 
         do {
@@ -493,9 +515,9 @@ bool stla_parsing_can_continue(const struct gmio_stla_parse_data* data)
 int gmio_stla_parse_solidname_beg(struct gmio_stla_parse_data* data)
 {
     if (gmio_stla_eat_next_token(data, unknown_token) == 0) {
-        data->token = stla_find_token_from_string(&data->strbuff);
+        data->token = stla_find_token_from_string(&data->token_str);
         if (data->token == FACET_token || data->token == ENDSOLID_token) {
-            gmio_string_clear(&data->strbuff);
+            gmio_string_clear(&data->token_str);
             return 0;
         }
         else {
@@ -521,7 +543,7 @@ int parse_beginsolid(struct gmio_stla_parse_data* data)
         if (gmio_stla_parse_solidname_beg(data) == 0) {
             struct gmio_stl_mesh_creator_infos infos = {0};
             infos.format = GMIO_STL_FORMAT_ASCII;
-            infos.stla_solid_name = data->strbuff.ptr;
+            infos.stla_solid_name = data->token_str.ptr;
             infos.stla_stream_size = data->strstream_cookie.stream_size;
             gmio_stl_mesh_creator_begin_solid(data->creator, &infos);
             return 0;
@@ -572,7 +594,7 @@ int parse_xyz_coords(struct gmio_stla_parse_data* data, struct gmio_stl_coords* 
     errc += !is_float_char(strbuff);
     coords->z = gmio_stringstream_parse_float32(sstream);
 
-    data->strbuff.len = 0;
+    data->token_str.len = 0;
     data->token = unknown_token;
 
     return errc;
@@ -610,7 +632,7 @@ void parse_facets(struct gmio_stla_parse_data* data)
     const gmio_stl_mesh_creator_func_add_triangle_t func_add_triangle =
             data->creator->func_add_triangle;
     void* creator_cookie = data->creator->cookie;
-    struct gmio_string* strbuff = &data->strbuff;
+    struct gmio_string* token_str = &data->token_str;
     uint32_t i_facet = 0;
     struct gmio_stl_triangle facet;
 
@@ -621,9 +643,9 @@ void parse_facets(struct gmio_stla_parse_data* data)
             if (func_add_triangle != NULL)
                 func_add_triangle(creator_cookie, i_facet, &facet);
             /* Eat next unknown token */
-            strbuff->len = 0;
-            gmio_stringstream_eat_word(&data->strstream, strbuff);
-            data->token = stla_find_token_from_string(strbuff);
+            token_str->len = 0;
+            gmio_stringstream_eat_word(&data->strstream, token_str);
+            data->token = stla_find_token_from_string(token_str);
             ++i_facet;
         }
         else {

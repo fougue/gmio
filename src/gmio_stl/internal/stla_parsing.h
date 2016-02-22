@@ -55,11 +55,17 @@ struct gmio_stringstream_stla_cookie
 /* gmio_stla_parse_data */
 struct gmio_stla_parse_data
 {
+    /* Current token type */
     enum gmio_stla_token token;
+    /* Current token string */
+    struct gmio_string token_str;
+    /* Any actual error ? */
     bool error;
+    /* The stringstream object used to read the input stream */
     struct gmio_stringstream strstream;
+    /* The cookie in strstream */
     struct gmio_stringstream_stla_cookie strstream_cookie;
-    struct gmio_string strbuff;
+    /* The mesh creator callbacks */
     struct gmio_stl_mesh_creator* creator;
 };
 
