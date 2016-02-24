@@ -23,6 +23,7 @@ struct gmio_stringstream gmio_stringstream(
     struct gmio_stringstream sstream = {0};
     sstream.stream = stream;
     sstream.strbuff = strbuff;
+    sstream.func_stream_read = gmio_stringstream_default_func_read;
     gmio_stringstream_init_pos(&sstream);
     return sstream;
 }

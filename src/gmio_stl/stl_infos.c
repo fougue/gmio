@@ -73,3 +73,14 @@ label_end:
     gmio_memblock_helper_release(&mblock_helper);
     return error;
 }
+
+gmio_streamsize_t gmio_stla_infos_get_streamsize(
+        struct gmio_stream *stream, struct gmio_memblock *stream_memblock)
+{
+    struct gmio_stl_infos infos = {0};
+    struct gmio_stl_infos_get_options options = {0};
+    options.stream_memblock = *stream_memblock;
+    options.format_hint = GMIO_STL_FORMAT_ASCII;
+    gmio_stl_infos_get(&infos, *stream, GMIO_STL_INFO_FLAG_SIZE, &options);
+    return infos.size;
+}

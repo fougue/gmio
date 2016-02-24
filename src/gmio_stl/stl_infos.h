@@ -117,6 +117,15 @@ int gmio_stl_infos_get(
         unsigned flags, /*!< Bitor combination of gmio_stl_info_flag values */
         const struct gmio_stl_infos_get_options* options);
 
+/*! Returns the size(in bytes) of next STL ascii solid in \p stream
+ *
+ *  It is a facade over gmio_stl_infos_get() for gmio_stl_infos::size only
+ */
+GMIO_LIBSTL_EXPORT
+gmio_streamsize_t gmio_stla_infos_get_streamsize(
+        struct gmio_stream* stream,
+        struct gmio_memblock* stream_memblock);
+
 GMIO_C_LINKAGE_END
 
 #endif /* GMIO_STL_INFOS_H */

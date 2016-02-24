@@ -19,11 +19,15 @@
 #include "../stl_infos.h"
 #include "../../gmio_core/endian.h"
 
-/*! Find infos from a STL binary stream */
+/*! Finds infos from a STL binary stream */
 int gmio_stlb_infos_get(
         struct gmio_stl_infos* infos,
         struct gmio_stream stream,
         unsigned flags,
         const struct gmio_stl_infos_get_options* opts);
+
+/*! Returns the size(in bytes) of the whole STL binary data given some facet
+ *  count */
+gmio_streamsize_t gmio_stlb_infos_size(uint32_t facet_count);
 
 #endif /* GMIO_INTERNAL_STLB_INFOS_GET_H */

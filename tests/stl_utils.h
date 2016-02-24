@@ -65,6 +65,8 @@ struct gmio_stl_triangle_array
  */
 struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count);
 
+void gmio_stl_triangle_array_free(struct gmio_stl_triangle_array* array);
+
 /*! Holds complete STL data (usable for both binary and ascii formats) */
 struct gmio_stl_data
 {

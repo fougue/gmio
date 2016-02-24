@@ -28,9 +28,15 @@ GMIO_INLINE int gmio_stream_error(struct gmio_stream* stream);
 GMIO_INLINE size_t gmio_stream_read(
         struct gmio_stream* stream, void *ptr, size_t size, size_t count);
 
+GMIO_INLINE size_t gmio_stream_read_bytes(
+        struct gmio_stream* stream, void *ptr, size_t count);
+
 /*! Safe and convenient function for gmio_stream::func_write() */
 GMIO_INLINE size_t gmio_stream_write(
         struct gmio_stream* stream, const void *ptr, size_t size, size_t count);
+
+GMIO_INLINE size_t gmio_stream_write_bytes(
+        struct gmio_stream* stream, const void *ptr, size_t count);
 
 /*! Safe and convenient function for gmio_stream::func_size() */
 GMIO_INLINE gmio_streamsize_t gmio_stream_size(struct gmio_stream* stream);
@@ -75,11 +81,27 @@ size_t gmio_stream_read(
     return 0;
 }
 
+size_t gmio_stream_read_bytes(
+        struct gmio_stream* stream, void *ptr, size_t count)
+{
+    if (stream != NULL && stream->func_read != NULL)
+        return stream->func_read(stream->cookie, ptr, 1, count);
+    return 0;
+}
+
 size_t gmio_stream_write(
         struct gmio_stream* stream, const void *ptr, size_t size, size_t count)
 {
     if (stream != NULL && stream->func_write != NULL)
         return stream->func_write(stream->cookie, ptr, size, count);
+    return 0;
+}
+
+size_t gmio_stream_write_bytes(
+        struct gmio_stream* stream, const void *ptr, size_t count)
+{
+    if (stream != NULL && stream->func_write != NULL)
+        return stream->func_write(stream->cookie, ptr, 1, count);
     return 0;
 }
 

@@ -57,13 +57,16 @@ int gmio_stlb_infos_get(
             memcpy(infos->stlb_header.data, buff, GMIO_STLB_HEADER_SIZE);
         if (flags & GMIO_STL_INFO_FLAG_FACET_COUNT)
             infos->facet_count = facet_count;
-        if (flags & GMIO_STL_INFO_FLAG_SIZE) {
-            infos->size =
-                    GMIO_STLB_HEADER_SIZE
-                    + sizeof(uint32_t)
-                    + facet_count * GMIO_STLB_TRIANGLE_RAWSIZE;
-        }
+        if (flags & GMIO_STL_INFO_FLAG_SIZE)
+            infos->size = gmio_stlb_infos_size(facet_count);
     }
 
     return GMIO_ERROR_OK;
+}
+
+gmio_streamsize_t gmio_stlb_infos_size(uint32_t facet_count)
+{
+    return GMIO_STLB_HEADER_SIZE
+            + sizeof(uint32_t)
+            + facet_count * GMIO_STLB_TRIANGLE_RAWSIZE;
 }

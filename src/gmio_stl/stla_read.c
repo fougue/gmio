@@ -82,19 +82,24 @@
  */
 
 
-/* Callback used for gmio_stringstream::func_stream_read_hook */
-static void gmio_stringstream_stla_read_hook(
-        void* cookie, const struct gmio_string* strbuff)
+/* Callback used for gmio_stringstream::func_stream_read */
+static size_t gmio_stringstream_stla_read(
+        void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
 {
-    struct gmio_stringstream_stla_cookie* tcookie =
+    struct gmio_stringstream_stla_cookie* stlac =
             (struct gmio_stringstream_stla_cookie*)(cookie);
-    if (tcookie != NULL) {
-        const struct gmio_task_iface* task = tcookie->task;
-        tcookie->stream_offset += strbuff->len;
-        tcookie->is_stop_requested = gmio_task_iface_is_stop_requested(task);
+    if (stlac != NULL) {
+        const struct gmio_task_iface* task = stlac->task;
+        const size_t to_read =
+                GMIO_MIN(len, stlac->stream_size - stlac->stream_offset + 1);
+        const size_t len_read = gmio_stream_read_bytes(stream, ptr, to_read);
+        stlac->stream_offset += len_read;
+        stlac->is_stop_requested = gmio_task_iface_is_stop_requested(task);
         gmio_task_iface_handle_progress(
-                    task, tcookie->stream_offset, tcookie->stream_size);
+                task, stlac->stream_offset, stlac->stream_size);
+        return len_read;
     }
+    return 0;
 }
 
 /* Root function, parses a whole solid */
@@ -127,7 +132,7 @@ int gmio_stla_read(
     parse_data.strstream.strbuff.ptr = mblock->ptr;
     parse_data.strstream.strbuff.max_len = mblock->size;
     parse_data.strstream.cookie = &parse_data.strstream_cookie;
-    parse_data.strstream.func_stream_read_hook = gmio_stringstream_stla_read_hook;
+    parse_data.strstream.func_stream_read = gmio_stringstream_stla_read;
     gmio_stringstream_init_pos(&parse_data.strstream);
 
     parse_data.token_str = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
@@ -532,8 +537,11 @@ int gmio_stla_parse_solidname_beg(struct gmio_stla_parse_data* data)
 
 int parse_solidname_end(struct gmio_stla_parse_data* data)
 {
-    GMIO_UNUSED(data);
-    /* TODO: parse according to retrieved solid name */
+    struct gmio_stringstream* sstream = &data->strstream;
+    /* Eat whole line after "endsolid" */
+    const char* c = gmio_stringstream_current_char(sstream);
+    while (c != NULL && *c != '\n' && *c != '\r')
+        c = gmio_stringstream_next_char(sstream);
     return 0;
 }
 

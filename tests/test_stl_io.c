@@ -21,6 +21,7 @@
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_stl/stl_error.h"
+#include "../src/gmio_stl/stl_infos.h"
 #include "../src/gmio_stl/stl_io.h"
 #include "../src/gmio_stl/stl_io_options.h"
 
@@ -319,7 +320,7 @@ const char* test_stla_write()
 {
     const char* model_filepath = stl_grabcad_arm11_filepath;
     const char* model_filepath_out = "temp/solid.stla";
-    struct gmio_stl_data data = {0};
+    struct gmio_stl_data data = {0}; /* TODO: fix memory leak on error */
     char header_str[GMIO_STLB_HEADER_SIZE + 1] = {0};
     int error = GMIO_ERROR_OK;
 
@@ -370,6 +371,42 @@ const char* test_stla_write()
     return NULL;
 }
 
+const char* generic_test_stl_read_multi_solid(
+        const char* filepath, unsigned expected_solid_count)
+{
+    FILE* infile = fopen(filepath, "rb");
+    if (infile != NULL) {
+        unsigned solid_count = 0;
+        int error = GMIO_ERROR_OK;
+        struct gmio_stl_read_options roptions = {0};
+        roptions.func_stla_get_streamsize = gmio_stla_infos_get_streamsize;
+        while (gmio_no_error(error)) {
+            const struct gmio_stl_mesh_creator null_creator = {0};
+            error = gmio_stl_read(
+                        gmio_stream_stdio(infile), null_creator, &roptions);
+            if (gmio_no_error(error))
+                ++solid_count;
+        }
+        fclose(infile);
+        UTEST_COMPARE_UINT(expected_solid_count, solid_count);
+    }
+    else {
+        perror(NULL);
+        UTEST_FAIL("");
+    }
+    return NULL;
+}
+
+const char* test_stl_read_multi_solid()
+{
+    const char* res = NULL;
+    res = generic_test_stl_read_multi_solid("models/solid_4meshs.stla", 4);
+    if (res != NULL)
+        return res;
+    res = generic_test_stl_read_multi_solid("models/solid_4meshs.le_stlb", 4);
+    return res;
+}
+
 void generate_stlb_tests_models()
 {
     {
@@ -402,5 +439,30 @@ void generate_stlb_tests_models()
                     "models/solid_one_facet.be_stlb",
                     gmio_stl_data_mesh(&data),
                     NULL);
+    }
+
+    {
+        FILE* infile = fopen("models/solid_4meshs.stla", "rb");
+        FILE* outfile = fopen("models/solid_4meshs.le_stlb", "wb");
+        int read_error = GMIO_ERROR_OK;
+        struct gmio_stl_read_options roptions = {0};
+        roptions.func_stla_get_streamsize = gmio_stla_infos_get_streamsize;
+        while (gmio_no_error(read_error)) {
+            struct gmio_stl_data data = {0};
+            struct gmio_stl_write_options woptions = {0};
+            read_error = gmio_stla_read(
+                        gmio_stream_stdio(infile),
+                        gmio_stl_data_mesh_creator(&data),
+                        &roptions);
+            woptions.stlb_header = gmio_stlb_header_str(data.solid_name);
+            gmio_stl_write(
+                        GMIO_STL_FORMAT_BINARY_LE,
+                        gmio_stream_stdio(outfile),
+                        gmio_stl_data_mesh(&data),
+                        &woptions);
+            gmio_stl_triangle_array_free(&data.tri_array);
+        }
+        fclose(infile);
+        fclose(outfile);
     }
 }

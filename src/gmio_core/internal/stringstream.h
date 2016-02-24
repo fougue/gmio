@@ -41,12 +41,12 @@ struct gmio_stringstream
     /*! Position indicator in strbuff */
     const char* strbuff_at;
 
-    /*! User data to be passed to callback func_stream_read_hook */
+    /*! Data to be passed to callback func_stream_read */
     void* cookie;
 
-    /*! Pointer on user function called each time next contents is read */
-    void (*func_stream_read_hook)(
-            void* cookie, const struct gmio_string* strbuff);
+    /*! Pointer on a function called each time next contents has to be read */
+    size_t (*func_stream_read)(
+            void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 };
 
 /*! Returns an initialized gmio_stringstream object */
@@ -56,6 +56,10 @@ struct gmio_stringstream gmio_stringstream(
 
 /*! Initializes position indicator */
 void gmio_stringstream_init_pos(struct gmio_stringstream* sstream);
+
+/*! Default function for gmio_stringstream::func_stream_read */
+GMIO_INLINE size_t gmio_stringstream_default_func_read(
+        void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 
 /*! Returns the char where the iterator is currently pointing at */
 GMIO_INLINE const char* gmio_stringstream_current_char(
@@ -142,6 +146,13 @@ const char* gmio_stringstream_current_char(
                 NULL;
 }
 
+size_t gmio_stringstream_default_func_read(
+        void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
+{
+    GMIO_UNUSED(cookie);
+    return gmio_stream_read(stream, ptr, 1, len);
+}
+
 const char *gmio_stringstream_next_char(struct gmio_stringstream *sstream)
 {
     ++(sstream->strbuff_at);
@@ -151,15 +162,13 @@ const char *gmio_stringstream_next_char(struct gmio_stringstream *sstream)
     /* Read next chunk of data */
     sstream->strbuff_at = sstream->strbuff.ptr;
     sstream->strbuff.len =
-            gmio_stream_read(
-                &sstream->stream, sstream->strbuff.ptr, 1, sstream->strbuff.max_len);
+            sstream->func_stream_read(
+                sstream->cookie,
+                &sstream->stream,
+                sstream->strbuff.ptr,
+                sstream->strbuff.max_len);
     sstream->strbuff_end = sstream->strbuff.ptr + sstream->strbuff.len;
-    if (sstream->strbuff.len > 0) {
-        if (sstream->func_stream_read_hook != NULL)
-            sstream->func_stream_read_hook(sstream->cookie, &sstream->strbuff);
-        return sstream->strbuff.ptr;
-    }
-    return NULL;
+    return sstream->strbuff.len > 0 ? sstream->strbuff.ptr : NULL;
 }
 
 struct gmio_stringstream* gmio_stringstream_move_next_char(

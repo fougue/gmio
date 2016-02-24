@@ -44,6 +44,16 @@ struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count)
     return array;
 }
 
+void gmio_stl_triangle_array_free(struct gmio_stl_triangle_array *array)
+{
+    if (array != NULL) {
+        free(array->ptr);
+        array->ptr = NULL;
+        array->count = 0;
+        array->capacity = 0;
+    }
+}
+
 static void gmio_stl_data__begin_solid(
         void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
 {
