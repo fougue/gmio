@@ -32,7 +32,7 @@ static enum gmio_endianness gmio_stl_format_to_endianness(
 
 int gmio_stlb_infos_get(
         struct gmio_stl_infos* infos,
-        struct gmio_stream stream,
+        struct gmio_stream* stream,
         unsigned flags,
         const struct gmio_stl_infos_get_options* opts)
 {
@@ -44,7 +44,7 @@ int gmio_stlb_infos_get(
 
         { /* Read header and facet count into buff */
             const size_t read_size =
-                    gmio_stream_read(&stream, buff, 1, sizeof(buff));
+                    gmio_stream_read_bytes(stream, buff, sizeof(buff));
             if (read_size != sizeof(buff))
                 return GMIO_ERROR_STREAM;
         }

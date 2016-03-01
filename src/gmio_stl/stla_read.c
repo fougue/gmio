@@ -106,8 +106,8 @@ static size_t gmio_stringstream_stla_read(
 static void parse_solid(struct gmio_stla_parse_data* data);
 
 int gmio_stla_read(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stream* stream,
+        struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* opts)
 {
     struct gmio_memblock_helper mblock_helper =
@@ -124,11 +124,11 @@ int gmio_stla_read(
 
     parse_data.strstream_cookie.stream_size =
             opts != NULL && opts->func_stla_get_streamsize != NULL ?
-                opts->func_stla_get_streamsize(&stream, mblock) :
-                gmio_stream_size(&stream);
+                opts->func_stla_get_streamsize(stream, mblock) :
+                gmio_stream_size(stream);
     parse_data.strstream_cookie.is_stop_requested = false;
 
-    parse_data.strstream.stream = stream;
+    parse_data.strstream.stream = *stream;
     parse_data.strstream.strbuff.ptr = mblock->ptr;
     parse_data.strstream.strbuff.max_len = mblock->size;
     parse_data.strstream.cookie = &parse_data.strstream_cookie;
@@ -137,7 +137,7 @@ int gmio_stla_read(
 
     parse_data.token_str = gmio_string(fixed_buffer, 0, sizeof(fixed_buffer));
 
-    parse_data.creator = &mesh_creator;
+    parse_data.creator = mesh_creator;
 
     parse_solid(&parse_data);
 

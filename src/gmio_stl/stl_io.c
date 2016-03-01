@@ -24,11 +24,11 @@
 #include "../gmio_core/internal/helper_stream.h"
 
 int gmio_stl_read(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stream* stream,
+        struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options)
 {
-    const enum gmio_stl_format format = gmio_stl_get_format(&stream);
+    const enum gmio_stl_format format = gmio_stl_get_format(stream);
     switch (format) {
     case GMIO_STL_FORMAT_ASCII:
         return gmio_stla_read(stream, mesh_creator, options);
@@ -46,13 +46,13 @@ int gmio_stl_read(
 
 int gmio_stl_read_file(
         const char* filepath,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options)
 {
     FILE* file = fopen(filepath, "rb");
     if (file != NULL) {
-        const int error =
-                gmio_stl_read(gmio_stream_stdio(file), mesh_creator, options);
+        struct gmio_stream stream = gmio_stream_stdio(file);
+        const int error = gmio_stl_read(&stream, mesh_creator, options);
         fclose(file);
         return error;
     }
@@ -61,8 +61,8 @@ int gmio_stl_read_file(
 
 int gmio_stl_write(
         enum gmio_stl_format format,
-        struct gmio_stream stream,
-        struct gmio_stl_mesh mesh,
+        struct gmio_stream* stream,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* options)
 {
     switch (format) {
@@ -81,13 +81,13 @@ int gmio_stl_write(
 int gmio_stl_write_file(
         enum gmio_stl_format format,
         const char* filepath,
-        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* options)
 {
     FILE* file = fopen(filepath, "wb");
     if (file != NULL) {
-        const int error =
-                gmio_stl_write(format, gmio_stream_stdio(file), mesh, options);
+        struct gmio_stream stream = gmio_stream_stdio(file);
+        const int error = gmio_stl_write(format, &stream, mesh, options);
         fclose(file);
         return error;
     }

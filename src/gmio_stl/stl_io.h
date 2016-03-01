@@ -39,8 +39,8 @@ GMIO_C_LINKAGE_BEGIN
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_LIBSTL_EXPORT int gmio_stl_read(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stream* stream,
+        struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
 
 /*! Reads STL mesh from a file, format is automatically guessed
@@ -53,7 +53,7 @@ GMIO_LIBSTL_EXPORT int gmio_stl_read(
  */
 GMIO_LIBSTL_EXPORT int gmio_stl_read_file(
         const char* filepath,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
 
 /*! Reads geometry from STL ascii stream
@@ -62,8 +62,8 @@ GMIO_LIBSTL_EXPORT int gmio_stl_read_file(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stla_read(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stream* stream,
+        struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
 
 /*! Reads geometry from STL binary stream
@@ -74,8 +74,8 @@ int gmio_stla_read(
  */
 GMIO_LIBSTL_EXPORT
 int gmio_stlb_read(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh_creator mesh_creator,
+        struct gmio_stream* stream,
+        struct gmio_stl_mesh_creator* mesh_creator,
         enum gmio_endianness byte_order,
         const struct gmio_stl_read_options* options);
 
@@ -86,8 +86,8 @@ int gmio_stlb_read(
 GMIO_LIBSTL_EXPORT
 int gmio_stl_write(
         enum gmio_stl_format format,
-        struct gmio_stream stream,
-        struct gmio_stl_mesh mesh,
+        struct gmio_stream* stream,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* options);
 
 /*! Writes STL mesh to stream
@@ -104,7 +104,7 @@ GMIO_LIBSTL_EXPORT
 int gmio_stl_write_file(
         enum gmio_stl_format format,
         const char* filepath,
-        struct gmio_stl_mesh mesh,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* options);
 
 /*! Writes STL binary header data to stream

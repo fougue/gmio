@@ -62,7 +62,7 @@ static size_t gmio_stringstream_read(
 
 int gmio_stla_infos_get(
         struct gmio_stl_infos* infos,
-        struct gmio_stream stream,
+        struct gmio_stream* stream,
         unsigned flags,
         const struct gmio_stl_infos_get_options* opts)
 {
@@ -85,7 +85,7 @@ int gmio_stla_infos_get(
         return err;
 
     /* Initialize string stream */
-    sstream.stream = stream;
+    sstream.stream = *stream;
     sstream.strbuff = gmio_string(mblock_ptr, 0, mblock_size);
     if (flag_size) {
         infos->size = 0;

@@ -25,12 +25,12 @@
 
 int gmio_stl_infos_get(
         struct gmio_stl_infos* infos,
-        struct gmio_stream stream,
+        struct gmio_stream* stream,
         unsigned flags,
         const struct gmio_stl_infos_get_options* opts)
 {
     int error = GMIO_ERROR_OK;
-    const struct gmio_streampos begin_streampos = gmio_streampos(&stream, NULL);
+    const struct gmio_streampos begin_streampos = gmio_streampos(stream, NULL);
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     enum gmio_stl_format format =
@@ -43,7 +43,7 @@ int gmio_stl_infos_get(
 
     /* Guess format when left unspecified */
     if (format == GMIO_STL_FORMAT_UNKNOWN) {
-        format = gmio_stl_get_format(&stream);
+        format = gmio_stl_get_format(stream);
         if (format == GMIO_STL_FORMAT_UNKNOWN) {
             error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
             goto label_end;
@@ -69,7 +69,7 @@ int gmio_stl_infos_get(
     }
 
 label_end:
-    gmio_stream_set_pos(&stream, &begin_streampos);
+    gmio_stream_set_pos(stream, &begin_streampos);
     gmio_memblock_helper_release(&mblock_helper);
     return error;
 }
@@ -81,6 +81,6 @@ gmio_streamsize_t gmio_stla_infos_get_streamsize(
     struct gmio_stl_infos_get_options options = {0};
     options.stream_memblock = *stream_memblock;
     options.format_hint = GMIO_STL_FORMAT_ASCII;
-    gmio_stl_infos_get(&infos, *stream, GMIO_STL_INFO_FLAG_SIZE, &options);
+    gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_SIZE, &options);
     return infos.size;
 }

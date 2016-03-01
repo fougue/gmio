@@ -58,7 +58,7 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
 
     infos.stla_solidname = stla_solid_name;
     infos.stla_solidname_maxlen = sizeof(stla_solid_name) - 1;
-    error = gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
+    error = gmio_stl_infos_get(&infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
     if (test->format != GMIO_STL_FORMAT_UNKNOWN) {
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }

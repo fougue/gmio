@@ -87,8 +87,8 @@ static void gmio_stlb_encode_facets_byteswap(
 
 int gmio_stlb_write(
         enum gmio_endianness byte_order,
-        struct gmio_stream stream,
-        struct gmio_stl_mesh mesh,
+        struct gmio_stream* stream,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
@@ -96,7 +96,7 @@ int gmio_stlb_write(
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     const size_t mblock_size = mblock_helper.memblock.size;
-    const uint32_t facet_count = mesh.triangle_count;
+    const uint32_t facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const func_gmio_stlb_encode_facets_t func_encode_facets =
             byte_order != GMIO_ENDIANNESS_HOST ?
                 gmio_stlb_encode_facets_byteswap :
@@ -116,13 +116,13 @@ int gmio_stlb_write(
     /* Check validity of input parameters */
     if (!gmio_check_memblock(&error, &mblock_helper.memblock))
         goto label_end;
-    if (!gmio_stl_check_mesh(&error, &mesh))
+    if (!gmio_stl_check_mesh(&error, mesh))
         goto label_end;
     if (!gmio_stlb_check_byteorder(&error, byte_order))
         goto label_end;
 
     if (!write_triangles_only) {
-        error = gmio_stlb_write_header(&stream, byte_order, header, facet_count);
+        error = gmio_stlb_write_header(stream, byte_order, header, facet_count);
         if (gmio_error(error))
             goto label_end;
     }
@@ -136,11 +136,11 @@ int gmio_stlb_write(
 
         /* Write to memory block */
         write_facet_count = GMIO_MIN(write_facet_count, facet_count - i_facet);
-        func_encode_facets(&mesh, mblock_ptr, write_facet_count, i_facet);
+        func_encode_facets(mesh, mblock_ptr, write_facet_count, i_facet);
 
         /* Write memory block to stream */
         if (gmio_stream_write(
-                    &stream,
+                    stream,
                     mblock_ptr,
                     GMIO_STLB_TRIANGLE_RAWSIZE,
                     write_facet_count)

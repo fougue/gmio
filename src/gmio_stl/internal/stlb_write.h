@@ -29,8 +29,8 @@
  */
 int gmio_stlb_write(
         enum gmio_endianness byte_order,
-        struct gmio_stream stream,
-        struct gmio_stl_mesh mesh,
+        struct gmio_stream* stream,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* opts);
 
 #endif /* GMIO_INTERNAL_STLB_WRITE_H */

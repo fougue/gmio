@@ -22,7 +22,7 @@
 /*! Finds infos from a STL binary stream */
 int gmio_stlb_infos_get(
         struct gmio_stl_infos* infos,
-        struct gmio_stream stream,
+        struct gmio_stream* stream,
         unsigned flags,
         const struct gmio_stl_infos_get_options* opts);
 

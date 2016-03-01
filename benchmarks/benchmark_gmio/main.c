@@ -52,7 +52,7 @@ static void bmk_gmio_stl_read(const void* filepath)
 
     mesh_creator.cookie = &cookie;
     mesh_creator.func_add_triangle = dummy_process_triangle;
-    error = gmio_stl_read_file(filepath, mesh_creator, NULL);
+    error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }
@@ -143,7 +143,7 @@ static void stl_readwrite_flush_triangles(struct stl_readwrite_conv* rw_conv)
     options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
     options.stla_float32_prec = 6;
 
-    gmio_stl_write(rw_conv->out_format, rw_conv->stream, mesh, &options);
+    gmio_stl_write(rw_conv->out_format, &rw_conv->stream, &mesh, &options);
     rw_conv->triangle_pos = 0;
 }
 
@@ -205,7 +205,7 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
     mesh_creator.func_add_triangle = &readwrite_add_triangle;
     mesh_creator.func_end_solid = &readwrite_end_solid;
 
-    error = gmio_stl_read(instream, mesh_creator, NULL);
+    error = gmio_stl_read(&instream, &mesh_creator, NULL);
 
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
@@ -220,9 +220,9 @@ void bmk_gmio_stl_infos_get_all(const void* filepath)
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
-        const struct gmio_stream stream = gmio_stream_stdio(file);
+        struct gmio_stream stream = gmio_stream_stdio(file);
         struct gmio_stl_infos infos = {0};
-        gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_ALL, NULL);
+        gmio_stl_infos_get(&infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
 
         if (!already_exec) {
             printf("stl_infos_get(ALL)\n"
@@ -253,9 +253,9 @@ void bmk_gmio_stl_infos_get_size(const void* filepath)
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
-        const struct gmio_stream stream = gmio_stream_stdio(file);
+        struct gmio_stream stream = gmio_stream_stdio(file);
         struct gmio_stl_infos infos = {0};
-        gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_SIZE, NULL);
+        gmio_stl_infos_get(&infos, &stream, GMIO_STL_INFO_FLAG_SIZE, NULL);
 
         if (!already_exec) {
             printf("stl_infos_get(SIZE)\n"

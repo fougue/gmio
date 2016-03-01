@@ -27,8 +27,8 @@
  *          if <tt>options->stream_memblock.size < 512</tt>
  */
 int gmio_stla_write(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh mesh,
+        struct gmio_stream* stream,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* options);
 
 #endif /* GMIO_INTERNAL_STLA_WRITE_H */

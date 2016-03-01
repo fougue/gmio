@@ -48,8 +48,8 @@ class TColgp_SequenceOfXYZ;
 struct GMIO_LIBSUPPORT_EXPORT gmio_stl_occmesh_iterator
 {
     gmio_stl_occmesh_iterator();
-    gmio_stl_occmesh_iterator(const StlMesh_Mesh* mesh);
-    gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh& hnd);
+    explicit gmio_stl_occmesh_iterator(const StlMesh_Mesh* mesh);
+    explicit gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh& hnd);
 
     bool move_to_next_tri(uint32_t tri_id);
     inline const Handle_StlMesh_MeshTriangle& domain_tri(uint32_t tri_id) const;
@@ -76,21 +76,9 @@ private:
  *  Example of use:
  *  \code
  *      Handle_StlMesh_Mesh occmesh = ...;
- *      gmio_stl_write_file(
- *              stl_format,
- *              filepath,
- *              gmio_stl_occmesh(occmesh), // Implicit temporary iterator
- *              &options);
- *  \endcode
- *
- *  Dangerous use:
- *  \code
- *      Handle_StlMesh_Mesh occmesh = ...;
- *      const gmio_stl_mesh mesh =
- *              gmio_stl_occmesh(gmio_stl_occmesh_iterator(occmesh));
- *      // At this point the iterator object is destroyed, mesh.cookie points to
- *      // some garbage. The following line may cause a crash.
- *      gmio_stl_write_file(stl_format, filepath, mesh, &options);
+ *      const gmio_stl_occmesh_iterator it(occmesh);
+ *      const gmio_stl_mesh mesh = gmio_stl_occmesh(it);
+ *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
  *  \endcode
  */
 GMIO_LIBSUPPORT_EXPORT

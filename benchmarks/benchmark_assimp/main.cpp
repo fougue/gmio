@@ -284,7 +284,7 @@ static void stl_read(const void* filepath)
     mesh_creator.func_add_triangle = add_triangle;
     mesh_creator.func_end_solid = end_solid;
 
-    const int error = gmio_stl_read_file(str_filepath, mesh_creator, NULL);
+    const int error = gmio_stl_read_file(str_filepath, &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 
@@ -305,7 +305,7 @@ static void stl_write(const char* filepath, gmio_stl_format format)
     gmio_stl_write_options opts = {};
     opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
     opts.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(format, filepath, mesh, NULL);
+    const int error = gmio_stl_write_file(format, filepath, &mesh, NULL);
     if (error != GMIO_ERROR_OK)
         printf("gmio error: 0x%X\n", error);
 }

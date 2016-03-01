@@ -113,7 +113,7 @@ GMIO_C_LINKAGE_BEGIN
 GMIO_LIBSTL_EXPORT
 int gmio_stl_infos_get(
         struct gmio_stl_infos* infos,
-        struct gmio_stream stream,
+        struct gmio_stream* stream,
         unsigned flags, /*!< Bitor combination of gmio_stl_info_flag values */
         const struct gmio_stl_infos_get_options* options);
 

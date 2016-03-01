@@ -134,8 +134,8 @@ GMIO_INLINE bool gmio_stream_flush_buffer(
 }
 
 int gmio_stla_write(
-        struct gmio_stream stream,
-        struct gmio_stl_mesh mesh,
+        struct gmio_stream* stream,
+        const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
@@ -143,7 +143,7 @@ int gmio_stla_write(
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     const size_t mblock_size = mblock_helper.memblock.size;
-    const uint32_t total_facet_count = mesh.triangle_count;
+    const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const uint32_t buffer_facet_count =
             gmio_size_to_uint32(mblock_size / GMIO_STLA_FACET_SIZE_P2);
     const char* opt_solid_name = opts != NULL ? opts->stla_solid_name : NULL;
@@ -167,7 +167,7 @@ int gmio_stla_write(
     /* Check validity of input parameters */
     if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
         goto label_end;
-    if (!gmio_stl_check_mesh(&error, &mesh))
+    if (!gmio_stl_check_mesh(&error, mesh))
         goto label_end;
     if (!gmio_stla_check_float32_precision(&error, f32_prec))
         goto label_end;
@@ -189,7 +189,7 @@ int gmio_stla_write(
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "solid ");
         buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
-        if (!gmio_stream_flush_buffer(&stream, mblock_ptr, buffpos)) {
+        if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos)) {
             error = GMIO_ERROR_STREAM;
             goto label_end;
         }
@@ -213,7 +213,7 @@ int gmio_stla_write(
              ibuffer_facet < clamped_facet_count;
              ++ibuffer_facet)
         {
-            mesh.func_get_triangle(mesh.cookie, ibuffer_facet, &tri);
+            mesh->func_get_triangle(mesh->cookie, ibuffer_facet, &tri);
 
             buffpos = gmio_write_rawstr(buffpos, "facet normal ");
             buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.n);
@@ -230,7 +230,7 @@ int gmio_stla_write(
             buffpos = gmio_write_rawstr(buffpos, "\nendfacet\n");
         } /* end for (ibuffer_facet) */
 
-        if (!gmio_stream_flush_buffer(&stream, mblock_ptr, buffpos))
+        if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos))
             error = GMIO_ERROR_STREAM;
 
         /* Task control */
@@ -243,7 +243,7 @@ int gmio_stla_write(
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "endsolid ");
         buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
-        if (!gmio_stream_flush_buffer(&stream, mblock_ptr, buffpos))
+        if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos))
             error = GMIO_ERROR_STREAM;
     }
 
