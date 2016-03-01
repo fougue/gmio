@@ -40,10 +40,10 @@
     }
 
 #define UTEST_COMPARE_INT(expected, actual) \
-    UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_OP__INTERNAL, "%d", "int")
+    UTEST_COMPARE__INTERNAL((int)(expected), (int)(actual), UTEST_EQUALS_OP__INTERNAL, "%d", "int")
 
 #define UTEST_COMPARE_UINT(expected, actual) \
-    UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_OP__INTERNAL, "%u", "uint")
+    UTEST_COMPARE__INTERNAL((unsigned)(expected), (unsigned)(actual), UTEST_EQUALS_OP__INTERNAL, "%u", "uint")
 
 #define UTEST_COMPARE_CSTR(expected, actual) \
     UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_STRCMP__INTERNAL, "%s", "C-string")
