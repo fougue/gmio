@@ -26,6 +26,7 @@
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
 #include "../gmio_core/internal/min_max.h"
+#include "../gmio_core/internal/safe_cast.h"
 #include "../gmio_core/internal/stringstream.h"
 #include "../gmio_core/internal/string_ascii_utils.h"
 
@@ -90,8 +91,10 @@ static size_t gmio_stringstream_stla_read(
             (struct gmio_stringstream_stla_cookie*)(cookie);
     if (stlac != NULL) {
         const struct gmio_task_iface* task = stlac->task;
-        const size_t to_read =
-                GMIO_MIN(len, stlac->stream_size - stlac->stream_offset + 1);
+        const size_t remaining_contents_size =
+                gmio_streamsize_to_size(
+                    stlac->stream_size - stlac->stream_offset + 1);
+        const size_t to_read = GMIO_MIN(len, remaining_contents_size);
         const size_t len_read = gmio_stream_read_bytes(stream, ptr, to_read);
         stlac->stream_offset += len_read;
         stlac->is_stop_requested = gmio_task_iface_is_stop_requested(task);

@@ -73,6 +73,7 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
 
     if (test->format == GMIO_STL_FORMAT_ASCII) {
         const size_t name_len = strlen(stla_solid_name);
+        const gmio_streamsize_t name_len_ssize = name_len;
 #if 0
         printf("expected_size=%d    "
                "name_len=%d    "
@@ -80,8 +81,8 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
                "infos.solid_name=%s\n",
                expected_size, name_len, infos.size, infos.stla_solidname);
 #endif
-        UTEST_ASSERT((expected_size - name_len) <= infos.size);
-        UTEST_ASSERT(infos.size <= (expected_size + name_len));
+        UTEST_ASSERT((expected_size - name_len_ssize) <= infos.size);
+        UTEST_ASSERT(infos.size <= (expected_size + name_len_ssize));
     }
     else {
         UTEST_COMPARE_INT(expected_size, infos.size);
