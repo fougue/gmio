@@ -80,14 +80,14 @@ const char* test_internal__benchmark_gmio_fast_atof()
         { "str->float", &benchmark_fast_atof, NULL, &benchmark_strtod, NULL },
         {0}
     };
-    struct benchmark_cmp_result bmk_res = {0};
+    struct benchmark_cmp_result bmk_res[] = { {0}, {0} };
     const struct benchmark_cmp_result_header header = { "fast_atof", "strtod" };
     struct benchmark_cmp_result_array bmk_res_array = {0};
 
     test_internal__fill_float_array();
-    benchmark_cmp_batch(2, bmk_arg, &bmk_res, NULL, NULL);
-    bmk_res_array.ptr = &bmk_res;
-    bmk_res_array.count = 1;
+    benchmark_cmp_batch(2, bmk_arg, bmk_res, NULL, NULL);
+    bmk_res_array.ptr = bmk_res;
+    bmk_res_array.count = GMIO_ARRAY_SIZE(bmk_res) - 1;
     puts("\n");
     benchmark_print_results(
                 BENCHMARK_PRINT_FORMAT_MARKDOWN,
@@ -95,7 +95,7 @@ const char* test_internal__benchmark_gmio_fast_atof()
                 bmk_res_array);
 
 #ifndef GMIO_DEBUG_BUILD /* Check only for release builds */
-    UTEST_ASSERT((1.05*bmk_res.func1_exec_time_ms) < bmk_res.func2_exec_time_ms);
+    UTEST_ASSERT((1.05*bmk_res[0].func1_exec_time_ms) < bmk_res[0].func2_exec_time_ms);
 #endif
 
     return NULL;

@@ -212,6 +212,7 @@ critical_factorization (const unsigned char *needle, size_t needle_len,
   if (max_suffix_rev + 1 < max_suffix + 1)
     return max_suffix + 1;
   *period = p;
+  /* coverity[overflow_sink] */
   return max_suffix_rev + 1;
 }
 

@@ -20,6 +20,7 @@
 
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/min_max.h"
+#include "../src/gmio_core/internal/string.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
 #include "../src/gmio_stl/stl_io.h"
@@ -44,7 +45,11 @@ void stl_testcase_result__begin_solid(
         if (res != NULL) {
             res->solid_name[0] = 0;
             if (infos->stla_solid_name != NULL)
-                strcpy(res->solid_name, infos->stla_solid_name);
+                gmio_cstr_copy(
+                            res->solid_name,
+                            sizeof(res->solid_name),
+                            infos->stla_solid_name,
+                            strlen(infos->stla_solid_name));
         }
     }
 }
@@ -344,7 +349,11 @@ const char* test_stla_write()
         struct gmio_stl_mesh_creator creator =
                 gmio_stl_data_mesh_creator(&data_stla);
         size_t i = 0;
-        strncpy(trim_header_str, header_str, sizeof(header_str));
+        gmio_cstr_copy(
+                    trim_header_str,
+                    sizeof(trim_header_str),
+                    header_str,
+                    sizeof(header_str));
         gmio_string_trim_from_end(trim_header_str, sizeof(header_str));
         error = gmio_stl_read_file(model_filepath_out, &creator, NULL);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);

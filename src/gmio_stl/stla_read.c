@@ -423,7 +423,7 @@ int gmio_stla_eat_next_token_inplace(
         if (stream_char == NULL || gmio_ascii_isspace(*stream_char)) {
             if (*expected_token_str == 0) {
                 data->token = expected_token;
-                return 0;
+                return 0; /* Success */
             }
             error = true;
         }
@@ -438,8 +438,8 @@ int gmio_stla_eat_next_token_inplace(
         }
     }
 
-    if (error) {
-        /* Copy the wrong token in data->token_str */
+    /* Error, copy the wrong token in data->token_str */
+    {
         size_t i = 0;
         /* -- Copy the matching part of the expected token */
         {
@@ -460,11 +460,11 @@ int gmio_stla_eat_next_token_inplace(
         data->token_str.len = i;
         data->token = stla_find_token_from_string(&data->token_str);
 
-        /* Notify error */
-        stla_error_token_expected(data, expected_token);
-        return GMIO_STLA_PARSE_ERROR;
     }
-    return 0;
+
+    /* Notify error */
+    stla_error_token_expected(data, expected_token);
+    return GMIO_STLA_PARSE_ERROR;
 }
 
 int gmio_stla_eat_until_token(

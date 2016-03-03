@@ -18,6 +18,7 @@
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
+#include "../src/gmio_core/internal/string.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -62,10 +63,11 @@ static void gmio_stl_data__begin_solid(
     if (infos->format == GMIO_STL_FORMAT_ASCII) {
         memset(data->solid_name, 0, sizeof(data->solid_name));
         if (infos->stla_solid_name != NULL) {
-            const size_t len =
-                    GMIO_MIN(sizeof(data->solid_name),
-                             strlen(infos->stla_solid_name));
-            strncpy(data->solid_name, infos->stla_solid_name, len);
+            gmio_cstr_copy(
+                        data->solid_name,
+                        sizeof(data->solid_name),
+                        infos->stla_solid_name,
+                        strlen(infos->stla_solid_name));
         }
 
         /* Try to guess how many vertices we could have assume we'll need

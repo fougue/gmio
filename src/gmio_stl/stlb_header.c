@@ -21,8 +21,10 @@
 struct gmio_stlb_header gmio_stlb_header_str(const char* str)
 {
     struct gmio_stlb_header header = {0};
-    if (str != NULL)
+    if (str != NULL) {
+        /* coverity[buffer_size_warning] */
         strncpy((char*)header.data, str, GMIO_STLB_HEADER_SIZE);
+    }
     return header;
 }
 
