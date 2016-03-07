@@ -75,7 +75,7 @@ include(TestBigEndian)
 test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 
 # Adapt C compiler flags to satisfy the GMIO_BUILD_STRICT_C90 option
-#    It must be done before checking of C99 and POSIX features
+#    It must be done before checking non ANSI features(C99, POSIX, ...)
 if(GMIO_BUILD_STRICT_C90)
     if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
@@ -97,113 +97,112 @@ endif()
 check_type_size("int" GMIO_SIZEOF_INT)
 check_type_size("long" GMIO_SIZEOF_LONG)
 
-# Check non-ANSI available features
+# Check availability of a 64b integer type
+if(GMIO_HAVE_STDINT_H)
+    set(CMAKE_REQUIRED_INCLUDES stdint.h)
+endif()
+check_type_size("int64_t" GMIO_SIZEOF_INT64_T)
+if(NOT HAVE_GMIO_SIZEOF_INT64_T)
+    check_type_size("__int64" GMIO_SIZEOF_MSVC_INT64)
+    if(NOT HAVE_GMIO_SIZEOF_MSVC_INT64)
+        check_type_size("long long" GMIO_SIZEOF_LONG_LONG)
+    endif()
+endif()
+set(CMAKE_REQUIRED_INCLUDES) # Pop changes
+
+if(HAVE_GMIO_SIZEOF_INT64_T)
+    set(GMIO_HAVE_INT64_T ${HAVE_GMIO_SIZEOF_INT64_T})
+elseif(HAVE_GMIO_SIZEOF_MSVC_INT64)
+    set(GMIO_HAVE_MSVC_INT64 ${HAVE_GMIO_SIZEOF_MSVC_INT64})
+elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
+    set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
+endif()
+
+# Check C99 features
 if(NOT GMIO_BUILD_STRICT_C90)
-    # Check availability of a 64b integer type
-    if(GMIO_HAVE_STDINT_H)
-        set(CMAKE_REQUIRED_INCLUDES stdint.h)
-    endif()
-    check_type_size("int64_t" GMIO_SIZEOF_INT64_T)
-    if(NOT HAVE_GMIO_SIZEOF_INT64_T)
-        check_type_size("__int64" GMIO_SIZEOF_MSVC_INT64)
-        if(NOT HAVE_GMIO_SIZEOF_MSVC_INT64)
-            check_type_size("long long" GMIO_SIZEOF_LONG_LONG)
-        endif()
-    endif()
-    set(CMAKE_REQUIRED_INCLUDES)
-
-    if(HAVE_GMIO_SIZEOF_INT64_T)
-        set(GMIO_HAVE_INT64_T ${HAVE_GMIO_SIZEOF_INT64_T})
-    elseif(HAVE_GMIO_SIZEOF_MSVC_INT64)
-        set(GMIO_HAVE_MSVC_INT64 ${HAVE_GMIO_SIZEOF_MSVC_INT64})
-    elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
-        set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
-    endif()
-
-    # Check C99 features
     check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
 
     if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
     endif()
     check_function_exists(powf GMIO_HAVE_POWF_FUNC)
-    set(CMAKE_REQUIRED_LIBRARIES)
+    set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
 
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
+endif()
 
-    # Check POSIX features
-    if(UNIX)
-        # See:
-        #   http://linux.die.net/man/2/fstat64
-        #   https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
-        #   https://www.gnu.org/software/libc/manual/html_mono/libc.html#Feature-Test-Macros
-        if(APPLE)
-            add_definitions(-D_DARWIN_USE_64_BIT_INODE)
-            list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_DARWIN_USE_64_BIT_INODE)
-        else()
-            add_definitions(-D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1)
-            list(APPEND CMAKE_REQUIRED_DEFINITIONS
-                        -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1)
-        endif()
-    endif()
-
-    set(GMIO_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
-    if(NOT DEFINED HAVE_SYS_TYPES_H)
-        check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
-    endif()
-
-    set(GMIO_HAVE_SYS_STAT_H ${HAVE_SYS_STAT_H})
-    if (NOT DEFINED HAVE_SYS_STAT_H)
-        check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
-    endif()
-
-    check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
-
-    # Have fstat64() ?
-    check_c_source_compiles(
-        "#include <sys/stat.h>
-         int main() { fstat64(0, NULL); return 0; }"
-        GMIO_HAVE_POSIX_FSTAT64_FUNC)
-    if(WIN32)
-        check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
-    endif()
-
-    # Check size(in bytes) of stat::st_size
-    set(CMAKE_EXTRA_INCLUDE_FILES sys/stat.h)
-    if(GMIO_HAVE_WIN__FSTAT64_FUNC)
-        check_type_size("((struct _stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
-    elseif(GMIO_HAVE_POSIX_FSTAT64_FUNC)
-        check_type_size("((struct stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
+# Check POSIX features
+if(UNIX)
+    # See:
+    #   http://linux.die.net/man/2/fstat64
+    #   https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/fstat.2.html
+    #   https://www.gnu.org/software/libc/manual/html_mono/libc.html#Feature-Test-Macros
+    if(APPLE)
+        add_definitions(-D_DARWIN_USE_64_BIT_INODE)
+        list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_DARWIN_USE_64_BIT_INODE)
     else()
-        check_type_size("((struct stat*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
+        add_definitions(-D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1)
+        list(APPEND CMAKE_REQUIRED_DEFINITIONS
+                    -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE=1)
     endif()
-    set(CMAKE_EXTRA_INCLUDE_FILES)
-    set(CMAKE_REQUIRED_DEFINITIONS)
+endif()
 
-    # Verify large file support
-    if(GMIO_HAVE_SYS_STAT_H
-           AND NOT(GMIO_SIZEOF_STRUCT_STAT_ST_SIZE STREQUAL "0") # Not arch-dependent size
-           AND NOT(GMIO_SIZEOF_STRUCT_STAT_ST_SIZE EQUAL 8))
-        message(WARNING "<sys/stat.h> does not provide 64b variant of fstat(), you may encounter problems with files > 2GB")
-    endif()
+set(GMIO_HAVE_SYS_TYPES_H ${HAVE_SYS_TYPES_H})
+if(NOT DEFINED HAVE_SYS_TYPES_H)
+    check_include_files(sys/types.h GMIO_HAVE_SYS_TYPES_H)
+endif()
 
-    # Have builtin byte swap functions ?
-    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-        # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
-        # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
-        check_c_source_compiles(
-            "int main() { return (int)__builtin_bswap16(0x1122); }"
-            GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
-        check_c_source_compiles(
-            "int main() { return (int)__builtin_bswap32(0x11223344); }"
-            GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
-    elseif(MSVC)
-        check_c_source_compiles(
-            "#include <stdlib.h>
-             int main() { return (int)_byteswap_ulong(0x11223344); }"
-            GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
-    endif()
-endif() # !GMIO_BUILD_STRICT_C90
+set(GMIO_HAVE_SYS_STAT_H ${HAVE_SYS_STAT_H})
+if (NOT DEFINED HAVE_SYS_STAT_H)
+    check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
+endif()
+
+check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
+
+# Have fstat64() ?
+check_c_source_compiles(
+    "#include <sys/stat.h>
+     int main() { fstat64(0, NULL); return 0; }"
+    GMIO_HAVE_POSIX_FSTAT64_FUNC)
+if(WIN32)
+    check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
+endif()
+
+# Check size(in bytes) of stat::st_size
+set(CMAKE_EXTRA_INCLUDE_FILES sys/stat.h)
+if(GMIO_HAVE_WIN__FSTAT64_FUNC)
+    check_type_size("((struct _stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
+elseif(GMIO_HAVE_POSIX_FSTAT64_FUNC)
+    check_type_size("((struct stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
+else()
+    check_type_size("((struct stat*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
+endif()
+set(CMAKE_EXTRA_INCLUDE_FILES)
+set(CMAKE_REQUIRED_DEFINITIONS)
+
+# Verify large file support ?
+if(GMIO_HAVE_SYS_STAT_H
+       AND NOT(GMIO_SIZEOF_STRUCT_STAT_ST_SIZE STREQUAL "0") # Not arch-dependent size
+       AND NOT(GMIO_SIZEOF_STRUCT_STAT_ST_SIZE EQUAL 8))
+    message(WARNING "<sys/stat.h> does not provide 64b variant of fstat(), you may encounter problems with files > 2GB")
+endif()
+
+# Have compiler-intrisics bytes wap functions ?
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
+    # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
+    check_c_source_compiles(
+        "int main() { return (int)__builtin_bswap16(0x1122); }"
+        GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
+    check_c_source_compiles(
+        "int main() { return (int)__builtin_bswap32(0x11223344); }"
+        GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
+elseif(MSVC)
+    check_c_source_compiles(
+        "#include <stdlib.h>
+         int main() { return (int)_byteswap_ulong(0x11223344); }"
+        GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+endif()
 
 # Specific flags for GCC-like compilers
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
@@ -283,5 +282,5 @@ endif()
 
 # Examples:
 #   cmake -DCMAKE_INSTALL_PREFIX=gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=_d
-#   cmake -DCMAKE_INSTALL_PREFIX=gcc-linux64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_RELEASE_POSTFIX=_r
+#   cmake -DCMAKE_INSTALL_PREFIX=gcc-linux64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_RELEASE_POSTFIX=
 # make VERBOSE=1  or  cmake -DCMAKE_VERBOSE_MAKEFILE=TRUE
