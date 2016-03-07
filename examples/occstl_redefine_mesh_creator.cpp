@@ -7,6 +7,7 @@
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_support/stl_occ.h>
+#include <StlMesh_Mesh.hxx>
 #include <iostream>
 
 // Redefine func_begin_solid of some gmio_stl_mesh_creator object

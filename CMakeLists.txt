@@ -61,6 +61,7 @@ cmake_dependent_option(
 cmake_dependent_option(
     GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON
     "GMIO_BUILD_BENCHMARKS" OFF)
+option(GMIO_BUILD_EXAMPLES  "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
@@ -278,6 +279,9 @@ add_subdirectory(tests)
 add_subdirectory(doc)
 if(GMIO_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
+endif()
+if(GMIO_BUILD_EXAMPLES)
+    add_subdirectory(examples)
 endif()
 
 # Examples:

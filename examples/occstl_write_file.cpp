@@ -15,6 +15,7 @@
 #include <gmio_core/error.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_support/stl_occ.h>
+#include <StlMesh_Mesh.hxx>
 #include <iostream>
 
 int main(int argc, char** argv)

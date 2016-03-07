@@ -27,15 +27,14 @@ static const char* gmio_stl_format_to_str(enum gmio_stl_format format)
     case GMIO_STL_FORMAT_BINARY_LE: return "STL BINARY LITTLE-ENDIAN";
     case GMIO_STL_FORMAT_BINARY_BE: return "STL BINARY BIG-ENDIAN";
     }
+    return NULL;
 }
 
 static void print_stl_infos(const struct gmio_stl_infos* infos)
 {
-    printf("File: %s\n"
-           "Format: %s\n"
+    printf("Format: %s\n"
            "Size: %uKo\n"
            "Facets: %u\n",
-           filepath,
            gmio_stl_format_to_str(infos->format),
            infos->size / 1024,
            infos->facet_count);
@@ -66,6 +65,7 @@ int main(int argc, char** argv)
             /* Retrieve STL informations */
             error = gmio_stl_infos_get(
                         &infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
+            printf("File: %s\n", filepath);
             if (error == GMIO_ERROR_OK)
                 print_stl_infos(&infos);
             else

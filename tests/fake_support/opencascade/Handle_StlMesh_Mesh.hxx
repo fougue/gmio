@@ -8,6 +8,15 @@ class StlMesh_Mesh;
 class Handle_StlMesh_Mesh
 {
 public:
+    Handle_StlMesh_Mesh()
+    { }
+
+    Handle_StlMesh_Mesh(const Handle_StlMesh_Mesh&)
+    { }
+
+    Handle_StlMesh_Mesh(const StlMesh_Mesh*)
+    { }
+
     StlMesh_Mesh* operator->() const
     { return NULL; }
 

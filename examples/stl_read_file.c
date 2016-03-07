@@ -63,10 +63,11 @@ static void my_3d_mesh__copy_triangle(
     { /* Copy new triangle */
         struct my_3d_triangle* my_tri = &my_mesh->triangle_array[triangle_id];
         const struct gmio_stl_coords* tri_vertices = &triangle->v1;
-        for (int i = 0; i < 3; ++i) {
-            my_tri->vertex[i][0] = tri_vertices[i].x;
-            my_tri->vertex[i][1] = tri_vertices[i].y;
-            my_tri->vertex[i][2] = tri_vertices[i].z;
+        int i;
+        for (i = 0; i < 3; ++i) {
+            my_tri->vertex[i].coords[0] = tri_vertices[i].x;
+            my_tri->vertex[i].coords[1] = tri_vertices[i].y;
+            my_tri->vertex[i].coords[2] = tri_vertices[i].z;
         }
     }
     my_mesh->triangle_array_count = triangle_id + 1;
@@ -87,9 +88,9 @@ int main(int argc, char** argv)
         /* -- Cookie object passed to callbacks of gmio_stl_mesh_creator */
         mesh_creator.cookie = &my_mesh;
         /* -- Function called initially at the beginning of a STL solid(mesh) */
-        mesh_creator.func_begin_solid = &my_stl_mesh__begin_solid;
+        mesh_creator.func_begin_solid = my_3d_mesh__begin_solid;
         /* -- Function called  for each triangle in the STL mesh */
-        mesh_creator.func_add_triangle = &my_stl_mesh__copy_triangle;
+        mesh_creator.func_add_triangle = my_3d_mesh__copy_triangle;
 
         /* Read, using default options(NULL) */
         error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
