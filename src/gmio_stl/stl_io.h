@@ -38,7 +38,8 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT int gmio_stl_read(
+GMIO_LIBSTL_EXPORT
+int gmio_stl_read(
         struct gmio_stream* stream,
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
@@ -51,7 +52,8 @@ GMIO_LIBSTL_EXPORT int gmio_stl_read(
  *  The file is opened with fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
  */
-GMIO_LIBSTL_EXPORT int gmio_stl_read_file(
+GMIO_LIBSTL_EXPORT
+int gmio_stl_read_file(
         const char* filepath,
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);

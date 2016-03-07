@@ -133,20 +133,20 @@ static int gmio_stream_stdio_get_pos(void* cookie, struct gmio_streampos* pos)
 {
     fpos_t fpos;
     int res = fgetpos((FILE*)cookie, &fpos);
-    memcpy(&pos->cookie[0], &fpos, sizeof(fpos_t));
+    memcpy(pos->cookie, &fpos, sizeof(fpos_t));
     return res;
 }
 
 static int gmio_stream_stdio_set_pos(void* cookie, const struct gmio_streampos* pos)
 {
     fpos_t fpos;
-    memcpy(&fpos, &pos->cookie[0], sizeof(fpos_t));
+    memcpy(&fpos, pos->cookie, sizeof(fpos_t));
     return fsetpos((FILE*)cookie, &fpos);
 }
 
 struct gmio_stream gmio_stream_stdio(FILE* file)
 {
-    struct gmio_stream stream = gmio_stream_null();
+    struct gmio_stream stream = {0};
     stream.cookie = file;
     stream.func_at_end = gmio_stream_stdio_at_end;
     stream.func_error = gmio_stream_stdio_error;
