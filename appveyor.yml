@@ -27,7 +27,8 @@ build_script:
  - cd c:\projects\gmio.git
  - mkdir build && cd build
  - >
-     cmake -G "%APPVEYOR_CMAKE_GENERATOR%"
+     cmake ..
+           -G "%APPVEYOR_CMAKE_GENERATOR%"
            -DCMAKE_BUILD_TYPE=%CONFIGURATION%
            -DCMAKE_DEBUG_POSTFIX=_d
            -DGMIO_BUILD_SHARED_LIBS=%APPVEYOR_SHARED_LIBS%
