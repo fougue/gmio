@@ -232,14 +232,10 @@ void bmk_gmio_stl_infos_get_all(const void* filepath)
                    (const char*)filepath,
                    infos.size / 1024,
                    infos.facet_count);
-            if (infos.format == GMIO_STL_FORMAT_ASCII) {
+            if (infos.format == GMIO_STL_FORMAT_ASCII)
                 printf("    [STLA]Solid name: %s\n", infos.stla_solidname);
-            }
-            else if (infos.format == GMIO_STL_FORMAT_BINARY_LE
-                     || infos.format == GMIO_STL_FORMAT_BINARY_BE)
-            {
+            else if (infos.format & GMIO_STL_FORMAT_TAG_BINARY)
                 printf("    [STLB]Header: %80.80s\n", infos.stlb_header.data);
-            }
         }
         already_exec = true;
     }

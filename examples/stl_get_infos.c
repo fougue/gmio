@@ -38,14 +38,10 @@ static void print_stl_infos(const struct gmio_stl_infos* infos)
            gmio_stl_format_to_str(infos->format),
            infos->size / 1024,
            infos->facet_count);
-    if (infos->format == GMIO_STL_FORMAT_ASCII) {
+    if (infos->format == GMIO_STL_FORMAT_ASCII)
         printf("Solid name: %s\n", infos->stla_solidname);
-    }
-    else if (infos->format == GMIO_STL_FORMAT_BINARY_LE
-             || infos->format == GMIO_STL_FORMAT_BINARY_BE)
-    {
+    else if (infos->format & GMIO_STL_FORMAT_TAG_BINARY)
         printf("Header: %80.80s\n", infos->stlb_header.data);
-    }
 }
 
 int main(int argc, char** argv)

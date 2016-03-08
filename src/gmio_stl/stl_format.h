@@ -26,13 +26,20 @@
 #include "stl_global.h"
 #include "../gmio_core/stream.h"
 
+/*! A byte-mask to tag(identify) STL binary formats */
+enum { GMIO_STL_FORMAT_TAG_BINARY = 0x10 };
+
 /*! This enums defines the various STL formats */
 enum gmio_stl_format
 {
-    GMIO_STL_FORMAT_UNKNOWN = 0, /*!< Unknown STL format */
-    GMIO_STL_FORMAT_ASCII,       /*!< STL ASCII (text) */
-    GMIO_STL_FORMAT_BINARY_LE,   /*!< STL binary (little-endian) */
-    GMIO_STL_FORMAT_BINARY_BE    /*!< STL binary (big-endian) */
+    /*! Unknown STL format */
+    GMIO_STL_FORMAT_UNKNOWN = 0,
+    /*! STL ASCII (text) */
+    GMIO_STL_FORMAT_ASCII = 0x01,
+    /*! STL binary (little-endian) */
+    GMIO_STL_FORMAT_BINARY_LE = GMIO_STL_FORMAT_TAG_BINARY | 0x01,
+    /*! STL binary (big-endian) */
+    GMIO_STL_FORMAT_BINARY_BE = GMIO_STL_FORMAT_TAG_BINARY | 0x02
 };
 
 GMIO_C_LINKAGE_BEGIN
