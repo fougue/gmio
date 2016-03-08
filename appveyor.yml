@@ -16,6 +16,7 @@ environment:
   matrix:
   - APPVEYOR_SHARED_LIBS: OFF
     APPVEYOR_CMAKE_GENERATOR: "Visual Studio 12 2013"
+    APPVEYOR_RUN_CHECK: ON
 
   - APPVEYOR_SHARED_LIBS: ON
     APPVEYOR_CMAKE_GENERATOR: "Visual Studio 12 2013"
@@ -37,3 +38,5 @@ build_script:
            -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF ^
            -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON
  - cmake --build .
+ - cmake --build . --target ZERO_CHECK
+ - if defined APPVEYOR_RUN_CHECK ( ctest tests -V -C %CONFIGURATION% )
