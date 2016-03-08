@@ -22,6 +22,7 @@
 #include "internal/stla_parsing.h"
 
 #include "../gmio_core/error.h"
+#include "../gmio_core/internal/c99_stdio_compat.h"
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
@@ -370,10 +371,10 @@ void stla_error_token_expected(
         struct gmio_stla_parse_data* data, enum gmio_stla_token token)
 {
     char msg[256] = {0};
-    snprintf(msg, sizeof(msg),
-             "expected <%s>, got <%s>",
-             stla_token_to_string(token),
-             stla_token_to_string(data->token));
+    gmio_snprintf(msg, sizeof(msg),
+                  "expected <%s>, got <%s>",
+                  stla_token_to_string(token),
+                  stla_token_to_string(data->token));
     stla_error_msg(data, msg);
 }
 

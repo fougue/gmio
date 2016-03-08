@@ -130,6 +130,11 @@ if(NOT GMIO_BUILD_STRICT_C90)
     set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
 
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
+
+    check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
+    if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
+        check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
+    endif()
 endif()
 
 # Check POSIX features
