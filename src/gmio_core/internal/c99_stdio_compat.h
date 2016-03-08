@@ -33,13 +33,16 @@
 #elif defined(GMIO_HAVE_WIN__SNPRINTF_FUNC)
 #  define gmio_snprintf _snprintf
 #else
+#  include <stdarg.h>
 /* No existing snprintf()-like function, call unsafe vsprintf() as fallback */
 GMIO_INLINE int gmio_snprintf(char* buf, size_t bufn, const char* fmt, ...)
 {
+    int ret = 0;
     va_list args;
     va_start(args, fmt);
-    vsprintf(buf, fmt, args);
+    ret = vsprintf(buf, fmt, args);
     va_end(args);
+    return ret;
 }
 #endif
 
