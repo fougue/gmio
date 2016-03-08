@@ -26,7 +26,7 @@ build_script:
  - cmake --version
  - cd c:\projects\gmio.git
  - mkdir build && cd build
- - ps: >-
+ - >
      cmake -G %APPVEYOR_CMAKE_GENERATOR%
            -DCMAKE_BUILD_TYPE=%CONFIGURATION%
            -DCMAKE_DEBUG_POSTFIX=_d
