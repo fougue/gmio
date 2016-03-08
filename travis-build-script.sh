@@ -39,6 +39,10 @@ cmake .. -G "Unix Makefiles"       \
          -DCMAKE_INSTALL_PREFIX=../install     \
          -DGMIO_BUILD_SHARED_LIBS=$TRAVIS_SHARED_LIBS  \
          -DGMIO_BUILD_STRICT_C90=$TRAVIS_STRICT_C90    \
+         -DGMIO_BUILD_EXAMPLES=ON                      \
+         -DGMIO_BUILD_BENCHMARKS=ON                    \
+         -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF             \
+         -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF        \
          -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON            \
          -DGMIO_BUILD_TESTS_COVERAGE=$TRAVIS_COVERALLS
 
@@ -52,6 +56,7 @@ if [ "${TRAVIS_COVERALLS}" = "ON" ]; then
     $PYTHONUSERBASE/bin/coveralls   \
         --exclude benchmarks        \
         --exclude build/CMakeFiles  \
+        --exclude examples          \
         --exclude install           \
         --exclude tests             \
         --gcov-options '\-lp'       \
