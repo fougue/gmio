@@ -26,15 +26,14 @@ build_script:
  - cmake --version
  - cd c:\projects\gmio.git
  - mkdir build && cd build
- - >
-     cmake ..
-           -G "%APPVEYOR_CMAKE_GENERATOR%"
-           -DCMAKE_BUILD_TYPE=%CONFIGURATION%
-           -DCMAKE_DEBUG_POSTFIX=_d
-           -DGMIO_BUILD_SHARED_LIBS=%APPVEYOR_SHARED_LIBS%
-           -DGMIO_BUILD_EXAMPLES=ON
-           -DGMIO_BUILD_BENCHMARKS=ON
-           -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF
-           -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF
+ - cmake .. ^
+           -G "%APPVEYOR_CMAKE_GENERATOR%" ^
+           -DCMAKE_BUILD_TYPE=%CONFIGURATION% ^
+           -DCMAKE_DEBUG_POSTFIX=_d ^
+           -DGMIO_BUILD_SHARED_LIBS=%APPVEYOR_SHARED_LIBS% ^
+           -DGMIO_BUILD_EXAMPLES=ON ^
+           -DGMIO_BUILD_BENCHMARKS=ON ^
+           -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF ^
+           -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF ^
            -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON
  - cmake --build .
