@@ -78,7 +78,7 @@ static gmio_time_ms_t benchmark_timer_elapsed_ms(const struct benchmark_timer* t
 
 /* Wraps around formatted printing functions */
 
-/*! Wrapp around sprintf() to be used with gprintf_func_exec_time() */
+/*! Wrap around sprintf() to be used with gprintf_func_exec_time() */
 static void sprintf_wrap(void* cookie, const char* fmt, ...)
 {
     va_list args;
