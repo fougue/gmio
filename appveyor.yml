@@ -36,8 +36,8 @@ build_script:
          -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF      ^
          -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF ^
          -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON
- - cmake --build .
- - cmake --build . --target test_core
- - cmake --build . --target test_stl
+ - cmake --build . --config %CONFIGURATION%
+ - cmake --build . --target test_core --config %CONFIGURATION%
+ - cmake --build . --target test_stl  --config %CONFIGURATION%
  - set PATH=%APPVEYOR_BUILD_FOLDER%\build\src\%CONFIGURATION%;%PATH%
  - cd tests && ctest . -V -C %CONFIGURATION%
