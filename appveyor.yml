@@ -39,4 +39,4 @@ build_script:
            -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON
  - cmake --build .
  - cmake --build . --target ZERO_CHECK
- - if defined APPVEYOR_RUN_CHECK ( ctest tests -V -C %CONFIGURATION% )
+ - if defined APPVEYOR_RUN_CHECK ( cd tests && ctest . -V -C %CONFIGURATION% )
