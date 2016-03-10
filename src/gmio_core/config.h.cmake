@@ -44,6 +44,8 @@
 #cmakedefine GMIO_HAVE_POWF_FUNC
 #cmakedefine GMIO_HAVE_SNPRINTF_FUNC
 #cmakedefine GMIO_HAVE_WIN__SNPRINTF_FUNC
+#cmakedefine GMIO_HAVE_VSNPRINTF_FUNC
+#cmakedefine GMIO_HAVE_WIN__VSNPRINTF_FUNC
 
 /* POSIX */
 #cmakedefine GMIO_HAVE_SYS_TYPES_H

@@ -135,6 +135,11 @@ if(NOT GMIO_BUILD_STRICT_C90)
     if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
         check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
     endif()
+
+    check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
+    if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
+        check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
+    endif()
 endif()
 
 # Check POSIX features

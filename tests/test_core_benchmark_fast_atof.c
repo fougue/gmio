@@ -16,6 +16,7 @@
 #include "utest_assert.h"
 
 #include "../benchmarks/commons/benchmark_tools.h"
+#include "../src/gmio_core/internal/c99_stdio_compat.h"
 #include "../src/gmio_core/internal/fast_atof.h"
 
 #include <stdio.h>
@@ -49,9 +50,9 @@ static void test_internal__run_atof(float (*func_atof)(const char*))
         for (i = 0; i < GMIO_ARRAY_SIZE(float_array); ++i) {
             const float f = float_array[i];
             float fres = 0.f;
-            sprintf(strbuff, "%f", f);
+            gmio_snprintf(strbuff, sizeof(strbuff), "%f", f);
             fres = func_atof(strbuff);
-            sprintf(strbuff, "%E", f);
+            gmio_snprintf(strbuff, sizeof(strbuff), "%E", f);
             fres = func_atof(strbuff);
         }
     }

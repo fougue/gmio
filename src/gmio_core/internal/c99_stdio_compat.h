@@ -18,29 +18,47 @@
 
 #include "../global.h"
 
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
 
 /* Note:
- *     Visual C++ provides snprintf() since version 2015, before that it was
- *     used to provide only equivalent _snprintf()
+ *     Visual C++ provides vsnprintf() since version 2005, before it used to
+ *     provide only _vsnprintf()
  *
- *     snprintf() appears in C99
+ *     vsnprintf() appeared in C99
  */
+#ifdef GMIO_HAVE_VSNPRINTF_FUNC
+#  define gmio_vsnprintf vsnprintf
+#elif defined(GMIO_HAVE_WIN__VSNPRINTF_FUNC)
+#  define gmio_vsnprintf _vsnprintf
+#else
+/* No existing vsnprintf()-like function, call unsafe vsprintf() as fallback */
+GMIO_INLINE int gmio_vsnprintf(
+        char* buf, size_t bufn, const char* fmt, va_list args)
+{
+    return vsprintf(buf, fmt, args);
+}
+#endif
 
+/* Note:
+ *     Visual C++ provides snprintf() since version 2015, before it used to
+ *     provide only _snprintf()
+ *
+ *     snprintf() appeared in C99
+ */
 #ifdef GMIO_HAVE_SNPRINTF_FUNC
 #  define gmio_snprintf snprintf
 #elif defined(GMIO_HAVE_WIN__SNPRINTF_FUNC)
 #  define gmio_snprintf _snprintf
 #else
-#  include <stdarg.h>
-/* No existing snprintf()-like function, call unsafe vsprintf() as fallback */
+/* No existing snprintf()-like function, translate to gmio_vsnprintf() call */
 GMIO_INLINE int gmio_snprintf(char* buf, size_t bufn, const char* fmt, ...)
 {
     int ret = 0;
     va_list args;
     va_start(args, fmt);
-    ret = vsprintf(buf, fmt, args);
+    ret = gmio_vsnprintf(buf, bufn, fmt, args);
     va_end(args);
     return ret;
 }

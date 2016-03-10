@@ -28,6 +28,9 @@
 #  define BENCHMARK_TIMER_LIBC
 #endif
 
+#include "../../src/gmio_core/internal/c99_stdio_compat.h"
+#include "../../src/gmio_core/internal/string.h"
+
 /* Benchmark timers */
 
 struct benchmark_timer
@@ -78,26 +81,27 @@ static gmio_time_ms_t benchmark_timer_elapsed_ms(const struct benchmark_timer* t
 
 /* Wraps around formatted printing functions */
 
-/*! Wrap around sprintf() to be used with gprintf_func_exec_time() */
-static void sprintf_wrap(void* cookie, const char* fmt, ...)
+/*! Wrap around snprintf() to be used with gprintf_func_exec_time() */
+static void snprintf_wrap(void* cookie, const char* fmt, ...)
 {
+    struct gmio_string* str = (struct gmio_string*)cookie;
     va_list args;
     va_start(args, fmt);
-    vsprintf((char*)cookie, fmt, args);
+    gmio_vsnprintf(str->ptr, str->max_len, fmt, args);
     va_end(args);
 }
 
-/*! Wrap around printf() to be used with gprintf_func_exec_time() */
-static void printf_wrap(void* cookie, const char* fmt, ...)
+/*! Wrap around fprintf() to be used with gprintf_func_exec_time() */
+static void fprintf_wrap(void* cookie, const char* fmt, ...)
 {
+    FILE* file = (FILE*)cookie;
     va_list args;
-    GMIO_UNUSED(cookie);
     va_start(args, fmt);
-    vprintf(fmt, args);
+    vfprintf(file, fmt, args);
     va_end(args);
 }
 
-/*! Typedef on pointer to printf-wrap functions(eg. sprintf_wrap()) */
+/*! Typedef on pointer to printf-wrap functions(eg. snprintf_wrap()) */
 typedef void (*func_gprintf_t)(void*, const char*, ...);
 
 
@@ -133,7 +137,7 @@ static const char n_a[] = "N/A";
 static void gprintf_func_string(
         /* Annex data for func_gprintf (ex: char* for sprintf()) */
         void* cookie,
-        /* Function ptr on a printf wrap (ex: sprintf_wrap()) */
+        /* Function ptr on a printf wrap (ex: snprintf_wrap()) */
         func_gprintf_t func_gprintf,
         /* Width of the print column, if any (can be == 0) */
         size_t width_column,
@@ -157,7 +161,11 @@ static void gprintf_func_exec_time(
     if (has_time) {
         char str_time[128] = {0};
         /* TODO: %ull is not accepted by mingw, find a fix(maybe %ul64) */
-        sprintf(str_time, "%u%s", (unsigned)time, unit_time_str);
+        gmio_snprintf(str_time,
+                      sizeof(str_time),
+                      "%u%s",
+                      (unsigned)time,
+                      unit_time_str);
         gprintf_func_string(cookie, func_gprintf, width_column, str_time);
     }
     else {
@@ -174,7 +182,7 @@ static void gprintf_func_exec_ratio(
 {
     if (!(ratio < 0)) { /* Valid ratio */
         char str_ratio[128] = {0};
-        sprintf(str_ratio, "%.2f", ratio);
+        gmio_snprintf(str_ratio, sizeof(str_ratio), "%.2f", ratio);
         gprintf_func_string(cookie, func_gprintf, width_column, str_ratio);
     }
     else {
@@ -189,7 +197,7 @@ static void printf_func_exec_time(
         bool has_time)
 {
     gprintf_func_exec_time(
-                NULL, &printf_wrap, width_column, time_ms, has_time);
+                stdout, &fprintf_wrap, width_column, time_ms, has_time);
 }
 
 /*! Returns the strlen of the longest tag string */
@@ -234,13 +242,14 @@ static size_t find_maxlen_cmp_result_func_exec_time(
         func_select_cmp_result_func_exec_infos_t func_select_exec_infos)
 {
     char strbuff[1024] = {0};
+    struct gmio_string str = gmio_string(strbuff, 0, sizeof(strbuff));
     size_t max_len = 0;
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
         gmio_time_ms_t time = 0;
         bool has_time = false;
         func_select_exec_infos(&res_array.ptr[i], &time, &has_time);
-        gprintf_func_exec_time(strbuff, &sprintf_wrap, 0, time, has_time);
+        gprintf_func_exec_time(&str, &snprintf_wrap, 0, time, has_time);
         max_len = size_t_max(safe_strlen(strbuff), max_len);
     }
     return max_len;
@@ -251,11 +260,12 @@ static size_t find_maxlen_cmp_result_ratio(
         struct benchmark_cmp_result_array res_array)
 {
     char strbuff[1024] = {0};
+    struct gmio_string str = gmio_string(strbuff, 0, sizeof(strbuff));
     size_t max_len = 0;
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
         const float ratio = res_array.ptr[i].func2_func1_ratio;
-        gprintf_func_exec_ratio(strbuff, &sprintf_wrap, 0, ratio);
+        gprintf_func_exec_ratio(&str, &snprintf_wrap, 0, ratio);
         max_len = size_t_max(safe_strlen(strbuff), max_len);
     }
     return max_len;
@@ -404,7 +414,7 @@ void benchmark_print_results(
                         result.has_func2_exec_time);
             printf(" | ");
             gprintf_func_exec_ratio(
-                        NULL, printf_wrap,
+                        stdout, fprintf_wrap,
                         width_ratio_col, result.func2_func1_ratio);
             printf("\n");
         }
