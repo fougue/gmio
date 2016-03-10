@@ -274,7 +274,7 @@ const char* test_internal__string_utils()
     UTEST_ASSERT(gmio_ascii_isspace('\n'));
     UTEST_ASSERT(gmio_ascii_isspace('\r'));
 
-    for (c = 0; c >= 0 && c <= 127; ++c) {
+    for (c = 0; 0 <= c && c <= 127; ++c) {
         if (65 <= c && c <= 90) {
             UTEST_ASSERT(gmio_ascii_isupper(c));
         }

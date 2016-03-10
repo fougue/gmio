@@ -37,6 +37,7 @@
 GMIO_INLINE int gmio_vsnprintf(
         char* buf, size_t bufn, const char* fmt, va_list args)
 {
+    GMIO_UNUSED(bufn);
     return vsprintf(buf, fmt, args);
 }
 #endif

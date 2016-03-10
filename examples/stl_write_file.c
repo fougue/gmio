@@ -28,9 +28,9 @@ static void my_3d_mesh__get_triangle(
     struct gmio_stl_coords* tri_vertices = &triangle->v1;
     int i;
     for (i = 0; i < 3; ++i) {
-        tri_vertices[i].x = my_tri->vertex[i].coords[0];
-        tri_vertices[i].y = my_tri->vertex[i].coords[1];
-        tri_vertices[i].z = my_tri->vertex[i].coords[2];
+        tri_vertices[i].x = (float)my_tri->vertex[i].coords[0];
+        tri_vertices[i].y = (float)my_tri->vertex[i].coords[1];
+        tri_vertices[i].z = (float)my_tri->vertex[i].coords[2];
     }
     gmio_stl_triangle_compute_normal(triangle);
 }

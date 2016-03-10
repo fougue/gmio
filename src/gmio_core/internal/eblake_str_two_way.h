@@ -216,6 +216,7 @@ critical_factorization (const unsigned char *needle, size_t needle_len,
   return max_suffix_rev + 1;
 }
 
+GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4706)
 /* Return the first location of non-empty NEEDLE within HAYSTACK, or
    NULL.  HAYSTACK_LEN is the minimum known length of HAYSTACK.  This
    method is optimized for NEEDLE_LEN < LONG_NEEDLE_THRESHOLD.
@@ -522,6 +523,7 @@ two_way_long_needle (const unsigned char *haystack, size_t haystack_len,
     }
   return NULL;
 }
+GMIO_PRAGMA_MSVC_WARNING_POP()
 
 #undef AVAILABLE
 #undef CANON_ELEMENT
