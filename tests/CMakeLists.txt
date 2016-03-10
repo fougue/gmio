@@ -52,6 +52,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 set(GMIO_TEST_STL_SRC
         main_test_stl.c
+        stl_testcases.c
         test_stl_internal.c
         test_stl_infos.c
         test_stl_io.c

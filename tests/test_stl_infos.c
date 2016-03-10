@@ -15,6 +15,8 @@
 
 #include "utest_assert.h"
 
+#include "stl_testcases.h"
+
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
@@ -22,35 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 
-struct gmio_test_stl_infos
+const char* generic_test_stl_infos(const struct stl_read_testcase* testcase)
 {
-    const char* filepath;
-    enum gmio_stl_format format;
-    uint32_t expected_facet_count;
-    gmio_streamsize_t expected_size; /* -1: check against actual file size */
-};
-
-static const struct gmio_test_stl_infos tests[] = {
-    { "models/file_empty", GMIO_STL_FORMAT_UNKNOWN, 0, 0 },
-    { "models/solid_4vertex.stla", GMIO_STL_FORMAT_ASCII, 1, -1 },
-    { "models/solid_anonymous_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
-    { "models/solid_empty.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
-    { "models/solid_empty.stlb", GMIO_STL_FORMAT_BINARY_LE, 0, -1 },
-    { "models/solid_empty_name_many_words.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
-    { "models/solid_empty_name_many_words_single_letters.stla", GMIO_STL_FORMAT_ASCII, 0, -1 },
-    { "models/solid_grabcad_arm11_link0_hb.le_stlb", GMIO_STL_FORMAT_BINARY_LE, 1436, -1 },
-    { "models/solid_jburkardt_sphere.stla", GMIO_STL_FORMAT_ASCII, 228, -1 },
-    { "models/solid_lack_z.stla", GMIO_STL_FORMAT_ASCII, 1, -1 },
-    { "models/solid_one_facet.be_stlb", GMIO_STL_FORMAT_BINARY_BE, 1, -1 },
-    { "models/solid_one_facet.le_stlb", GMIO_STL_FORMAT_BINARY_LE, 1, -1 },
-    { "models/solid_one_facet.stla", GMIO_STL_FORMAT_ASCII, 1, -1 },
-    { "models/solid_one_facet_uppercase.stla", GMIO_STL_FORMAT_ASCII, 1, -1 }
-};
-
-const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
-{
-    FILE* file = fopen(test->filepath, "rb");
-    gmio_streamsize_t expected_size = test->expected_size;
+    FILE* file = fopen(testcase->filepath, "rb");
+    gmio_streamsize_t expected_size = testcase->expected_size;
     char stla_solid_name[512] = {0};
     struct gmio_stl_infos infos = {0};
     struct gmio_stream stream = gmio_stream_stdio(file);
@@ -59,19 +36,19 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
     infos.stla_solidname = stla_solid_name;
     infos.stla_solidname_maxlen = sizeof(stla_solid_name) - 1;
     error = gmio_stl_infos_get(&infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
-    if (test->format != GMIO_STL_FORMAT_UNKNOWN) {
+
+    if (testcase->expected_size == -1)
+        expected_size = gmio_stream_size(&stream);
+    fclose(file);
+
+    if (testcase->format != GMIO_STL_FORMAT_UNKNOWN) {
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
     else {
         UTEST_COMPARE_INT(GMIO_STL_ERROR_UNKNOWN_FORMAT, error);
     }
 
-    if (test->expected_size == -1)
-        expected_size = gmio_stream_size(&stream);
-
-    fclose(file);
-
-    if (test->format == GMIO_STL_FORMAT_ASCII) {
+    if (testcase->format == GMIO_STL_FORMAT_ASCII) {
         const size_t name_len = strlen(stla_solid_name);
         const gmio_streamsize_t name_len_ssize = name_len;
 #if 0
@@ -93,12 +70,18 @@ const char* generic_test_stl_infos(const struct gmio_test_stl_infos* test)
 
 const char* test_stl_infos()
 {
-    size_t i;
-    for (i = 0; i < GMIO_ARRAY_SIZE(tests); ++i) {
-        const char* error = generic_test_stl_infos(tests + i);
-        if (error != NULL)
+    const struct stl_read_testcase* testcase = stl_read_testcases_ptr();
+    while (testcase != stl_read_testcases_ptr_end()) {
+        const char* error = generic_test_stl_infos(testcase);
+        if (error != NULL) {
+            fprintf(stderr,
+                    "\ntest_stl_infos()\n"
+                    "     filepath : %s\n"
+                    "     error : %s\n",
+                    testcase->filepath, error);
             return error;
+        }
+        ++testcase;
     }
-
     return NULL;
 }

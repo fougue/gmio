@@ -16,6 +16,7 @@
 #include "utest_assert.h"
 
 #include "core_utils.h"
+#include "stl_testcases.h"
 #include "stl_utils.h"
 
 #include "../src/gmio_core/error.h"
@@ -28,9 +29,6 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-
-static const char stl_grabcad_arm11_filepath[] =
-        "models/solid_grabcad_arm11_link0_hb.le_stlb";
 
 struct stl_testcase_result
 {
@@ -54,96 +52,9 @@ void stl_testcase_result__begin_solid(
     }
 }
 
-struct stl_testcase
-{
-    const char* filepath;
-    int errorcode;
-    enum gmio_stl_format format;
-    const char* solid_name;
-};
-
 const char* test_stl_read()
 {
-    const struct stl_testcase expected[] = {
-        { "models/file_empty",
-          GMIO_STL_ERROR_UNKNOWN_FORMAT,
-          GMIO_STL_FORMAT_UNKNOWN,
-          NULL
-        },
-        { "models/solid_4vertex.stla",
-          GMIO_STL_ERROR_PARSING,
-          GMIO_STL_FORMAT_ASCII,
-          NULL
-        },
-        { "models/solid_anonymous_empty.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          NULL
-        },
-        { "models/solid_empty.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          "emptysolid"
-        },
-        { "models/solid_empty.stlb",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_BINARY_LE,
-          NULL
-        },
-        { "models/solid_empty_name_many_words.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          "name with multiple words"
-        },
-        { "models/solid_empty_name_many_words_single_letters.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          "a b c d e f\t\tg h"
-        },
-        { "models/solid_grabcad_arm11_link0_hb.le_stlb",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_BINARY_LE,
-          NULL
-        },
-        { "models/solid_header_no_facets.le_stlb",
-          GMIO_STL_ERROR_UNKNOWN_FORMAT,
-          GMIO_STL_FORMAT_UNKNOWN,
-          NULL
-        },
-        { "models/solid_jburkardt_sphere.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          "sphere"
-        },
-        { "models/solid_lack_z.stla",
-          GMIO_STL_ERROR_PARSING,
-          GMIO_STL_FORMAT_ASCII,
-          NULL
-        },
-        { "models/solid_one_facet.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          NULL
-        },
-        { "models/solid_one_facet.le_stlb",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_BINARY_LE,
-          NULL
-        },
-        { "models/solid_one_facet.be_stlb",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_BINARY_BE,
-          NULL
-        },
-        { "models/solid_one_facet_uppercase.stla",
-          GMIO_ERROR_OK,
-          GMIO_STL_FORMAT_ASCII,
-          NULL
-        }
-    };
-    const size_t expected_count =
-            sizeof(expected) / sizeof(struct stl_testcase);
-    size_t i; /* for loop counter */
+    const struct stl_read_testcase* testcase = stl_read_testcases_ptr();
     struct gmio_stl_mesh_creator mesh_creator = {0};
     struct stl_testcase_result result = {0};
 
@@ -151,48 +62,50 @@ const char* test_stl_read()
     mesh_creator.func_begin_solid = &stl_testcase_result__begin_solid;
     mesh_creator.func_add_triangle = &gmio_stl_nop_add_triangle;
 
-    for (i = 0; i < expected_count; ++i) {
+    while (testcase != stl_read_testcases_ptr_end()) {
         const enum gmio_stl_format format =
-                gmio_stl_get_format_file(expected[i].filepath);
+                gmio_stl_get_format_file(testcase->filepath);
         const int err =
-                gmio_stl_read_file(expected[i].filepath, &mesh_creator, NULL);
+                gmio_stl_read_file(testcase->filepath, &mesh_creator, NULL);
 
         /* Check format */
-        if (format != expected[i].format) {
+        if (format != testcase->format) {
             printf("\nfilepath : %s\n"
                    "expected format : %d\n"
                    "actual format   : %d\n",
-                   expected[i].filepath,
-                   expected[i].format,
+                   testcase->filepath,
+                   testcase->format,
                    format);
         }
-        UTEST_COMPARE_UINT(expected[i].format, format);
+        UTEST_COMPARE_UINT(testcase->format, format);
 
         /* Check error code */
-        if (err != expected[i].errorcode) {
+        if (err != testcase->errorcode) {
             printf("\nfilepath : %s\n"
                    "expected error : 0x%x\n"
                    "actual error   : 0x%x\n",
-                   expected[i].filepath,
-                   expected[i].errorcode,
+                   testcase->filepath,
+                   testcase->errorcode,
                    err);
         }
-        UTEST_COMPARE_UINT(expected[i].errorcode, err);
+        UTEST_COMPARE_UINT(testcase->errorcode, err);
 
         /* Check solid name */
-        if (expected[i].format == GMIO_STL_FORMAT_ASCII) {
-            const char* expected_name =
-                    expected[i].solid_name != NULL ? expected[i].solid_name : "";
-            if (strcmp(result.solid_name, expected_name) != 0) {
+        if (testcase->format == GMIO_STL_FORMAT_ASCII) {
+            const char* testcase_solid_name =
+                    testcase->solid_name != NULL ? testcase->solid_name : "";
+            if (strcmp(result.solid_name, testcase_solid_name) != 0) {
                 printf("\nfilepath : %s\n"
                        "expected solidname : %s\n"
                        "actual solidname   : %s\n",
-                       expected[i].filepath,
-                       expected_name,
+                       testcase->filepath,
+                       testcase_solid_name,
                        result.solid_name);
             }
-            UTEST_COMPARE_CSTR(expected_name, result.solid_name);
+            UTEST_COMPARE_CSTR(testcase_solid_name, result.solid_name);
         }
+
+        ++testcase;
     }
 
     return NULL;
@@ -201,7 +114,7 @@ const char* test_stl_read()
 const char* test_stlb_read()
 {
     /* This file contains only a header and facet count(100) but no triangles */
-    FILE* file = fopen("models/solid_header_no_facets.le_stlb", "rb");
+    FILE* file = fopen(filepath_stlb_header_nofacets, "rb");
     if (file != NULL) {
         struct gmio_stream stream = gmio_stream_stdio(file);
         const int error =
@@ -257,7 +170,7 @@ static void fclose_2(FILE* f1, FILE* f2)
 
 const char* test_stlb_write()
 {
-    const char* model_fpath = stl_grabcad_arm11_filepath;
+    const char* model_fpath = filepath_stlb_grabcad_arm11;
     const char* model_fpath_out = "temp/solid.le_stlb";
     const char* model_fpath_out_be = "temp/solid.be_stlb";
     struct gmio_stl_data data = {0};
@@ -338,7 +251,7 @@ const char* test_stlb_write()
 
 const char* test_stla_write()
 {
-    const char* model_filepath = stl_grabcad_arm11_filepath;
+    const char* model_filepath = filepath_stlb_grabcad_arm11;
     const char* model_filepath_out = "temp/solid.stla";
     struct gmio_stl_data data = {0}; /* TODO: fix memory leak on error */
     char header_str[GMIO_STLB_HEADER_SIZE + 1] = {0};
@@ -421,17 +334,17 @@ const char* generic_test_stl_read_multi_solid(
 const char* test_stl_read_multi_solid()
 {
     const char* res = NULL;
-    res = generic_test_stl_read_multi_solid("models/solid_4meshs.stla", 4);
+    res = generic_test_stl_read_multi_solid(filepath_stla_4meshs, 4);
     if (res != NULL)
         return res;
-    res = generic_test_stl_read_multi_solid("models/solid_4meshs.le_stlb", 4);
+    res = generic_test_stl_read_multi_solid(filepath_stlb_4meshs, 4);
     return res;
 }
 
 void generate_stlb_tests_models()
 {
     {
-        FILE* outfile = fopen("models/solid_empty.stlb", "wb");
+        FILE* outfile = fopen(filepath_stlb_empty, "wb");
         struct gmio_stream stream = gmio_stream_stdio(outfile);
         gmio_stlb_write_header(&stream, GMIO_ENDIANNESS_LITTLE, NULL, 0);
         fclose(outfile);
@@ -461,8 +374,8 @@ void generate_stlb_tests_models()
     }
 
     {
-        FILE* infile = fopen("models/solid_4meshs.stla", "rb");
-        FILE* outfile = fopen("models/solid_4meshs.le_stlb", "wb");
+        FILE* infile = fopen(filepath_stla_4meshs, "rb");
+        FILE* outfile = fopen(filepath_stlb_4meshs, "wb");
         int read_error = GMIO_ERROR_OK;
         struct gmio_stream istream = gmio_stream_stdio(infile);
         struct gmio_stream ostream = gmio_stream_stdio(outfile);
@@ -484,7 +397,7 @@ void generate_stlb_tests_models()
     }
 
     {
-        FILE* outfile = fopen("models/solid_header_no_facets.le_stlb", "wb");
+        FILE* outfile = fopen(filepath_stlb_header_nofacets, "wb");
         struct gmio_stream ostream = gmio_stream_stdio(outfile);
         const struct gmio_stlb_header header = {0};
         gmio_stlb_write_header(&ostream, GMIO_ENDIANNESS_LITTLE, &header, 100);
