@@ -105,6 +105,11 @@ const char* test_stl_read()
           GMIO_STL_FORMAT_BINARY_LE,
           NULL
         },
+        { "models/solid_header_no_facets.le_stlb",
+          GMIO_STL_ERROR_UNKNOWN_FORMAT,
+          GMIO_STL_FORMAT_UNKNOWN,
+          NULL
+        },
         { "models/solid_jburkardt_sphere.stla",
           GMIO_ERROR_OK,
           GMIO_STL_FORMAT_ASCII,
@@ -190,6 +195,23 @@ const char* test_stl_read()
         }
     }
 
+    return NULL;
+}
+
+const char* test_stlb_read()
+{
+    /* This file contains only a header and facet count(100) but no triangles */
+    FILE* file = fopen("models/solid_header_no_facets.le_stlb", "rb");
+    if (file != NULL) {
+        struct gmio_stream stream = gmio_stream_stdio(file);
+        const int error =
+                gmio_stlb_read(&stream, NULL, GMIO_ENDIANNESS_LITTLE, NULL);
+        fclose(file);
+        UTEST_COMPARE_INT(GMIO_STL_ERROR_FACET_COUNT, error);
+    }
+    else {
+        UTEST_FAIL("file is NULL");
+    }
     return NULL;
 }
 
@@ -458,6 +480,14 @@ void generate_stlb_tests_models()
             gmio_stl_triangle_array_free(&data.tri_array);
         }
         fclose(infile);
+        fclose(outfile);
+    }
+
+    {
+        FILE* outfile = fopen("models/solid_header_no_facets.le_stlb", "wb");
+        struct gmio_stream ostream = gmio_stream_stdio(outfile);
+        const struct gmio_stlb_header header = {0};
+        gmio_stlb_write_header(&ostream, GMIO_ENDIANNESS_LITTLE, &header, 100);
         fclose(outfile);
     }
 }

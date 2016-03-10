@@ -28,8 +28,9 @@ const char* test_stl_infos();
 const char* test_stl_read();
 const char* test_stl_read_multi_solid();
 const char* test_stla_write();
-const char* test_stlb_write_header();
+const char* test_stlb_read();
 const char* test_stlb_write();
+const char* test_stlb_write_header();
 
 const char* test_stlb_header_str();
 const char* test_stlb_header_to_printable_str();
@@ -60,8 +61,9 @@ const char* all_tests()
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stl_read_multi_solid);
     UTEST_RUN(test_stla_write);
-    UTEST_RUN(test_stlb_write_header);
+    UTEST_RUN(test_stlb_read);
     UTEST_RUN(test_stlb_write);
+    UTEST_RUN(test_stlb_write_header);
 
     UTEST_RUN(test_stlb_header_str);
     UTEST_RUN(test_stlb_header_to_printable_str);
