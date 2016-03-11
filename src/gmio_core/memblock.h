@@ -44,32 +44,26 @@ struct gmio_memblock
 GMIO_C_LINKAGE_BEGIN
 
 /*! Returns true if \p mblock is NULL or points to null/void memory */
-GMIO_LIB_EXPORT
-bool gmio_memblock_isnull(const struct gmio_memblock* mblock);
+GMIO_API bool gmio_memblock_isnull(const struct gmio_memblock* mblock);
 
 /*! Returns an initialized gmio_memblock object
  *
  *  If \p ptr is NULL then gmio_memblock::size is forced to \c 0
  */
-GMIO_LIB_EXPORT
-struct gmio_memblock gmio_memblock(
+GMIO_API struct gmio_memblock gmio_memblock(
         void* ptr, size_t size, void (*func_deallocate)(void*));
 
 /*! Returns a gmio_memblock object allocated with standard \c malloc() */
-GMIO_LIB_EXPORT
-struct gmio_memblock gmio_memblock_malloc(size_t size);
+GMIO_API struct gmio_memblock gmio_memblock_malloc(size_t size);
 
 /*! Returns a gmio_memblock object allocated with standard \c calloc() */
-GMIO_LIB_EXPORT
-struct gmio_memblock gmio_memblock_calloc(size_t num, size_t size);
+GMIO_API struct gmio_memblock gmio_memblock_calloc(size_t num, size_t size);
 
 /*! Returns a gmio_memblock object allocated with standard \c realloc() */
-GMIO_LIB_EXPORT
-struct gmio_memblock gmio_memblock_realloc(void* ptr, size_t size);
+GMIO_API struct gmio_memblock gmio_memblock_realloc(void* ptr, size_t size);
 
 /*! Safe and convenient call to gmio_memblock::func_deallocate() */
-GMIO_LIB_EXPORT
-void gmio_memblock_deallocate(struct gmio_memblock* mblock);
+GMIO_API void gmio_memblock_deallocate(struct gmio_memblock* mblock);
 
 /*! Typedef for a pointer to a function that creates an allocated mblock
  *
@@ -85,21 +79,18 @@ typedef struct gmio_memblock (*gmio_memblock_constructor_func_t)();
  *
  *  This function is not thread-safe.
  */
-GMIO_LIB_EXPORT
-void gmio_memblock_set_default_constructor(
+GMIO_API void gmio_memblock_set_default_constructor(
         gmio_memblock_constructor_func_t ctor);
 
 /*! Returns the currently installed function to construct gmio_memblock objects
  *
  *  It is initialized to <tt>gmio_memblock_malloc(128KB)</tt>
  */
-GMIO_LIB_EXPORT
-gmio_memblock_constructor_func_t gmio_memblock_default_constructor();
+GMIO_API gmio_memblock_constructor_func_t gmio_memblock_default_constructor();
 
 /*! Returns a gmio_memblock object created using the function
  *  gmio_memblock_default_constructor() */
-GMIO_LIB_EXPORT
-struct gmio_memblock gmio_memblock_default();
+GMIO_API struct gmio_memblock gmio_memblock_default();
 
 GMIO_C_LINKAGE_END
 

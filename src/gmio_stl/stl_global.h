@@ -28,17 +28,5 @@
 
 #include "../gmio_core/global.h"
 
-#ifdef GMIO_LIBSTL_DLL
-#  ifdef GMIO_LIBSTL_MAKE_DLL
-#    define GMIO_LIBSTL_EXPORT GMIO_DECL_EXPORT
-#  else
-#    define GMIO_LIBSTL_EXPORT GMIO_DECL_IMPORT
-#  endif /* GMIO_DATAX_LIBSTL_MAKE_DLL */
-#else
-/*! Expands either to GMIO_DECL_EXPORT or GMIO_DECL_IMPORT when respectively
- *  compiling/using the DLL */
-#   define GMIO_LIBSTL_EXPORT
-#endif /* GMIO_LIBSTL_DLL */
-
 #endif /* GMIO_STL_GLOBAL_H */
 /*! @} */

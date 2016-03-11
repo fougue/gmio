@@ -105,7 +105,7 @@ static void readwrite_begin_solid(
              * procedure (in gmio_stl_mesh_creator::func_end_solid() callback)
              */
             const enum gmio_endianness byte_order = to_byte_order(rw_conv->out_format);
-            gmio_stlb_write_header(stream, byte_order, NULL, 0);
+            gmio_stlb_header_write(stream, byte_order, NULL, 0);
         }
     }
     else {
@@ -113,7 +113,7 @@ static void readwrite_begin_solid(
             stream->func_write(stream->cookie, "solid\n", 1, 6);
         }
         else {
-            gmio_stlb_write_header(
+            gmio_stlb_header_write(
                         stream,
                         to_byte_order(rw_conv->out_format),
                         infos->stlb_header,
@@ -172,7 +172,7 @@ static void readwrite_end_solid(void* cookie)
         /* The total facet count has to be written because it wasn't known at
          * the beginning of the read procedure */
         stream->func_set_pos(stream->cookie, &rw_conv->out_stream_pos_begin);
-        gmio_stlb_write_header(
+        gmio_stlb_header_write(
                     stream, byte_order, NULL, rw_conv->total_triangle_count);
     }
 }
@@ -191,7 +191,7 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
 
     if (infile != NULL) {
         instream = gmio_stream_stdio(infile);
-        rw_conv.in_format = gmio_stl_get_format(&instream);
+        rw_conv.in_format = gmio_stl_format_probe(&instream);
     }
     if (outfile != NULL) {
         rw_conv.stream = gmio_stream_stdio(outfile);

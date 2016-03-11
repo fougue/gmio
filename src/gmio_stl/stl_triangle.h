@@ -39,8 +39,7 @@ struct gmio_stl_triangle
 GMIO_C_LINKAGE_BEGIN
 
 /*! Computes the normal vector of triangle \p tri */
-GMIO_LIBSTL_EXPORT
-void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri);
+GMIO_API void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri);
 
 GMIO_C_LINKAGE_END
 

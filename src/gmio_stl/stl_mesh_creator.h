@@ -32,7 +32,7 @@
 #include <stddef.h>
 
 /*! Informations about the STL stream, used in
- *  gmio_stl_mesh_creator::begin_solid() */
+ *  gmio_stl_mesh_creator::func_begin_solid() */
 struct gmio_stl_mesh_creator_infos
 {
     /*! Format of the input STL mesh */

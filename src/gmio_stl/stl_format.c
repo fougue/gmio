@@ -116,7 +116,7 @@ static bool gmio_is_stl_ascii(const char* buff, size_t buff_len)
     return false;
 }
 
-enum gmio_stl_format gmio_stl_get_format(struct gmio_stream *stream)
+enum gmio_stl_format gmio_stl_format_probe(struct gmio_stream *stream)
 {
     char buff[GMIO_FIXED_BUFFER_SIZE] = {0};
     size_t read_size = 0;
@@ -155,14 +155,14 @@ enum gmio_stl_format gmio_stl_get_format(struct gmio_stream *stream)
     return GMIO_STL_FORMAT_UNKNOWN;
 }
 
-enum gmio_stl_format gmio_stl_get_format_file(const char* filepath)
+enum gmio_stl_format gmio_stl_format_probe_file(const char* filepath)
 {
     enum gmio_stl_format format = GMIO_STL_FORMAT_UNKNOWN;
     FILE* file = fopen(filepath, "rb");
 
     if (file != NULL) {
         struct gmio_stream stream = gmio_stream_stdio(file);
-        format = gmio_stl_get_format(&stream);
+        format = gmio_stl_format_probe(&stream);
         fclose(file);
     }
     return format;

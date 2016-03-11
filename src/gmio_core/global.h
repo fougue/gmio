@@ -63,17 +63,17 @@
 #  define GMIO_DECL_IMPORT
 #endif
 
-/* GMIO_LIB_EXPORT */
-#ifdef GMIO_LIB_DLL
-#  ifdef GMIO_LIB_MAKE_DLL
-#    define GMIO_LIB_EXPORT GMIO_DECL_EXPORT
+/* GMIO_API */
+#ifdef GMIO_DLL
+#  ifdef GMIO_MAKING_DLL
+#    define GMIO_API GMIO_DECL_EXPORT
 #  else
-#    define GMIO_LIB_EXPORT GMIO_DECL_IMPORT
-#  endif /* GMIO_LIB_MAKE_DLL */
+#    define GMIO_API GMIO_DECL_IMPORT
+#  endif /* GMIO_MAKING_DLL */
 #else
 /*! Expands either to GMIO_DECL_EXPORT or GMIO_DECL_IMPORT when respectively
  *  compiling/using the DLL */
-#  define GMIO_LIB_EXPORT
+#  define GMIO_API
 #endif
 
 /* Typedefs for specific width integers */

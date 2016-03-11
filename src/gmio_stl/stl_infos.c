@@ -43,7 +43,7 @@ int gmio_stl_infos_get(
 
     /* Guess format when left unspecified */
     if (format == GMIO_STL_FORMAT_UNKNOWN) {
-        format = gmio_stl_get_format(stream);
+        format = gmio_stl_format_probe(stream);
         if (format == GMIO_STL_FORMAT_UNKNOWN) {
             error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
             goto label_end;

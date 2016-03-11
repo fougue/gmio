@@ -38,8 +38,7 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_read(
+GMIO_API int gmio_stl_read(
         struct gmio_stream* stream,
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
@@ -49,33 +48,30 @@ int gmio_stl_read(
  *  This is just a facility function over gmio_stl_read(). The internal stream
  *  object is created to read file at \p filepath (see gmio_stream_stdio(FILE*))
  *
- *  The file is opened with fopen() so \p filepath shall follow the file name
+ *  The file is opened with \c fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_read_file(
+GMIO_API int gmio_stl_read_file(
         const char* filepath,
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
 
-/*! Reads geometry from STL ascii stream
+/*! Reads mesh from STL ascii stream
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stla_read(
+GMIO_API int gmio_stla_read(
         struct gmio_stream* stream,
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options);
 
-/*! Reads geometry from STL binary stream
+/*! Reads mesh from STL binary stream
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
  *          if <tt>options->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stlb_read(
+GMIO_API int gmio_stlb_read(
         struct gmio_stream* stream,
         struct gmio_stl_mesh_creator* mesh_creator,
         enum gmio_endianness byte_order,
@@ -85,8 +81,7 @@ int gmio_stlb_read(
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_write(
+GMIO_API int gmio_stl_write(
         enum gmio_stl_format format,
         struct gmio_stream* stream,
         const struct gmio_stl_mesh* mesh,
@@ -97,13 +92,12 @@ int gmio_stl_write(
  *  This is just a facility function over gmio_stl_write(). The internal stream
  *  object is created to read file at \p filepath (see gmio_stream_stdio(FILE*))
  *
- *  The file is opened with fopen() so \p filepath shall follow the file name
+ *  The file is opened with \c fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
 
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_write_file(
+GMIO_API int gmio_stl_write_file(
         enum gmio_stl_format format,
         const char* filepath,
         const struct gmio_stl_mesh* mesh,
@@ -114,21 +108,14 @@ int gmio_stl_write_file(
  *  This functions only writes the 80-bytes header array and the count of facets
  *  in the mesh(with respect of the specified byte order).
  *
+ *  \p header Can be safely set to \c NULL to generate an array of zeroes
+ *
  *  \return Error code (see error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stlb_write_header(
-        /*! Output stream where is written the header data */
+GMIO_API int gmio_stlb_header_write(
         struct gmio_stream* stream,
-
-        /*! Byte order of the output STL data */
         enum gmio_endianness byte_order,
-
-        /*! 80-bytes array of header data, can be safely set to NULL to generate
-         * an array of zeroes */
         const struct gmio_stlb_header* header,
-
-        /*! Total count of facets (triangles) in the mesh to be written */
         uint32_t facet_count
 );
 

@@ -41,8 +41,7 @@ GMIO_C_LINKAGE_BEGIN
  *  If the length of \p str is less than \c GMIO_STLB_HEADER_SIZE then the
  *  remaining bytes are filled with zeroes.
  */
-GMIO_LIBSTL_EXPORT
-struct gmio_stlb_header gmio_stlb_header_str(const char* str);
+GMIO_API struct gmio_stlb_header gmio_stlb_header_str(const char* str);
 
 /*! Copies \p header into C string \p str
  *
@@ -50,8 +49,7 @@ struct gmio_stlb_header gmio_stlb_header_str(const char* str);
  *  \p str must be at least \c GMIO_STLB_HEADER_SIZE+1 long, a terminating null
  *  character ('\0') is copied at position \c GMIO_STLB_HEADER_SIZE
  */
-GMIO_LIBSTL_EXPORT
-void gmio_stlb_header_to_printable_str(
+GMIO_API void gmio_stlb_header_to_printable_str(
         const struct gmio_stlb_header* header, char* str, char replacement);
 
 GMIO_C_LINKAGE_END

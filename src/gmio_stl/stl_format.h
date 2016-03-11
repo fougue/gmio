@@ -26,7 +26,8 @@
 #include "stl_global.h"
 #include "../gmio_core/stream.h"
 
-/*! A byte-mask to tag(identify) STL binary formats */
+/*! \c GMIO_STL_FORMAT_TAG_BINARY
+ *  Byte-mask to tag(identify) STL binary formats */
 enum { GMIO_STL_FORMAT_TAG_BINARY = 0x10 };
 
 /*! This enums defines the various STL formats */
@@ -53,19 +54,17 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  \retval GMIO_STL_FORMAT_UNKNOWN in case of error.
  */
-GMIO_LIBSTL_EXPORT
-enum gmio_stl_format gmio_stl_get_format(struct gmio_stream* stream);
+GMIO_API enum gmio_stl_format gmio_stl_format_probe(struct gmio_stream* stream);
 
 /*! Returns the format of the STL data in file at location \p filepath
  *
- *  This function is a wrapper around gmio_stl_get_format()
+ *  This function is a wrapper around gmio_stl_format_probe()
  *
- *  \param filepath Path to the STL file. A stream is opened with fopen() so
+ *  \param filepath Path to the STL file. A stream is opened with \c fopen() so
  *         the string shall follow the file name specifications of the running
  *         environment
  */
-GMIO_LIBSTL_EXPORT
-enum gmio_stl_format gmio_stl_get_format_file(const char* filepath);
+GMIO_API enum gmio_stl_format gmio_stl_format_probe_file(const char* filepath);
 
 GMIO_C_LINKAGE_END
 

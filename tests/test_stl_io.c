@@ -64,7 +64,7 @@ const char* test_stl_read()
 
     while (testcase != stl_read_testcases_ptr_end()) {
         const enum gmio_stl_format format =
-                gmio_stl_get_format_file(testcase->filepath);
+                gmio_stl_format_probe_file(testcase->filepath);
         const int err =
                 gmio_stl_read_file(testcase->filepath, &mesh_creator, NULL);
 
@@ -128,7 +128,7 @@ const char* test_stlb_read()
     return NULL;
 }
 
-const char* test_stlb_write_header()
+const char* test_stlb_header_write()
 {
     const char* filepath = "temp/solid.stlb";
     struct gmio_stlb_header header = {0};
@@ -141,7 +141,7 @@ const char* test_stlb_write_header()
         memcpy(&header,
                header_str,
                GMIO_MIN(GMIO_STLB_HEADER_SIZE, strlen(header_str)));
-        error = gmio_stlb_write_header(
+        error = gmio_stlb_header_write(
                     &stream, GMIO_ENDIANNESS_LITTLE, &header, 0);
         fclose(outfile);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
@@ -346,7 +346,7 @@ void generate_stlb_tests_models()
     {
         FILE* outfile = fopen(filepath_stlb_empty, "wb");
         struct gmio_stream stream = gmio_stream_stdio(outfile);
-        gmio_stlb_write_header(&stream, GMIO_ENDIANNESS_LITTLE, NULL, 0);
+        gmio_stlb_header_write(&stream, GMIO_ENDIANNESS_LITTLE, NULL, 0);
         fclose(outfile);
     }
 
@@ -400,7 +400,7 @@ void generate_stlb_tests_models()
         FILE* outfile = fopen(filepath_stlb_header_nofacets, "wb");
         struct gmio_stream ostream = gmio_stream_stdio(outfile);
         const struct gmio_stlb_header header = {0};
-        gmio_stlb_write_header(&ostream, GMIO_ENDIANNESS_LITTLE, &header, 100);
+        gmio_stlb_header_write(&ostream, GMIO_ENDIANNESS_LITTLE, &header, 100);
         fclose(outfile);
     }
 }

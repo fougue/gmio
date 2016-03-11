@@ -30,8 +30,8 @@ include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated hea
 
 # Enable DLL generation (export symbols)
 if(GMIO_BUILD_SHARED_LIBS)
-    add_definitions(-DGMIO_LIB_DLL
-                    -DGMIO_LIB_MAKE_DLL)
+    add_definitions(-DGMIO_DLL
+                    -DGMIO_MAKING_DLL)
     if(MSVC)
         configure_file(gmio_core/gmio.rc.cmake gmio_core/gmio.rc @ONLY)
         set(GMIO_SRC_FILES ${GMIO_SRC_FILES} ${CMAKE_BINARY_DIR}/src/gmio_core/gmio.rc)
@@ -46,10 +46,10 @@ file(GLOB  GMIO_CORE_HEADERS  gmio_core/*.h)
 install(FILES ${GMIO_CORE_HEADERS} DESTINATION include/gmio_core)
 
 # Module libSTL
-if(GMIO_BUILD_SHARED_LIBS)
-    add_definitions(-DGMIO_LIBSTL_DLL
-                    -DGMIO_LIBSTL_MAKE_DLL)
-endif()
+#if(GMIO_BUILD_SHARED_LIBS)
+#    add_definitions(-DGMIO_STL_DLL
+#                    -DGMIO_STL_MAKING_DLL)
+#endif()
 
 file(GLOB  GMIO_LIBSTL_SRC_FILES  gmio_stl/*  gmio_stl/internal/*)
 set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBSTL_SRC_FILES})

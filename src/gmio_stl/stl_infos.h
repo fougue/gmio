@@ -87,7 +87,7 @@ enum gmio_stl_info_flag
     GMIO_STL_INFO_FLAG_ALL = 0xFFFF
 };
 
-/*! Optional parameters of gmio_stl_infos_get() */
+/*! Options of function gmio_stl_infos_get() */
 struct gmio_stl_infos_get_options
 {
     /*! See gmio_core_readwrite_options::stream_memblock */
@@ -97,9 +97,9 @@ struct gmio_stl_infos_get_options
      *  automatically guessed */
     enum gmio_stl_format format_hint;
 
-    /*! Restrict gmio_stl_infos_get() to not read further this limit
+    /*! Restrict gmio_stl_infos_get() to not read further this limit(in bytes)
      *
-     *  Not yet supported
+     *  \warning Not yet supported
      */
     gmio_streamsize_t size_limit;
 };
@@ -108,21 +108,29 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! Finds informations about STL contents
  *
+ *  \p infos is an output parameter that will hold the retrieved infos
+ *
+ *  \p flags is a bitor combination of \c gmio_stl_info_flag values and is used
+ *  to select the infos to retrieve.
+ *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_LIBSTL_EXPORT
-int gmio_stl_infos_get(
+GMIO_API int gmio_stl_infos_get(
         struct gmio_stl_infos* infos,
         struct gmio_stream* stream,
-        unsigned flags, /*!< Bitor combination of gmio_stl_info_flag values */
+        unsigned flags,
         const struct gmio_stl_infos_get_options* options);
 
-/*! Returns the size(in bytes) of next STL ascii solid in \p stream
+/*! Returns the size(in bytes) of the next STL ascii solid in \p stream
  *
  *  It is a facade over gmio_stl_infos_get() for gmio_stl_infos::size only
+ *
+ *  Pointer to this function can be given to
+ *  gmio_stl_read_options::func_stla_get_streamsize() and is useful when
+ *  reading in sequence multi solids in STL ascii. The stream can be cleanly
+ *  advanced solid by solid after each call to gmio_stl_read()
  */
-GMIO_LIBSTL_EXPORT
-gmio_streamsize_t gmio_stla_infos_get_streamsize(
+GMIO_API gmio_streamsize_t gmio_stla_infos_get_streamsize(
         struct gmio_stream* stream,
         struct gmio_memblock* stream_memblock);
 

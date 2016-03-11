@@ -28,7 +28,7 @@ int gmio_stl_read(
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* options)
 {
-    const enum gmio_stl_format format = gmio_stl_get_format(stream);
+    const enum gmio_stl_format format = gmio_stl_format_probe(stream);
     switch (format) {
     case GMIO_STL_FORMAT_ASCII:
         return gmio_stla_read(stream, mesh_creator, options);
@@ -96,7 +96,7 @@ int gmio_stl_write_file(
 
 static const struct gmio_stlb_header internal_stlb_zero_header = {0};
 
-int gmio_stlb_write_header(
+int gmio_stlb_header_write(
         struct gmio_stream *stream,
         enum gmio_endianness byte_order,
         const struct gmio_stlb_header *header,

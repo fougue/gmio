@@ -28,12 +28,25 @@
 #include "streampos.h"
 #include <stdio.h>
 
-#ifdef GMIO_HAVE_INT64_TYPE
+#ifndef DOXYGEN
+#  ifdef GMIO_HAVE_INT64_TYPE
 typedef int64_t gmio_streamsize_t;
 typedef int64_t gmio_streamoffset_t;
-#else
+#  else
 typedef long gmio_streamsize_t;
 typedef long gmio_streamoffset_t;
+#  endif
+#else
+/*! Type able to represent the size(in bytes) of a stream
+ *
+ *  It can be int64_t or long depending on the compiler support
+ */
+typedef int64_or_long gmio_streamsize_t;
+/*! Type able to represent the offset position within a stream
+ *
+ *  It can be int64_t or long depending on the compiler support
+ */
+typedef int64_or_long gmio_streamoffset_t;
 #endif
 
 /*! Stream that can get input from an arbitrary data source or can write
@@ -126,10 +139,10 @@ GMIO_C_LINKAGE_BEGIN
 /* Initialization */
 
 /*! Returns a null stream */
-GMIO_LIB_EXPORT struct gmio_stream gmio_stream_null();
+GMIO_API struct gmio_stream gmio_stream_null();
 
 /*! Returns a stream for standard FILE* (cookie will hold \p file) */
-GMIO_LIB_EXPORT struct gmio_stream gmio_stream_stdio(FILE* file);
+GMIO_API struct gmio_stream gmio_stream_stdio(FILE* file);
 
 GMIO_C_LINKAGE_END
 

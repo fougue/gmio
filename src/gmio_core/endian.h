@@ -55,7 +55,7 @@ enum gmio_endianness
 GMIO_C_LINKAGE_BEGIN
 
 /*! Returns endianness (byte order) of the host's CPU architecture */
-GMIO_LIB_EXPORT enum gmio_endianness gmio_host_endianness();
+GMIO_API enum gmio_endianness gmio_host_endianness();
 
 GMIO_C_LINKAGE_END
 

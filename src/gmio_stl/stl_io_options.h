@@ -30,6 +30,7 @@
 #include "../gmio_core/task_iface.h"
 #include "../gmio_core/text_format.h"
 
+/*! Options of function gmio_stl_read() */
 struct gmio_stl_read_options
 {
     /*! Used by the stream to bufferize I/O operations
@@ -50,13 +51,15 @@ struct gmio_stl_read_options
      *
      *  The resulting stream size is passed to
      *  gmio_task_iface::func_handle_progress() as the \p max_value argument.
+     *
+     *  \sa gmio_stla_infos_get_streamsize()
      */
     gmio_streamsize_t (*func_stla_get_streamsize)(
             struct gmio_stream* stream,
             struct gmio_memblock* stream_memblock);
 };
 
-/*! Options for gmio_stl_write() */
+/*! Options of function gmio_stl_write() */
 struct gmio_stl_write_options
 {
     /*! See gmio_stl_read_options::stream_memblock */

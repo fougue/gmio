@@ -122,7 +122,7 @@ int gmio_stlb_write(
         goto label_end;
 
     if (!write_triangles_only) {
-        error = gmio_stlb_write_header(stream, byte_order, header, facet_count);
+        error = gmio_stlb_header_write(stream, byte_order, header, facet_count);
         if (gmio_error(error))
             goto label_end;
     }

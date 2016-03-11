@@ -45,7 +45,7 @@ class TColgp_SequenceOfXYZ;
  *
  *  You don't have to use API of this class, it's intended to gmio_stl_mesh()
  */
-struct GMIO_LIBSUPPORT_EXPORT gmio_stl_occmesh_iterator
+struct gmio_stl_occmesh_iterator
 {
     gmio_stl_occmesh_iterator();
     explicit gmio_stl_occmesh_iterator(const StlMesh_Mesh* mesh);
@@ -81,7 +81,6 @@ private:
  *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
  *  \endcode
  */
-GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it);
 
 /*! Returns a gmio_stl_mesh_creator that will build a new domain in a
@@ -89,7 +88,6 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it);
  *
  *  The creator's cookie will point \p mesh
  */
-GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
 
 /*! Same as gmio_stl_occmesh_creator(StlMesh_Mesh*) but takes a handle
@@ -97,7 +95,6 @@ gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
  *  The creator's cookie will point to the internal data(ie StlMesh_Mesh*) of
  *  handle \p hnd
  */
-GMIO_LIBSUPPORT_EXPORT
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
 
 

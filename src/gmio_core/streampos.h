@@ -25,7 +25,8 @@
 
 #include "global.h"
 
-/*! Size of the byte array gmio_streampos::cookie */
+/*! \c GMIO_STREAMPOS_COOKIE_SIZE
+ *  Size of the byte array gmio_streampos::cookie */
 enum { GMIO_STREAMPOS_COOKIE_SIZE = 32 /* bytes */ };
 
 /*! Specifies a position within a stream

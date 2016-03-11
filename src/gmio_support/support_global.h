@@ -28,15 +28,5 @@
 
 #include "../gmio_core/global.h"
 
-#ifdef GMIO_LIBSUPPORT_DLL
-#  ifdef GMIO_LIBSUPPORT_MAKE_DLL
-#    define GMIO_LIBSUPPORT_EXPORT GMIO_DECL_EXPORT
-#  else
-#    define GMIO_LIBSUPPORT_EXPORT GMIO_DECL_IMPORT
-#  endif /* GMIO_LIBSUPPORT_MAKE_DLL */
-#else
-#  define GMIO_LIBSUPPORT_EXPORT
-#endif /* GMIO_LIBSUPPORT_DLL */
-
 #endif /* GMIO_SUPPORT_GLOBAL_H */
 /*! @} */

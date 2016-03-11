@@ -25,7 +25,7 @@
 
 #include "global.h"
 
-/*! Defines an interface through which any task can be controlled */
+/*! Defines an interface through which a task can be controlled */
 struct gmio_task_iface
 {
     /*! Optional opaque pointer on a user task object, passed as first
