@@ -32,7 +32,7 @@ struct gmio_stringstream
     /*! Stream to iterate over */
     struct gmio_stream stream;
 
-    /*! Holds contents read from stream */
+    /*! Holds contents chunk read from stream */
     struct gmio_string strbuff;
 
     /*! Position after last char in strbuff */
@@ -44,7 +44,8 @@ struct gmio_stringstream
     /*! Data to be passed to callback func_stream_read */
     void* cookie;
 
-    /*! Pointer on a function called each time next contents has to be read */
+    /*! Pointer on a function called each time next contents chunk has to be
+     * read */
     size_t (*func_stream_read)(
             void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 };

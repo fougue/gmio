@@ -49,6 +49,8 @@ GMIO_C_LINKAGE_BEGIN
  *  It will try to read 512 bytes from \p stream into a buffer and then
  *  analyses this data to guess the format.
  *
+ *  The position of the input stream is preserved.
+ *
  *  \retval GMIO_STL_FORMAT_UNKNOWN in case of error.
  */
 GMIO_LIBSTL_EXPORT

@@ -34,8 +34,7 @@ struct gmio_stl_coords
     float z;
 };
 
-/*! STL mesh triangle defined three geometric vertices and an
- *  orientation(normal) */
+/*! STL mesh triangle defined three vertices and a normal(orientation) */
 struct gmio_stl_triangle
 {
     struct gmio_stl_coords n; /*!< Normal vector */
