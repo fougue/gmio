@@ -15,38 +15,49 @@ C library for geometry input/output
 ===========================================
 
 gmio is a reusable C library whose purpose is to provide complete I/O
-support for various CAD file formats (eg. STL)
+support for various CAD file formats (eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
 
 gmio aims to be [fast](https://github.com/fougue/gmio/wiki/4.-Benchmarks),
 portable (ISO-C90 conformance) and feature-rich.
 Main highlights:
 
-  * [x] "Abstract" streams that does not tie the user to C stream (`FILE*`).
-    gmio provides a general stream structure based on callbacks, so that
-    any kind of device can be used (memory, file, socket, ...)
-  * [x] Operations can be easily aborted
+  * [x] "Abstract" streams that does not tie the user to C stream (`FILE*`)
+
+   gmio provides a general stream structure based on callbacks, so that any API
+   can be used (C++ streams, QFile, ...)
+
   * [x] Buffering of input/ouput for efficient device usage
+  * [x] Operations can be easily aborted
   * [x] Available under the CeCILL-B license, which is fully BSD compatible
 
 
 Supported CAD files format
 ==========================
 
-Current version only supports the STL file format (STereoLithography), but support is complete :
+Current version only supports the STL file format (STereoLithography), but
+support is complete :
 
   * [x] Binary(little/big endian) and ASCII formats
   * [x] Header data and "attribute byte count" for binary format
-  * [x] Name of solid for ASCII format
   * [x] Detection of the input data format
   * [x] Ability to specify the text formatting to represent float values
+  * [x] Retrieval of infomations about STL contents (facet count, name of solid, ...)
 
 In addition, the STL module has the following advatanges:
 
-  * [x] The user keeps its own geometry data structures, no conversion needed.
-    This reduces the effort so that the user just specifies callbacks for
-    retrieval/creation of geometry data
-  * [x] No dynamic memory allocations
-  * [x] Extended support of OpenCascade's `StlMesh_Mesh`
+  * [x] The user keeps its own geometry data structures, no conversion needed
+
+   This reduces the effort so that the user just specifies callbacks for
+   retrieval/creation of mesh data
+
+  * [x] Constant memory footprint
+
+   Memory consumption is indenpendant of the mesh size ie. the amount of memory
+   used remains constant during the I/O operation
+
+  * [x] Extended support of OpenCascade
+
+    `StlMesh_Mesh` objects can be used seamlessly with gmio
 
 
 Building gmio
