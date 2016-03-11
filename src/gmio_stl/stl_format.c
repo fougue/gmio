@@ -18,6 +18,7 @@
 #include "stl_triangle.h"
 #include "stlb_header.h"
 #include "internal/stlb_byte_swap.h"
+#include "internal/stlb_infos_get.h"
 
 #include "../gmio_core/endian.h"
 #include "../gmio_core/internal/byte_codec.h"
@@ -26,6 +27,7 @@
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/numeric_utils.h"
 #include "../gmio_core/internal/string_ascii_utils.h"
+#include "../gmio_core/internal/vecgeom_utils.h"
 
 #include <string.h>
 
@@ -33,15 +35,7 @@ enum { GMIO_FIXED_BUFFER_SIZE = 1024 };
 
 GMIO_INLINE float gmio_sqrlen(const struct gmio_stl_coords* c)
 {
-    const float cx = c->x;
-    const float cy = c->y;
-    const float cz = c->z;
-    return cx*cx + cy*cy + cz*cz;
-}
-
-GMIO_INLINE gmio_streamsize_t gmio_stlb_streamsize(uint32_t facet_count)
-{
-    return GMIO_STLB_HEADER_SIZE + 4 + facet_count*GMIO_STLB_TRIANGLE_RAWSIZE;
+    return gmio_sqr_length_f32(c->x, c->y, c->z);
 }
 
 /* Does \p str contains <SPC>token ? */
@@ -64,9 +58,9 @@ static enum gmio_stl_format gmio_stlb_format(
         /* Assume the stream contains one solid */
         {
             const gmio_streamsize_t stream_size = gmio_stream_size(stream);
-            if (gmio_stlb_streamsize(le_facet_count) == stream_size)
+            if (gmio_stlb_infos_size(le_facet_count) == stream_size)
                 return GMIO_STL_FORMAT_BINARY_LE;
-            if (gmio_stlb_streamsize(be_facet_count) == stream_size)
+            if (gmio_stlb_infos_size(be_facet_count) == stream_size)
                 return GMIO_STL_FORMAT_BINARY_BE;
         }
 

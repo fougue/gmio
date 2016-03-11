@@ -18,18 +18,29 @@
 
 #include "../global.h"
 
-/*! Cross product of float32 vectors (ux,uy,uz) and (vx,vy,vz) */
+/*! Computes in-place cross product of float32 coords (ux,uy,uz) ^ (vx,vy,vz) */
 GMIO_INLINE void gmio_cross_product_f32(
         float ux, float uy, float uz,
         float vx, float vy, float vz,
         float* nx, float* ny, float* nz);
 
-/*! Cross product of float64 vectors (ux,uy,uz) and (vx,vy,vz) */
+/*! Computes in-place cross product of float64 coords (ux,uy,uz) ^ (vx,vy,vz) */
 GMIO_INLINE void gmio_cross_product_f64(
         double ux, double uy, double uz,
         double vx, double vy, double vz,
         double* nx, double* ny, double* nz);
 
+/*! Returns the squared length of float32 vector (x, y, z) */
+GMIO_INLINE float gmio_sqr_length_f32(float x, float y, float z);
+
+/*! Returns the squared length of float64 vector (x, y, z) */
+GMIO_INLINE double gmio_sqr_length_f64(double x, double y, double z);
+
+/*! Normalizes in-place the float32 (x,y,z) coords */
+GMIO_INLINE void gmio_normalize_f32(float* x, float* y, float* z);
+
+/*! Normalizes in-place the float64 (x,y,z) coords */
+GMIO_INLINE void gmio_normalize_f64(double* x, double* y, double* z);
 
 /*
  *  Implementation
@@ -45,14 +56,7 @@ void gmio_cross_product_f32(
     *nx = uy*vz - uz*vx;
     *ny = uz*vx - ux*vz;
     *nz = ux*vy - uy*vx;
-    {
-        const float d = (float)sqrt((*nx)*(*nx) + (*ny)*(*ny) + (*nz)*(*nz));
-        if (d > 0.f) {
-            *nx /= d;
-            *ny /= d;
-            *nz /= d;
-        }
-    }
+    gmio_normalize_f32(nx, ny, nz);
 }
 
 void gmio_cross_product_f64(
@@ -63,13 +67,32 @@ void gmio_cross_product_f64(
     *nx = uy*vz - uz*vx;
     *ny = uz*vx - ux*vz;
     *nz = ux*vy - uy*vx;
-    {
-        const double d = sqrt((*nx)*(*nx) + (*ny)*(*ny) + (*nz)*(*nz));
-        if (d > 0.) {
-            *nx /= d;
-            *ny /= d;
-            *nz /= d;
-        }
+    gmio_normalize_f64(nx, ny, nz);
+}
+
+float gmio_sqr_length_f32(float x, float y, float z)
+{ return x*x + y*y + z*z; }
+
+double gmio_sqr_length_f64(double x, double y, double z)
+{ return x*x + y*y + z*z; }
+
+void gmio_normalize_f32(float* x, float* y, float* z)
+{
+    const float d = (float)sqrt(gmio_sqr_length_f32(*x, *y, *z));
+    if (d > 0.f) {
+        *x /= d;
+        *y /= d;
+        *z /= d;
+    }
+}
+
+void gmio_normalize_f64(double* x, double* y, double* z)
+{
+    const double d = sqrt(gmio_sqr_length_f64(*x, *y, *z));
+    if (d > 0.) {
+        *x /= d;
+        *y /= d;
+        *z /= d;
     }
 }
 
