@@ -62,7 +62,7 @@ static void my_3d_mesh__copy_triangle(
 
     { /* Copy new triangle */
         struct my_3d_triangle* my_tri = &my_mesh->triangle_array[triangle_id];
-        const struct gmio_stl_coords* tri_vertices = &triangle->v1;
+        const struct gmio_vec3_f32* tri_vertices = &triangle->v1;
         int i;
         for (i = 0; i < 3; ++i) {
             my_tri->vertex[i].coords[0] = tri_vertices[i].x;

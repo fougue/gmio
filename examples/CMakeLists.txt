@@ -28,7 +28,7 @@ set(SUPPORT_STL_OCC_FILES_FILES  ${SUPPORT_STL_OCC_FILES_FILES})
 add_executable(occstl_read_file
                    occstl_read_file.cpp ${SUPPORT_STL_OCC_FILES})
 add_executable(occstl_write_file
-                    occstl_write_file.cpp ${SUPPORT_STL_OCC_FILES})
+                   occstl_write_file.cpp ${SUPPORT_STL_OCC_FILES})
 add_executable(occstl_redefine_mesh_creator
                    occstl_redefine_mesh_creator.cpp ${SUPPORT_STL_OCC_FILES})
 

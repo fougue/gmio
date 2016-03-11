@@ -17,11 +17,17 @@
 #define GMIO_TESTS_CORE_UTILS_H
 
 #include "../src/gmio_core/global.h"
-#include "../src/gmio_core/internal/string_ascii_utils.h"
+#include "../src/gmio_core/vecgeom.h"
 
 #include <stddef.h>
 
 /*! Trim whitespaces in string \p str from end */
 void gmio_string_trim_from_end(char* str, size_t len);
+
+/*! Does \p lhs == \p rhs using gmio_float32_ulp_equals() on coords ? */
+bool gmio_vec3_f32_equal(
+        const struct gmio_vec3_f32* lhs,
+        const struct gmio_vec3_f32* rhs,
+        uint32_t max_ulp_diff);
 
 #endif /* GMIO_TESTS_CORE_UTILS_H */

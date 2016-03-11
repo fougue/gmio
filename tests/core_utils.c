@@ -15,6 +15,9 @@
 
 #include "core_utils.h"
 
+#include "../src/gmio_core/internal/numeric_utils.h"
+#include "../src/gmio_core/internal/string_ascii_utils.h"
+
 void gmio_string_trim_from_end(char *str, size_t len)
 {
     if (len > 0) {
@@ -26,4 +29,14 @@ void gmio_string_trim_from_end(char *str, size_t len)
                 break;
         } while (len != 0);
     }
+}
+
+bool gmio_vec3_f32_equal(
+        const struct gmio_vec3_f32 *lhs,
+        const struct gmio_vec3_f32 *rhs,
+        uint32_t max_ulp_diff)
+{
+    return gmio_float32_ulp_equals(lhs->x, rhs->x, max_ulp_diff)
+            && gmio_float32_ulp_equals(lhs->y, rhs->y, max_ulp_diff)
+            && gmio_float32_ulp_equals(lhs->z, rhs->z, max_ulp_diff);
 }

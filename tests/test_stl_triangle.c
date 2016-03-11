@@ -27,10 +27,10 @@ GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
 
 const char* test_stl_coords_packing()
 {
-    UTEST_COMPARE_UINT(0, offsetof(struct gmio_stl_coords, x));
-    UTEST_COMPARE_UINT(4, offsetof(struct gmio_stl_coords, y));
-    UTEST_COMPARE_UINT(8, offsetof(struct gmio_stl_coords, z));
-    UTEST_COMPARE_UINT(GMIO_STL_COORDS_RAWSIZE, sizeof(struct gmio_stl_coords));
+    UTEST_COMPARE_UINT(0, offsetof(struct gmio_vec3_f32, x));
+    UTEST_COMPARE_UINT(4, offsetof(struct gmio_vec3_f32, y));
+    UTEST_COMPARE_UINT(8, offsetof(struct gmio_vec3_f32, z));
+    UTEST_COMPARE_UINT(GMIO_STL_COORDS_RAWSIZE, sizeof(struct gmio_vec3_f32));
     return NULL;
 }
 

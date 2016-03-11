@@ -43,16 +43,16 @@ static unsigned totalTriangleCount(const aiScene* scene)
     return meshnum;
 }
 
-GMIO_INLINE void copy_gmio_stl_coords(
-        aiVector3D* vec3, const gmio_stl_coords& coords)
+GMIO_INLINE void copy_gmio_vec3_f32(
+        aiVector3D* vec3, const gmio_vec3_f32& coords)
 {
     *vec3 = *((aiVector3D*)&coords);
 }
 
 GMIO_INLINE void copy_aiVector3D(
-        gmio_stl_coords* coords, const aiVector3D& vec3)
+        gmio_vec3_f32* coords, const aiVector3D& vec3)
 {
-    *coords = *((gmio_stl_coords*)&vec3);
+    *coords = *((gmio_vec3_f32*)&vec3);
 }
 
 namespace BmkAssimp {
@@ -198,13 +198,13 @@ static void add_triangle(
     aiVector3D* vp = &pMesh->mVertices[tri_id * 3];
     aiVector3D* vn = &pMesh->mNormals[tri_id * 3];
 
-    copy_gmio_stl_coords(vn, triangle->n);
+    copy_gmio_vec3_f32(vn, triangle->n);
     *(vn+1) = *vn;
     *(vn+2) = *vn;
 
-    copy_gmio_stl_coords(vp, triangle->v1);
-    copy_gmio_stl_coords(vp+1, triangle->v2);
-    copy_gmio_stl_coords(vp+2, triangle->v3);
+    copy_gmio_vec3_f32(vp, triangle->v1);
+    copy_gmio_vec3_f32(vp+1, triangle->v2);
+    copy_gmio_vec3_f32(vp+2, triangle->v3);
 
     if (helper->hasToCountTriangle)
         ++(helper->totalTriangleCount);

@@ -15,6 +15,7 @@
 
 #include "stl_utils.h"
 
+#include "core_utils.h"
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
@@ -127,25 +128,15 @@ struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data *data)
     return mesh;
 }
 
-bool gmio_stl_coords_equal(
-        const struct gmio_stl_coords *lhs,
-        const struct gmio_stl_coords *rhs,
-        uint32_t max_ulp_diff)
-{
-    return gmio_float32_ulp_equals(lhs->x, rhs->x, max_ulp_diff)
-            && gmio_float32_ulp_equals(lhs->y, rhs->y, max_ulp_diff)
-            && gmio_float32_ulp_equals(lhs->z, rhs->z, max_ulp_diff);
-}
-
 bool gmio_stl_triangle_equal(
         const struct gmio_stl_triangle *lhs,
         const struct gmio_stl_triangle *rhs,
         uint32_t max_ulp_diff)
 {
-    return gmio_stl_coords_equal(&lhs->n, &rhs->n, max_ulp_diff)
-            && gmio_stl_coords_equal(&lhs->v1, &rhs->v1, max_ulp_diff)
-            && gmio_stl_coords_equal(&lhs->v2, &rhs->v2, max_ulp_diff)
-            && gmio_stl_coords_equal(&lhs->v3, &rhs->v3, max_ulp_diff)
+    return gmio_vec3_f32_equal(&lhs->n, &rhs->n, max_ulp_diff)
+            && gmio_vec3_f32_equal(&lhs->v1, &rhs->v1, max_ulp_diff)
+            && gmio_vec3_f32_equal(&lhs->v2, &rhs->v2, max_ulp_diff)
+            && gmio_vec3_f32_equal(&lhs->v3, &rhs->v3, max_ulp_diff)
             && lhs->attribute_byte_count == rhs->attribute_byte_count;
 }
 

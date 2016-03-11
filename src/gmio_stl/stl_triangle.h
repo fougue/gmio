@@ -14,7 +14,7 @@
 ****************************************************************************/
 
 /*! \file stl_triangle.h
- *  Declaration of gmio_stl_coords and gmio_stl_triangle
+ *  Declaration of gmio_stl_triangle
  *
  *  \addtogroup gmio_stl
  *  @{
@@ -24,23 +24,15 @@
 #define GMIO_STL_TRIANGLE_H
 
 #include "stl_global.h"
+#include "../gmio_core/vecgeom.h"
 
-/*! Cartesian coordinate entity in 3D space, specifically tailored for
- *  STL needs (single-float) */
-struct gmio_stl_coords
-{
-    float x;
-    float y;
-    float z;
-};
-
-/*! STL mesh triangle defined three vertices and a normal(orientation) */
+/*! STL mesh triangle */
 struct gmio_stl_triangle
 {
-    struct gmio_stl_coords n; /*!< Normal vector */
-    struct gmio_stl_coords v1; /*!< Vertex 1 */
-    struct gmio_stl_coords v2; /*!< Vertex 2 */
-    struct gmio_stl_coords v3; /*!< Vertex 3 */
+    struct gmio_vec3_f32 n; /*!< Normal vector */
+    struct gmio_vec3_f32 v1; /*!< Vertex 1 */
+    struct gmio_vec3_f32 v2; /*!< Vertex 2 */
+    struct gmio_vec3_f32 v3; /*!< Vertex 3 */
     uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
 };
 

@@ -24,11 +24,6 @@
 
 #include <string.h>
 
-bool gmio_stl_coords_equal(
-        const struct gmio_stl_coords* lhs,
-        const struct gmio_stl_coords* rhs,
-        uint32_t max_ulp_diff);
-
 bool gmio_stl_triangle_equal(
         const struct gmio_stl_triangle* lhs,
         const struct gmio_stl_triangle* rhs,

@@ -27,7 +27,7 @@
 
 enum gmio_stl_constants
 {
-    /*! Compact size of a gmio_stl_coords object */
+    /*! Compact size of a gmio_vec3_f32 object */
     GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(float)),
 
     /*! Compact size of a gmio_stl_triangle object, STL ascii format */

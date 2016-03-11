@@ -13,24 +13,31 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-#include "stl_triangle.h"
+/*! \file vecgeom.h
+ *  Cartesian vectors
+ *
+ *  \addtogroup gmio_core
+ *  @{
+ */
 
-#include "../gmio_core/internal/vecgeom_utils.h"
+#ifndef GMIO_CORE_VECGEOM_H
+#define GMIO_CORE_VECGEOM_H
 
-GMIO_INLINE struct gmio_vec3_f32 gmio_vec3_f32_diff(
-        const struct gmio_vec3_f32* u, const struct gmio_vec3_f32* v)
+/*! Vector of three float32 coords */
+struct gmio_vec3_f32
 {
-    struct gmio_vec3_f32 diff;
-    diff.x = u->x - v->x;
-    diff.y = u->y - v->y;
-    diff.z = u->z - v->z;
-    return diff;
-}
+    float x;
+    float y;
+    float z;
+};
 
-void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri)
+/*! Vector of three float64 coords */
+struct gmio_vec3_f64
 {
-    const struct gmio_vec3_f32 u = gmio_vec3_f32_diff(&tri->v2, &tri->v1);
-    const struct gmio_vec3_f32 v = gmio_vec3_f32_diff(&tri->v3, &tri->v1);
-    struct gmio_vec3_f32* n = &tri->n;
-    gmio_cross_product_f32(u.x, u.y, u.z, v.x, v.y, v.z, &n->x, &n->y, &n->z);
-}
+    double x;
+    double y;
+    double z;
+};
+
+#endif /* GMIO_CORE_VECGEOM_H */
+/*! @} */

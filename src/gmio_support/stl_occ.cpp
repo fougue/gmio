@@ -36,10 +36,10 @@ static void occmesh_add_triangle(
     StlMesh_Mesh* mesh = static_cast<StlMesh_Mesh*>(cookie);
     if (tri_id == 0)
         mesh->AddDomain();
-    const gmio_stl_coords& v1 = tri->v1;
-    const gmio_stl_coords& v2 = tri->v2;
-    const gmio_stl_coords& v3 = tri->v3;
-    const gmio_stl_coords& n = tri->n;
+    const gmio_vec3_f32& v1 = tri->v1;
+    const gmio_vec3_f32& v2 = tri->v2;
+    const gmio_vec3_f32& v3 = tri->v3;
+    const gmio_vec3_f32& n = tri->n;
     mesh->AddTriangle(mesh->AddOnlyNewVertex(v1.x, v1.y, v1.z),
                       mesh->AddOnlyNewVertex(v2.x, v2.y, v2.z),
                       mesh->AddOnlyNewVertex(v3.x, v3.y, v3.z),
@@ -47,7 +47,7 @@ static void occmesh_add_triangle(
 }
 
 static inline void gmio_stl_occ_copy_xyz(
-        gmio_stl_coords* stl_coords, const gp_XYZ& coords)
+        gmio_vec3_f32* stl_coords, const gp_XYZ& coords)
 {
     stl_coords->x = static_cast<float>(coords.X());
     stl_coords->y = static_cast<float>(coords.Y());
@@ -66,7 +66,7 @@ static void occmesh_get_triangle(
         int idV1, idV2, idV3;
         double xN, yN, zN;
         occTri->GetVertexAndOrientation(idV1, idV2, idV3, xN, yN, zN);
-        gmio_stl_coords& n = tri->n;
+        gmio_vec3_f32& n = tri->n;
         n.x = static_cast<float>(xN);
         n.y = static_cast<float>(yN);
         n.z = static_cast<float>(zN);
