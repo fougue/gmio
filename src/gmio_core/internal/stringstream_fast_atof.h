@@ -10,6 +10,7 @@
 #define GMIO_INTERNAL_STRINGSTREAM_FAST_ATOF_H
 
 #include "fast_atof.h"
+#include "c99_math_compat.h"
 #include "stringstream.h"
 
 GMIO_INLINE uint32_t gmio_stringstream_strtoul10(
@@ -105,12 +106,7 @@ GMIO_INLINE float gmio_stringstream_fast_atof(struct gmio_stringstream* sstream)
         /* Assume that the exponent is a whole number.
          * strtol10() will deal with both + and - signs,
          * but calculate as float to prevent overflow at FLT_MAX */
-        value *=
-#ifdef GMIO_HAVE_POWF_FUNC
-                powf(10.f, (float)gmio_stringstream_strtol10(sstream));
-#else
-                (float)pow(10., (double)gmio_stringstream_strtol10(sstream));
-#endif
+        value *= gmio_powf(10.f, (float)gmio_stringstream_strtol10(sstream));
     }
     return negative ? -value : value;
 }

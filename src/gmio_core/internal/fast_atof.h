@@ -10,6 +10,7 @@
 #define GMIO_INTERNAL_FAST_ATOF_H
 
 #include "../global.h"
+#include "c99_math_compat.h"
 #include "string_ascii_utils.h"
 
 #include <float.h>
@@ -375,12 +376,7 @@ GMIO_INLINE const char* fast_atof_move(const char* in, float* result)
         /* Assume that the exponent is a whole number.
          * strtol10() will deal with both + and - signs,
          * but calculate as float to prevent overflow at FLT_MAX */
-        value *=
-#ifdef GMIO_HAVE_POWF_FUNC
-                powf(10.f, (float)strtol10(in, &in));
-#else
-                (float)pow(10., (double)strtol10(in, &in));
-#endif
+        value *= gmio_powf(10.f, (float)strtol10(in, &in));
     }
     *result = negative ? -value : value;
     return in;

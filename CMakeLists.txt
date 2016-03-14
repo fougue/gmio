@@ -126,7 +126,8 @@ if(NOT GMIO_BUILD_STRICT_C90)
     if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
     endif()
-    check_function_exists(powf GMIO_HAVE_POWF_FUNC)
+    check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
+    check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
     set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
 
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
@@ -293,6 +294,8 @@ endif()
 if(GMIO_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
 
 # Examples:
 #   cmake -DCMAKE_INSTALL_PREFIX=gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=_d

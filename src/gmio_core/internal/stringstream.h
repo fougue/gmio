@@ -129,6 +129,7 @@ GMIO_INLINE float gmio_to_float32(const char* str);
  * -- Implementation
  */
 
+#include "c99_stdlib_compat.h"
 #include "helper_stream.h"
 #include "string_ascii_utils.h"
 #ifdef GMIO_STRINGSTREAM_USE_FAST_ATOF
@@ -137,7 +138,6 @@ GMIO_INLINE float gmio_to_float32(const char* str);
 #endif
 
 #include <errno.h>
-#include <stdlib.h>
 
 const char* gmio_stringstream_current_char(
         const struct gmio_stringstream* sstream)
@@ -206,12 +206,9 @@ int gmio_get_float32(const char* str, float* value_ptr)
 #if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
     const char* end_ptr = NULL;
     *value_ptr = fast_strtof(str, &end_ptr);
-#elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
-    char* end_ptr = NULL;
-    *value_ptr = strtof(str, &end_ptr);
 #else
     char* end_ptr = NULL;
-    *value_ptr = (float)strtod(str, &end_ptr);
+    *value_ptr = gmio_strtof(str, &end_ptr);
 #endif
     return (end_ptr == str || errno == ERANGE) ? -1 : 0;
 }
@@ -220,10 +217,8 @@ float gmio_to_float32(const char* str)
 {
 #if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
     return fast_atof(str);
-#elif defined(GMIO_HAVE_STRTOF_FUNC) /* Requires C99 */
-    return strtof(str, NULL);
 #else
-    return (float)strtod(str, NULL);
+    return gmio_strtof(str, NULL);
 #endif
 }
 
@@ -233,7 +228,7 @@ float gmio_stringstream_parse_float32(struct gmio_stringstream* sstream)
     return gmio_stringstream_fast_atof(sstream);
 #else
     char strbuff_ptr[64];
-    struct gmio_string strbuff = { &strbuff_ptr[0], 0, sizeof(strbuff_ptr) };
+    struct gmio_string strbuff = { strbuff_ptr, 0, sizeof(strbuff_ptr) };
     gmio_stringstream_eat_word(sstream, &strbuff);
     return (float)atof(strbuff_ptr);
 #endif

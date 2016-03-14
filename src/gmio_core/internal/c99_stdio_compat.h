@@ -33,7 +33,7 @@
 #elif defined(GMIO_HAVE_WIN__VSNPRINTF_FUNC)
 #  define gmio_vsnprintf _vsnprintf
 #else
-/* No existing vsnprintf()-like function, call unsafe vsprintf() as fallback */
+/* No vsnprintf()-like function, call unsafe vsprintf() as fallback */
 GMIO_INLINE int gmio_vsnprintf(
         char* buf, size_t bufn, const char* fmt, va_list args)
 {
@@ -53,7 +53,7 @@ GMIO_INLINE int gmio_vsnprintf(
 #elif defined(GMIO_HAVE_WIN__SNPRINTF_FUNC)
 #  define gmio_snprintf _snprintf
 #else
-/* No existing snprintf()-like function, translate to gmio_vsnprintf() call */
+/* No snprintf()-like function, translate to gmio_vsnprintf() call */
 GMIO_INLINE int gmio_snprintf(char* buf, size_t bufn, const char* fmt, ...)
 {
     int ret = 0;

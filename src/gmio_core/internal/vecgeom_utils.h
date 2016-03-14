@@ -46,7 +46,7 @@ GMIO_INLINE void gmio_vec3d_normalize(struct gmio_vec3d* v);
  *  Implementation
  */
 
-#include <math.h>
+#include "c99_math_compat.h"
 
 void gmio_vec3f_cross_product(
         const struct gmio_vec3f* u,
@@ -88,7 +88,7 @@ double gmio_vec3d_sqr_length(const struct gmio_vec3d* v)
 
 void gmio_vec3f_normalize(struct gmio_vec3f* v)
 {
-    const float d = (float)sqrt(gmio_vec3f_sqr_length(v));
+    const float d = gmio_sqrtf(gmio_vec3f_sqr_length(v));
     if (d > 0.f) {
         v->x /= d;
         v->y /= d;
