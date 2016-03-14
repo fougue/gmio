@@ -249,7 +249,7 @@ EXTENSION_MAPPING      =
 
 MARKDOWN_SUPPORT       = YES
 
-USE_MDFILE_AS_MAINPAGE  = @CMAKE_CURRENT_SOURCE_DIR@/../README.md
+USE_MDFILE_AS_MAINPAGE  =
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
@@ -641,7 +641,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../README.md \
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../doc/mainpage.c \
                          @CMAKE_CURRENT_SOURCE_DIR@/../src
 
 # This tag can be used to specify the character encoding of the source files 
@@ -702,7 +702,7 @@ EXCLUDE_SYMBOLS        = internal
 # directories that contain example code fragments that are included (see 
 # the \include command).
 
-EXAMPLE_PATH           = 
+EXAMPLE_PATH           = @CMAKE_CURRENT_SOURCE_DIR@/../examples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the 
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 

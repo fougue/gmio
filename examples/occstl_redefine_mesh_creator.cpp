@@ -10,7 +10,7 @@
 #include <StlMesh_Mesh.hxx>
 #include <iostream>
 
-// Redefine func_begin_solid of some gmio_stl_mesh_creator object
+// Redefine gmio_stl_mesh_creator::func_begin_solid
 void my_mesh_creator__begin_solid(
         void* cookie, const gmio_stl_mesh_creator_infos* infos)
 {
@@ -20,7 +20,7 @@ void my_mesh_creator__begin_solid(
     // Do something more ...
 }
 
-// Redefine func_add_triangle of some gmio_stl_mesh_creator object
+// Redefine gmio_stl_mesh_creator::func_add_triangle
 void my_mesh_creator__add_triangle(
         void* cookie, uint32_t tri_id, const gmio_stl_triangle* triangle)
 {
@@ -34,13 +34,9 @@ int main(int argc, char** argv)
 {
     int error = 0;
     if (argc > 1) {
-        // Path to the STL file
         const char* filepath = argv[1];
-        // StlMesh_Mesh object to be constructed
         Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
-        // mesh_creator to be redefined
         gmio_stl_mesh_creator base_creator = gmio_stl_occmesh_creator(mesh);
-        // Holds callbacks functions
         gmio_stl_mesh_creator creator = {};
         creator.cookie = &base_creator;
         creator.func_begin_solid = my_mesh_creator__begin_solid;

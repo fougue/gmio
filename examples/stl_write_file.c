@@ -39,22 +39,16 @@ int main(int argc, char** argv)
 {
     int error = 0;
     if (argc > 1) {
-        /* Path to the STL file */
         const char* filepath = argv[1];
-        /* User-defined mesh object */
         struct my_3d_mesh my_mesh = {0};
-        /* The interface to the user-defined mesh object */
         struct gmio_stl_mesh mesh = {0};
 
         /* Construct the user mesh */
         /* ... */
 
         /* Initialize the mesh interface */
-        /* -- Cookie object passed to callbacks of gmio_stl_mesh */
         mesh.cookie = &my_mesh;
-        /* -- Count of triangles in the mesh */
         mesh.triangle_count = my_mesh.triangle_array_count;
-        /* -- Pointer on a function that retrieves a triangle from the mesh */
         mesh.func_get_triangle = my_3d_mesh__get_triangle;
 
         /* Write binary STL little-endian, using default options(NULL) */

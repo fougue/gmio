@@ -1,15 +1,13 @@
 /* -----------------------------------------------------------------------------
  *
- * Example: read a STL file
+ * Example: get informations about an STL file
  *
- * Just give a filepath and an initialized gmio_stl_mesh_creator object to
- * gmio_stl_read_file().
- * The gmio_stl_mesh_creator object holds pointers to the callbacks invoked
- * during the read operation.
- * These callbacks creates the final mesh object.
- *
- * Note if you want to have control over the stream to be used, call
- * gmio_stl_read() instead.
+ * Informations that can be retrieved by gmio_stl_infos_get() are:
+ *   - STL format of the input stream
+ *   - Count of facets(triangles)
+ *   - Size of the STL contents in bytes
+ *   - STL ascii only: name of the solid
+ *   - STL binary only: header(80-bytes)
  *
  * -------------------------------------------------------------------------- */
 
@@ -48,17 +46,13 @@ int main(int argc, char** argv)
 {
     int error = 0;
     if (argc > 1) {
-        /* Path to the STL file */
         const char* filepath = argv[1];
-        /* Read-only standard stream on the STL file */
         FILE* file = fopen(filepath, "rb");
 
         if (file != NULL) {
-            /* gmio stream interface object */
             struct gmio_stream stream = gmio_stream_stdio(file);
-            /* Will holds informations about the STL file */
             struct gmio_stl_infos infos = {0};
-            /* Retrieve STL informations */
+            /* Retrieve STL informations, using default options(NULL) */
             error = gmio_stl_infos_get(
                         &infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
             printf("File: %s\n", filepath);

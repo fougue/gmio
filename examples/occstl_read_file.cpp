@@ -23,11 +23,8 @@ int main(int argc, char** argv)
 {
     int error = 0;
     if (argc > 1) {
-        // Path to the STL file
         const char* filepath = argv[1];
-        // StlMesh_Mesh object to be constructed
         Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
-        // Holds callbacks functions
         gmio_stl_mesh_creator mesh_creator = gmio_stl_occmesh_creator(mesh);
 
         // Read, using default options(NULL)

@@ -26,8 +26,8 @@ static void my_3d_mesh__begin_solid(
 {
     struct my_3d_mesh* my_mesh = (struct my_3d_mesh*)cookie;
     size_t tri_count = 0;
-    if (infos->format == GMIO_STL_FORMAT_ASCII) /* Assume facet size ~200B */
-        tri_count = infos->stla_stream_size / 200u;
+    if (infos->format == GMIO_STL_FORMAT_ASCII) /* Assume facet size ~230B */
+        tri_count = infos->stla_stream_size / 230;
     else /* Binary STL */
         tri_count = infos->stlb_triangle_count;
     my_mesh->triangle_array =
@@ -37,8 +37,7 @@ static void my_3d_mesh__begin_solid(
     my_mesh->triangle_array_capacity = tri_count;
 }
 
-/* Callback invoked sequentially for each triangle in the STL mesh
- * Just do something with the "triangle" passed in  */
+/* Callback invoked sequentially for each triangle in the STL mesh */
 static void my_3d_mesh__copy_triangle(
         void* cookie,
         uint32_t triangle_id,
@@ -50,7 +49,12 @@ static void my_3d_mesh__copy_triangle(
         /* Capacity of the triangle array is too small, this can happen only
          * when reading STL ascii data, where the count of triangles in not
          * precisely known.
-         * To overcome this just grow capacity of the triangle array of 12.5% */
+         * To overcome this:
+         *    - instead of just using general gmio_stl_read(), call
+         *      call gmio_stl_infos_get(GMIO_STL_INFO_FLAG_FACET_COUNT) and then
+         *      gmio_stla_read()
+         *    - or just grow the capacity of your mesh, here the triangle array
+         *      is grown by 12.5% */
         size_t new_capacity = my_mesh->triangle_array_capacity;
         new_capacity += new_capacity >> 3;
         my_mesh->triangle_array =
@@ -77,19 +81,13 @@ int main(int argc, char** argv)
 {
     int error = 0;
     if (argc > 1) {
-        /* Path to the STL file */
         const char* filepath = argv[1];
-        /* User-defined mesh object, to be constructed */
         struct my_3d_mesh my_mesh = {0};
-        /* Holds callbacks functions */
         struct gmio_stl_mesh_creator mesh_creator = {0};
 
         /* Initialize the callback object */
-        /* -- Cookie object passed to callbacks of gmio_stl_mesh_creator */
         mesh_creator.cookie = &my_mesh;
-        /* -- Function called initially at the beginning of a STL solid(mesh) */
         mesh_creator.func_begin_solid = my_3d_mesh__begin_solid;
-        /* -- Function called  for each triangle in the STL mesh */
         mesh_creator.func_add_triangle = my_3d_mesh__copy_triangle;
 
         /* Read, using default options(NULL) */

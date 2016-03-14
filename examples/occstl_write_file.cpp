@@ -22,20 +22,15 @@ int main(int argc, char** argv)
 {
     int error = 0;
     if (argc > 1) {
-        // Path to the STL file
         const char* filepath = argv[1];
-        // StlMesh_Mesh object to be constructed
         Handle_StlMesh_Mesh occmesh = new StlMesh_Mesh;
-
         // Initialize the OpenCascade StlMesh_Mesh here
         // ...
 
-        // Will give fast access to all the triangles of the StlMesh_Mesh object
         const gmio_stl_occmesh_iterator occmesh_it(occmesh);
-        // The gmio interface over OpenCascade's StlMesh_Mesh
         const gmio_stl_mesh mesh = gmio_stl_occmesh(occmesh_it);
 
-        // Write binary STL little-endian, using default options(NULL)
+        // Write binary STL(little-endian), using default options(NULL)
         error = gmio_stl_write_file(
                     GMIO_STL_FORMAT_BINARY_LE, filepath, &mesh, NULL);
         if (error != GMIO_ERROR_OK)

@@ -38,14 +38,11 @@ Supported CAD files format
 Current version only supports the STL file format (STereoLithography), but
 support is complete :
 
-  * [x] Binary format
-      * [x] Little/big endian support
-      * [x] 80-byte header support
-      * [x] Facet "attribute byte count" field support
-  * [x] ASCII format
-      * [x] Case-insensitive reading
-      * [x] Output format(%f, %e, ...) and precision of floats support
-  * [x] Detection of the input data format
+  * [x] ASCII format: Case-insensitive reading
+  * [x] ASCII format: Output format(%f, %e, ...) and precision of floats support
+  * [x] Binary format: Little/big endian support
+  * [x] Binary format: 80-byte header and facet "attribute byte count" support
+  * [x] Detection of the input format
   * [x] Retrieval of infomations about contents(facet count, solid name, ...)
 
 In addition, the STL module has the following advatanges:
