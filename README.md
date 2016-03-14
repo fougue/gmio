@@ -18,7 +18,7 @@ gmio is a reusable C library whose purpose is to provide complete I/O
 support for various CAD file formats (eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
 
 gmio aims to be [fast](https://github.com/fougue/gmio/wiki/4.-Benchmarks),
-portable (ISO-C90 conformance) and feature-rich.
+portable (C90 conformance) and feature-rich.
 Main highlights:
 
   * [x] "Abstract" streams that does not tie the user to C stream (`FILE*`)
@@ -28,6 +28,7 @@ Main highlights:
 
   * [x] Buffering of input/ouput for efficient device usage
   * [x] Operations can be easily aborted
+  * [x] Progress report about the I/O operation
   * [x] Available under the CeCILL-B license, which is fully BSD compatible
 
 
@@ -37,11 +38,15 @@ Supported CAD files format
 Current version only supports the STL file format (STereoLithography), but
 support is complete :
 
-  * [x] Binary(little/big endian) and ASCII formats
-  * [x] Header data and "attribute byte count" for binary format
+  * [x] Binary format
+      * [x] Little/big endian support
+      * [x] 80-byte header support
+      * [x] Facet "attribute byte count" field support
+  * [x] ASCII format
+      * [x] Case-insensitive reading
+      * [x] Output format(%f, %e, ...) and precision of floats support
   * [x] Detection of the input data format
-  * [x] Ability to specify the text formatting to represent float values
-  * [x] Retrieval of infomations about STL contents (facet count, name of solid, ...)
+  * [x] Retrieval of infomations about contents(facet count, solid name, ...)
 
 In addition, the STL module has the following advatanges:
 
@@ -76,9 +81,6 @@ If you think you have found a bug in gmio, we would like to hear
 about it so that we can fix it. The gmio bug tracking system is
 open to the public at https://github.com/fougue/gmio/issues.
 
-Before reporting a bug, please use the bug-tracker's search functions
-to see if the issue is already known.
-
 Always include the following information in your bug report: the name
 and version number of your compiler; the name and version number of
 your operating system; the version of gmio you are using, and
@@ -97,5 +99,8 @@ modify and/ or redistribute the software under the terms of the CeCILL-B
 license as circulated by CEA, CNRS and INRIA at the following URL
 http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
 
+
+Credits
+=======
 
 "gmio" logo rendered with Prism font (thanks to Erik Yin !)
