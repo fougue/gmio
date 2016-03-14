@@ -24,8 +24,8 @@
 #  define gmio_powf powf
 #else
 /* No powf() function, call pow(double) as fallback */
-GMIO_INLINE float gmio_powf(float x)
-{ return (float)pow((double)x); }
+GMIO_INLINE float gmio_powf(float base, float exponent)
+{ return (float)pow((double)base, (double)exponent); }
 #endif
 
 #ifdef GMIO_HAVE_SQRTF_FUNC
