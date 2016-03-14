@@ -19,6 +19,7 @@ support for various CAD file formats (eg. [STL](https://en.wikipedia.org/wiki/ST
 
 gmio aims to be [fast](https://github.com/fougue/gmio/wiki/4.-Benchmarks),
 portable (C90 conformance) and feature-rich.
+
 Main highlights:
 
   * [x] "Abstract" streams that does not tie the user to C stream (`FILE*`)
@@ -47,19 +48,21 @@ support is complete :
 
 In addition, the STL module has the following advatanges:
 
-  * [x] The user keeps its own geometry data structures, no conversion needed
+  * [x] The user keeps its own geometry data structures, no mesh conversion
+        needed
 
    This reduces the effort so that the user just specifies callbacks for
    retrieval/creation of mesh data
 
   * [x] Constant memory footprint
 
-   Memory consumption is indenpendant of the mesh size ie. the amount of memory
+   Memory consumption is indenpendant of the mesh size and the amount of memory
    used remains constant during the I/O operation
 
-  * [x] Extended support of OpenCascade
+  * [x] Extended support of [OpenCascade](http://dev.opencascade.org)
 
-    `StlMesh_Mesh` objects can be used seamlessly with gmio
+    [StlMesh_Mesh](http://dev.opencascade.org/doc/refman/html/class_stl_mesh___mesh.html)
+    objects can be used seamlessly with gmio
 
 
 Building gmio
@@ -74,14 +77,17 @@ Read the [Build instructions](https://github.com/fougue/gmio/wiki/2.-Build-instr
 How to report a bug
 ===================
 
-If you think you have found a bug in gmio, we would like to hear
-about it so that we can fix it. The gmio bug tracking system is
-open to the public at https://github.com/fougue/gmio/issues.
+The gmio bug tracking system is open to the public at
+https://github.com/fougue/gmio/issues.
 
-Always include the following information in your bug report: the name
-and version number of your compiler; the name and version number of
-your operating system; the version of gmio you are using, and
-what configure options it was compiled with.
+If you think you have found a bug in gmio, we would like to hear
+about it so that we can fix it.
+
+Always include the following information in your bug report:
+  * the name and version number of your compiler
+  * the name and version number of your operating system
+  * the version of gmio you are using
+  * what configure options it was compiled with.
 
 If the problem you are reporting is only visible at run-time, try to
 create a small test program that shows the problem when run.
@@ -91,10 +97,11 @@ License
 =======
 
 This software is governed by the CeCILL-B license under French law and
-abiding by the rules of distribution of free software.  You can  use,
-modify and/ or redistribute the software under the terms of the CeCILL-B
-license as circulated by CEA, CNRS and INRIA at the following URL
-http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+abiding by the rules of distribution of free software.
+
+You can  use, modify and/ or redistribute the software under the terms of the
+[CeCILL-B license](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)
+as circulated by CEA, CNRS and INRIA
 
 
 Credits
