@@ -133,10 +133,10 @@ bool gmio_stl_triangle_equal(
         const struct gmio_stl_triangle *rhs,
         uint32_t max_ulp_diff)
 {
-    return gmio_vec3_f32_equal(&lhs->n, &rhs->n, max_ulp_diff)
-            && gmio_vec3_f32_equal(&lhs->v1, &rhs->v1, max_ulp_diff)
-            && gmio_vec3_f32_equal(&lhs->v2, &rhs->v2, max_ulp_diff)
-            && gmio_vec3_f32_equal(&lhs->v3, &rhs->v3, max_ulp_diff)
+    return gmio_vec3f_equal(&lhs->n, &rhs->n, max_ulp_diff)
+            && gmio_vec3f_equal(&lhs->v1, &rhs->v1, max_ulp_diff)
+            && gmio_vec3f_equal(&lhs->v2, &rhs->v2, max_ulp_diff)
+            && gmio_vec3f_equal(&lhs->v3, &rhs->v3, max_ulp_diff)
             && lhs->attribute_byte_count == rhs->attribute_byte_count;
 }
 

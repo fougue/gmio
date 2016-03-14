@@ -23,16 +23,16 @@
 #ifndef GMIO_CORE_VECGEOM_H
 #define GMIO_CORE_VECGEOM_H
 
-/*! Vector of three float32 coords */
-struct gmio_vec3_f32
+/*! Vector of three float coords */
+struct gmio_vec3f
 {
     float x;
     float y;
     float z;
 };
 
-/*! Vector of three float64 coords */
-struct gmio_vec3_f64
+/*! Vector of three double coords */
+struct gmio_vec3d
 {
     double x;
     double y;

@@ -17,10 +17,10 @@
 
 #include "../gmio_core/internal/vecgeom_utils.h"
 
-GMIO_INLINE struct gmio_vec3_f32 gmio_vec3_f32_diff(
-        const struct gmio_vec3_f32* u, const struct gmio_vec3_f32* v)
+GMIO_INLINE struct gmio_vec3f gmio_vec3f_sub(
+        const struct gmio_vec3f* u, const struct gmio_vec3f* v)
 {
-    struct gmio_vec3_f32 diff;
+    struct gmio_vec3f diff;
     diff.x = u->x - v->x;
     diff.y = u->y - v->y;
     diff.z = u->z - v->z;
@@ -29,8 +29,7 @@ GMIO_INLINE struct gmio_vec3_f32 gmio_vec3_f32_diff(
 
 void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri)
 {
-    const struct gmio_vec3_f32 u = gmio_vec3_f32_diff(&tri->v2, &tri->v1);
-    const struct gmio_vec3_f32 v = gmio_vec3_f32_diff(&tri->v3, &tri->v1);
-    struct gmio_vec3_f32* n = &tri->n;
-    gmio_cross_product_f32(u.x, u.y, u.z, v.x, v.y, v.z, &n->x, &n->y, &n->z);
+    const struct gmio_vec3f u = gmio_vec3f_sub(&tri->v2, &tri->v1);
+    const struct gmio_vec3f v = gmio_vec3f_sub(&tri->v3, &tri->v1);
+    gmio_vec3f_cross_product(&u, &v, &tri->n);
 }

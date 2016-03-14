@@ -243,7 +243,7 @@ static bool parse_endsolid(struct gmio_stla_parse_data* data);
 
 /* Parses STL (x,y,z) coords, each coord being separated by whitespaces */
 GMIO_INLINE int parse_xyz_coords(
-        struct gmio_stla_parse_data* data, struct gmio_vec3_f32* coords);
+        struct gmio_stla_parse_data* data, struct gmio_vec3f* coords);
 
 /* Parses a STL facet, ie. facet ... endfacet */
 static int parse_facet(
@@ -588,7 +588,7 @@ GMIO_INLINE int is_float_char(const char* str)
             || c == '+';
 }
 
-int parse_xyz_coords(struct gmio_stla_parse_data* data, struct gmio_vec3_f32* coords)
+int parse_xyz_coords(struct gmio_stla_parse_data* data, struct gmio_vec3f* coords)
 {
     int errc = 0;
     struct gmio_stringstream* sstream = &data->strstream;

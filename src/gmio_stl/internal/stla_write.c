@@ -119,7 +119,7 @@ GMIO_INLINE char* gmio_write_stdio_format(
 GMIO_INLINE char* gmio_write_coords(
         char* buffer,
         const char* coords_format,
-        const struct gmio_vec3_f32* coords)
+        const struct gmio_vec3f* coords)
 {
     return buffer + sprintf(buffer,
                             coords_format, coords->x, coords->y, coords->z);

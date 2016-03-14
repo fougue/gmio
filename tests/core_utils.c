@@ -31,9 +31,9 @@ void gmio_string_trim_from_end(char *str, size_t len)
     }
 }
 
-bool gmio_vec3_f32_equal(
-        const struct gmio_vec3_f32 *lhs,
-        const struct gmio_vec3_f32 *rhs,
+bool gmio_vec3f_equal(
+        const struct gmio_vec3f *lhs,
+        const struct gmio_vec3f *rhs,
         uint32_t max_ulp_diff)
 {
     return gmio_float32_ulp_equals(lhs->x, rhs->x, max_ulp_diff)

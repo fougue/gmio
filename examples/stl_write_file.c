@@ -25,7 +25,7 @@ static void my_3d_mesh__get_triangle(
 {
     const struct my_3d_mesh* my_mesh = (const struct my_3d_mesh*)cookie;
     const struct my_3d_triangle* my_tri = &my_mesh->triangle_array[tri_id];
-    struct gmio_vec3_f32* tri_vertices = &triangle->v1;
+    struct gmio_vec3f* tri_vertices = &triangle->v1;
     int i;
     for (i = 0; i < 3; ++i) {
         tri_vertices[i].x = (float)my_tri->vertex[i].coords[0];

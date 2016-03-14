@@ -33,11 +33,6 @@
 
 enum { GMIO_FIXED_BUFFER_SIZE = 1024 };
 
-GMIO_INLINE float gmio_sqrlen(const struct gmio_vec3_f32* c)
-{
-    return gmio_sqr_length_f32(c->x, c->y, c->z);
-}
-
 /* Does \p str contains <SPC>token ? */
 static bool gmio_str_has_token(const char* str, const char* token)
 {
@@ -72,7 +67,9 @@ static enum gmio_stl_format gmio_stlb_format(
             memcpy(&tri,
                    buff + GMIO_STLB_HEADER_SIZE + 4,
                    GMIO_STLB_TRIANGLE_RAWSIZE);
-            if (gmio_float32_ulp_equals(gmio_sqrlen(&tri.n), 1.f, 100)) {
+            if (gmio_float32_ulp_equals(
+                        gmio_vec3f_sqr_length(&tri.n), 1.f, 100))
+            {
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
                 return GMIO_STL_FORMAT_BINARY_BE;
 #else
@@ -80,7 +77,9 @@ static enum gmio_stl_format gmio_stlb_format(
 #endif
             }
             gmio_stl_triangle_bswap(&tri);
-            if (gmio_float32_ulp_equals(gmio_sqrlen(&tri.n), 1.f, 100)) {
+            if (gmio_float32_ulp_equals(
+                        gmio_vec3f_sqr_length(&tri.n), 1.f, 100))
+            {
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
                 return GMIO_STL_FORMAT_BINARY_LE;
 #else

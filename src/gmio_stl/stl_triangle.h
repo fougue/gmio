@@ -29,10 +29,10 @@
 /*! STL mesh triangle */
 struct gmio_stl_triangle
 {
-    struct gmio_vec3_f32 n; /*!< Normal vector */
-    struct gmio_vec3_f32 v1; /*!< Vertex 1 */
-    struct gmio_vec3_f32 v2; /*!< Vertex 2 */
-    struct gmio_vec3_f32 v3; /*!< Vertex 3 */
+    struct gmio_vec3f n;  /*!< Normal vector */
+    struct gmio_vec3f v1; /*!< Vertex 1 */
+    struct gmio_vec3f v2; /*!< Vertex 2 */
+    struct gmio_vec3f v3; /*!< Vertex 3 */
     uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
 };
 

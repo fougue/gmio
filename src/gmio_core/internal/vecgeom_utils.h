@@ -18,29 +18,29 @@
 
 #include "../global.h"
 
-/*! Computes in-place cross product of float32 coords (ux,uy,uz) ^ (vx,vy,vz) */
-GMIO_INLINE void gmio_cross_product_f32(
-        float ux, float uy, float uz,
-        float vx, float vy, float vz,
-        float* nx, float* ny, float* nz);
+/*! Computes in-place cross product of two gmio_vec3f objects */
+GMIO_INLINE void gmio_vec3f_cross_product(
+        const struct gmio_vec3f* u,
+        const struct gmio_vec3f* v,
+        struct gmio_vec3f* n);
 
-/*! Computes in-place cross product of float64 coords (ux,uy,uz) ^ (vx,vy,vz) */
-GMIO_INLINE void gmio_cross_product_f64(
-        double ux, double uy, double uz,
-        double vx, double vy, double vz,
-        double* nx, double* ny, double* nz);
+/*! Computes in-place cross product of two gmio_vec3d objects */
+GMIO_INLINE void gmio_vec3d_cross_product(
+        const struct gmio_vec3d* u,
+        const struct gmio_vec3d* v,
+        struct gmio_vec3d* n);
 
-/*! Returns the squared length of float32 vector (x, y, z) */
-GMIO_INLINE float gmio_sqr_length_f32(float x, float y, float z);
+/*! Returns the squared length of a gmio_vec3f object */
+GMIO_INLINE float gmio_vec3f_sqr_length(const struct gmio_vec3f* v);
 
-/*! Returns the squared length of float64 vector (x, y, z) */
-GMIO_INLINE double gmio_sqr_length_f64(double x, double y, double z);
+/*! Returns the squared length of a gmio_vec3d object */
+GMIO_INLINE double gmio_vec3d_sqr_length(const struct gmio_vec3d* v);
 
-/*! Normalizes in-place the float32 (x,y,z) coords */
-GMIO_INLINE void gmio_normalize_f32(float* x, float* y, float* z);
+/*! Normalizes in-place a gmio_vec3f object */
+GMIO_INLINE void gmio_vec3f_normalize(struct gmio_vec3f* v);
 
-/*! Normalizes in-place the float64 (x,y,z) coords */
-GMIO_INLINE void gmio_normalize_f64(double* x, double* y, double* z);
+/*! Normalizes in-place a gmio_vec3d object */
+GMIO_INLINE void gmio_vec3d_normalize(struct gmio_vec3d* v);
 
 /*
  *  Implementation
@@ -48,51 +48,61 @@ GMIO_INLINE void gmio_normalize_f64(double* x, double* y, double* z);
 
 #include <math.h>
 
-void gmio_cross_product_f32(
-        float ux, float uy, float uz,
-        float vx, float vy, float vz,
-        float* nx, float* ny, float* nz)
+void gmio_vec3f_cross_product(
+        const struct gmio_vec3f* u,
+        const struct gmio_vec3f* v,
+        struct gmio_vec3f* n)
 {
-    *nx = uy*vz - uz*vx;
-    *ny = uz*vx - ux*vz;
-    *nz = ux*vy - uy*vx;
-    gmio_normalize_f32(nx, ny, nz);
+    const float ux = u->x, uy = u->y, uz = u->z;
+    const float vx = v->x, vy = v->y, vz = v->z;
+    n->x = uy*vz - uz*vx;
+    n->y = uz*vx - ux*vz;
+    n->z = ux*vy - uy*vx;
+    gmio_vec3f_normalize(n);
 }
 
-void gmio_cross_product_f64(
-        double ux, double uy, double uz,
-        double vx, double vy, double vz,
-        double* nx, double* ny, double* nz)
+void gmio_vec3d_cross_product(
+        const struct gmio_vec3d* u,
+        const struct gmio_vec3d* v,
+        struct gmio_vec3d* n)
 {
-    *nx = uy*vz - uz*vx;
-    *ny = uz*vx - ux*vz;
-    *nz = ux*vy - uy*vx;
-    gmio_normalize_f64(nx, ny, nz);
+    const double ux = u->x, uy = u->y, uz = u->z;
+    const double vx = v->x, vy = v->y, vz = v->z;
+    n->x = uy*vz - uz*vx;
+    n->y = uz*vx - ux*vz;
+    n->z = ux*vy - uy*vx;
+    gmio_vec3d_normalize(n);
 }
 
-float gmio_sqr_length_f32(float x, float y, float z)
-{ return x*x + y*y + z*z; }
-
-double gmio_sqr_length_f64(double x, double y, double z)
-{ return x*x + y*y + z*z; }
-
-void gmio_normalize_f32(float* x, float* y, float* z)
+float gmio_vec3f_sqr_length(const struct gmio_vec3f* v)
 {
-    const float d = (float)sqrt(gmio_sqr_length_f32(*x, *y, *z));
+    const float vx = v->x, vy = v->y, vz = v->z;
+    return vx*vx + vy*vy + vz*vz;
+}
+
+double gmio_vec3d_sqr_length(const struct gmio_vec3d* v)
+{
+    const double vx = v->x, vy = v->y, vz = v->z;
+    return vx*vx + vy*vy + vz*vz;
+}
+
+void gmio_vec3f_normalize(struct gmio_vec3f* v)
+{
+    const float d = (float)sqrt(gmio_vec3f_sqr_length(v));
     if (d > 0.f) {
-        *x /= d;
-        *y /= d;
-        *z /= d;
+        v->x /= d;
+        v->y /= d;
+        v->z /= d;
     }
 }
 
-void gmio_normalize_f64(double* x, double* y, double* z)
+void gmio_vec3d_normalize(struct gmio_vec3d* v)
 {
-    const double d = sqrt(gmio_sqr_length_f64(*x, *y, *z));
+    const double d = sqrt(gmio_vec3d_sqr_length(v));
     if (d > 0.) {
-        *x /= d;
-        *y /= d;
-        *z /= d;
+        v->x /= d;
+        v->y /= d;
+        v->z /= d;
     }
 }
 
