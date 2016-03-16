@@ -58,8 +58,8 @@ Handle_StlMesh_Mesh stlMesh;
 
 static void stl_read(const void* filepath)
 {
-    gmio_stl_mesh_creator mesh_creator = gmio_stl_occmesh_creator(stlMesh);
     stlMesh = new StlMesh_Mesh;
+    gmio_stl_mesh_creator mesh_creator = gmio_stl_occmesh_creator(stlMesh);
     const int error = gmio_stl_read_file(
                 static_cast<const char*>(filepath), &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
