@@ -22,11 +22,7 @@ portable (C90 conformance) and feature-rich.
 
 Main highlights:
 
-  * [x] "Abstract" streams that does not tie the user to C stream (`FILE*`)
-
-   gmio provides a general stream structure based on callbacks, so that any API
-   can be used (C++ streams, QFile, ...)
-
+  * [x] "Abstract" streams that does not tie the user to C stream(`FILE*`)
   * [x] Buffering of input/ouput for efficient device usage
   * [x] Operations can be easily aborted
   * [x] Progress report about the I/O operation
@@ -45,24 +41,14 @@ support is complete :
   * [x] Binary format: 80-byte header and facet "attribute byte count" support
   * [x] Detection of the input format
   * [x] Retrieval of infomations about contents(facet count, solid name, ...)
+  * [x] Multiple solids from stream(eg. 4 solids in STL ascii file)
 
 In addition, the STL module has the following advatanges:
 
-  * [x] The user keeps its own geometry data structures, no mesh conversion
-        needed
-
-   This reduces the effort so that the user just specifies callbacks for
-   retrieval/creation of mesh data
-
-  * [x] Constant memory footprint
-
-   Memory consumption is indenpendant of the mesh size and the amount of memory
-   used remains constant during the I/O operation
-
-  * [x] Extended support of [OpenCascade](http://dev.opencascade.org)
-
-    [StlMesh_Mesh](http://dev.opencascade.org/doc/refman/html/class_stl_mesh___mesh.html)
-    objects can be used seamlessly with gmio
+  * [x] The user keeps its own geometry data structures, no mesh conversion needed
+  * [x] Fixed memory consumption and independant of the mesh size
+  * [x] Seamless use of [OpenCascade StlMesh_Mesh](http://dev.opencascade.org/doc/refman/html/class_stl_mesh___mesh.html)
+        in gmio(see gmio_support)
 
 
 Building gmio
