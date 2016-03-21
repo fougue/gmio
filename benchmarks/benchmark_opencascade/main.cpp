@@ -25,6 +25,7 @@
 
 #include "../commons/benchmark_tools.h"
 
+#include <iostream>
 #include <vector>
 
 namespace BmkOcc {
@@ -35,19 +36,19 @@ static void RWStl_ReadFile(const void* filepath)
 {
     stlMesh = RWStl::ReadFile(OSD_Path(static_cast<const char*>(filepath)));
     if (stlMesh.IsNull())
-        printf("RWStl::ReadFile(): null mesh\n");
+        std::cerr << "RWStl::ReadFile(): null mesh" << std::endl;
 }
 
 static void RWStl_WriteAscii(const void* filepath)
 {
     if (!RWStl::WriteAscii(stlMesh, OSD_Path(static_cast<const char*>(filepath))))
-        printf("RWStl::WriteAscii() failure\n");
+        std::cerr << "RWStl::WriteAscii() failure" << std::endl;
 }
 
 static void RWStl_WriteBinary(const void* filepath)
 {
     if (!RWStl::WriteBinary(stlMesh, OSD_Path(static_cast<const char*>(filepath))))
-        printf("RWStl::WriteBinary() failure\n");
+        std::cerr << "RWStl::WriteBinary() failure" << std::endl;
 }
 
 } // namespace BmkOcc
@@ -63,7 +64,7 @@ static void stl_read(const void* filepath)
     const int error = gmio_stl_read_file(
                 static_cast<const char*>(filepath), &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
-        printf("gmio error: 0x%X\n", error);
+        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 }
 
 static void stl_write(const char* filepath, gmio_stl_format format)
@@ -75,7 +76,7 @@ static void stl_write(const char* filepath, gmio_stl_format format)
     const gmio_stl_mesh occmesh = gmio_stl_occmesh(occ_itmesh);
     const int error = gmio_stl_write_file(format, filepath, &occmesh, &options);
     if (error != GMIO_ERROR_OK)
-        printf("gmio error: 0x%X\n", error);
+        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 }
 
 static void stla_write(const void* filepath)

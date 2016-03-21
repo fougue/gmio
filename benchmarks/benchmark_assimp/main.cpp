@@ -286,7 +286,7 @@ static void stl_read(const void* filepath)
 
     const int error = gmio_stl_read_file(str_filepath, &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
-        printf("gmio error: 0x%X\n", error);
+        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 
     const aiScene* scene = globalSceneHelper.scene;
 //    std::cout << "BmkGmio, triCount = "
@@ -307,7 +307,7 @@ static void stl_write(const char* filepath, gmio_stl_format format)
     opts.stla_float32_prec = 7;
     const int error = gmio_stl_write_file(format, filepath, &mesh, NULL);
     if (error != GMIO_ERROR_OK)
-        printf("gmio error: 0x%X\n", error);
+        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 }
 
 static void stla_write(const void* filepath)
