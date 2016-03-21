@@ -23,6 +23,7 @@
 
 #include "../commons/benchmark_tools.h"
 
+#include <stdio.h>
 #include <string.h>
 
 struct gmio_stl_triangle;
@@ -54,7 +55,7 @@ static void bmk_gmio_stl_read(const void* filepath)
     mesh_creator.func_add_triangle = dummy_process_triangle;
     error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
     if (error != GMIO_ERROR_OK)
-        printf("gmio error: 0x%X\n", error);
+        fprintf(stderr, "gmio error: 0x%X\n", error);
 }
 
 static enum gmio_endianness to_byte_order(enum gmio_stl_format format)
@@ -208,7 +209,7 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
     error = gmio_stl_read(&instream, &mesh_creator, NULL);
 
     if (error != GMIO_ERROR_OK)
-        printf("gmio error: 0x%X\n", error);
+        fprintf(stderr, "gmio error: 0x%X\n", error);
 
     fclose(infile);
     fclose(outfile);
