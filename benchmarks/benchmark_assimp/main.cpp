@@ -288,7 +288,7 @@ static void stl_read(const void* filepath)
     if (error != GMIO_ERROR_OK)
         std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 
-    const aiScene* scene = globalSceneHelper.scene;
+//    const aiScene* scene = globalSceneHelper.scene;
 //    std::cout << "BmkGmio, triCount = "
 //              << totalTriangleCount(scene) << std::endl;
 }
