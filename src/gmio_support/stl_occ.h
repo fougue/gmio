@@ -99,6 +99,8 @@ gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
 
 
 
+#ifndef DOXYGEN
+
 /*
  * Implementation
  */
@@ -115,6 +117,8 @@ const TColgp_SequenceOfXYZ &gmio_stl_occmesh_iterator::domain_vertices() const
 
 const StlMesh_Mesh *gmio_stl_occmesh_iterator::mesh() const
 { return m_mesh; }
+
+#endif /* !DOXYGEN */
 
 #endif /* GMIO_SUPPORT_STL_OCC_H */
 /*! @} */

@@ -2,17 +2,14 @@
 
 \section intro Introduction
 
-  gmio is a reusable C library whose purpose is to provide complete I/O
-  support for various CAD file formats (eg. <a href="https://en.wikipedia.org/wiki/STL_%28file_format%29">STL</a>)
+  gmio is a reusable C library providing complete I/O support for various CAD
+  file formats (eg. <a href="https://en.wikipedia.org/wiki/STL_%28file_format%29">STL</a>)
 
   gmio aims to be <a href="https://github.com/fougue/gmio/wiki/4.-Benchmarks">fast</a>,
   portable (C90 conformance) and feature-rich.
   Main highlights:
 
-  \li "Abstract" streams that does not tie the user to C stream (`FILE*`)\n
-      gmio provides a general stream structure based on callbacks, so that any API
-      can be used (C++ streams, QFile, ...)
-
+  \li "Abstract" streams that does not tie the user to C stream (\c FILE*)
   \li Buffering of input/ouput for efficient device usage
   \li Operations can be easily aborted
   \li Progress report about the I/O operation
@@ -29,19 +26,13 @@ support is complete :
   \li Binary format: 80-byte header and facet "attribute byte count" support
   \li Detection of the input format
   \li Retrieval of infomations about contents(facet count, solid name, ...)
+  \li Multiple solids from stream(eg. 4 solids in STL ascii file)
 
 In addition, the STL module has the following advatanges:
 
-  \li The user keeps its own geometry data structures, no conversion needed\n
-      This reduces the effort so that the user just specifies callbacks for
-      retrieval/creation of mesh data
-
-  \li Constant memory footprint\n
-      Memory consumption is indenpendant of the mesh size ie. the amount of memory
-      used remains constant during the I/O operation
-
-  \li Extended support of OpenCascade\n
-      `StlMesh_Mesh` objects can be used seamlessly with gmio
+  \li The user keeps its own geometry data structures, no conversion needed
+  \li Fixed memory consumption and independant of the mesh size
+  \li Seamless use of OpenCascade StlMesh_Mesh in gmio(see gmio_support)
 
 \section build Building gmio
 

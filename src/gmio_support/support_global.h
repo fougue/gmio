@@ -17,7 +17,7 @@
  *  Global declarations for the support module
  *
  *  \defgroup gmio_support gmioSupport
- *  Provides facilities to integrate seamlessly with other 3rd-party libraries
+ *  Provides seamless integration with other 3rd-party libraries
  *
  *  \addtogroup gmio_support
  *  @{
