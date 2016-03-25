@@ -22,6 +22,7 @@
 #include <assimp/version.h>
 
 #include <gmio_core/error.h>
+#include <gmio_core/version.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_stl/stl_io_options.h>
 #include <gmio_stl/stl_triangle.h>
@@ -43,14 +44,12 @@ static unsigned totalTriangleCount(const aiScene* scene)
     return meshnum;
 }
 
-GMIO_INLINE void copy_gmio_vec3f(
-        aiVector3D* vec3, const gmio_vec3f& coords)
+GMIO_INLINE void copy_gmio_vec3f(aiVector3D* vec3, const gmio_vec3f& coords)
 {
     *vec3 = *((aiVector3D*)&coords);
 }
 
-GMIO_INLINE void copy_aiVector3D(
-        gmio_vec3f* coords, const aiVector3D& vec3)
+GMIO_INLINE void copy_aiVector3D(gmio_vec3f* coords, const aiVector3D& vec3)
 {
     *coords = *((gmio_vec3f*)&vec3);
 }
@@ -60,10 +59,7 @@ namespace BmkAssimp {
 static std::string assimp_version_str()
 {
     std::stringstream ss;
-    ss << "Assimp v"
-       << aiGetVersionMajor() << '.'
-       << aiGetVersionMinor()
-       << ".?";
+    ss << aiGetVersionMajor() << '.' << aiGetVersionMinor() << ".?";
     return ss.str();
 }
 
@@ -346,7 +342,11 @@ int main(int argc, char** argv)
 {
     if (argc > 1) {
         const char* filepath = argv[1];
-        std::cout << std::endl << "Input file: " << filepath << std::endl;
+        std::cout << std::endl
+                  << "gmio v" << GMIO_VERSION_STR << std::endl
+                  << "Assimp v" << BmkAssimp::assimp_version_str() << std::endl
+                  << std::endl
+                  << "Input file: " << filepath << std::endl;
 
         /* Declare benchmarks */
         const benchmark_cmp_arg cmp_args[] = {
@@ -374,8 +374,8 @@ int main(int argc, char** argv)
         /* Print results */
         const benchmark_cmp_result_array res_array = {
             &cmp_res_vec.at(0), cmp_res_vec.size() };
-        const std::string assimp_ver = BmkAssimp::assimp_version_str();
-        const benchmark_cmp_result_header header = { "gmio", assimp_ver.c_str() };
+        const benchmark_cmp_result_header header = {
+            "gmio", "Assimp" };
         benchmark_print_results(
                     BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
     }

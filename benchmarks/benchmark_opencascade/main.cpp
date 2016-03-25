@@ -19,6 +19,7 @@
 #include <Standard_Version.hxx>
 
 #include <gmio_core/error.h>
+#include <gmio_core/version.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_stl/stl_io_options.h>
 #include <gmio_support/stl_occ.h>
@@ -100,7 +101,11 @@ int main(int argc, char** argv)
 {
     if (argc > 1) {
         const char* filepath = argv[1];
-        std::cout << std::endl << "Input file: " << filepath << std::endl;
+        std::cout << std::endl
+                  << "gmio v" << GMIO_VERSION_STR << std::endl
+                  << "OpenCascade v" << OCC_VERSION_COMPLETE << std::endl
+                  << std::endl
+                  << "Input file: " << filepath << std::endl;
 
         /* Declare benchmarks */
         const benchmark_cmp_arg cmp_args[] = {
@@ -128,7 +133,7 @@ int main(int argc, char** argv)
         const benchmark_cmp_result_array res_array = {
             &cmp_res_vec.at(0), cmp_res_vec.size() };
         const benchmark_cmp_result_header header = {
-            "gmio", "OpenCascade v"OCC_VERSION_COMPLETE };
+            "gmio", "OpenCascade" };
         benchmark_print_results(
                     BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
     }
