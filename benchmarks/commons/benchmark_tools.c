@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if WIN32
+#ifdef GMIO_OS_WIN
 #  include <windows.h>
 #  define BENCHMARK_TIMER_WINDOWS
 #else
@@ -364,7 +364,7 @@ void benchmark_print_results(
                 header.component_1 != NULL ?  header.component_1 : "";
         const char* header_comp2 =
                 header.component_2 != NULL ?  header.component_2 : "";
-        const char* header_ratio = "";
+        const char header_ratio[] = "ratio";
         const size_t width_tag_col =
                 find_maxlen_cmp_result_tag(result_array);
         const size_t width_func1_col =
