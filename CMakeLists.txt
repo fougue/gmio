@@ -55,12 +55,6 @@ endif()
 option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
 option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
 option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
-cmake_dependent_option(
-    GMIO_BUILD_BENCHMARK_ASSIMP "Build benchmark for Assimp" ON
-    "GMIO_BUILD_BENCHMARKS" OFF)
-cmake_dependent_option(
-    GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON
-    "GMIO_BUILD_BENCHMARKS" OFF)
 option(GMIO_BUILD_EXAMPLES  "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)

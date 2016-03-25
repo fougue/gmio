@@ -13,6 +13,18 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
+cmake_dependent_option(
+    GMIO_BUILD_BENCHMARK_ASSIMP "Build benchmark for Assimp" ON
+    "GMIO_BUILD_BENCHMARKS" OFF)
+cmake_dependent_option(
+    GMIO_BUILD_BENCHMARK_OPENCASCADE "Build benchmark for OpenCascade" ON
+    "GMIO_BUILD_BENCHMARKS" OFF)
+if(WIN32)
+    cmake_dependent_option(
+        GMIO_BUILD_BENCHMARK_LIB3MF "Build benchmark for Lib3MF" ON
+        "GMIO_BUILD_BENCHMARKS" OFF)
+endif()
+
 file(GLOB COMMONS_FILES commons/*)
 set(COMMONS_FILES  ${COMMONS_FILES})
 
@@ -32,6 +44,10 @@ endif()
 
 if(GMIO_BUILD_BENCHMARK_OPENCASCADE)
     add_subdirectory(benchmark_opencascade)
+endif()
+
+if(GMIO_BUILD_BENCHMARK_LIB3MF)
+    add_subdirectory(benchmark_lib3mf)
 endif()
 
 add_subdirectory(benchmark_other)
