@@ -35,9 +35,11 @@ struct gmio_stl_read_options
 {
     /*! Used by the stream to bufferize I/O operations
      *
-     *  If null(see gmio_memblock_isnull()), then a temporary memblock is
-     *  created with the global default constructor function
-     *  (see gmio_memblock_default()) */
+     *  If null, then a temporary memblock is created with the global default
+     *  constructor function
+     *
+     *  \sa gmio_memblock_isnull()
+     *  \sa gmio_memblock_default() */
     struct gmio_memblock stream_memblock;
 
     /*! Optional interface by which the I/O operation can be controlled */
@@ -46,7 +48,7 @@ struct gmio_stl_read_options
     /*! Optional pointer to a function that returns the size(in bytes) of the
      *  STL ascii data to read
      *
-     *  Useful only with STL ascii format. If set to NULL then by default
+     *  Useful only with STL ascii format. If set to \c NULL then by default
      *  gmio_stream::func_size() is called.
      *
      *  The resulting stream size is passed to
