@@ -51,7 +51,7 @@ GMIO_API bool gmio_memblock_isnull(const struct gmio_memblock* mblock);
  *  If \p ptr is NULL then gmio_memblock::size is forced to \c 0
  */
 GMIO_API struct gmio_memblock gmio_memblock(
-        void* ptr, size_t size, void (*func_deallocate)(void*));
+                void* ptr, size_t size, void (*func_deallocate)(void*));
 
 /*! Returns a gmio_memblock object allocated with standard \c malloc() */
 GMIO_API struct gmio_memblock gmio_memblock_malloc(size_t size);
@@ -80,7 +80,7 @@ typedef struct gmio_memblock (*gmio_memblock_constructor_func_t)();
  *  This function is not thread-safe.
  */
 GMIO_API void gmio_memblock_set_default_constructor(
-        gmio_memblock_constructor_func_t ctor);
+                gmio_memblock_constructor_func_t ctor);
 
 /*! Returns the currently installed function to construct gmio_memblock objects
  *

@@ -50,7 +50,9 @@ GMIO_API struct gmio_stlb_header gmio_stlb_header_str(const char* str);
  *  character ('\0') is copied at position \c GMIO_STLB_HEADER_SIZE
  */
 GMIO_API void gmio_stlb_header_to_printable_str(
-        const struct gmio_stlb_header* header, char* str, char replacement);
+                const struct gmio_stlb_header* header,
+                char* str,
+                char replacement);
 
 GMIO_C_LINKAGE_END
 

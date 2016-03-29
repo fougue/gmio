@@ -116,10 +116,10 @@ GMIO_C_LINKAGE_BEGIN
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_API int gmio_stl_infos_get(
-        struct gmio_stl_infos* infos,
-        struct gmio_stream* stream,
-        unsigned flags,
-        const struct gmio_stl_infos_get_options* options);
+                struct gmio_stl_infos* infos,
+                struct gmio_stream* stream,
+                unsigned flags,
+                const struct gmio_stl_infos_get_options* options);
 
 /*! Returns the size(in bytes) of the next STL ascii solid in \p stream
  *
@@ -131,8 +131,8 @@ GMIO_API int gmio_stl_infos_get(
  *  advanced solid by solid after each call to gmio_stl_read()
  */
 GMIO_API gmio_streamsize_t gmio_stla_infos_get_streamsize(
-        struct gmio_stream* stream,
-        struct gmio_memblock* stream_memblock);
+                struct gmio_stream* stream,
+                struct gmio_memblock* stream_memblock);
 
 GMIO_C_LINKAGE_END
 

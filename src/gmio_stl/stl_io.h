@@ -36,34 +36,39 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! Reads STL mesh from stream, format is automatically guessed
  *
+ *  It does nothing on the triangles read : no checking(eg. for Nan), normals
+ *  are given as they are.
+ *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_API int gmio_stl_read(
-        struct gmio_stream* stream,
-        struct gmio_stl_mesh_creator* mesh_creator,
-        const struct gmio_stl_read_options* options);
+                struct gmio_stream* stream,
+                struct gmio_stl_mesh_creator* mesh_creator,
+                const struct gmio_stl_read_options* options);
 
 /*! Reads STL mesh from a file, format is automatically guessed
  *
  *  This is just a facility function over gmio_stl_read(). The internal stream
- *  object is created to read file at \p filepath (see gmio_stream_stdio(FILE*))
+ *  object is created to read file at \p filepath.
  *
  *  The file is opened with \c fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
+ *
+ *  \sa gmio_stream_stdio(FILE*)
  */
 GMIO_API int gmio_stl_read_file(
-        const char* filepath,
-        struct gmio_stl_mesh_creator* mesh_creator,
-        const struct gmio_stl_read_options* options);
+                const char* filepath,
+                struct gmio_stl_mesh_creator* mesh_creator,
+                const struct gmio_stl_read_options* options);
 
 /*! Reads mesh from STL ascii stream
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_API int gmio_stla_read(
-        struct gmio_stream* stream,
-        struct gmio_stl_mesh_creator* mesh_creator,
-        const struct gmio_stl_read_options* options);
+                struct gmio_stream* stream,
+                struct gmio_stl_mesh_creator* mesh_creator,
+                const struct gmio_stl_read_options* options);
 
 /*! Reads mesh from STL binary stream
  *
@@ -72,36 +77,38 @@ GMIO_API int gmio_stla_read(
  *          if <tt>options->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
  */
 GMIO_API int gmio_stlb_read(
-        struct gmio_stream* stream,
-        struct gmio_stl_mesh_creator* mesh_creator,
-        enum gmio_endianness byte_order,
-        const struct gmio_stl_read_options* options);
+                struct gmio_stream* stream,
+                struct gmio_stl_mesh_creator* mesh_creator,
+                enum gmio_endianness byte_order,
+                const struct gmio_stl_read_options* options);
 
 /*! Writes STL mesh to stream
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
 GMIO_API int gmio_stl_write(
-        enum gmio_stl_format format,
-        struct gmio_stream* stream,
-        const struct gmio_stl_mesh* mesh,
-        const struct gmio_stl_write_options* options);
+                enum gmio_stl_format format,
+                struct gmio_stream* stream,
+                const struct gmio_stl_mesh* mesh,
+                const struct gmio_stl_write_options* options);
 
 /*! Writes STL mesh to stream
  *
  *  This is just a facility function over gmio_stl_write(). The internal stream
- *  object is created to read file at \p filepath (see gmio_stream_stdio(FILE*))
+ *  object is created to read file at \p filepath
  *
  *  The file is opened with \c fopen() so \p filepath shall follow the file name
  *  specifications of the running environment
-
+ *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
+ *
+ *  \sa gmio_stream_stdio(FILE*)
  */
 GMIO_API int gmio_stl_write_file(
-        enum gmio_stl_format format,
-        const char* filepath,
-        const struct gmio_stl_mesh* mesh,
-        const struct gmio_stl_write_options* options);
+                enum gmio_stl_format format,
+                const char* filepath,
+                const struct gmio_stl_mesh* mesh,
+                const struct gmio_stl_write_options* options);
 
 /*! Writes STL binary header data to stream
  *
@@ -113,10 +120,10 @@ GMIO_API int gmio_stl_write_file(
  *  \return Error code (see error.h and stl_error.h)
  */
 GMIO_API int gmio_stlb_header_write(
-        struct gmio_stream* stream,
-        enum gmio_endianness byte_order,
-        const struct gmio_stlb_header* header,
-        uint32_t facet_count
+                struct gmio_stream* stream,
+                enum gmio_endianness byte_order,
+                const struct gmio_stlb_header* header,
+                uint32_t facet_count
 );
 
 GMIO_C_LINKAGE_END
