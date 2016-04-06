@@ -10,7 +10,9 @@ public:
     TColStd_PackedMapOfInteger(const TColStd_PackedMapOfInteger&) {}
     ~TColStd_PackedMapOfInteger() {}
 
-    TColStd_PackedMapOfInteger& operator=(const TColStd_PackedMapOfInteger&) {}
+    TColStd_PackedMapOfInteger& operator=(const TColStd_PackedMapOfInteger&)
+    { return *this; }
+
     void ReSize(const int) {}
     void Clear() {}
 
