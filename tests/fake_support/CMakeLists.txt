@@ -18,11 +18,17 @@ add_executable(
     EXCLUDE_FROM_ALL
         main.cpp
         opencascade/gp_XYZ.hxx
+        opencascade/Handle_MeshVS_DataSource.hxx
         opencascade/Handle_StlMesh_Mesh.hxx
         opencascade/Handle_StlMesh_MeshTriangle.hxx
+        opencascade/MeshVS_DataSource.hxx
+        opencascade/Standard_TypeDef.hxx
         opencascade/StlMesh_Mesh.hxx
         opencascade/StlMesh_MeshTriangle.hxx
         opencascade/StlMesh_SequenceOfMeshTriangle.hxx
+        opencascade/TColStd_Array1OfReal.hxx
+        opencascade/TColStd_MapIteratorOfPackedMapOfInteger.hxx
+        opencascade/TColStd_PackedMapOfInteger.hxx
         opencascade/TColgp_SequenceOfXYZ.hxx
         qt/QtCore/QFile
         qt/QtCore/QIODevice
