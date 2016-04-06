@@ -19,6 +19,29 @@
  *  \defgroup gmio_stl gmioSTL
  *  Provides API to handle input/output operations with the STL file format
  *
+ *  Support of the STL file format (STereoLithography) is complete :
+ *
+ *  \li ASCII format: Case-insensitive reading
+ *  \li ASCII format: Output format(\%f, \%e, ...) and precision of floats support
+ *  \li Binary format: Little/big endian support
+ *  \li Binary format: 80-byte header and facet "attribute byte count" support
+ *  \li Detection of the input format
+ *  \li Retrieval of infomations about contents(facet count, solid name, ...)
+ *  \li Multiple solids from stream(eg. 4 solids in STL ascii file)
+ *
+ *  In addition, the gmioSTL module has the following advatanges:
+ *
+ *  \li The user keeps its own geometry data structures, no conversion needed
+ *  \li Fixed memory consumption and independant of the mesh size
+ *  \li Seamless use of OpenCascade \c StlMesh_Mesh and \c MeshVS_DataSource in
+ *      gmio(see \c gmioSupport module)
+ *
+ *  In this module, the name of all entities(structures, functions, ...) are
+ *  prefixed either with :
+ *  \li \c gmio_stl
+ *  \li <tt>gmio_stla</tt>, this applies only for STL ascii
+ *  \li <tt>gmio_stlb</tt>, this applies only for STL binary(little/big endian)
+ *
  *  \addtogroup gmio_stl
  *  @{
  */

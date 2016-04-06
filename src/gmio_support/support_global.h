@@ -19,6 +19,15 @@
  *  \defgroup gmio_support gmioSupport
  *  Provides seamless integration with other 3rd-party libraries
  *
+ *  \c gmioSupport is the bridge between \c gmio and other 3rd-party libraries
+ *  (eg. OpenCascade, Qt, ...)\n
+ *  Nonetheless, to avoid the \c gmio library being dependent of some other
+ *  binaries, compilation of \c gmioSupport is left to the developer.\n
+ *  For example if Qt streams are needed then the target project must build
+ *  somehow <tt>gmio_support/stream_qt.cpp</tt>\n
+ *  All \c gmio_support source files are copied with install target (ie by doing
+ *  <tt>(n)make install</tt>) to <tt>PREFIX/src/gmio_support</tt>
+ *
  *  \addtogroup gmio_support
  *  @{
  */

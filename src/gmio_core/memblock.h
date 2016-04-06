@@ -68,7 +68,7 @@ GMIO_API void gmio_memblock_deallocate(struct gmio_memblock* mblock);
 /*! Typedef for a pointer to a function that creates an allocated mblock
  *
  *  Signature:
- *  \code struct gmio_memblock mblock_ctor(); \endcode
+ *  \code{.c} struct gmio_memblock mblock_ctor(); \endcode
  */
 typedef struct gmio_memblock (*gmio_memblock_constructor_func_t)();
 

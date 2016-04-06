@@ -9,7 +9,7 @@
   portable (C90 conformance) and feature-rich.
   Main highlights:
 
-  \li "Abstract" streams that does not tie the user to C stream (\c FILE*)
+  \li <i>Abstract</i> streams that does not tie the user to C stream (\c FILE*)
   \li Buffering of input/ouput for efficient device usage
   \li Operations can be easily aborted
   \li Progress report about the I/O operation
@@ -21,7 +21,7 @@ Current version only supports the STL file format (STereoLithography), but
 support is complete :
 
   \li ASCII format: Case-insensitive reading
-  \li ASCII format: Output format(%f, %e, ...) and precision of floats support
+  \li ASCII format: Output format(\%f, \%e, ...) and precision of floats support
   \li Binary format: Little/big endian support
   \li Binary format: 80-byte header and facet "attribute byte count" support
   \li Detection of the input format
@@ -32,7 +32,8 @@ In addition, the STL module has the following advatanges:
 
   \li The user keeps its own geometry data structures, no conversion needed
   \li Fixed memory consumption and independant of the mesh size
-  \li Seamless use of OpenCascade StlMesh_Mesh in gmio(see gmio_support)
+  \li Seamless use of OpenCascade \c StlMesh_Mesh and \c MeshVS_DataSource in
+      gmio(see \c gmio_support)
 
 \section build Building gmio
 

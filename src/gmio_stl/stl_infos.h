@@ -48,12 +48,15 @@ struct gmio_stl_infos
 
     /*! STL ascii only: name of the solid
      *
-     *  The pointer has to be set before calling gmio_stl_infos_get() */
+     *  The pointer has to be set before calling gmio_stl_infos_get()
+     *  \sa stla_solidname_maxlen
+     */
     char* stla_solidname;
 
     /*! STL ascii only: maximum length(capacity) of stla_solidname
      *
      *  The value has to be set before calling gmio_stl_infos_get()
+     *  \sa stla_solidname
      */
     size_t stla_solidname_maxlen;
 
@@ -108,10 +111,15 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! Finds informations about STL contents
  *
- *  \p infos is an output parameter that will hold the retrieved infos
+ *  \p infos is an output parameter that will hold the retrieved informations
  *
  *  \p flags is a bitor combination of \c gmio_stl_info_flag values and is used
- *  to select the infos to retrieve.
+ *  to select the informations to retrieve.
+ *
+ *  \pre <tt> infos != NULL </tt>
+ *  \pre <tt> stream != NULL </tt>
+ *
+ *  \p options can be safely set to \c NULL in this case default values are used
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
@@ -129,6 +137,9 @@ GMIO_API int gmio_stl_infos_get(
  *  gmio_stl_read_options::func_stla_get_streamsize() and is useful when
  *  reading in sequence multi solids in STL ascii. The stream can be cleanly
  *  advanced solid by solid after each call to gmio_stl_read()
+ *
+ *  \pre <tt> stream != NULL </tt>
+ *  \pre <tt> stream_memblock != NULL </tt>
  */
 GMIO_API gmio_streamsize_t gmio_stla_infos_get_streamsize(
                 struct gmio_stream* stream,

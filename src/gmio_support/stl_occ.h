@@ -50,7 +50,7 @@ class MeshVS_DataSource;
  *  It is used to iterate efficiently over the triangles of all domains within
  *  a StlMesh_Mesh object.
  *
- *  You don't have to use API of this class, it's intended to gmio_stl_mesh()
+ *  Don't use API of this class, it's intended to gmio_stl_mesh()
  */
 struct gmio_stl_occmesh_iterator
 {
@@ -76,12 +76,13 @@ private:
     uint32_t m_domain_last_tri_id;
 };
 
-/*! Returns a gmio_stl_mesh mapped to the OCC mesh in iterator \p it
+/*! Returns a gmio_stl_mesh mapped to the OpenCascade mesh in iterator \p it
  *
  *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
  *  object must be at least as longer as the returned gmio_stl_mesh.
+ *
  *  Example of use:
- *  \code
+ *  \code{.cpp}
  *      Handle_StlMesh_Mesh occmesh = ...;
  *      const gmio_stl_occmesh_iterator it(occmesh);
  *      const gmio_stl_mesh mesh = gmio_stl_occmesh(it);
@@ -97,7 +98,7 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it);
  *  object.\n
  *  Each element should be of type MeshVS_ET_Face and made of 3 nodes.
  *
- *  You don't have to use API of this class, it's intended to gmio_stl_mesh()
+ *  Don't use API of this class, it's intended to gmio_stl_mesh()
  */
 struct gmio_stl_occmesh_datasource_iterator
 {
@@ -116,12 +117,14 @@ private:
     TColStd_Array1OfReal m_element_coords;
 };
 
-/*! Returns a gmio_stl_mesh mapped to the OCC mesh data-source in iterator \p it
+/*! Returns a gmio_stl_mesh mapped to the OpenCascade mesh data-source in
+ *  iterator \p it
  *
  *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
  *  object must be at least as longer as the returned gmio_stl_mesh.
+ *
  *  Example of use:
- *  \code
+ *  \code{.cpp}
  *      Handle_MeshVS_Mesh mesh = ...;
  *      const gmio_stl_occmesh_datasource_iterator it(mesh->GetDataSource());
  *      const gmio_stl_mesh mesh = gmio_stl_occmesh(it);

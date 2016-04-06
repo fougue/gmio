@@ -67,7 +67,7 @@ struct gmio_stl_mesh_creator_infos
 };
 
 /*! Provides an interface for the creation of the underlying(hidden)
- * user mesh */
+ *  user mesh */
 struct gmio_stl_mesh_creator
 {
     /*! Opaque pointer on the user mesh, passed as first argument to hook
@@ -93,9 +93,9 @@ struct gmio_stl_mesh_creator
             uint32_t tri_id,
             const struct gmio_stl_triangle* triangle);
 
-    /*! Pointer on a function that finalizes creation of the user mesh
+    /*! Optional pointer on a function that finalizes creation of the user mesh
      *
-     *  Optional function called at the end of the read process, ie. after all
+     *  The function is called at the end of the read process, ie. after all
      *  triangles have been added
      */
     void (*func_end_solid)(void* cookie);

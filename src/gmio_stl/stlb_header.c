@@ -33,8 +33,9 @@ void gmio_stlb_header_to_printable_str(
 {
     size_t i;
     for (i = 0; i < GMIO_STLB_HEADER_SIZE; ++i) {
-        const int header_char = (int)header->data[i];
-        str[i] = isprint(header_char) ? (char)header_char : replacement;
+        const char hc = header->data[i];
+        const int hi = (int)hc;
+        str[i] = isprint(hi) ? hc : replacement;
     }
     str[GMIO_STLB_HEADER_SIZE] = 0;
 }

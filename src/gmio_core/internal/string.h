@@ -45,7 +45,7 @@ struct gmio_string
 /*! Expands to bracket initialization of a gmio_const_string from const char[]
  *
  *  Example:
- *  \code
+ *  \code{.c}
  *      static const char token[] = "woops";
  *      struct gmio_const_string token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
  *  \endcode

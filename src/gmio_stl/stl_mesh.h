@@ -39,7 +39,9 @@ struct gmio_stl_mesh
     /*! Pointer on a function that stores the mesh triangle of index \p tri_id
      *  into \p triangle */
     void (*func_get_triangle)(
-            const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* triangle);
+            const void* cookie,
+            uint32_t tri_id,
+            struct gmio_stl_triangle* triangle);
 };
 
 #endif /* GMIO_STL_MESH_H */

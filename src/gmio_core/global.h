@@ -188,7 +188,7 @@ enum gmio_bool_value
 /*! MSVC specific macro that disable the compiler warning of code \p __code__
  *
  * With Visual C++, expands to :
- *    \code
+ *    \code{.c}
  *      #pragma warning(push)
  *      #pragma warning(disable: __code__)
  *    \endcode
@@ -197,7 +197,7 @@ enum gmio_bool_value
 /*! MSVC specific macro that pop the changes made after last warning(pop)
  *
  * With Visual C++, expands to :
- *    \code
+ *    \code{.c}
  *      #pragma warning(pop)
  *    \endcode
  */

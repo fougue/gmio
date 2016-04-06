@@ -47,8 +47,10 @@ In addition, the STL module has the following advatanges:
 
   * [x] The user keeps its own geometry data structures, no mesh conversion needed
   * [x] Fixed memory consumption and independant of the mesh size
-  * [x] Seamless use of [OpenCascade StlMesh_Mesh](http://dev.opencascade.org/doc/refman/html/class_stl_mesh___mesh.html)
-        in gmio(see gmio_support)
+  * [x] Seamless use of OpenCascade
+        [StlMesh_Mesh](http://dev.opencascade.org/doc/refman/html/class_stl_mesh___mesh.html)
+        and [MeshVS_DataSource](http://dev.opencascade.org/doc/refman/html/class_mesh_v_s___data_source.html)
+        in gmio
 
 
 Building gmio
