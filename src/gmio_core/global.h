@@ -76,6 +76,13 @@
 #  define GMIO_API
 #endif
 
+/* GMIO_HAVE_INT64_TYPE */
+#if defined(GMIO_HAVE_INT64_T) \
+      || defined(GMIO_HAVE_MSVC_INT64) \
+        || defined(GMIO_HAVE_LONG_LONG)
+#  define GMIO_HAVE_INT64_TYPE
+#endif
+
 /* Typedefs for specific width integers */
 #ifdef GMIO_HAVE_STDINT_H
 #  include <stdint.h>
@@ -100,24 +107,24 @@ typedef unsigned long uint32_t;
 #    error Failed to find a 32bit integer type with 'int' and 'long'
 #  endif
 
-#endif
-
-/* (u)int64_t */
-#ifndef GMIO_HAVE_INT64_T
-#  if defined(GMIO_HAVE_MSVC_INT64)
+#  ifndef GMIO_HAVE_INT64_T
+#    if defined(GMIO_HAVE_MSVC_INT64)
 typedef __int64_t          int64_t;
 typedef unsigned __int64_t uint64_t;
-#  elif defined(GMIO_HAVE_LONG_LONG)
+#    elif defined(GMIO_HAVE_LONG_LONG)
 typedef long long          int64_t;
 typedef unsigned long long uint64_t;
-#  endif
+#    endif
 #endif
 
-/* GMIO_HAVE_INT64_TYPE */
-#if defined(GMIO_HAVE_INT64_T) \
-      || defined(GMIO_HAVE_MSVC_INT64) \
-      || defined(GMIO_HAVE_LONG_LONG)
-#  define GMIO_HAVE_INT64_TYPE
+#  ifdef GMIO_HAVE_INT64_TYPE
+typedef int64_t  intmax_t;
+typedef uint64_t uintmax_t;
+#  else
+typedef int32_t  intmax_t;
+typedef uint32_t uintmax_t;
+#  endif
+
 #endif
 
 /* GMIO_HAVE_STDBOOL_H */

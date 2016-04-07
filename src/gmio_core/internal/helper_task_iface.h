@@ -31,7 +31,7 @@ GMIO_INLINE bool gmio_task_iface_is_stop_requested(
 
 /*! Safe and convenient function for gmio_task_iface::func_handle_progress() */
 GMIO_INLINE void gmio_task_iface_handle_progress(
-        const struct gmio_task_iface* itask, size_t value, size_t max_value)
+        const struct gmio_task_iface* itask, intmax_t value, intmax_t max_value)
 {
     if (itask != NULL && itask->func_handle_progress != NULL)
         itask->func_handle_progress(itask->cookie, value, max_value);

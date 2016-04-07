@@ -47,7 +47,8 @@ struct gmio_task_iface
      *  \param value Current value of the task progress (<= \p max_value )
      *  \param max_value Maximum value of the task progress
      */
-    void (*func_handle_progress)(void* cookie, size_t value, size_t max_value);
+    void (*func_handle_progress)(
+            void* cookie, intmax_t value, intmax_t max_value);
 };
 
 #endif /* GMIO_TASK_IFACE_H */
