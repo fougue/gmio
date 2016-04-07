@@ -227,8 +227,7 @@ const char* test_internal__stringstream()
 
         /* Test with very small string buffer */
         buff.pos = 0;
-        sstream.strbuff.ptr = cstr_small;
-        sstream.strbuff.max_len = sizeof(cstr_small);
+        sstream.strbuff = gmio_string(cstr_small, 0, sizeof(cstr_small));
         gmio_stringstream_init_pos(&sstream);
 
         UTEST_ASSERT(*gmio_stringstream_current_char(&sstream) == 'U');

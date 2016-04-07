@@ -39,7 +39,7 @@ struct gmio_string
 {
     char*  ptr; /*!< Contents */
     size_t len; /*!< Size(length) of current contents */
-    size_t max_len; /*!< Maximum contents size(capacity) */
+    size_t capacity; /*!< Maximum contents size */
 };
 
 /*! Expands to bracket initialization of a gmio_const_string from const char[]
@@ -57,11 +57,14 @@ GMIO_INLINE struct gmio_const_string gmio_const_string(const char* ptr, size_t l
 
 /*! Returns an initialized struct gmio_string object
  *
- *  string.max_len is set to max(len,max_len)
+ *  gmio_string::capacity is set to <tt>max(len,capacity)</tt>
  */
-GMIO_INLINE struct gmio_string gmio_string(char* ptr, size_t len, size_t max_len);
+GMIO_INLINE struct gmio_string gmio_string(char* ptr, size_t len, size_t capacity);
 
-/*! Clears the contents of the string \p str and makes it null */
+/*! Clears the contents of the string \p str and makes it null
+ *
+ *  \warning Memory pointed to by gmio_string::ptr is not freed in any way
+ */
 GMIO_INLINE void gmio_string_clear(struct gmio_string* str);
 
 /*! Returns a pointer after the last character of \p str */
@@ -90,12 +93,12 @@ struct gmio_const_string gmio_const_string(const char* ptr, size_t len)
     return cstr;
 }
 
-struct gmio_string gmio_string(char* ptr, size_t len, size_t max_len)
+struct gmio_string gmio_string(char* ptr, size_t len, size_t capacity)
 {
     struct gmio_string str;
     str.ptr = ptr;
     str.len = len;
-    str.max_len = GMIO_MAX(len, max_len);
+    str.capacity = GMIO_MAX(len, capacity);
     return str;
 }
 
@@ -113,7 +116,7 @@ const char* gmio_string_end(const struct gmio_string* str)
 void gmio_string_copy(
         struct gmio_string* dst, const struct gmio_string* src)
 {
-    const size_t dst_new_len = GMIO_MIN(dst->max_len, src->len);
+    const size_t dst_new_len = GMIO_MIN(dst->capacity, src->len);
     strncpy(dst->ptr, src->ptr, dst_new_len);
     dst->len = dst_new_len;
 }

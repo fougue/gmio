@@ -87,7 +87,7 @@ static void snprintf_wrap(void* cookie, const char* fmt, ...)
     struct gmio_string* str = (struct gmio_string*)cookie;
     va_list args;
     va_start(args, fmt);
-    gmio_vsnprintf(str->ptr, str->max_len, fmt, args);
+    gmio_vsnprintf(str->ptr, str->capacity, fmt, args);
     va_end(args);
 }
 
@@ -203,13 +203,13 @@ static void printf_func_exec_time(
 /*! Returns the strlen of the longest tag string */
 static size_t find_maxlen_cmp_result_tag(struct benchmark_cmp_result_array res_array)
 {
-    size_t max_len = 0;
+    size_t maxlen = 0;
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
         const size_t len = safe_strlen(res_array.ptr[i].tag);
-        max_len = size_t_max(len, max_len);
+        maxlen = size_t_max(len, maxlen);
     }
-    return max_len;
+    return maxlen;
 }
 
 /*! Writes in output args the func1 execution informations */
@@ -243,16 +243,16 @@ static size_t find_maxlen_cmp_result_func_exec_time(
 {
     char strbuff[1024] = {0};
     struct gmio_string str = gmio_string(strbuff, 0, sizeof(strbuff));
-    size_t max_len = 0;
+    size_t maxlen = 0;
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
         gmio_time_ms_t time = 0;
         bool has_time = false;
         func_select_exec_infos(&res_array.ptr[i], &time, &has_time);
         gprintf_func_exec_time(&str, &snprintf_wrap, 0, time, has_time);
-        max_len = size_t_max(safe_strlen(strbuff), max_len);
+        maxlen = size_t_max(safe_strlen(strbuff), maxlen);
     }
-    return max_len;
+    return maxlen;
 }
 
 /*! Returns the strlen of the longest func2/func1 ratio string */
@@ -261,14 +261,14 @@ static size_t find_maxlen_cmp_result_ratio(
 {
     char strbuff[1024] = {0};
     struct gmio_string str = gmio_string(strbuff, 0, sizeof(strbuff));
-    size_t max_len = 0;
+    size_t maxlen = 0;
     size_t i;
     for (i = 0; i < res_array.count; ++i) {
         const float ratio = res_array.ptr[i].func2_func1_ratio;
         gprintf_func_exec_ratio(&str, &snprintf_wrap, 0, ratio);
-        max_len = size_t_max(safe_strlen(strbuff), max_len);
+        maxlen = size_t_max(safe_strlen(strbuff), maxlen);
     }
-    return max_len;
+    return maxlen;
 }
 
 static void update_benchmark_cmp_result_ratio(

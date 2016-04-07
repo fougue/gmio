@@ -44,7 +44,7 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
         struct gmio_string *str)
 {
     char* str_ptr_at = str->ptr + str->len;
-    const char* str_ptr_end = str->ptr + str->max_len;
+    const char* str_ptr_end = str->ptr + str->capacity;
     const char* stream_curr_char = NULL;
 
     /* assert(str != NULL && str->ptr != NULL); */

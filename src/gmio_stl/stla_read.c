@@ -134,7 +134,7 @@ int gmio_stla_read(
 
     parse_data.strstream.stream = *stream;
     parse_data.strstream.strbuff.ptr = mblock->ptr;
-    parse_data.strstream.strbuff.max_len = mblock->size;
+    parse_data.strstream.strbuff.capacity = mblock->size;
     parse_data.strstream.cookie = &parse_data.strstream_cookie;
     parse_data.strstream.func_stream_read = gmio_stringstream_stla_read;
     gmio_stringstream_init_pos(&parse_data.strstream);
@@ -449,7 +449,7 @@ int gmio_stla_eat_next_token_inplace(
                 data->token_str.ptr[i++] = *(it++);
         }
         /* -- Copy the non matching part */
-        while (i < data->token_str.max_len
+        while (i < data->token_str.capacity
                && stream_char != NULL
                && !gmio_ascii_isspace(*stream_char))
         {
@@ -457,7 +457,7 @@ int gmio_stla_eat_next_token_inplace(
             stream_char = gmio_stringstream_next_char(sstream);
         }
         /* -- Fill remaining space with NUL byte */
-        memset(data->token_str.ptr + i, '\0', data->token_str.max_len - i);
+        memset(data->token_str.ptr + i, '\0', data->token_str.capacity - i);
         data->token_str.len = i;
         data->token = stla_find_token_from_string(&data->token_str);
 
@@ -501,7 +501,7 @@ int gmio_stla_eat_until_token(
                 strbuff->len = previous_buff_len;
                 strbuff->ptr[previous_buff_len] = 0;
             }
-        } while (!end_token_found && strbuff->len < strbuff->max_len);
+        } while (!end_token_found && strbuff->len < strbuff->capacity);
 
         if (!end_token_found) {
             stla_error_msg(

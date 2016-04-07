@@ -167,7 +167,7 @@ const char *gmio_stringstream_next_char(struct gmio_stringstream *sstream)
                 sstream->cookie,
                 &sstream->stream,
                 sstream->strbuff.ptr,
-                sstream->strbuff.max_len);
+                sstream->strbuff.capacity);
     sstream->strbuff_end = sstream->strbuff.ptr + sstream->strbuff.len;
     return sstream->strbuff.len > 0 ? sstream->strbuff.ptr : NULL;
 }
@@ -193,7 +193,7 @@ void gmio_stringstream_copy_ascii_spaces(
     const char* curr_char = gmio_stringstream_current_char(sstream);
     while (curr_char != NULL
            && gmio_ascii_isspace(*curr_char)
-           && str->len < str->max_len)
+           && str->len < str->capacity)
     {
         str->ptr[str->len] = *curr_char;
         curr_char = gmio_stringstream_next_char(sstream);
