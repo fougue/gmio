@@ -14,9 +14,9 @@
 ****************************************************************************/
 
 /*! \file stl_occ_mesh.h
- *  Support of OpenCascade's StlMesh_Mesh
+ *  STL support of OpenCascade's StlMesh_Mesh
  *
-*  \addtogroup gmio_support
+ *  \addtogroup gmio_support
  *  @{
  */
 
@@ -73,7 +73,7 @@ gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
  *  It is used to iterate efficiently over the triangles of all domains within
  *  a StlMesh_Mesh object.
  *
- *  Don't use API of this class, it's intended to gmio_stl_mesh()
+ *  Don't use API of this class, it's intended to gmio_stl_occmesh()
  */
 struct gmio_stl_occmesh_iterator
 {

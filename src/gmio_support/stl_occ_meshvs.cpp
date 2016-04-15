@@ -20,6 +20,8 @@
 #include <MeshVS_DataSource.hxx>
 #include <TColStd_PackedMapOfInteger.hxx>
 
+#include <cstddef>
+
 namespace internal {
 
 static void occmesh_datasource_get_triangle(

@@ -21,6 +21,13 @@
  *
  *  \c gmioSupport is the bridge between \c gmio and other 3rd-party libraries
  *  (eg. OpenCascade, Qt, ...)\n
+ *
+ *                           STL
+ *                     import | export
+ *  StlMesh_Mesh       yes      yes
+ *  MeshVS_DataSource  no       yes
+ *  TopoDS_Shape       no       yes
+ *
  *  Nonetheless, to avoid the \c gmio library being dependent of some other
  *  binaries, compilation of \c gmioSupport is left to the developer.\n
  *  For example if Qt streams are needed then the target project must build

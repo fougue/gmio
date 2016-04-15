@@ -13,10 +13,10 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
-/*! \file stl_occ.h
- *  Support of OpenCascade's MeshVS_DataSource
+/*! \file stl_occ_meshvs.h
+ *  STL support of OpenCascade's MeshVS_DataSource
  *
-*  \addtogroup gmio_support
+ *  \addtogroup gmio_support
  *  @{
  */
 
@@ -29,7 +29,6 @@
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
-#include "../gmio_stl/stl_mesh_creator.h"
 
 #include <MeshVS_DataSource.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -59,7 +58,7 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_datasource_iterator& it);
  *  object.\n
  *  Each element should be of type MeshVS_ET_Face and made of 3 nodes.
  *
- *  Don't use API of this class, it's intended to gmio_stl_mesh()
+ *  Don't use API of this class, it's intended to gmio_stl_occmesh()
  */
 struct gmio_stl_occmesh_datasource_iterator
 {
