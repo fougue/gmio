@@ -21,7 +21,7 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     link_libraries(m) # -lm
 endif()
 
-file(GLOB SUPPORT_STL_OCC_FILES ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ.*)
+file(GLOB SUPPORT_STL_OCC_FILES ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.*)
 set(SUPPORT_STL_OCC_FILES_FILES  ${SUPPORT_STL_OCC_FILES_FILES})
 
 # gmio OpenCascade/STL support
