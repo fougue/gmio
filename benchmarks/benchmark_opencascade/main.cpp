@@ -22,7 +22,7 @@
 #include <gmio_core/version.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_stl/stl_io_options.h>
-#include <gmio_support/stl_occ.h>
+#include <gmio_support/stl_occ_mesh.h>
 
 #include "../commons/benchmark_tools.h"
 

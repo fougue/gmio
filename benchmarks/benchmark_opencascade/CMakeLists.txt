@@ -38,7 +38,7 @@ endfunction()
 add_executable(
     benchmark_opencascade
     main.cpp
-    ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ.cpp
+    ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.cpp
     ${COMMONS_FILES})
 
 if(GMIO_TARGET_ARCH_BIT_SIZE EQUAL 64)

@@ -1,5 +1,5 @@
 #include "../../src/gmio_stl/stl_io.h"
-#include "../../src/gmio_support/stl_occ.h"
+#include "../../src/gmio_support/stl_occ_mesh.h"
 #include "../../src/gmio_support/stream_qt.h"
 #include "../../src/gmio_support/stream_cpp.h"
 
