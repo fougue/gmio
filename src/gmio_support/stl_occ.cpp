@@ -22,7 +22,6 @@
 #include <TColgp_SequenceOfXYZ.hxx>
 
 #ifndef GMIO_SUPPORT_STL_OCC_NO_MESHVS_DATASOURCE
-#  include <Handle_MeshVS_DataSource.hxx>
 #  include <MeshVS_DataSource.hxx>
 #  include <TColStd_PackedMapOfInteger.hxx>
 #endif // !GMIO_SUPPORT_STL_OCC_NO_MESHVS_DATASOURCE

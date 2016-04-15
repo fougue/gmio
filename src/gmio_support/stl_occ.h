@@ -31,18 +31,15 @@
 #include "../gmio_stl/stl_mesh.h"
 #include "../gmio_stl/stl_mesh_creator.h"
 
+#include <StlMesh_Mesh.hxx>
+#include <StlMesh_MeshTriangle.hxx>
 #include <StlMesh_SequenceOfMeshTriangle.hxx>
-
-class Handle_StlMesh_Mesh;
-class StlMesh_Mesh;
-class Handle_StlMesh_MeshTriangle;
-class TColgp_SequenceOfXYZ;
+#include <TColgp_SequenceOfXYZ.hxx>
 
 #ifndef GMIO_SUPPORT_STL_OCC_NO_MESHVS_DATASOURCE
+#  include <MeshVS_DataSource.hxx>
 #  include <TColStd_Array1OfReal.hxx>
 #  include <TColStd_MapIteratorOfPackedMapOfInteger.hxx>
-class Handle_MeshVS_DataSource;
-class MeshVS_DataSource;
 #endif // !GMIO_SUPPORT_STL_OCC_NO_MESHVS_DATASOURCE
 
 /*! Forward iterator over the triangles of OpenCascade's StlMesh_Mesh

@@ -2,7 +2,7 @@
 #define _MeshVS_DataSource_HeaderFile
 
 #include "Standard_TypeDef.hxx"
-
+#include "Handle_MeshVS_DataSource.hxx"
 class TColStd_Array1OfReal;
 class TColStd_PackedMapOfInteger;
 
