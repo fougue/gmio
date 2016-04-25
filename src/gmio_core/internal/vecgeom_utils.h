@@ -47,6 +47,7 @@ GMIO_INLINE void gmio_vec3d_normalize(struct gmio_vec3d* v);
  */
 
 #include "c99_math_compat.h"
+#include <float.h>
 
 void gmio_vec3f_cross_product(
         const struct gmio_vec3f* u,
@@ -55,7 +56,7 @@ void gmio_vec3f_cross_product(
 {
     const float ux = u->x, uy = u->y, uz = u->z;
     const float vx = v->x, vy = v->y, vz = v->z;
-    n->x = uy*vz - uz*vx;
+    n->x = uy*vz - uz*vy;
     n->y = uz*vx - ux*vz;
     n->z = ux*vy - uy*vx;
     gmio_vec3f_normalize(n);
@@ -68,7 +69,7 @@ void gmio_vec3d_cross_product(
 {
     const double ux = u->x, uy = u->y, uz = u->z;
     const double vx = v->x, vy = v->y, vz = v->z;
-    n->x = uy*vz - uz*vx;
+    n->x = uy*vz - uz*vy;
     n->y = uz*vx - ux*vz;
     n->z = ux*vy - uy*vx;
     gmio_vec3d_normalize(n);
@@ -89,7 +90,7 @@ double gmio_vec3d_sqr_length(const struct gmio_vec3d* v)
 void gmio_vec3f_normalize(struct gmio_vec3f* v)
 {
     const float d = gmio_sqrtf(gmio_vec3f_sqr_length(v));
-    if (d > 0.f) {
+    if (d > FLT_MIN) {
         v->x /= d;
         v->y /= d;
         v->z /= d;
@@ -99,7 +100,7 @@ void gmio_vec3f_normalize(struct gmio_vec3f* v)
 void gmio_vec3d_normalize(struct gmio_vec3d* v)
 {
     const double d = sqrt(gmio_vec3d_sqr_length(v));
-    if (d > 0.) {
+    if (d > DBL_MIN) {
         v->x /= d;
         v->y /= d;
         v->z /= d;
