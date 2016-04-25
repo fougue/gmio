@@ -13,29 +13,21 @@
 ## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 #############################################################################
 
+file(GLOB  GMIO_FAKEOCC_HEADERS  opencascade/*.hxx  opencascade/*.h)
+set(GMIO_FAKEOCC_HEADERS  ${GMIO_FAKEOCC_HEADERS})
+
 add_executable(
     fake_support
     EXCLUDE_FROM_ALL
         main.cpp
-        opencascade/gp_XYZ.hxx
-        opencascade/Handle_MeshVS_DataSource.hxx
-        opencascade/Handle_StlMesh_Mesh.hxx
-        opencascade/Handle_StlMesh_MeshTriangle.hxx
-        opencascade/MeshVS_DataSource.hxx
-        opencascade/Standard_TypeDef.hxx
-        opencascade/StlMesh_Mesh.hxx
-        opencascade/StlMesh_MeshTriangle.hxx
-        opencascade/StlMesh_SequenceOfMeshTriangle.hxx
-        opencascade/TColStd_Array1OfReal.hxx
-        opencascade/TColStd_MapIteratorOfPackedMapOfInteger.hxx
-        opencascade/TColStd_PackedMapOfInteger.hxx
-        opencascade/TColgp_SequenceOfXYZ.hxx
+        ${GMIO_FAKEOCC_HEADERS}
         qt/QtCore/QFile
         qt/QtCore/QIODevice
         qt/QtCore/QString
         qt/QtCore/QtGlobal
         ../../src/gmio_support/stl_occ_mesh.cpp
         ../../src/gmio_support/stl_occ_meshvs.cpp
+        ../../src/gmio_support/stl_occ_brep.cpp
         ../../src/gmio_support/stream_qt.cpp)
 target_link_libraries(fake_support gmio)
 include_directories(
