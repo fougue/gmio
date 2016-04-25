@@ -16,6 +16,7 @@
 #ifndef NCollection_StlIterator_HeaderFile
 #define NCollection_StlIterator_HeaderFile
 
+#include <cstddef>
 #include <iterator>
 
 // This file uses C++11 utilities like std::is_base<>, which are not 
