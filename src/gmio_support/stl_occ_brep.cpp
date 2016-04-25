@@ -22,37 +22,6 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
 
-namespace internal {
-
-static void occshape_get_triangle(
-        const void* cookie, uint32_t /*tri_id*/, gmio_stl_triangle* tri)
-{
-    void* wcookie = const_cast<void*>(cookie);
-    gmio_stl_occshape_iterator* it =
-            static_cast<gmio_stl_occshape_iterator*>(wcookie);
-
-    const bool reversed = it->face_is_reversed();
-    const gp_Trsf& trsf = it->face_trsf();
-    const TColgp_Array1OfPnt* nodes = it->face_nodes();
-    int n1, n2, n3; // Node index
-    it->face_current_triangle()->Get(n1, n2, n3);
-    gp_Pnt p1 = nodes->Value(n1);
-    gp_Pnt p2 = nodes->Value(reversed ? n3 : n2);
-    gp_Pnt p3 = nodes->Value(reversed ? n2 : n3);
-    if (trsf.Form() != gp_Identity) {
-        p1.Transform(trsf);
-        p2.Transform(trsf);
-        p3.Transform(trsf);
-    }
-    gmio_stl_occ_copy_xyz(&tri->v1, p1.XYZ());
-    gmio_stl_occ_copy_xyz(&tri->v2, p2.XYZ());
-    gmio_stl_occ_copy_xyz(&tri->v3, p3.XYZ());
-    gmio_stl_triangle_compute_normal(tri);
-    it->move_to_next_tri();
-}
-
-} // namespace internal
-
 gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator& it)
 {
     gmio_stl_mesh mesh = {};
@@ -69,7 +38,8 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator& it)
         }
     }
 
-    mesh.func_get_triangle = internal::occshape_get_triangle;
+    //mesh.func_get_triangle = internal::occshape_get_triangle;
+    mesh.func_get_triangle = &gmio_stl_occshape_iterator::get_triangle;
     return mesh;
 }
 
@@ -90,6 +60,35 @@ gmio_stl_occshape_iterator::gmio_stl_occshape_iterator(const TopoDS_Shape& shape
     else {
         this->reset_face();
     }
+}
+
+void gmio_stl_occshape_iterator::get_triangle(
+        const void *cookie, uint32_t /*tri_id*/, gmio_stl_triangle *tri)
+{
+    void* wcookie = const_cast<void*>(cookie);
+    gmio_stl_occshape_iterator* it =
+            static_cast<gmio_stl_occshape_iterator*>(wcookie);
+
+    const bool reversed = it->m_face_is_reversed;
+    const gp_Trsf& trsf = it->m_face_trsf;
+    const TColgp_Array1OfPnt* nodes = it->m_face_nodes;
+    int n1, n2, n3; // Node index
+    const Poly_Triangle& curr_tri =
+            it->m_face_triangles->Value(it->m_face_tri_id);
+    curr_tri.Get(n1, n2, n3);
+    gp_Pnt p1 = nodes->Value(n1);
+    gp_Pnt p2 = nodes->Value(reversed ? n3 : n2);
+    gp_Pnt p3 = nodes->Value(reversed ? n2 : n3);
+    if (trsf.Form() != gp_Identity) {
+        p1.Transform(trsf);
+        p2.Transform(trsf);
+        p3.Transform(trsf);
+    }
+    gmio_stl_occ_copy_xyz(&tri->v1, p1.XYZ());
+    gmio_stl_occ_copy_xyz(&tri->v2, p2.XYZ());
+    gmio_stl_occ_copy_xyz(&tri->v3, p3.XYZ());
+    gmio_stl_triangle_compute_normal(tri);
+    it->move_to_next_tri();
 }
 
 bool gmio_stl_occshape_iterator::move_to_next_tri()

@@ -48,27 +48,6 @@ static void occmesh_add_triangle(
                       n.x, n.y, n.z);
 }
 
-static void occmesh_get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri)
-{
-    void* wcookie = const_cast<void*>(cookie);
-    gmio_stl_occmesh_iterator* it =
-            static_cast<gmio_stl_occmesh_iterator*>(wcookie);
-
-    if (it->move_to_next_tri(tri_id)) {
-        int iv1, iv2, iv3;
-        double nx, ny, nz;
-        const Handle_StlMesh_MeshTriangle& occTri = it->domain_tri(tri_id);
-        occTri->GetVertexAndOrientation(iv1, iv2, iv3, nx, ny, nz);
-        gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
-
-        const TColgp_SequenceOfXYZ& vertices = it->domain_vertices();
-        gmio_stl_occ_copy_xyz(&tri->v1, vertices.Value(iv1));
-        gmio_stl_occ_copy_xyz(&tri->v2, vertices.Value(iv2));
-        gmio_stl_occ_copy_xyz(&tri->v3, vertices.Value(iv3));
-    }
-}
-
 } // namespace internal
 
 gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it)
@@ -78,7 +57,7 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it)
     const int domain_count = it.mesh() != NULL ? it.mesh()->NbDomains() : 0;
     for (int dom_id = 1; dom_id <= domain_count; ++dom_id)
         mesh.triangle_count += it.mesh()->NbTriangles(dom_id);
-    mesh.func_get_triangle = internal::occmesh_get_triangle;
+    mesh.func_get_triangle = gmio_stl_occmesh_iterator::get_triangle;
     return mesh;
 }
 
@@ -108,6 +87,30 @@ gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator(const StlMesh_Mesh *mesh)
 gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh &hnd)
 {
     this->init(internal::occMeshPtr(hnd));
+}
+
+void gmio_stl_occmesh_iterator::get_triangle(
+        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
+{
+    void* wcookie = const_cast<void*>(cookie);
+    gmio_stl_occmesh_iterator* it =
+            static_cast<gmio_stl_occmesh_iterator*>(wcookie);
+
+    if (it->move_to_next_tri(tri_id)) {
+        const int dom_tri_id = tri_id - it->m_domain_first_tri_id + 1;
+        const Handle_StlMesh_MeshTriangle& occTri =
+                it->m_domain_triangles->Value(dom_tri_id);
+
+        int iv1, iv2, iv3;
+        double nx, ny, nz;
+        occTri->GetVertexAndOrientation(iv1, iv2, iv3, nx, ny, nz);
+        gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
+
+        const TColgp_SequenceOfXYZ* vertices = it->m_domain_vertices;
+        gmio_stl_occ_copy_xyz(&tri->v1, vertices->Value(iv1));
+        gmio_stl_occ_copy_xyz(&tri->v2, vertices->Value(iv2));
+        gmio_stl_occ_copy_xyz(&tri->v3, vertices->Value(iv3));
+    }
 }
 
 void gmio_stl_occmesh_iterator::init(const StlMesh_Mesh* mesh)

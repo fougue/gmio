@@ -57,8 +57,6 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_datasource_iterator& it);
  *  It is used to iterate efficiently over the elements of a MeshVS_DataSource
  *  object.\n
  *  Each element should be of type MeshVS_ET_Face and made of 3 nodes.
- *
- *  Don't use API of this class, it's intended to gmio_stl_occmesh()
  */
 struct gmio_stl_occmesh_datasource_iterator
 {
@@ -66,37 +64,18 @@ struct gmio_stl_occmesh_datasource_iterator
     explicit gmio_stl_occmesh_datasource_iterator(const MeshVS_DataSource* data_src);
     explicit gmio_stl_occmesh_datasource_iterator(const Handle_MeshVS_DataSource& hnd);
 
-    inline const MeshVS_DataSource* data_src() const;
-
-    inline void move_to_next_tri();
-    inline int current_element_key() const;
-    inline TColStd_Array1OfReal& cached_element_coords();
+    inline const MeshVS_DataSource* data_src() const { return m_data_src; }
 
 private:
+    friend gmio_stl_mesh gmio_stl_occmesh(
+            const gmio_stl_occmesh_datasource_iterator&);
+    static void get_triangle(
+            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
+
     const MeshVS_DataSource* m_data_src;
     TColStd_MapIteratorOfPackedMapOfInteger m_element_it;
     TColStd_Array1OfReal m_element_coords;
 };
-
-#ifndef DOXYGEN
-
-/*
- * Implementation
- */
-
-void gmio_stl_occmesh_datasource_iterator::move_to_next_tri()
-{ m_element_it.Next(); }
-
-int gmio_stl_occmesh_datasource_iterator::current_element_key() const
-{ return m_element_it.Key(); }
-
-TColStd_Array1OfReal& gmio_stl_occmesh_datasource_iterator::cached_element_coords()
-{ return m_element_coords; }
-
-const MeshVS_DataSource* gmio_stl_occmesh_datasource_iterator::data_src() const
-{ return m_data_src; }
-
-#endif /* !DOXYGEN */
 
 #endif /* GMIO_SUPPORT_STL_OCC_MESHVS_H */
 /*! @} */

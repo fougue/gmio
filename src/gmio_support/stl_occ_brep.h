@@ -55,25 +55,22 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator& it);
 
 /*! Forward iterator over the triangles of OpenCascade's TopoDS_Shape
  *
- *  It is used to iterate efficiently over the triangles of all internally
- *  triangulated sub faces
- *
- *  Don't use API of this class, it's intended to gmio_stl_occmesh()
+ *  It is used to iterate over the triangles of all triangulated sub faces(the
+ *  Poly_Triangulation object).
  */
 struct gmio_stl_occshape_iterator
 {
     gmio_stl_occshape_iterator();
     explicit gmio_stl_occshape_iterator(const TopoDS_Shape& shape);
 
-    inline const TopoDS_Shape* shape() const;
-
-    bool move_to_next_tri();
-    inline bool face_is_reversed() const;
-    inline const gp_Trsf& face_trsf() const;
-    inline const TColgp_Array1OfPnt* face_nodes() const;
-    inline const Poly_Triangle* face_current_triangle() const;
+    inline const TopoDS_Shape* shape() const { return m_shape; }
 
 private:
+    friend gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator&);
+    static void get_triangle(
+            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
+
+    bool move_to_next_tri();
     void reset_face();
     void cache_face(const TopoDS_Face& face);
 
@@ -87,30 +84,6 @@ private:
     int m_face_tri_id;
     int m_face_last_tri_id;
 };
-
-
-#ifndef DOXYGEN
-
-/*
- * Implementation
- */
-
-const TopoDS_Shape *gmio_stl_occshape_iterator::shape() const
-{ return m_shape; }
-
-bool gmio_stl_occshape_iterator::face_is_reversed() const
-{ return m_face_is_reversed; }
-
-const gp_Trsf &gmio_stl_occshape_iterator::face_trsf() const
-{ return m_face_trsf; }
-
-const TColgp_Array1OfPnt *gmio_stl_occshape_iterator::face_nodes() const
-{ return m_face_nodes; }
-
-const Poly_Triangle *gmio_stl_occshape_iterator::face_current_triangle() const
-{ return &m_face_triangles->Value(m_face_tri_id); }
-
-#endif /* !DOXYGEN */
 
 #endif /* GMIO_SUPPORT_STL_OCC_BREP_H */
 /*! @} */
