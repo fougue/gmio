@@ -2,8 +2,7 @@
 #define _MeshVS_DataSource_HeaderFile
 
 #include "Standard_TypeDef.hxx"
-#include "Handle_MeshVS_DataSource.hxx"
-class TColStd_Array1OfReal;
+#include "TColStd_Array1OfReal.hxx"
 class TColStd_PackedMapOfInteger;
 
 typedef enum
@@ -40,5 +39,8 @@ public:
     virtual Standard_Boolean GetGroup (const int, MeshVS_EntityType&, TColStd_PackedMapOfInteger&) const
     { return 0; }
 };
+
+#include "generic_handle.h"
+typedef FakeOcc::GenericHandle<MeshVS_DataSource> Handle_MeshVS_DataSource;
 
 #endif // _MeshVS_DataSource_HeaderFile

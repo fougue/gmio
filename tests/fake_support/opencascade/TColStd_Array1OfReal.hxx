@@ -1,34 +1,23 @@
-#ifndef _TColStd_Array1OfReal_HeaderFile
-#define _TColStd_Array1OfReal_HeaderFile
+// Copyright (c) 1998-1999 Matra Datavision
+// Copyright (c) 1999-2014 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
 
-class TColStd_Array1OfReal
-{
-public:
-    TColStd_Array1OfReal(const int, const int) {}
+#ifndef TColStd_Array1OfReal_HeaderFile
+#define TColStd_Array1OfReal_HeaderFile
 
-    int Length() const { return 0; }
-    int Lower() const  { return 1; }
-    int Upper() const  { return 1; }
+#include <Standard_TypeDef.hxx>
+#include <NCollection_Array1.hxx>
 
-    void SetValue (const int, const double&) {}
+typedef NCollection_Array1<Standard_Real> TColStd_Array1OfReal;
 
-    const double& Value(const int) const
-    {
-        static const double v = 0;
-        return v;
-    }
-
-    const double& operator()(const int Index) const
-    { return Value(Index); }
-
-    double& ChangeValue(const int)
-    {
-        static double v = 0;
-        return v;
-    }
-
-    double& operator()(const int Index)
-    { return ChangeValue(Index); }
-};
-
-#endif // _TColStd_Array1OfReal_HeaderFile
+#endif

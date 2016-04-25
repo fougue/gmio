@@ -4,7 +4,7 @@
 #include "../../src/gmio_support/stream_cpp.h"
 
 #include <QtCore/QFile>
-#include <Handle_StlMesh_Mesh.hxx>
+#include <StlMesh_Mesh.hxx>
 #include <fstream>
 
 int main()

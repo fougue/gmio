@@ -66,10 +66,11 @@ struct gmio_stl_occmesh_datasource_iterator
     explicit gmio_stl_occmesh_datasource_iterator(const MeshVS_DataSource* data_src);
     explicit gmio_stl_occmesh_datasource_iterator(const Handle_MeshVS_DataSource& hnd);
 
+    inline const MeshVS_DataSource* data_src() const;
+
     inline void move_to_next_tri();
     inline int current_element_key() const;
     inline TColStd_Array1OfReal& cached_element_coords();
-    inline const MeshVS_DataSource* data_src() const;
 
 private:
     const MeshVS_DataSource* m_data_src;

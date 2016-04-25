@@ -1,8 +1,6 @@
 #ifndef _StlMesh_MeshTriangle_HeaderFile
 #define _StlMesh_MeshTriangle_HeaderFile
 
-#include <Handle_StlMesh_MeshTriangle.hxx>
-
 class StlMesh_MeshTriangle
 {
 public:
@@ -11,5 +9,8 @@ public:
             double& /*Xn*/, double& /*Yn*/, double& /*Zn*/) const
     { }
 };
+
+#include "generic_handle.h"
+typedef FakeOcc::GenericHandle<StlMesh_MeshTriangle> Handle_StlMesh_MeshTriangle;
 
 #endif // _StlMesh_MeshTriangle_HeaderFile

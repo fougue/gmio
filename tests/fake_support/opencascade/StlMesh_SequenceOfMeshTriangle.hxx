@@ -1,7 +1,7 @@
 #ifndef _StlMesh_SequenceOfMeshTriangle_HeaderFile
 #define _StlMesh_SequenceOfMeshTriangle_HeaderFile
 
-#include <Handle_StlMesh_MeshTriangle.hxx>
+#include <StlMesh_MeshTriangle.hxx>
 
 class StlMesh_SequenceOfMeshTriangle
 {

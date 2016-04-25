@@ -81,10 +81,11 @@ struct gmio_stl_occmesh_iterator
     explicit gmio_stl_occmesh_iterator(const StlMesh_Mesh* mesh);
     explicit gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh& hnd);
 
+    inline const StlMesh_Mesh* mesh() const;
+
     bool move_to_next_tri(uint32_t tri_id);
     inline const Handle_StlMesh_MeshTriangle& domain_tri(uint32_t tri_id) const;
     inline const TColgp_SequenceOfXYZ& domain_vertices() const;
-    inline const StlMesh_Mesh* mesh() const;
 
 private:
     void init(const StlMesh_Mesh* mesh);

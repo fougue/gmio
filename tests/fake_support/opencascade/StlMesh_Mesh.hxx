@@ -1,7 +1,6 @@
 #ifndef _StlMesh_Mesh_HeaderFile
 #define _StlMesh_Mesh_HeaderFile
 
-#include <Handle_StlMesh_Mesh.hxx>
 #include <StlMesh_SequenceOfMeshTriangle.hxx>
 #include <TColgp_SequenceOfXYZ.hxx>
 
@@ -11,8 +10,7 @@ public:
     StlMesh_Mesh()
     { }
 
-    virtual void AddDomain()
-    { }
+    virtual void AddDomain() { }
 
     virtual int AddTriangle(
             const int /*V1*/, const int /*V2*/, const int /*V3*/,
@@ -23,11 +21,9 @@ public:
             const double /*X*/, const double /*Y*/, const double /*Z*/)
     { return -1; }
 
-    virtual int NbTriangles(const int /*DomainIndex*/)  const
-    { return 0; }
+    virtual int NbTriangles(const int /*DomainIndex*/) const { return 0; }
 
-    virtual int NbDomains()  const
-    { return 0; }
+    virtual int NbDomains() const { return 0; }
 
     virtual const StlMesh_SequenceOfMeshTriangle& Triangles(
             const int /*DomainIndex = 1*/) const
@@ -43,5 +39,8 @@ public:
         return vertSeq;
     }
 };
+
+#include "generic_handle.h"
+typedef FakeOcc::GenericHandle<StlMesh_Mesh> Handle_StlMesh_Mesh;
 
 #endif // _StlMesh_Mesh_HeaderFile
