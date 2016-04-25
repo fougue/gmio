@@ -13,21 +13,100 @@
 ** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
 ****************************************************************************/
 
+#include <BRep_Tool.hxx>
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <IGESControl_Reader.hxx>
+#include <Message_ProgressIndicator.hxx>
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
-#include <StlMesh_Mesh.hxx>
 #include <Standard_Version.hxx>
+#include <StlAPI_Writer.hxx>
+#include <StlMesh_Mesh.hxx>
+#include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
+#include <TopoDS_Shape.hxx>
+#include <Transfer_TransientProcess.hxx>
+#include <XSControl_WorkSession.hxx>
 
 #include <gmio_core/error.h>
 #include <gmio_core/version.h>
 #include <gmio_stl/stl_io.h>
 #include <gmio_stl/stl_io_options.h>
+#include <gmio_support/stl_occ_brep.h>
 #include <gmio_support/stl_occ_mesh.h>
 
 #include "../commons/benchmark_tools.h"
 
+#include <cstring>
 #include <iostream>
 #include <vector>
+
+namespace BmkBRep {
+
+TopoDS_Shape inputShape;
+
+class ProgressIndicator : public Message_ProgressIndicator
+{
+public:
+    Standard_Boolean Show(const Standard_Boolean /*force*/) override
+    {
+        const Standard_Real pc = this->GetPosition(); // Always within [0,1]
+        const int val = 1 + pc * (100 - 1);
+        if (val > m_val) {
+            std::cout << val;
+            if (val < 100)
+                std::cout << "-";
+            else
+                std::cout << "%";
+            std::cout.flush();
+            m_val = val;
+        }
+        return Standard_True;
+    }
+
+    Standard_Boolean UserBreak() override
+    { return Standard_False; }
+
+private:
+    int m_val = 0;
+};
+
+template<typename READER>
+TopoDS_Shape loadShapeFromFile(
+        const char* fileName,
+        Handle_Message_ProgressIndicator indicator)
+{
+    TopoDS_Shape result;
+
+    if (!indicator.IsNull())
+        indicator->NewScope(30, "Loading file");
+    READER reader;
+    const int status = reader.ReadFile(const_cast<Standard_CString>(fileName));
+    if (!indicator.IsNull())
+        indicator->EndScope();
+    if (status == IFSelect_RetDone) {
+        if (!indicator.IsNull()) {
+            reader.WS()->MapReader()->SetProgress(indicator);
+            indicator->NewScope(70, "Translating file");
+        }
+        reader.NbRootsForTransfer();
+        reader.TransferRoots();
+        result = reader.OneShape();
+        if (!indicator.IsNull()) {
+            indicator->EndScope();
+            reader.WS()->MapReader()->SetProgress(NULL);
+        }
+    }
+    return result;
+}
+
+void readInputIgesShape(const char* filepath)
+{
+    Handle_Message_ProgressIndicator indicator = new ProgressIndicator;
+    inputShape = loadShapeFromFile<IGESControl_Reader>(filepath, indicator);
+}
+
+} // namespace BmkBRep
 
 namespace BmkOcc {
 
@@ -52,6 +131,26 @@ static void RWStl_WriteBinary(const void* filepath)
         std::cerr << "RWStl::WriteBinary() failure" << std::endl;
 }
 
+static void StlAPI_WriteAscii(const void* filepath)
+{
+    StlAPI_Writer writer;
+    writer.ASCIIMode() = Standard_True;
+    const char* cfilepath = static_cast<const char*>(filepath);
+    const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
+    if (err != StlAPI_StatusOK)
+        std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
+}
+
+static void StlAPI_WriteBinary(const void* filepath)
+{
+    StlAPI_Writer writer;
+    writer.ASCIIMode() = Standard_False;
+    const char* cfilepath = static_cast<const char*>(filepath);
+    const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
+    if (err != StlAPI_StatusOK)
+        std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
+}
+
 } // namespace BmkOcc
 
 namespace BmkGmio {
@@ -68,58 +167,120 @@ static void stl_read(const void* filepath)
         std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 }
 
-static void stl_write(const char* filepath, gmio_stl_format format)
+static void stl_write(
+        const char* filepath, gmio_stl_format format, const gmio_stl_mesh& mesh)
 {
     gmio_stl_write_options options = {};
-    options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
-    options.stla_float32_prec = 7;
-    gmio_stl_occmesh_iterator occ_itmesh(stlMesh);
-    const gmio_stl_mesh occmesh = gmio_stl_occmesh(occ_itmesh);
-    const int error = gmio_stl_write_file(format, filepath, &occmesh, &options);
+    //options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
+    options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
+    options.stla_float32_prec = 6;
+    const int error = gmio_stl_write_file(format, filepath, &mesh, &options);
     if (error != GMIO_ERROR_OK)
         std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 }
 
-static void stla_write(const void* filepath)
+static void stl_mesh_write(const char* filepath, gmio_stl_format format)
 {
-    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
+    const gmio_stl_occmesh_iterator occ_itmesh(stlMesh);
+    stl_write(filepath, format, gmio_stl_occmesh(occ_itmesh));
 }
 
-static void stlb_write_le(const void* filepath)
+static void stl_brep_write(const char* filepath, gmio_stl_format format)
 {
-    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
+    const gmio_stl_occshape_iterator occ_itshape(BmkBRep::inputShape);
+    stl_write(filepath, format, gmio_stl_occmesh(occ_itshape));
 }
 
-static void stlb_write_be(const void* filepath)
+static void stla_mesh_write(const void* filepath)
 {
-    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
+    stl_mesh_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
+}
+
+static void stlb_mesh_write_le(const void* filepath)
+{
+    stl_mesh_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
+}
+
+static void stlb_mesh_write_be(const void* filepath)
+{
+    stl_mesh_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
+}
+
+static void stla_brep_write(const void* filepath)
+{
+    stl_brep_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
+}
+
+static void stlb_brep_write_le(const void* filepath)
+{
+    stl_brep_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
+}
+
+static void stlb_brep_write_be(const void* filepath)
+{
+    stl_brep_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
 }
 
 } // namespace BmkGmio
 
 int main(int argc, char** argv)
 {
-    if (argc > 1) {
-        const char* filepath = argv[1];
+    const char* stl_filepath = nullptr;
+    const char* igs_filepath = nullptr;
+    int iarg = 1;
+    while (iarg < argc) {
+        if (std::strcmp(argv[iarg], "--iges") == 0)
+            igs_filepath = argv[++iarg];
+        else
+            stl_filepath = argv[iarg];
+        ++iarg;
+    }
+
+    if (stl_filepath != nullptr) {
         std::cout << std::endl
                   << "gmio v" << GMIO_VERSION_STR << std::endl
                   << "OpenCascade v" << OCC_VERSION_COMPLETE << std::endl
                   << std::endl
-                  << "Input file: " << filepath << std::endl;
+                  << "STL input file:  " << stl_filepath << std::endl;
+
+        if (igs_filepath != nullptr) {
+            std::cout << "IGES input file: " << igs_filepath << std::endl;
+            BmkBRep::readInputIgesShape(igs_filepath);
+            for (TopExp_Explorer topExp(BmkBRep::inputShape, TopAbs_FACE);
+                 topExp.More();
+                 topExp.Next())
+            {
+                const TopoDS_Face& face = TopoDS::Face(topExp.Current());
+                TopLoc_Location location;
+                const auto& poly = BRep_Tool::Triangulation(face, location);
+                if (poly.IsNull() || poly->Triangles().Length() <= 0)
+                    BRepMesh_IncrementalMesh(face, 0.01);
+            }
+            std::cout << std::endl << "Meshing done" << std::endl;
+        }
 
         /* Declare benchmarks */
         const benchmark_cmp_arg cmp_args[] = {
             { "read",
-              BmkGmio::stl_read, filepath,
-              BmkOcc::RWStl_ReadFile, filepath },
-            { "write(ascii)",
-              BmkGmio::stla_write, "__bmk_occ_gmio.stla",
-              BmkOcc::RWStl_WriteAscii, "__bmk_occ.stla" },
-            { "write(binary/le)",
-              BmkGmio::stlb_write_le, "__bmk_occ_gmio.stlb_le",
-              BmkOcc::RWStl_WriteBinary, "__bmk_occ.stlb_le" },
-            { "write(binary/be)",
-              BmkGmio::stlb_write_be, "__bmk_occ_gmio.stlb_be",
+              BmkGmio::stl_read, stl_filepath,
+              BmkOcc::RWStl_ReadFile, stl_filepath },
+            { "meshwrite(ascii)",
+              BmkGmio::stla_mesh_write, "__bmk_occ_gmio_mesh.stla",
+              BmkOcc::RWStl_WriteAscii, "__bmk_occ_mesh.stla" },
+            { "meshwrite(binary/le)",
+              BmkGmio::stlb_mesh_write_le, "__bmk_occ_gmio_mesh.stlb_le",
+              BmkOcc::RWStl_WriteBinary, "__bmk_occ_mesh.stlb_le" },
+            { "meshwrite(binary/be)",
+              BmkGmio::stlb_mesh_write_be, "__bmk_occ_gmio_mesh.stlb_be",
+              NULL, NULL },
+            { "brepwrite(ascii)",
+              BmkGmio::stla_brep_write, "__bmk_occ_gmio_brep.stla",
+              BmkOcc::StlAPI_WriteAscii, "__bmk_occ_brep.stla" },
+            { "brepwrite(binary/le)",
+              BmkGmio::stlb_brep_write_le, "__bmk_occ_gmio_brep.stlb_le",
+              BmkOcc::StlAPI_WriteBinary, "__bmk_occ_brep.stlb_le" },
+            { "brepwrite(binary/be)",
+              BmkGmio::stlb_brep_write_be, "__bmk_occ_gmio_brep.stlb_be",
               NULL, NULL },
             {}
         };

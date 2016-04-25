@@ -38,6 +38,7 @@ endfunction()
 add_executable(
     benchmark_opencascade
     main.cpp
+    ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_brep.cpp
     ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.cpp
     ${COMMONS_FILES})
 
@@ -77,8 +78,25 @@ find_library(
 find_library(
     LIB_OPENCASCADE_TKSTL TKSTL ${LIBDIR_OPENCASCADE}
     DOC "Path to the TKSTL import library")
+find_library(
+    LIB_OPENCASCADE_TKXSBASE TKXSBase ${LIBDIR_OPENCASCADE}
+    DOC "Path to the TKXSBase import library")
+find_library(
+    LIB_OPENCASCADE_TKIGES TKIGES ${LIBDIR_OPENCASCADE}
+    DOC "Path to the TKIGES import library")
+find_library(
+    LIB_OPENCASCADE_TKBREP TKBRep ${LIBDIR_OPENCASCADE}
+    DOC "Path to the TKBRep import library")
+find_library(
+    LIB_OPENCASCADE_TKMESH TKMesh ${LIBDIR_OPENCASCADE}
+    DOC "Path to the TKMesh import library")
+
 target_link_libraries(
     benchmark_opencascade
     ${LIB_OPENCASCADE_TKERNEL}
     ${LIB_OPENCASCADE_TKMATH}
-    ${LIB_OPENCASCADE_TKSTL})
+    ${LIB_OPENCASCADE_TKSTL}
+    ${LIB_OPENCASCADE_TKXSBASE}
+    ${LIB_OPENCASCADE_TKIGES}
+    ${LIB_OPENCASCADE_TKBREP}
+    ${LIB_OPENCASCADE_TKMESH})
