@@ -22,14 +22,55 @@
  *  \c gmioSupport is the bridge between \c gmio and other 3rd-party libraries
  *  (eg. OpenCascade, Qt, ...)\n
  *
- *                           STL
- *                     import | export
- *  StlMesh_Mesh       yes      yes
- *  MeshVS_DataSource  no       yes
- *  TopoDS_Shape       no       yes
+ *  <table> <caption>OpenCascade support</caption>
+ *    <tr>  <th></th> <th colspan="3">STL</th>  </tr>
+ *    <tr>  <td></td> <th>import</th> <th>export</th> <th>header</th>  </tr>
+ *    <tr>
+ *      <td>StlMesh_Mesh</td>
+ *      <td style="color:green">yes</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stl_occ_mesh.h</td>
+ *    </tr>
+ *    <tr>
+ *      <td>MeshVS_DataSource</td>
+ *      <td style="color:red">no</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stl_occ_meshvs.h</td>
+ *    </tr>
+ *    <tr>
+ *      <td>TopoDS_Shape</td>
+ *      <td style="color:red">no</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stl_occ_brep.h</td>
+ *    </tr>
+ *  </table>
  *
- *  Nonetheless, to avoid the \c gmio library being dependent of some other
- *  binaries, compilation of \c gmioSupport is left to the developer.\n
+ *  \n
+ *
+ *  <table> <caption>I/O stream support</caption>
+ *    <tr>  <th></th> <th>read</th> <th>write</th> <th>header</th>  </tr>
+ *    <tr>
+ *      <td>Qt QIODevice</td>
+ *      <td style="color:green">yes</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stream_qt.h</td>
+ *    </tr>
+ *    <tr>
+ *      <td>std::basic_istream<></td>
+ *      <td style="color:green">yes</td>
+ *      <td style="color:red">no</td>
+ *      <td>stream_cpp.h</td>
+ *    </tr>
+ *    <tr>
+ *      <td>std::basic_ostream<></td>
+ *      <td style="color:red">no</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stream_cpp.h</td>
+ *    </tr>
+ *  </table>
+ *
+ *  To avoid the dependency of \c gmio library on some other binaries,
+ *  compilation of \c gmioSupport is left to the developer.\n
  *  For example if Qt streams are needed then the target project must build
  *  somehow <tt>gmio_support/stream_qt.cpp</tt>\n
  *  All \c gmio_support source files are copied with install target (ie by doing
@@ -37,6 +78,24 @@
  *
  *  \addtogroup gmio_support
  *  @{
+ */
+
+/*
+ *  OpenCascade support :
+ *   |                   |       STL       |
+ *   |                   | import | export |
+ *   |-------------------|--------|--------|
+ *   | StlMesh_Mesh      |  yes   |  yes   |
+ *   | MeshVS_DataSource |  no    |  yes   |
+ *   | TopoDS_Shape      |  no    |  yes   |
+ *
+ *  I/O stream support :
+ *   |                      | read | write |
+ *   |----------------------|------|-------|
+ *   | Qt QIODevice         |  yes |  yes  |
+ *   | std::basic_istream<> |  yes |  no   |
+ *   | std::basic_ostream<> |  no  |  yes  |
+ *
  */
 
 #ifndef GMIO_SUPPORT_GLOBAL_H

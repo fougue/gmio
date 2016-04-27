@@ -27,7 +27,21 @@
 
 #include <stddef.h>
 
-/*! Basic memory block */
+/*! Basic memory block
+ *
+ *  gmio_memblock comes with convenient constructors that binds to
+ *  <tt><stdlib.h></tt> allocation functions, like gmio_memblock_malloc(), ...
+ *
+ *  Binding gmio_memblock to some statically-allocated memory is done through
+ *  gmio_memblock() :
+ *  \code{.c}
+ *      char buff[512] = {};
+ *      struct gmio_memblock blk =
+ *                  gmio_memblock(buff, GMIO_ARRAY_SIZE(buff), NULL);
+ *  \endcode
+ *
+ *  Any gmio_memblock object can be safely freed with gmio_memblock_deallocate()
+ */
 struct gmio_memblock
 {
     /*! Pointer to the beginning of the memory block */
@@ -37,7 +51,10 @@ struct gmio_memblock
     size_t size;
 
     /*! Optional pointer on a function that deallocates the memory block
-     *  beginning at \p ptr */
+     *  beginning at \p ptr
+     *
+     *  \sa gmio_memblock_deallocate()
+     */
     void (*func_deallocate)(void* ptr);
 };
 
@@ -53,13 +70,22 @@ GMIO_API bool gmio_memblock_isnull(const struct gmio_memblock* mblock);
 GMIO_API struct gmio_memblock gmio_memblock(
                 void* ptr, size_t size, void (*func_deallocate)(void*));
 
-/*! Returns a gmio_memblock object allocated with standard \c malloc() */
+/*! Returns a gmio_memblock object allocated with standard \c malloc()
+ *
+ *  gmio_memblock::func_deallocate is set to standard \c free()
+ */
 GMIO_API struct gmio_memblock gmio_memblock_malloc(size_t size);
 
-/*! Returns a gmio_memblock object allocated with standard \c calloc() */
+/*! Returns a gmio_memblock object allocated with standard \c calloc()
+ *
+ *  gmio_memblock::func_deallocate is set to standard \c free()
+ */
 GMIO_API struct gmio_memblock gmio_memblock_calloc(size_t num, size_t size);
 
-/*! Returns a gmio_memblock object allocated with standard \c realloc() */
+/*! Returns a gmio_memblock object allocated with standard \c realloc()
+ *
+ *  gmio_memblock::func_deallocate is set to standard \c free()
+ */
 GMIO_API struct gmio_memblock gmio_memblock_realloc(void* ptr, size_t size);
 
 /*! Safe and convenient call to gmio_memblock::func_deallocate() */
@@ -75,7 +101,7 @@ typedef struct gmio_memblock (*gmio_memblock_constructor_func_t)();
 /*! Installs a global function to construct gmio_memblock objects
  *
  *  The constructor function allocates a gmio_memblock object on demand, to be
- *  used when a temporary mblock is needed.
+ *  used when a temporary memblock is needed.
  *
  *  This function is not thread-safe.
  */

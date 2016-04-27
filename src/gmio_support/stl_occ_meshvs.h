@@ -61,7 +61,7 @@ gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_datasource_iterator& it);
 struct gmio_stl_occmesh_datasource_iterator
 {
     gmio_stl_occmesh_datasource_iterator();
-    explicit gmio_stl_occmesh_datasource_iterator(const MeshVS_DataSource* data_src);
+    explicit gmio_stl_occmesh_datasource_iterator(const MeshVS_DataSource* ds);
     explicit gmio_stl_occmesh_datasource_iterator(const Handle_MeshVS_DataSource& hnd);
 
     inline const MeshVS_DataSource* data_src() const { return m_data_src; }

@@ -15,10 +15,10 @@ C library for geometry input/output
 ===========================================
 
 gmio is a reusable C library providing complete I/O support for various CAD file
-formats (eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
+formats(eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
 
 gmio aims to be [fast](https://github.com/fougue/gmio/wiki/4.-Benchmarks),
-portable (C90 conformance) and feature-rich.
+portable(C90 conformance) and feature-rich.
 
 Main highlights:
 
@@ -32,25 +32,9 @@ Main highlights:
 Supported CAD files format
 ==========================
 
-Current version only supports the STL file format (STereoLithography), but
-support is complete :
-
-  * [x] ASCII format: Case-insensitive reading
-  * [x] ASCII format: Output format(%f, %e, ...) and precision of floats support
-  * [x] Binary format: Little/big endian support
-  * [x] Binary format: 80-byte header and facet "attribute byte count" support
-  * [x] Detection of the input format
-  * [x] Retrieval of infomations about contents(facet count, solid name, ...)
-  * [x] Multiple solids from stream(eg. 4 solids in STL ascii file)
-
-In addition, the STL module has the following advatanges:
-
-  * [x] The user keeps its own geometry data structures, no mesh conversion needed
-  * [x] Fixed memory consumption and independant of the mesh size
-  * [x] Seamless use of OpenCascade
-        [StlMesh_Mesh](http://dev.opencascade.org/doc/refman/html/class_stl_mesh___mesh.html)
-        and [MeshVS_DataSource](http://dev.opencascade.org/doc/refman/html/class_mesh_v_s___data_source.html)
-        in gmio
+Current version only supports the STL file format(STereoLithography) but
+support is complete, see module
+[gmio_stl](http://www.fougue.pro/docs/gmio/group__gmio__stl.html#details)
 
 
 Building gmio
@@ -102,4 +86,4 @@ as circulated by CEA, CNRS and INRIA
 Credits
 =======
 
-"gmio" logo rendered with Prism font (thanks to Erik Yin !)
+"gmio" logo rendered with Prism font(thanks to Erik Yin !)

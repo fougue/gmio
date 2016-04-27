@@ -36,6 +36,10 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! Reads STL mesh from stream, format is automatically guessed
  *
+ *  The user mesh is created sequentially by calling
+ *  gmio_stl_mesh_creator::func_add_triangle() with each triangle read from
+ *  the stream.
+ *
  *  It does nothing on the triangles read : no checking(eg. for Nan values),
  *  normals are given as they are.
  *

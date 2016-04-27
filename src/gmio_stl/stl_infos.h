@@ -93,7 +93,7 @@ enum gmio_stl_info_flag
 /*! Options of function gmio_stl_infos_get() */
 struct gmio_stl_infos_get_options
 {
-    /*! See gmio_core_readwrite_options::stream_memblock */
+    /*! See gmio_stl_read_options::stream_memblock */
     struct gmio_memblock stream_memblock;
 
     /*! Assume STL input format, if GMIO_STL_FORMAT_UNKNOWN then it is
