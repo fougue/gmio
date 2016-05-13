@@ -23,7 +23,7 @@
  *  \li ASCII format: Case-insensitive reading
  *  \li ASCII format: Support of output format(<tt>\%f</tt>, <tt>\%e</tt>, ...)
  *      and precision of floats
- *  \li Binary format: Support of little/big endian
+ *  \li Binary format: Support of little/big endianness
  *  \li Binary format: Support of 80-byte header and facet "attribute byte count"
  *  \li Support of multiple solids from stream(eg. 4 solids in STL ascii file)
  *  \li Detection of the input format

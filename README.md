@@ -32,8 +32,7 @@ Main highlights:
 Supported CAD files format
 ==========================
 
-Current version only supports the STL file format(STereoLithography) but
-support is complete, see module
+Current version only supports the STereoLithography format(STL), see module
 [gmio_stl](http://www.fougue.pro/docs/gmio/group__gmio__stl.html#details)
 
 

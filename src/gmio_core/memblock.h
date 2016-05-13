@@ -35,7 +35,7 @@
  *  Binding gmio_memblock to some statically-allocated memory is done through
  *  gmio_memblock() :
  *  \code{.c}
- *      char buff[512] = {};
+ *      char buff[512] = {0};
  *      struct gmio_memblock blk =
  *                  gmio_memblock(buff, GMIO_ARRAY_SIZE(buff), NULL);
  *  \endcode

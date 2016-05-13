@@ -17,8 +17,7 @@
 
 \section sup_cadf Supported CAD files format
 
-Current version only supports the STL file format(STereoLithography) but
-support is complete, see module \ref gmio_stl
+Current version only supports the STereoLithography format(STL), see module \ref gmio_stl
 
 \section build Building gmio
 

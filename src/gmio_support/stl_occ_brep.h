@@ -16,6 +16,15 @@
 /*! \file stl_occ_brep.h
  *  STL support of OpenCascade's TopoDS_Shape
  *
+ *  To use this header the source file
+ *      <tt>$INSTALL/src/gmio_support/stl_occ_brep.cpp</tt>\n
+ *  needs to be built in the target project(\c $INSTALL is the root directory
+ *  where is installed gmio)
+ *
+ *  Of course this requires the includepath and libpath to point to OpenCascade,
+ *  the import libraries likely needed are:\n
+ *      <tt>TKernel TKMath TKBRep</tt>
+ *
  *  \addtogroup gmio_support
  *  @{
  */
@@ -40,7 +49,7 @@ struct gmio_stl_occshape_iterator;
 /*! Returns a gmio_stl_mesh mapped to the OpenCascade mesh in iterator \p it
  *
  *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
- *  object must be at least as longer as the returned gmio_stl_mesh.
+ *  object must be at least as long as the returned gmio_stl_mesh.
  *
  *  Example of use:
  *  \code{.cpp}
