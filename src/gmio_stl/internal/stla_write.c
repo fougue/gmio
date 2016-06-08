@@ -28,6 +28,13 @@
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
+#if GMIO_FLOAT2STR_LIB == GMIO_FLOAT2STR_LIB_DOUBLE_CONVERSION
+#  include "../../gmio_core/internal/google_doubleconversion.h"
+#  define gmio_write_coords gmio_write_coords_gdc
+#else
+#  define gmio_write_coords gmio_write_coords_printf
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
@@ -60,6 +67,12 @@ enum {
 GMIO_INLINE char* gmio_write_eol(char* buffer)
 {
     *buffer = '\n';
+    return buffer + 1;
+}
+
+GMIO_INLINE char* gmio_write_char(char* buffer, char c)
+{
+    *buffer = c;
     return buffer + 1;
 }
 
@@ -116,14 +129,42 @@ GMIO_INLINE char* gmio_write_stdio_format(
     return buffer + 3 + prec_len;
 }
 
-GMIO_INLINE char* gmio_write_coords(
+struct gmio_vec3f_text_format
+{
+    enum gmio_float_text_format coord_format;
+    uint8_t coord_prec;
+    char str_printf_format[32]; /* printf-like format for XYZ coords */
+};
+
+GMIO_INLINE char* gmio_write_coords_printf(
         char* buffer,
-        const char* coords_format,
+        const struct gmio_vec3f_text_format* format,
         const struct gmio_vec3f* coords)
 {
     return buffer + sprintf(buffer,
-                            coords_format, coords->x, coords->y, coords->z);
+                            format->str_printf_format,
+                            coords->x, coords->y, coords->z);
 }
+
+#if GMIO_FLOAT2STR_LIB == GMIO_FLOAT2STR_LIB_DOUBLE_CONVERSION
+GMIO_INLINE char* gmio_write_coords_gdc(
+        char* buffer,
+        const struct gmio_vec3f_text_format* format,
+        const struct gmio_vec3f* coords)
+{
+    const enum gmio_float_text_format coord_format = format->coord_format;
+    const uint8_t coord_prec = format->coord_prec;
+    buffer += gmio_float2str_googledoubleconversion(
+                coords->x, buffer, 32, coord_format, coord_prec);
+    buffer = gmio_write_char(buffer, ' ');
+    buffer += gmio_float2str_googledoubleconversion(
+                coords->y, buffer, 32, coord_format, coord_prec);
+    buffer = gmio_write_char(buffer, ' ');
+    buffer += gmio_float2str_googledoubleconversion(
+                coords->z, buffer, 32, coord_format, coord_prec);
+    return buffer;
+}
+#endif /* GMIO_FLOAT2STR_LIB_DOUBLE_CONVERSION */
 
 GMIO_INLINE bool gmio_stream_flush_buffer(
         struct gmio_stream* stream, char* buffer, const char* buffer_offset)
@@ -148,12 +189,6 @@ int gmio_stla_write(
             gmio_size_to_uint32(mblock_size / GMIO_STLA_FACET_SIZE_P2);
     const char* opt_solid_name = opts != NULL ? opts->stla_solid_name : NULL;
     const char* solid_name = opt_solid_name != NULL ? opt_solid_name : "";
-    const enum gmio_float_text_format f32_format =
-            opts != NULL ?
-                opts->stla_float32_format :
-                GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-    const uint8_t opt_f32_prec = opts != NULL ? opts->stla_float32_prec : 9;
-    const uint8_t f32_prec = opt_f32_prec != 0 ? opt_f32_prec : 9;
     const bool write_triangles_only =
             opts != NULL ? opts->stl_write_triangles_only : false;
 
@@ -161,28 +196,41 @@ int gmio_stla_write(
     struct gmio_memblock* const mblock = &mblock_helper.memblock;
     void* const mblock_ptr = mblock->ptr;
     uint32_t ifacet = 0; /* for-loop counter on facets */
-    char coords_format_str[64] = {0}; /* printf-like format for XYZ coords */
     int error = GMIO_ERROR_OK;
+    struct gmio_vec3f_text_format vec_txtformat = {0};
+
+    /* Initialize helper data for text formatting of vec3f coords */
+    {
+        const uint8_t opt_f32_prec =
+                opts != NULL ? opts->stla_float32_prec : 9;
+        const enum gmio_float_text_format f32_format =
+                opts != NULL ?
+                    opts->stla_float32_format :
+                    GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
+        vec_txtformat.coord_prec = opt_f32_prec != 0 ? opt_f32_prec : 9;
+        vec_txtformat.coord_format = f32_format;
+
+        /* Create XYZ coords format string (for normal and vertex coords) */
+        {
+            const uint8_t f32_prec = vec_txtformat.coord_prec;
+            const char f32_spec = gmio_float_text_format_to_specifier(f32_format);
+            char* buffpos = vec_txtformat.str_printf_format;
+            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+            buffpos = gmio_write_char(buffpos, ' ');
+            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+            buffpos = gmio_write_char(buffpos, ' ');
+            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+            *buffpos = 0;
+        }
+    }
 
     /* Check validity of input parameters */
     if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
         goto label_end;
     if (!gmio_stl_check_mesh(&error, mesh))
         goto label_end;
-    if (!gmio_stla_check_float32_precision(&error, f32_prec))
+    if (!gmio_stla_check_float32_precision(&error, vec_txtformat.coord_prec))
         goto label_end;
-
-    /* Create XYZ coords format string (for normal and vertex coords) */
-    {
-        const char f32_spec = gmio_float_text_format_to_specifier(f32_format);
-        char* buffpos = coords_format_str;
-        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-        buffpos = gmio_write_rawstr(buffpos, " ");
-        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-        buffpos = gmio_write_rawstr(buffpos, " ");
-        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-        *buffpos = 0;
-    }
 
     /* Write solid declaration */
     if (!write_triangles_only) {
@@ -216,15 +264,15 @@ int gmio_stla_write(
             mesh->func_get_triangle(mesh->cookie, ibuffer_facet, &tri);
 
             buffpos = gmio_write_rawstr(buffpos, "facet normal ");
-            buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.n);
+            buffpos = gmio_write_coords(buffpos, &vec_txtformat, &tri.n);
 
             buffpos = gmio_write_rawstr(buffpos, "\nouter loop");
             buffpos = gmio_write_rawstr(buffpos, "\n vertex ");
-            buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.v1);
+            buffpos = gmio_write_coords(buffpos, &vec_txtformat, &tri.v1);
             buffpos = gmio_write_rawstr(buffpos, "\n vertex ");
-            buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.v2);
+            buffpos = gmio_write_coords(buffpos, &vec_txtformat, &tri.v2);
             buffpos = gmio_write_rawstr(buffpos, "\n vertex ");
-            buffpos = gmio_write_coords(buffpos, coords_format_str, &tri.v3);
+            buffpos = gmio_write_coords(buffpos, &vec_txtformat, &tri.v3);
             buffpos = gmio_write_rawstr(buffpos, "\nendloop");
 
             buffpos = gmio_write_rawstr(buffpos, "\nendfacet\n");

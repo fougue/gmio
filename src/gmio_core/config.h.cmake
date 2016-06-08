@@ -47,6 +47,9 @@
 #cmakedefine GMIO_HAVE_VSNPRINTF_FUNC
 #cmakedefine GMIO_HAVE_WIN__VSNPRINTF_FUNC
 
+#cmakedefine GMIO_HAVE_ISFINITE_MACRO
+#cmakedefine GMIO_HAVE_ISNAN_MACRO
+
 /* POSIX */
 #cmakedefine GMIO_HAVE_SYS_TYPES_H
 #cmakedefine GMIO_HAVE_SYS_STAT_H
@@ -75,11 +78,16 @@
 #  define GMIO_TARGET_ARCH_BIT_SIZE  @GMIO_TARGET_ARCH_BIT_SIZE@
 #endif
 
-/* Header: gmio_core/internal/stringstream.h */
-#ifndef GMIO_STRINGSTREAM_USE_FAST_ATOF
-/* Use fast_atof() instead of std string-to-float functions(eg strtod()) */
-#  define GMIO_STRINGSTREAM_USE_FAST_ATOF
-#endif
+/* Select the string-to-float library to be used */
+#define GMIO_STR2FLOAT_LIB_STD 0
+#define GMIO_STR2FLOAT_LIB_IRRLICHT 1
+#define GMIO_STR2FLOAT_LIB_DOUBLE_CONVERSION 2
+#define GMIO_STR2FLOAT_LIB @GMIO_STR2FLOAT_LIBCODE@
+
+/* Select the float-to-string library to be used */
+#define GMIO_FLOAT2STR_LIB_STD 0
+#define GMIO_FLOAT2STR_LIB_DOUBLE_CONVERSION 2
+#define GMIO_FLOAT2STR_LIB @GMIO_FLOAT2STR_LIBCODE@
 
 /* Header: gmio_core/internal/string_ascii_utils.h */
 /*#define GMIO_STRING_ASCII_UTILS_CTYPE_H*/

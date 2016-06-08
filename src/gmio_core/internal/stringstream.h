@@ -132,9 +132,11 @@ GMIO_INLINE float gmio_to_float32(const char* str);
 #include "c99_stdlib_compat.h"
 #include "helper_stream.h"
 #include "string_ascii_utils.h"
-#ifdef GMIO_STRINGSTREAM_USE_FAST_ATOF
+#if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_IRRLICHT
 #  include "fast_atof.h"
 #  include "stringstream_fast_atof.h"
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_DOUBLE_CONVERSION
+#  include "google_doubleconversion.h"
 #endif
 
 #include <errno.h>
@@ -203,34 +205,50 @@ void gmio_stringstream_copy_ascii_spaces(
 
 int gmio_get_float32(const char* str, float* value_ptr)
 {
-#if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
-    const char* end_ptr = NULL;
-    *value_ptr = fast_strtof(str, &end_ptr);
-#else
+#if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_STD
     char* end_ptr = NULL;
     *value_ptr = gmio_strtof(str, &end_ptr);
-#endif
     return (end_ptr == str || errno == ERANGE) ? -1 : 0;
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_IRRLICHT
+    const char* end_ptr = NULL;
+    *value_ptr = fast_strtof(str, &end_ptr);
+    return end_ptr == str ? -1 : 0;
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_DOUBLE_CONVERSION
+    size_t len = 0;
+    while (gmio_ascii_isspace(*str) && *str != '\0')
+        ++str;
+    while (!gmio_ascii_isspace(*(str + len)) && *(str + len) != '\0')
+        ++len;
+    *value_ptr = gmio_str2float_googledoubleconversion(str, len);
+    return 0;
+#endif
 }
 
 float gmio_to_float32(const char* str)
 {
-#if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
-    return fast_atof(str);
-#else
+#if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_STD
     return gmio_strtof(str, NULL);
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_IRRLICHT
+    return fast_atof(str);
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_DOUBLE_CONVERSION
+    return gmio_str2float_googledoubleconversion(str, strlen(str));
 #endif
 }
 
 float gmio_stringstream_parse_float32(struct gmio_stringstream* sstream)
 {
-#if defined(GMIO_STRINGSTREAM_USE_FAST_ATOF)
-    return gmio_stringstream_fast_atof(sstream);
-#else
-    char strbuff_ptr[64];
-    struct gmio_string strbuff = { strbuff_ptr, 0, sizeof(strbuff_ptr) };
-    gmio_stringstream_eat_word(sstream, &strbuff);
+#if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_STD
+    char num[32];
+    struct gmio_string strnum = { num, 0, sizeof(num) };
+    gmio_stringstream_eat_word(sstream, &strnum);
     return (float)atof(strbuff_ptr);
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_IRRLICHT
+    return gmio_stringstream_fast_atof(sstream);
+#elif GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_DOUBLE_CONVERSION
+    char num[32];
+    struct gmio_string strnum = gmio_string(num, 0, sizeof(num));
+    gmio_stringstream_eat_word(sstream, &strnum);
+    return gmio_str2float_googledoubleconversion(num, strnum.len);
 #endif
 }
 

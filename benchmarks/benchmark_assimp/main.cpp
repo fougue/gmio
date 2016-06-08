@@ -299,9 +299,9 @@ static void stl_write(const char* filepath, gmio_stl_format format)
     mesh.func_get_triangle = get_triangle;
 
     gmio_stl_write_options opts = {};
-    opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
+    opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
     opts.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(format, filepath, &mesh, NULL);
+    const int error = gmio_stl_write_file(format, filepath, &mesh, &opts);
     if (error != GMIO_ERROR_OK)
         std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
 }

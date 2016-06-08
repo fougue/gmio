@@ -36,4 +36,18 @@ GMIO_INLINE float gmio_sqrtf(float x)
 { return (float)sqrt((double)x); }
 #endif
 
+#ifdef GMIO_HAVE_ISFINITE_MACRO
+#  define gmio_isfinite(x) isfinite(x)
+#else
+/* No isfinite() macro*/
+#  define gmio_isfinite(x) (((x) != NAN) && ((x) != INFINITY))
+#endif
+
+#ifdef GMIO_HAVE_ISNAN_MACRO
+#  define gmio_isnan(x) isnan(x)
+#else
+/* No isnan() macro*/
+#  define gmio_isnan(x) ((x) == NAN)
+#endif
+
 #endif /* GMIO_INTERNAL_C99_MATH_COMPAT_H */

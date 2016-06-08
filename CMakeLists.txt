@@ -17,6 +17,7 @@ cmake_minimum_required(VERSION 2.8)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
+include(CheckSymbolExists)
 include(CheckCSourceCompiles)
 include(CheckTypeSize)
 include(CMakeDependentOption)
@@ -59,6 +60,44 @@ option(GMIO_BUILD_EXAMPLES  "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
+endif()
+
+# Declare variable GMIO_STR2FLOAT_LIB(library for string-to-float conversion)
+#     - std:
+#           C standard library functions(eg strtod())
+#     - irrlich_fast_atof:
+#           fast_atof() function of Irrlicht project
+#     - google_doubleconversion:
+#           Google's doubleconversion functions, note that this implies C++
+#    fastness: std < google_doubleconversion < irrlicht_fast_atof
+#    robustness: irrlicht_fast_atof < google_doubleconversion <= std
+set(GMIO_STR2FLOAT_LIB "irrlicht_fast_atof" CACHE STRING "String->float library to use")
+set_property(CACHE GMIO_STR2FLOAT_LIB
+                   PROPERTY STRINGS std irrlicht_fast_atof google_doubleconversion)
+
+if(GMIO_STR2FLOAT_LIB MATCHES "std")
+    set(GMIO_STR2FLOAT_LIBCODE 0)
+elseif(GMIO_STR2FLOAT_LIB MATCHES "irrlicht_fast_atof")
+    set(GMIO_STR2FLOAT_LIBCODE 1)
+elseif(GMIO_STR2FLOAT_LIB MATCHES "google_doubleconversion")
+    set(GMIO_STR2FLOAT_LIBCODE 2)
+endif()
+
+# Declare variable GMIO_FLOAT2STR_LIB(library for float-to-string conversion)
+#     - std:
+#           C standard library functions(eg snprintf())
+#     - google_doubleconversion:
+#           Google's doubleconversion functions, note that this implies C++
+#    fastness: std < google_doubleconversion
+#    robustness: google_doubleconversion <= std
+set(GMIO_FLOAT2STR_LIB "std" CACHE STRING "Float->string library to use")
+set_property(CACHE GMIO_FLOAT2STR_LIB
+                   PROPERTY STRINGS std google_doubleconversion)
+
+if(GMIO_FLOAT2STR_LIB MATCHES "std")
+    set(GMIO_FLOAT2STR_LIBCODE 0)
+elseif(GMIO_FLOAT2STR_LIB MATCHES "google_doubleconversion")
+    set(GMIO_FLOAT2STR_LIBCODE 2)
 endif()
 
 # Find bit size of the target architecture
@@ -115,13 +154,14 @@ endif()
 
 # Check C99 features
 if(NOT GMIO_BUILD_STRICT_C90)
-    check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
-
     if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
     endif()
     check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
     check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
+    check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
+    check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_MACRO)
+    check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_MACRO)
     set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
 
     check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
@@ -193,7 +233,7 @@ if(GMIO_HAVE_SYS_STAT_H
     message(WARNING "<sys/stat.h> does not provide 64b variant of fstat(), you may encounter problems with files > 2GB")
 endif()
 
-# Have compiler-intrisics bytes wap functions ?
+# Have compiler-intrisics byte swap functions ?
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
     # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
@@ -290,6 +330,8 @@ if(GMIO_BUILD_EXAMPLES)
 endif()
 
 message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
+message(STATUS "GMIO_STR2FLOAT_LIBCODE = ${GMIO_STR2FLOAT_LIBCODE}(${GMIO_STR2FLOAT_LIB})")
+message(STATUS "GMIO_FLOAT2STR_LIBCODE = ${GMIO_FLOAT2STR_LIBCODE}(${GMIO_FLOAT2STR_LIB})")
 
 # Examples:
 #   cmake -DCMAKE_INSTALL_PREFIX=gcc-linux64 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEBUG_POSTFIX=_d

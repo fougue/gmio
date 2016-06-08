@@ -22,7 +22,10 @@ endif()
 
 # Add core source files
 file(GLOB  GMIO_SRC_FILES  gmio_core/*  gmio_core/internal/*)
-set(GMIO_SRC_FILES  ${GMIO_SRC_FILES})
+if(GMIO_STR2FLOAT_LIBCODE EQUAL 2 OR GMIO_FLOAT2STR_LIBCODE EQUAL 2)
+    file(GLOB  GMIO_3RDPARTY_FILES  3rdparty/double-conversion/*)
+endif()
+set(GMIO_SRC_FILES  ${GMIO_SRC_FILES} ${GMIO_3RDPARTY_FILES})
 
 configure_file(gmio_core/version.h.cmake gmio_core/version.h @ONLY)
 configure_file(gmio_core/config.h.cmake gmio_core/config.h @ONLY)
