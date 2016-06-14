@@ -18,64 +18,80 @@
 #include "stl_occ_utils.h"
 
 #include <BRep_Tool.hxx>
+#include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
 
-gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator& it)
+gmio_stl_mesh_occshape::gmio_stl_mesh_occshape()
+    : m_shape(NULL)
 {
-    gmio_stl_mesh mesh = {};
-    mesh.cookie = &it;
+    this->init_C_members();
+}
 
-    if (it.shape() != NULL) {
+gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
+    : m_shape(&shape)
+{
+    this->init_C_members();
+
+    // Count facets and triangles
+    std::size_t face_count = 0;
+    for (TopExp_Explorer expl(shape, TopAbs_FACE); expl.More(); expl.Next()) {
         TopLoc_Location loc;
-        const TopoDS_Shape& sh = *it.shape();
-        for (TopExp_Explorer expl(sh, TopAbs_FACE); expl.More(); expl.Next()) {
-            const Handle_Poly_Triangulation& poly =
-                    BRep_Tool::Triangulation(TopoDS::Face(expl.Current()), loc);
-            if (!poly.IsNull())
-                mesh.triangle_count += poly->NbTriangles();
+        const Handle_Poly_Triangulation& hnd_face_poly =
+                BRep_Tool::Triangulation(TopoDS::Face(expl.Current()), loc);
+        if (!hnd_face_poly.IsNull()) {
+            ++face_count;
+            this->triangle_count += hnd_face_poly->NbTriangles();
         }
     }
 
-    //mesh.func_get_triangle = internal::occshape_get_triangle;
-    mesh.func_get_triangle = &gmio_stl_occshape_iterator::get_triangle;
-    return mesh;
-}
-
-
-gmio_stl_occshape_iterator::gmio_stl_occshape_iterator()
-    : m_shape(NULL)
-{
-    this->reset_face();
-}
-
-gmio_stl_occshape_iterator::gmio_stl_occshape_iterator(const TopoDS_Shape& shape)
-    : m_shape(&shape),
-      m_expl(shape, TopAbs_FACE)
-{
-    if (m_expl.More()) {
-        this->cache_face(TopoDS::Face(m_expl.Current()));
+    // Fill face and triangle datas
+    m_vec_face_data.reserve(face_count);
+    m_vec_triangle_data.reserve(this->triangle_count);
+    for (TopExp_Explorer expl(shape, TopAbs_FACE); expl.More(); expl.Next()) {
+        const TopoDS_Face& topoface = TopoDS::Face(expl.Current());
+        TopLoc_Location loc;
+        const Handle_Poly_Triangulation& hnd_face_poly =
+                BRep_Tool::Triangulation(topoface, loc);
+        if (!hnd_face_poly.IsNull()) {
+            {   // Add next face_data
+                struct face_data facedata;
+                facedata.trsf = loc.Transformation();
+                facedata.is_reversed = (topoface.Orientation() == TopAbs_REVERSED);
+                if (facedata.trsf.IsNegative())
+                    facedata.is_reversed = !facedata.is_reversed;
+                facedata.ptr_nodes = &hnd_face_poly->Nodes();
+                m_vec_face_data.push_back(std::move(facedata));
+            }
+            const struct face_data& last_facedata = m_vec_face_data.back();
+            // Add triangle_datas
+            const Poly_Array1OfTriangle& vec_face_tri = hnd_face_poly->Triangles();
+            for (int i = vec_face_tri.Lower(); i <= vec_face_tri.Upper(); ++i) {
+                struct triangle_data tridata;
+                tridata.ptr_triangle = &vec_face_tri.Value(i);
+                tridata.ptr_face_data = &last_facedata;
+                m_vec_triangle_data.push_back(std::move(tridata));
+            }
+        }
     }
-    else {
-        this->reset_face();
-    }
 }
 
-void gmio_stl_occshape_iterator::get_triangle(
-        const void *cookie, uint32_t /*tri_id*/, gmio_stl_triangle *tri)
+// static
+void gmio_stl_mesh_occshape::get_triangle(
+        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
 {
-    void* wcookie = const_cast<void*>(cookie);
-    gmio_stl_occshape_iterator* it =
-            static_cast<gmio_stl_occshape_iterator*>(wcookie);
+    const gmio_stl_mesh_occshape* it =
+            static_cast<const gmio_stl_mesh_occshape*>(cookie);
 
-    const bool reversed = it->m_face_is_reversed;
-    const gp_Trsf& trsf = it->m_face_trsf;
-    const TColgp_Array1OfPnt* nodes = it->m_face_nodes;
+    const struct triangle_data* tridata = &it->m_vec_triangle_data.at(tri_id);
+    const struct face_data* facedata = tridata->ptr_face_data;
+    const bool reversed = facedata->is_reversed;
+    const gp_Trsf& trsf = facedata->trsf;
+    const TColgp_Array1OfPnt* nodes = facedata->ptr_nodes;
     int n1, n2, n3; // Node index
-    const Poly_Triangle& curr_tri =
-            it->m_face_triangles->Value(it->m_face_tri_id);
-    curr_tri.Get(n1, n2, n3);
+    const Poly_Triangle* occtri = tridata->ptr_triangle;
+    occtri->Get(n1, n2, n3);
     gp_Pnt p1 = nodes->Value(n1);
     gp_Pnt p2 = nodes->Value(reversed ? n3 : n2);
     gp_Pnt p3 = nodes->Value(reversed ? n2 : n3);
@@ -88,52 +104,11 @@ void gmio_stl_occshape_iterator::get_triangle(
     gmio_stl_occ_copy_xyz(&tri->v2, p2.XYZ());
     gmio_stl_occ_copy_xyz(&tri->v3, p3.XYZ());
     gmio_stl_triangle_compute_normal(tri);
-    it->move_to_next_tri();
 }
 
-bool gmio_stl_occshape_iterator::move_to_next_tri()
+void gmio_stl_mesh_occshape::init_C_members()
 {
-    ++m_face_tri_id;
-    if (m_face_tri_id > m_face_last_tri_id) {
-        m_expl.Next();
-        if (m_expl.More()) {
-            this->cache_face(TopoDS::Face(m_expl.Current()));
-            return true;
-        }
-        return false;
-    }
-    return true;
-}
-
-void gmio_stl_occshape_iterator::reset_face()
-{
-    m_face_poly = NULL;
-    m_face_nodes = NULL;
-    m_face_triangles = NULL;
-    if (m_face_trsf.Form() != gp_Identity)
-        m_face_trsf = gp_Trsf();
-    m_face_is_reversed = false;
-    m_face_tri_id = 0;
-    m_face_last_tri_id = 0;
-}
-
-void gmio_stl_occshape_iterator::cache_face(const TopoDS_Face& face)
-{
-    TopLoc_Location loc;
-    const Handle_Poly_Triangulation& hnd_face_poly =
-            BRep_Tool::Triangulation(face, loc);
-    m_face_trsf = loc.Transformation();
-    m_face_poly =
-            !hnd_face_poly.IsNull() ? hnd_face_poly.operator->() : NULL;
-    m_face_nodes =
-            m_face_poly != NULL ? &m_face_poly->Nodes() : NULL;
-    m_face_triangles =
-            m_face_poly != NULL ? &m_face_poly->Triangles() : NULL;
-    m_face_is_reversed = face.Orientation() == TopAbs_REVERSED;
-    if (m_face_trsf.IsNegative())
-        m_face_is_reversed = !m_face_is_reversed;
-    m_face_tri_id =
-            m_face_triangles != NULL ? m_face_triangles->Lower() : -1;
-    m_face_last_tri_id =
-            m_face_triangles != NULL ? m_face_triangles->Upper() : -1;
+    this->cookie = this;
+    this->func_get_triangle = &gmio_stl_mesh_occshape::get_triangle;
+    this->triangle_count = 0;
 }

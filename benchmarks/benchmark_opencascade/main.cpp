@@ -181,14 +181,14 @@ static void stl_write(
 
 static void stl_mesh_write(const char* filepath, gmio_stl_format format)
 {
-    const gmio_stl_occmesh_iterator occ_itmesh(stlMesh);
-    stl_write(filepath, format, gmio_stl_occmesh(occ_itmesh));
+    const gmio_stl_mesh_occmesh mesh(stlMesh);
+    stl_write(filepath, format, mesh);
 }
 
 static void stl_brep_write(const char* filepath, gmio_stl_format format)
 {
-    const gmio_stl_occshape_iterator occ_itshape(BmkBRep::inputShape);
-    stl_write(filepath, format, gmio_stl_occmesh(occ_itshape));
+    const gmio_stl_mesh_occshape mesh(BmkBRep::inputShape);
+    stl_write(filepath, format, mesh);
 }
 
 static void stla_mesh_write(const void* filepath)

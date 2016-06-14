@@ -26,9 +26,7 @@ int main(int argc, char** argv)
         Handle_StlMesh_Mesh occmesh = new StlMesh_Mesh;
         // Initialize the OpenCascade StlMesh_Mesh here
         // ...
-
-        const gmio_stl_occmesh_iterator occmesh_it(occmesh);
-        const gmio_stl_mesh mesh = gmio_stl_occmesh(occmesh_it);
+        const gmio_stl_mesh_occmesh mesh(occmesh);
 
         // Write binary STL(little-endian), using default options(NULL)
         error = gmio_stl_write_file(

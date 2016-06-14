@@ -39,51 +39,42 @@
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
 
+#include <vector>
+
 #include <MeshVS_DataSource.hxx>
 #include <TColStd_Array1OfReal.hxx>
-#include <TColStd_MapIteratorOfPackedMapOfInteger.hxx>
 
-struct gmio_stl_occmesh_datasource_iterator;
-
-/*! Returns a gmio_stl_mesh mapped to the OpenCascade mesh data-source in
- *  iterator \p it
+/*! Provides access to all the triangles of OpenCascade's \c MeshVS_DataSource
  *
- *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
- *  object must be at least as long as the returned gmio_stl_mesh.
+ *  gmio_stl_mesh_occmeshvs iterates efficiently over the elements of a
+ *  \c MeshVS_DataSource object.\n
+ *  Each element should be of type \c MeshVS_ET_Face and made of 3 nodes.
  *
  *  Example of use:
  *  \code{.cpp}
- *      Handle_MeshVS_Mesh mesh = ...;
- *      const gmio_stl_occmesh_datasource_iterator it(mesh->GetDataSource());
- *      const gmio_stl_mesh mesh = gmio_stl_occmesh(it);
+ *      Handle_MeshVS_Mesh occmeshvs = ...;
+ *      const gmio_stl_mesh_occmeshvs mesh(occmeshvs);
  *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
  *  \endcode
  */
-gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_datasource_iterator& it);
-
-/*! Forward iterator over the triangles of OpenCascade's MeshVS_DataSource
- *
- *  It is used to iterate efficiently over the elements of a MeshVS_DataSource
- *  object.\n
- *  Each element should be of type MeshVS_ET_Face and made of 3 nodes.
- */
-struct gmio_stl_occmesh_datasource_iterator
+struct gmio_stl_mesh_occmeshvs : public gmio_stl_mesh
 {
-    gmio_stl_occmesh_datasource_iterator();
-    explicit gmio_stl_occmesh_datasource_iterator(const MeshVS_DataSource* ds);
-    explicit gmio_stl_occmesh_datasource_iterator(const Handle_MeshVS_DataSource& hnd);
+    gmio_stl_mesh_occmeshvs();
+    explicit gmio_stl_mesh_occmeshvs(const MeshVS_DataSource* ds);
+    explicit gmio_stl_mesh_occmeshvs(const Handle_MeshVS_DataSource& hnd);
 
     inline const MeshVS_DataSource* data_src() const { return m_data_src; }
 
 private:
-    friend gmio_stl_mesh gmio_stl_occmesh(
-            const gmio_stl_occmesh_datasource_iterator&);
     static void get_triangle(
             const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
 
+    void init_C_members();
+    void init_cache();
+
     const MeshVS_DataSource* m_data_src;
-    TColStd_MapIteratorOfPackedMapOfInteger m_element_it;
-    TColStd_Array1OfReal m_element_coords;
+    std::vector<int> m_vec_element_key;
+    mutable TColStd_Array1OfReal m_element_coords;
 };
 
 #endif /* GMIO_SUPPORT_STL_OCC_MESHVS_H */

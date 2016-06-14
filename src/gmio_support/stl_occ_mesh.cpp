@@ -25,13 +25,6 @@
 
 namespace internal {
 
-/* Common */
-
-static StlMesh_Mesh* occMeshPtr(const Handle_StlMesh_Mesh& mesh)
-{
-    return mesh.operator->();
-}
-
 static void occmesh_add_triangle(
         void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri)
 {
@@ -50,17 +43,6 @@ static void occmesh_add_triangle(
 
 } // namespace internal
 
-gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it)
-{
-    gmio_stl_mesh mesh = {};
-    mesh.cookie = &it;
-    const int domain_count = it.mesh() != NULL ? it.mesh()->NbDomains() : 0;
-    for (int dom_id = 1; dom_id <= domain_count; ++dom_id)
-        mesh.triangle_count += it.mesh()->NbTriangles(dom_id);
-    mesh.func_get_triangle = gmio_stl_occmesh_iterator::get_triangle;
-    return mesh;
-}
-
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
 {
     gmio_stl_mesh_creator creator = {};
@@ -71,82 +53,96 @@ gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh)
 
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh &hnd)
 {
-    return gmio_stl_occmesh_creator(internal::occMeshPtr(hnd));
+    return gmio_stl_occmesh_creator(hnd.operator->());
 }
 
-gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator()
+gmio_stl_mesh_occmesh::gmio_stl_mesh_occmesh()
+    : m_mesh(NULL),
+      m_mesh_domain_count(0),
+      m_seq_triangle(NULL),
+      m_seq_vertex(NULL)
 {
-    this->init(NULL);
+    this->init_C_members();
 }
 
-gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator(const StlMesh_Mesh *mesh)
+gmio_stl_mesh_occmesh::gmio_stl_mesh_occmesh(const StlMesh_Mesh *mesh)
+    : m_mesh(mesh)
 {
-    this->init(mesh);
+    this->init_C_members();
+    this->init_cache();
 }
 
-gmio_stl_occmesh_iterator::gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh &hnd)
+gmio_stl_mesh_occmesh::gmio_stl_mesh_occmesh(const Handle_StlMesh_Mesh &hnd)
+    : m_mesh(hnd.operator->())
 {
-    this->init(internal::occMeshPtr(hnd));
+    this->init_C_members();
+    this->init_cache();
 }
 
-void gmio_stl_occmesh_iterator::get_triangle(
+void gmio_stl_mesh_occmesh::init_C_members()
+{
+    this->cookie = this;
+    this->func_get_triangle = &gmio_stl_mesh_occmesh::get_triangle;
+    this->triangle_count = 0;
+}
+
+void gmio_stl_mesh_occmesh::get_triangle(
         const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
 {
-    void* wcookie = const_cast<void*>(cookie);
-    gmio_stl_occmesh_iterator* it =
-            static_cast<gmio_stl_occmesh_iterator*>(wcookie);
+    const gmio_stl_mesh_occmesh* it =
+            static_cast<const gmio_stl_mesh_occmesh*>(cookie);
 
-    if (it->move_to_next_tri(tri_id)) {
-        const int dom_tri_id = tri_id - it->m_domain_first_tri_id + 1;
-        const Handle_StlMesh_MeshTriangle& occTri =
-                it->m_domain_triangles->Value(dom_tri_id);
-
-        int iv1, iv2, iv3;
-        double nx, ny, nz;
-        occTri->GetVertexAndOrientation(iv1, iv2, iv3, nx, ny, nz);
-        gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
-
-        const TColgp_SequenceOfXYZ* vertices = it->m_domain_vertices;
-        gmio_stl_occ_copy_xyz(&tri->v1, vertices->Value(iv1));
-        gmio_stl_occ_copy_xyz(&tri->v2, vertices->Value(iv2));
-        gmio_stl_occ_copy_xyz(&tri->v3, vertices->Value(iv3));
+    const StlMesh_MeshTriangle* occ_tri;
+    const TColgp_SequenceOfXYZ* occ_vertices;
+    if (it->m_mesh_domain_count > 1) {
+        const triangle_data& tridata = it->m_vec_triangle_data.at(tri_id);
+        occ_tri = tridata.ptr_triangle;
+        occ_vertices = tridata.ptr_vec_vertices;
     }
+    else {
+        occ_tri = it->m_seq_triangle->Value(tri_id + 1).operator->();
+        occ_vertices = it->m_seq_vertex;
+    }
+
+    int iv1, iv2, iv3;
+    double nx, ny, nz;
+    occ_tri->GetVertexAndOrientation(iv1, iv2, iv3, nx, ny, nz);
+    gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
+    gmio_stl_occ_copy_xyz(&tri->v1, occ_vertices->Value(iv1));
+    gmio_stl_occ_copy_xyz(&tri->v2, occ_vertices->Value(iv2));
+    gmio_stl_occ_copy_xyz(&tri->v3, occ_vertices->Value(iv3));
 }
 
-void gmio_stl_occmesh_iterator::init(const StlMesh_Mesh* mesh)
+void gmio_stl_mesh_occmesh::init_cache()
 {
-    m_mesh = mesh;
-    m_domain_id = 0;
-    m_domain_count = m_mesh != NULL ? m_mesh->NbDomains() : 0;
-    m_domain_triangles = NULL;
-    m_domain_vertices = NULL;
-    m_domain_first_tri_id = 0;
-    m_domain_last_tri_id = 0;
-    if (m_domain_count > 0)
-        this->cache_domain(1);
-}
+    if (m_mesh == NULL)
+        return;
 
-void gmio_stl_occmesh_iterator::cache_domain(int dom_id)
-{
-    m_domain_id = dom_id;
-    m_domain_triangles = &m_mesh->Triangles(dom_id);
-    m_domain_vertices = &m_mesh->Vertices(dom_id);
-    const int dom_tricnt = m_domain_triangles->Length();
-    m_domain_first_tri_id =
-            dom_tricnt > 0 ? m_domain_last_tri_id : m_domain_first_tri_id;
-    m_domain_last_tri_id +=
-            dom_tricnt > 0 ? dom_tricnt - 1 : 0;
-}
+    // Count triangles
+    m_mesh_domain_count = m_mesh != NULL ? m_mesh->NbDomains() : 0;
+    for (int dom_id = 1; dom_id <= m_mesh_domain_count; ++dom_id)
+        this->triangle_count += m_mesh->NbTriangles(dom_id);
 
-bool gmio_stl_occmesh_iterator::move_to_next_tri(uint32_t tri_id)
-{
-    if (tri_id > m_domain_last_tri_id) {
-        if (m_domain_id < m_domain_count) {
-            ++m_domain_id;
-            this->cache_domain(m_domain_id);
-            return true;
+    if (m_mesh_domain_count > 1) {
+        // Fill vector of triangle data
+        m_vec_triangle_data.reserve(this->triangle_count);
+        for (int dom_id = 1; dom_id <= m_mesh_domain_count; ++dom_id) {
+            const StlMesh_SequenceOfMeshTriangle& seq_triangles =
+                    m_mesh->Triangles(dom_id);
+            const TColgp_SequenceOfXYZ& seq_vertices =
+                    m_mesh->Vertices(dom_id);
+            for (int tri_id = 1; tri_id <= seq_triangles.Length(); ++tri_id) {
+                const Handle_StlMesh_MeshTriangle& hnd_occtri =
+                        seq_triangles.Value(tri_id);
+                struct triangle_data tridata;
+                tridata.ptr_triangle = hnd_occtri.operator->();
+                tridata.ptr_vec_vertices = &seq_vertices;
+                m_vec_triangle_data.push_back(std::move(tridata));
+            }
         }
-        return false;
     }
-    return true;
+    else {
+        m_seq_triangle = &m_mesh->Triangles(1);
+        m_seq_vertex = &m_mesh->Vertices(1);
+    }
 }

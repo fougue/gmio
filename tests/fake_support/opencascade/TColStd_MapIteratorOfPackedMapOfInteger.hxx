@@ -1,6 +1,7 @@
 #ifndef TColStd_MapIteratorOfPackedMapOfInteger_HeaderFile
 #define TColStd_MapIteratorOfPackedMapOfInteger_HeaderFile
 
+#include <Standard_TypeDef.hxx>
 class TColStd_PackedMapOfInteger;
 
 class TColStd_MapIteratorOfPackedMapOfInteger
@@ -12,6 +13,7 @@ public:
     void Reset() {}
     int Key() const { return 0; }
     void Next() {}
+    Standard_Boolean More() const { return Standard_False; }
 };
 
 #endif

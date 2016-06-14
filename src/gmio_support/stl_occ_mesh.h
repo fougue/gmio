@@ -40,27 +40,54 @@
 #include "../gmio_stl/stl_mesh.h"
 #include "../gmio_stl/stl_mesh_creator.h"
 
+#include <vector>
+
 #include <StlMesh_Mesh.hxx>
 #include <StlMesh_MeshTriangle.hxx>
-#include <StlMesh_SequenceOfMeshTriangle.hxx>
 #include <TColgp_SequenceOfXYZ.hxx>
 
-struct gmio_stl_occmesh_iterator;
-
-/*! Returns a gmio_stl_mesh mapped to the OpenCascade mesh in iterator \p it
+/*! Provides access to all the triangles of OpenCascade's \c StlMesh_Mesh
  *
- *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
- *  object must be at least as long as the returned gmio_stl_mesh.
+ *  gmio_stl_mesh_occmesh iterates efficiently over the triangles of all
+ *  domains.
  *
  *  Example of use:
  *  \code{.cpp}
- *      Handle_StlMesh_Mesh occmesh = ...;
- *      const gmio_stl_occmesh_iterator it(occmesh);
- *      const gmio_stl_mesh mesh = gmio_stl_occmesh(it);
+ *      const Handle_StlMesh_Mesh occmesh = ...;
+ *      const gmio_stl_mesh_occmesh mesh(occmesh);
  *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
  *  \endcode
  */
-gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator& it);
+struct gmio_stl_mesh_occmesh : public gmio_stl_mesh
+{
+    gmio_stl_mesh_occmesh();
+    explicit gmio_stl_mesh_occmesh(const StlMesh_Mesh* mesh);
+    explicit gmio_stl_mesh_occmesh(const Handle_StlMesh_Mesh& hnd);
+
+    inline const StlMesh_Mesh* mesh() const { return m_mesh; }
+
+private:
+    static void get_triangle(
+            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
+
+    void init_C_members();
+    void init_cache();
+
+    struct triangle_data
+    {
+        const StlMesh_MeshTriangle* ptr_triangle;
+        const TColgp_SequenceOfXYZ* ptr_vec_vertices;
+    };
+
+    const StlMesh_Mesh* m_mesh;
+    int m_mesh_domain_count;
+
+    // Data to be used when mesh domain_count > 1
+    std::vector<triangle_data> m_vec_triangle_data;
+    // Data to be used when mesh domain_count == 1
+    const StlMesh_SequenceOfMeshTriangle* m_seq_triangle;
+    const TColgp_SequenceOfXYZ* m_seq_vertex;
+};
 
 /*! Returns a gmio_stl_mesh_creator that will build a new domain in a
  *  StlMesh_Mesh object
@@ -75,38 +102,6 @@ gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
  *  handle \p hnd
  */
 gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
-
-
-/*! Forward iterator over the triangles of OpenCascade's StlMesh_Mesh
- *
- *  It is used internally to iterate over the triangles of all domains within
- *  a StlMesh_Mesh object.
- */
-struct gmio_stl_occmesh_iterator
-{
-    gmio_stl_occmesh_iterator();
-    explicit gmio_stl_occmesh_iterator(const StlMesh_Mesh* mesh);
-    explicit gmio_stl_occmesh_iterator(const Handle_StlMesh_Mesh& hnd);
-
-    inline const StlMesh_Mesh* mesh() const { return m_mesh; }
-
-private:
-    friend gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occmesh_iterator&);
-    static void get_triangle(
-            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
-
-    bool move_to_next_tri(uint32_t tri_id);
-    void init(const StlMesh_Mesh* mesh);
-    void cache_domain(int dom_id);
-
-    const StlMesh_Mesh* m_mesh;
-    int m_domain_count;
-    int m_domain_id;
-    const StlMesh_SequenceOfMeshTriangle* m_domain_triangles;
-    const TColgp_SequenceOfXYZ* m_domain_vertices;
-    uint32_t m_domain_first_tri_id;
-    uint32_t m_domain_last_tri_id;
-};
 
 #endif /* GMIO_SUPPORT_STL_OCC_MESH_H */
 /*! @} */

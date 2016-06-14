@@ -39,59 +39,51 @@
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
 
+#include <vector>
+
 #include <Poly_Triangulation.hxx>
 #include <TopoDS_Shape.hxx>
-#include <TopExp_Explorer.hxx>
 class TopoDS_Face;
 
-struct gmio_stl_occshape_iterator;
-
-/*! Returns a gmio_stl_mesh mapped to the OpenCascade mesh in iterator \p it
+/*! Provides access to all the internal triangles of OpenCascade's
+ *  \c TopoDS_Shape
  *
- *  The mesh's cookie will point to \c &it so the lifescope of the corresponding
- *  object must be at least as long as the returned gmio_stl_mesh.
+ *  gmio_stl_mesh_occshape iterates efficiently over the triangles of all
+ *  sub <tt>TopoDS_Faces</tt>(internal \c Poly_Triangulation objects).
  *
  *  Example of use:
  *  \code{.cpp}
  *      const TopoDS_Shape occshape = ...;
- *      const gmio_stl_occshape_iterator it(occshape);
- *      const gmio_stl_mesh mesh = gmio_stl_occmesh(it);
- *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
+ *      const gmio_stl_mesh_occshape mesh(occshape);
+ *      gmio_stl_write_file(stl_format, filepath, &occmesh, &options);
  *  \endcode
  */
-gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator& it);
-
-
-/*! Forward iterator over the triangles of OpenCascade's TopoDS_Shape
- *
- *  It is used to iterate over the triangles of all triangulated sub faces(the
- *  Poly_Triangulation object).
- */
-struct gmio_stl_occshape_iterator
+struct gmio_stl_mesh_occshape : public gmio_stl_mesh
 {
-    gmio_stl_occshape_iterator();
-    explicit gmio_stl_occshape_iterator(const TopoDS_Shape& shape);
+    gmio_stl_mesh_occshape();
+    explicit gmio_stl_mesh_occshape(const TopoDS_Shape& shape);
 
     inline const TopoDS_Shape* shape() const { return m_shape; }
 
 private:
-    friend gmio_stl_mesh gmio_stl_occmesh(const gmio_stl_occshape_iterator&);
     static void get_triangle(
             const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
 
-    bool move_to_next_tri();
-    void reset_face();
-    void cache_face(const TopoDS_Face& face);
+    void init_C_members();
 
+    struct face_data {
+        gp_Trsf trsf;
+        bool is_reversed;
+        const TColgp_Array1OfPnt* ptr_nodes;
+    };
+    struct triangle_data {
+        const Poly_Triangle* ptr_triangle;
+        const face_data* ptr_face_data;
+    };
+
+    std::vector<face_data> m_vec_face_data;
+    std::vector<triangle_data> m_vec_triangle_data;
     const TopoDS_Shape* m_shape;
-    TopExp_Explorer m_expl;
-    const Poly_Triangulation* m_face_poly;
-    const TColgp_Array1OfPnt* m_face_nodes;
-    const Poly_Array1OfTriangle* m_face_triangles;
-    gp_Trsf m_face_trsf;
-    bool m_face_is_reversed;
-    int m_face_tri_id;
-    int m_face_last_tri_id;
 };
 
 #endif /* GMIO_SUPPORT_STL_OCC_BREP_H */
