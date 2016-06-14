@@ -29,6 +29,10 @@ if [ -z "${TRAVIS_STRICT_C90}" ]; then
     export TRAVIS_STRICT_C90=OFF;
 fi
 
+if [ -z "${TRAVIS_FLOAT2STR_LIB}" ]; then
+    export TRAVIS_FLOAT2STR_LIB=std;
+fi
+
 # Run CMake
 mkdir build && cd build
 cmake --version
@@ -44,7 +48,8 @@ cmake .. -G "Unix Makefiles"       \
          -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF             \
          -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF        \
          -DGMIO_BUILD_TESTS_FAKE_SUPPORT=ON            \
-         -DGMIO_BUILD_TESTS_COVERAGE=$TRAVIS_COVERALLS
+         -DGMIO_BUILD_TESTS_COVERAGE=$TRAVIS_COVERALLS \
+         -DGMIO_FLOAT2STR_LIB=$TRAVIS_FLOAT2STR_LIB
 
 # Make
 make -j4
