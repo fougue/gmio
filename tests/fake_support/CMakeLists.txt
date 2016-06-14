@@ -34,3 +34,9 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/opencascade
     ${CMAKE_CURRENT_SOURCE_DIR}/qt)
+
+if(CMAKE_COMPILER_IS_GNUCC)
+    set_target_properties(
+        fake_support
+        PROPERTIES COMPILE_FLAGS "-std=c++0x")
+endif()

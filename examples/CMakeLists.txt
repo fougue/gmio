@@ -22,7 +22,7 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
 endif()
 
 file(GLOB SUPPORT_STL_OCC_FILES ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.*)
-set(SUPPORT_STL_OCC_FILES_FILES  ${SUPPORT_STL_OCC_FILES_FILES})
+set(SUPPORT_STL_OCC_FILES_FILES ${SUPPORT_STL_OCC_FILES_FILES})
 
 # gmio OpenCascade/STL support
 add_executable(occstl_read_file
@@ -31,6 +31,13 @@ add_executable(occstl_write_file
                    occstl_write_file.cpp ${SUPPORT_STL_OCC_FILES})
 add_executable(occstl_redefine_mesh_creator
                    occstl_redefine_mesh_creator.cpp ${SUPPORT_STL_OCC_FILES})
+if(CMAKE_COMPILER_IS_GNUCC)
+    set_target_properties(
+        occstl_read_file
+        occstl_write_file
+        occstl_redefine_mesh_creator
+        PROPERTIES COMPILE_FLAGS "-std=c++0x")
+endif()
 
 # gmio STL
 add_executable(stl_get_infos  stl_get_infos.c)
