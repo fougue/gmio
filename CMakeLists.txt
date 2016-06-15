@@ -65,7 +65,7 @@ endif()
 # Declare variable GMIO_STR2FLOAT_LIB(library for string-to-float conversion)
 #     - std:
 #           C standard library functions(eg strtod())
-#     - irrlich_fast_atof:
+#     - irrlicht_fast_atof:
 #           fast_atof() function of Irrlicht project
 #     - google_doubleconversion:
 #           Google's doubleconversion functions, note that this implies C++
