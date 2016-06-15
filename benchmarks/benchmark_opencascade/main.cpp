@@ -28,6 +28,8 @@
 #include <Transfer_TransientProcess.hxx>
 #include <XSControl_WorkSession.hxx>
 
+#include <STEPControl_Reader.hxx>
+
 #include <gmio_core/error.h>
 #include <gmio_core/version.h>
 #include <gmio_stl/stl_io.h>
@@ -37,6 +39,7 @@
 
 #include "../commons/benchmark_tools.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <vector>
@@ -104,6 +107,12 @@ void readInputIgesShape(const char* filepath)
 {
     Handle_Message_ProgressIndicator indicator = new ProgressIndicator;
     inputShape = loadShapeFromFile<IGESControl_Reader>(filepath, indicator);
+}
+
+void readInputStepShape(const char* filepath)
+{
+    Handle_Message_ProgressIndicator indicator = new ProgressIndicator;
+    inputShape = loadShapeFromFile<STEPControl_Reader>(filepath, indicator);
 }
 
 } // namespace BmkBRep
@@ -227,10 +236,16 @@ int main(int argc, char** argv)
 {
     const char* stl_filepath = nullptr;
     const char* igs_filepath = nullptr;
+    const char* stp_filepath = nullptr;
+    double linear_deflection = 0.1;
     int iarg = 1;
     while (iarg < argc) {
         if (std::strcmp(argv[iarg], "--iges") == 0)
             igs_filepath = argv[++iarg];
+        else if (std::strcmp(argv[iarg], "--step") == 0)
+            stp_filepath = argv[++iarg];
+        else if (std::strcmp(argv[iarg], "--linear-deflection") == 0)
+            linear_deflection = std::atof(argv[++iarg]);
         else
             stl_filepath = argv[iarg];
         ++iarg;
@@ -246,18 +261,26 @@ int main(int argc, char** argv)
         if (igs_filepath != nullptr) {
             std::cout << "IGES input file: " << igs_filepath << std::endl;
             BmkBRep::readInputIgesShape(igs_filepath);
-            for (TopExp_Explorer topExp(BmkBRep::inputShape, TopAbs_FACE);
-                 topExp.More();
-                 topExp.Next())
-            {
-                const TopoDS_Face& face = TopoDS::Face(topExp.Current());
-                TopLoc_Location location;
-                const auto& poly = BRep_Tool::Triangulation(face, location);
-                if (poly.IsNull() || poly->Triangles().Length() <= 0)
-                    BRepMesh_IncrementalMesh(face, 0.01);
-            }
-            std::cout << std::endl << "Meshing done" << std::endl;
         }
+        else if (stp_filepath != nullptr) {
+            std::cout << "STEP input file: " << stp_filepath << std::endl;
+            BmkBRep::readInputStepShape(stp_filepath);
+        }
+
+        std::cout << std::endl << "Meshing with linear deflection="
+                  << linear_deflection
+                  << " ..." << std::endl;
+        for (TopExp_Explorer expl(BmkBRep::inputShape, TopAbs_FACE);
+             expl.More();
+             expl.Next())
+        {
+            const TopoDS_Face& face = TopoDS::Face(expl.Current());
+            TopLoc_Location location;
+            const auto& poly = BRep_Tool::Triangulation(face, location);
+            if (poly.IsNull() || poly->Triangles().Length() <= 0)
+                BRepMesh_IncrementalMesh(face, linear_deflection);
+        }
+        std::cout << std::endl << "Meshing done" << std::endl;
 
         /* Declare benchmarks */
         const benchmark_cmp_arg cmp_args[] = {
