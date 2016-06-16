@@ -28,10 +28,6 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 # test_core
 set(GMIO_TEST_CORE_SRC
         main_test_core.c
-        test_core.c
-        test_core_benchmark_fast_atof.c
-        test_core_internal.c
-        test_core_platform.c
         core_utils.c
         stream_buffer.c
         ../benchmarks/commons/benchmark_tools.c)
@@ -53,11 +49,6 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
 set(GMIO_TEST_STL_SRC
         main_test_stl.c
         stl_testcases.c
-        test_stl_internal.c
-        test_stl_infos.c
-        test_stl_io.c
-        test_stl_triangle.c
-        test_stlb_header.c
         core_utils.c
         stl_utils.c)
 if(GMIO_BUILD_SHARED_LIBS)

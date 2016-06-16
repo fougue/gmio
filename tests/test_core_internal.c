@@ -31,14 +31,14 @@
 #include <stdio.h>
 #include <string.h>
 
-const char* test_internal__byte_swap()
+static const char* test_internal__byte_swap()
 {
     UTEST_ASSERT(gmio_uint16_bswap(0x1122) == 0x2211);
     UTEST_ASSERT(gmio_uint32_bswap(0x11223344) == 0x44332211);
     return NULL;
 }
 
-const char* test_internal__byte_codec()
+static const char* test_internal__byte_codec()
 {
     { /* decode */
         const uint8_t data[] = { 0x11, 0x22, 0x33, 0x44 };
@@ -61,7 +61,7 @@ const char* test_internal__byte_codec()
     return NULL;
 }
 
-static void gmio_test_atof_fprintf_err(
+static void __tc__fprintf_atof_err(
         const char* func_fast_atof_str,
         const char* val_str,
         float fast_val,
@@ -84,7 +84,7 @@ static void gmio_test_atof_fprintf_err(
             gmio_float32_ulp_diff(fast_val, std_val));
 }
 
-static bool gmio_test_calculation_atof(const char* val_str)
+static bool __tc__check_calculation_atof(const char* val_str)
 {
     const float std_val = (float)strtod(val_str, NULL);
     int accurate_count = 0;
@@ -94,7 +94,7 @@ static bool gmio_test_calculation_atof(const char* val_str)
         if (gmio_float32_ulp_equals(fast_val, std_val, 1))
             ++accurate_count;
         else
-            gmio_test_atof_fprintf_err("fast_atof", val_str, fast_val, std_val);
+            __tc__fprintf_atof_err("fast_atof", val_str, fast_val, std_val);
     }
 
     { /* Test gmio_stringstream_fast_atof() */
@@ -110,7 +110,7 @@ static bool gmio_test_calculation_atof(const char* val_str)
             ++accurate_count;
         }
         else {
-            gmio_test_atof_fprintf_err(
+            __tc__fprintf_atof_err(
                         "gmio_stringstream_fast_atof", val_str, fast_val, std_val);
         }
     }
@@ -118,46 +118,46 @@ static bool gmio_test_calculation_atof(const char* val_str)
     return accurate_count == 2;
 }
 
-const char* test_internal__fast_atof()
+static const char* test_internal__fast_atof()
 {
     bool ok = true;
 
-    ok = ok && gmio_test_calculation_atof("340282346638528859811704183484516925440.000000");
-    ok = ok && gmio_test_calculation_atof("3.402823466e+38F");
-    ok = ok && gmio_test_calculation_atof("3402823466e+29F");
-    ok = ok && gmio_test_calculation_atof("-340282346638528859811704183484516925440.000000");
-    ok = ok && gmio_test_calculation_atof("-3.402823466e+38F");
-    ok = ok && gmio_test_calculation_atof("-3402823466e+29F");
-    ok = ok && gmio_test_calculation_atof("34028234663852885981170418348451692544.000000");
-    ok = ok && gmio_test_calculation_atof("3.402823466e+37F");
-    ok = ok && gmio_test_calculation_atof("3402823466e+28F");
-    ok = ok && gmio_test_calculation_atof("-34028234663852885981170418348451692544.000000");
-    ok = ok && gmio_test_calculation_atof("-3.402823466e+37F");
-    ok = ok && gmio_test_calculation_atof("-3402823466e+28F");
-    ok = ok && gmio_test_calculation_atof(".00234567");
-    ok = ok && gmio_test_calculation_atof("-.00234567");
-    ok = ok && gmio_test_calculation_atof("0.00234567");
-    ok = ok && gmio_test_calculation_atof("-0.00234567");
-    ok = ok && gmio_test_calculation_atof("1.175494351e-38F");
+    ok = ok && __tc__check_calculation_atof("340282346638528859811704183484516925440.000000");
+    ok = ok && __tc__check_calculation_atof("3.402823466e+38F");
+    ok = ok && __tc__check_calculation_atof("3402823466e+29F");
+    ok = ok && __tc__check_calculation_atof("-340282346638528859811704183484516925440.000000");
+    ok = ok && __tc__check_calculation_atof("-3.402823466e+38F");
+    ok = ok && __tc__check_calculation_atof("-3402823466e+29F");
+    ok = ok && __tc__check_calculation_atof("34028234663852885981170418348451692544.000000");
+    ok = ok && __tc__check_calculation_atof("3.402823466e+37F");
+    ok = ok && __tc__check_calculation_atof("3402823466e+28F");
+    ok = ok && __tc__check_calculation_atof("-34028234663852885981170418348451692544.000000");
+    ok = ok && __tc__check_calculation_atof("-3.402823466e+37F");
+    ok = ok && __tc__check_calculation_atof("-3402823466e+28F");
+    ok = ok && __tc__check_calculation_atof(".00234567");
+    ok = ok && __tc__check_calculation_atof("-.00234567");
+    ok = ok && __tc__check_calculation_atof("0.00234567");
+    ok = ok && __tc__check_calculation_atof("-0.00234567");
+    ok = ok && __tc__check_calculation_atof("1.175494351e-38F");
 #if 0
     /* This check fails */
-    ok = ok && gmio_test_calculation_atof("1175494351e-47F");
+    ok = ok && __tc__check_calculation_atof("1175494351e-47F");
 #endif
-    ok = ok && gmio_test_calculation_atof("1.175494351e-37F");
-    ok = ok && gmio_test_calculation_atof("1.175494351e-36F");
-    ok = ok && gmio_test_calculation_atof("-1.175494351e-36F");
-    ok = ok && gmio_test_calculation_atof("123456.789");
-    ok = ok && gmio_test_calculation_atof("-123456.789");
-    ok = ok && gmio_test_calculation_atof("0000123456.789");
-    ok = ok && gmio_test_calculation_atof("-0000123456.789");
-    ok = ok && gmio_test_calculation_atof("-0.0690462109446526");
+    ok = ok && __tc__check_calculation_atof("1.175494351e-37F");
+    ok = ok && __tc__check_calculation_atof("1.175494351e-36F");
+    ok = ok && __tc__check_calculation_atof("-1.175494351e-36F");
+    ok = ok && __tc__check_calculation_atof("123456.789");
+    ok = ok && __tc__check_calculation_atof("-123456.789");
+    ok = ok && __tc__check_calculation_atof("0000123456.789");
+    ok = ok && __tc__check_calculation_atof("-0000123456.789");
+    ok = ok && __tc__check_calculation_atof("-0.0690462109446526");
 
     UTEST_ASSERT(ok);
 
     return NULL;
 }
 
-const char* test_internal__safe_cast()
+static const char* test_internal__safe_cast()
 {
 #if GMIO_TARGET_ARCH_BIT_SIZE > 32
     const size_t maxUInt32 = 0xFFFFFFFF;
@@ -180,7 +180,7 @@ const char* test_internal__safe_cast()
     return NULL;
 }
 
-const char* test_internal__stringstream()
+static const char* test_internal__stringstream()
 {
     static const char text[] =
             "Une    citation,\to je crois qu'elle est de moi :"
@@ -264,7 +264,7 @@ const char* test_internal__stringstream()
     return NULL;
 }
 
-const char* test_internal__string_utils()
+static const char* test_internal__string_utils()
 {
     char c; /* for loop counter */
 

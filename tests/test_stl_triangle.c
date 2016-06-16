@@ -25,7 +25,7 @@
 /* Disable MSVC warning "conditional expression is constant" */
 GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
 
-const char* test_stl_coords_packing()
+static const char* test_stl_coords_packing()
 {
     UTEST_COMPARE_UINT(0, offsetof(struct gmio_vec3f, x));
     UTEST_COMPARE_UINT(4, offsetof(struct gmio_vec3f, y));
@@ -34,7 +34,7 @@ const char* test_stl_coords_packing()
     return NULL;
 }
 
-const char* test_stl_triangle_packing()
+static const char* test_stl_triangle_packing()
 {
     UTEST_COMPARE_UINT(0, offsetof(struct gmio_stl_triangle, n));
     UTEST_COMPARE_UINT(GMIO_STL_COORDS_RAWSIZE, offsetof(struct gmio_stl_triangle, v1));
@@ -45,7 +45,7 @@ const char* test_stl_triangle_packing()
     return NULL;
 }
 
-const char* test_stl_triangle_compute_normal()
+static const char* test_stl_triangle_compute_normal()
 {
     const unsigned udiff = 5;
     { /* Doesn't fail on invalid facet */

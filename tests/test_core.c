@@ -23,12 +23,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-static struct gmio_memblock buffer_ctor()
+static struct gmio_memblock __tc__buffer_ctor()
 {
     return gmio_memblock_calloc(4, 256);
 }
 
-const char* test_core__buffer()
+static const char* test_core__buffer()
 {
     /* gmio_memblock_calloc() */
     {
@@ -68,14 +68,14 @@ const char* test_core__buffer()
     /* default ctor */
     {
         UTEST_ASSERT(gmio_memblock_default_constructor() != NULL);
-        gmio_memblock_set_default_constructor(&buffer_ctor);
-        UTEST_ASSERT(gmio_memblock_default_constructor() == &buffer_ctor);
+        gmio_memblock_set_default_constructor(&__tc__buffer_ctor);
+        UTEST_ASSERT(gmio_memblock_default_constructor() == &__tc__buffer_ctor);
     }
 
     return NULL;
 }
 
-const char* test_core__endian()
+static const char* test_core__endian()
 {
     UTEST_ASSERT(gmio_host_endianness() == GMIO_ENDIANNESS_HOST);
 GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
@@ -86,7 +86,7 @@ GMIO_PRAGMA_MSVC_WARNING_POP()
     return NULL;
 }
 
-const char* test_core__error()
+static const char* test_core__error()
 {
     UTEST_ASSERT(gmio_no_error(GMIO_ERROR_OK));
     UTEST_ASSERT(!gmio_error(GMIO_ERROR_OK));
@@ -97,14 +97,12 @@ const char* test_core__error()
     return NULL;
 }
 
-const char* test_core__stream()
+static const char* test_core__stream()
 {
-    {
-        const struct gmio_stream null_stream = gmio_stream_null();
-        const uint8_t null_bytes[sizeof(struct gmio_stream)] = {0};
-        UTEST_ASSERT(memcmp(&null_stream, &null_bytes, sizeof(struct gmio_stream))
-                     == 0);
-    }
+    const struct gmio_stream null_stream = gmio_stream_null();
+    const uint8_t null_bytes[sizeof(struct gmio_stream)] = {0};
+    UTEST_ASSERT(memcmp(&null_stream, &null_bytes, sizeof(struct gmio_stream))
+                 == 0);
 
     return NULL;
 }

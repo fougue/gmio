@@ -19,7 +19,7 @@
 
 #include <string.h>
 
-const char* test_stlb_header_str()
+static const char* test_stlb_header_str()
 {
     const struct gmio_stlb_header null = {0};
 
@@ -54,7 +54,7 @@ const char* test_stlb_header_str()
     return NULL;
 }
 
-const char* test_stlb_header_to_printable_str()
+static const char* test_stlb_header_to_printable_str()
 {
     {
         const struct gmio_stlb_header null = {0};

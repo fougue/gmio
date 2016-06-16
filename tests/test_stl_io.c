@@ -30,16 +30,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-struct stl_testcase_result
+struct __tstl__testcase_result
 {
     char solid_name[2048];
 };
 
-void stl_testcase_result__begin_solid(
+static void __tstl__testcase_result__begin_solid(
         void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
 {
     if (infos->format == GMIO_STL_FORMAT_ASCII) {
-        struct stl_testcase_result* res = (struct stl_testcase_result*)cookie;
+        struct __tstl__testcase_result* res =
+                (struct __tstl__testcase_result*)cookie;
         if (res != NULL) {
             res->solid_name[0] = 0;
             if (infos->stla_solid_name != NULL)
@@ -52,14 +53,14 @@ void stl_testcase_result__begin_solid(
     }
 }
 
-const char* test_stl_read()
+static const char* test_stl_read()
 {
     const struct stl_read_testcase* testcase = stl_read_testcases_ptr();
     struct gmio_stl_mesh_creator mesh_creator = {0};
-    struct stl_testcase_result result = {0};
+    struct __tstl__testcase_result result = {0};
 
     mesh_creator.cookie = &result;
-    mesh_creator.func_begin_solid = &stl_testcase_result__begin_solid;
+    mesh_creator.func_begin_solid = &__tstl__testcase_result__begin_solid;
     mesh_creator.func_add_triangle = &gmio_stl_nop_add_triangle;
 
     while (testcase != stl_read_testcases_ptr_end()) {
@@ -111,7 +112,7 @@ const char* test_stl_read()
     return NULL;
 }
 
-const char* test_stlb_read()
+static const char* test_stlb_read()
 {
     /* This file contains only a header and facet count(100) but no triangles */
     FILE* file = fopen(filepath_stlb_header_nofacets, "rb");
@@ -128,7 +129,7 @@ const char* test_stlb_read()
     return NULL;
 }
 
-const char* test_stlb_header_write()
+static const char* test_stlb_header_write()
 {
     const char* filepath = "temp/solid.stlb";
     struct gmio_stlb_header header = {0};
@@ -160,7 +161,7 @@ const char* test_stlb_header_write()
 }
 
 /* Safely closes the two files \p f1 and \p f2 */
-static void fclose_2(FILE* f1, FILE* f2)
+static void __tstl__fclose_2(FILE* f1, FILE* f2)
 {
     if (f1 != NULL)
         fclose(f1);
@@ -168,7 +169,7 @@ static void fclose_2(FILE* f1, FILE* f2)
         fclose(f2);
 }
 
-const char* test_stlb_write()
+static const char* test_stlb_write()
 {
     const char* model_fpath = filepath_stlb_grabcad_arm11;
     const char* model_fpath_out = "temp/solid.le_stlb";
@@ -209,7 +210,7 @@ const char* test_stlb_write()
         FILE* in = fopen(model_fpath, "rb");
         FILE* out = fopen(model_fpath_out, "rb");
         if (in == NULL || out == NULL) {
-            fclose_2(in, out);
+            __tstl__fclose_2(in, out);
             perror("test_stlb_write()");
             UTEST_FAIL("fopen() error for in/out model files");
         }
@@ -217,16 +218,16 @@ const char* test_stlb_write()
             bytes_read_in = fread(buffer_in, 1, buff_size, in);
             bytes_read_out = fread(buffer_out, 1, buff_size, out);
             if (bytes_read_in != bytes_read_out) {
-                fclose_2(in, out);
+                __tstl__fclose_2(in, out);
                 UTEST_FAIL("Different byte count between in/out");
             }
             if (memcmp(buffer_in, buffer_out, buff_size) != 0) {
-                fclose_2(in, out);
+                __tstl__fclose_2(in, out);
                 UTEST_FAIL("Different buffer contents between in/out");
             }
         } while (!feof(in) && !feof(out)
                  && bytes_read_in > 0 && bytes_read_out > 0);
-        fclose_2(in, out);
+        __tstl__fclose_2(in, out);
     }
 
     /* Check output LE/BE models are equal */
@@ -249,7 +250,7 @@ const char* test_stlb_write()
     return NULL;
 }
 
-const char* test_stla_write()
+static const char* test_stla_write()
 {
     const char* model_filepath = filepath_stlb_grabcad_arm11;
     const char* model_filepath_out = "temp/solid.stla";
@@ -305,7 +306,7 @@ const char* test_stla_write()
     return NULL;
 }
 
-const char* generic_test_stl_read_multi_solid(
+static const char* __tstl__test_stl_read_multi_solid(
         const char* filepath, unsigned expected_solid_count)
 {
     FILE* infile = fopen(filepath, "rb");
@@ -331,17 +332,17 @@ const char* generic_test_stl_read_multi_solid(
     return NULL;
 }
 
-const char* test_stl_read_multi_solid()
+static const char* test_stl_read_multi_solid()
 {
     const char* res = NULL;
-    res = generic_test_stl_read_multi_solid(filepath_stla_4meshs, 4);
+    res = __tstl__test_stl_read_multi_solid(filepath_stla_4meshs, 4);
     if (res != NULL)
         return res;
-    res = generic_test_stl_read_multi_solid(filepath_stlb_4meshs, 4);
+    res = __tstl__test_stl_read_multi_solid(filepath_stlb_4meshs, 4);
     return res;
 }
 
-void generate_stlb_tests_models()
+static void generate_stlb_tests_models()
 {
     {
         FILE* outfile = fopen(filepath_stlb_empty, "wb");

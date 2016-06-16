@@ -24,7 +24,8 @@
 #include <stdio.h>
 #include <string.h>
 
-const char* generic_test_stl_infos(const struct stl_read_testcase* testcase)
+static const char* __tstl__test_stl_infos(
+        const struct stl_read_testcase* testcase)
 {
     FILE* file = fopen(testcase->filepath, "rb");
     gmio_streamsize_t expected_size = testcase->expected_size;
@@ -68,11 +69,11 @@ const char* generic_test_stl_infos(const struct stl_read_testcase* testcase)
     return NULL;
 }
 
-const char* test_stl_infos()
+static const char* test_stl_infos()
 {
     const struct stl_read_testcase* testcase = stl_read_testcases_ptr();
     while (testcase != stl_read_testcases_ptr_end()) {
-        const char* error = generic_test_stl_infos(testcase);
+        const char* error = __tstl__test_stl_infos(testcase);
         if (error != NULL) {
             fprintf(stderr,
                     "\ntest_stl_infos()\n"

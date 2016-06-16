@@ -23,32 +23,32 @@
 #include <stdlib.h>
 #include <time.h>
 
-static float float_array[1024] = {0};
+static float __tc__float_array[1024] = {0};
 
-static void test_internal__fill_float_array()
+static void __tc__fill_float_array()
 {
     const float fmax = 1e6;
     size_t i;
 
     srand((unsigned)time(NULL));
 
-    for (i = 0; i < GMIO_ARRAY_SIZE(float_array); ++i) {
+    for (i = 0; i < GMIO_ARRAY_SIZE(__tc__float_array); ++i) {
         const double dsign = (i % 2) == 0 ? 1. : -1.;
         const double drand = (double)rand();
         const double drand_max = (double)RAND_MAX;
         const double dmax = (double)fmax;
-        float_array[i] = (float)(dsign * (drand / drand_max) * dmax);
+        __tc__float_array[i] = (float)(dsign * (drand / drand_max) * dmax);
     }
 }
 
-static void test_internal__run_atof(float (*func_atof)(const char*))
+static void __tc__run_atof(float (*func_atof)(const char*))
 {
     char strbuff[512] = {0};
     size_t iter;
     for (iter = 0; iter < 250; ++iter) {
         size_t i;
-        for (i = 0; i < GMIO_ARRAY_SIZE(float_array); ++i) {
-            const float f = float_array[i];
+        for (i = 0; i < GMIO_ARRAY_SIZE(__tc__float_array); ++i) {
+            const float f = __tc__float_array[i];
             float fres = 0.f;
             gmio_snprintf(strbuff, sizeof(strbuff), "%f", f);
             fres = func_atof(strbuff);
@@ -58,34 +58,36 @@ static void test_internal__run_atof(float (*func_atof)(const char*))
     }
 }
 
-static float float_strtod(const char* str)
+static float __tc__float_strtod(const char* str)
 {
     return (float)strtod(str, NULL);
 }
 
-static void benchmark_fast_atof(const void* arg)
+static void __tc__benchmark_fast_atof(const void* arg)
 {
     GMIO_UNUSED(arg);
-    test_internal__run_atof(&fast_atof);
+    __tc__run_atof(&fast_atof);
 }
 
-static void benchmark_strtod(const void* arg)
+static void __tc__benchmark_strtod(const void* arg)
 {
     GMIO_UNUSED(arg);
-    test_internal__run_atof(&float_strtod);
+    __tc__run_atof(&__tc__float_strtod);
 }
 
-const char* test_internal__benchmark_gmio_fast_atof()
+static const char* test_internal__benchmark_gmio_fast_atof()
 {
     struct benchmark_cmp_arg bmk_arg[] = {
-        { "str->float", &benchmark_fast_atof, NULL, &benchmark_strtod, NULL },
+        { "str->float",
+                &__tc__benchmark_fast_atof, NULL,
+                &__tc__benchmark_strtod, NULL },
         {0}
     };
     struct benchmark_cmp_result bmk_res[] = { {0}, {0} };
     const struct benchmark_cmp_result_header header = { "fast_atof", "strtod" };
     struct benchmark_cmp_result_array bmk_res_array = {0};
 
-    test_internal__fill_float_array();
+    __tc__fill_float_array();
     benchmark_cmp_batch(2, bmk_arg, bmk_res, NULL, NULL);
     bmk_res_array.ptr = bmk_res;
     bmk_res_array.count = GMIO_ARRAY_SIZE(bmk_res) - 1;

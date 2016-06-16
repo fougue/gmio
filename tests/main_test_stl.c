@@ -17,25 +17,11 @@
 
 #include "../src/gmio_core/memblock.h"
 
-const char* test_stl_coords_packing();
-const char* test_stl_triangle_packing();
-const char* test_stl_triangle_compute_normal();
-
-const char* test_stl_internal__rw_common();
-
-const char* test_stl_infos();
-
-const char* test_stl_read();
-const char* test_stl_read_multi_solid();
-const char* test_stla_write();
-const char* test_stlb_read();
-const char* test_stlb_write();
-const char* test_stlb_header_write();
-
-const char* test_stlb_header_str();
-const char* test_stlb_header_to_printable_str();
-
-void generate_stlb_tests_models();
+#include "test_stl_infos.c"
+#include "test_stl_internal.c"
+#include "test_stl_io.c"
+#include "test_stl_triangle.c"
+#include "test_stlb_header.c"
 
 /* Static memblock */
 struct gmio_memblock gmio_memblock_for_tests()

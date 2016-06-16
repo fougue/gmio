@@ -24,7 +24,7 @@
 
 #include <stddef.h>
 
-const char* test_stl_internal__rw_common()
+static const char* test_stl_internal__rw_common()
 {
     /* gmio_check_memblock() */
     {

@@ -24,7 +24,7 @@
 /* Disable MSVC warning "conditional expression is constant" */
 GMIO_PRAGMA_MSVC_WARNING_PUSH_AND_DISABLE(4127)
 
-const char* test_platform__global_h()
+static const char* test_platform__global_h()
 {
     UTEST_ASSERT(sizeof(int8_t) == 1);
     UTEST_ASSERT(sizeof(uint8_t) == 1);
@@ -46,7 +46,7 @@ const char* test_platform__global_h()
     return NULL;
 }
 
-const char* test_platform__compiler()
+static const char* test_platform__compiler()
 {
     /* Check that universal zero initializer {0} works as expected
      *
