@@ -49,6 +49,8 @@ GMIO_C_LINKAGE_BEGIN
  *  \p options may be \c NULL in this case default values are used
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
+ *
+ *  \sa gmio_stl_read_file()
  */
 GMIO_API int gmio_stl_read(
                 struct gmio_stream* stream,
@@ -69,7 +71,7 @@ GMIO_API int gmio_stl_read(
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  *
- *  \sa gmio_stream_stdio(FILE*)
+ *  \sa gmio_stl_read(), gmio_stream_stdio(FILE*)
  */
 GMIO_API int gmio_stl_read_file(
                 const char* filepath,
@@ -84,6 +86,8 @@ GMIO_API int gmio_stl_read_file(
  *  \p options may be \c NULL in this case default values are used
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
+ *
+ *  \sa gmio_stl_read(), gmio_stl_read_file()
  */
 GMIO_API int gmio_stla_read(
                 struct gmio_stream* stream,
@@ -100,6 +104,8 @@ GMIO_API int gmio_stla_read(
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
  *          if <tt>options->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
+ *
+ *  \sa gmio_stl_read(), gmio_stl_read_file()
  */
 GMIO_API int gmio_stlb_read(
                 struct gmio_stream* stream,
@@ -115,6 +121,8 @@ GMIO_API int gmio_stlb_read(
  *  \p options may be \c NULL in this case default values are used
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
+ *
+ *  \sa gmio_stl_write_file()
  */
 GMIO_API int gmio_stl_write(
                 enum gmio_stl_format format,
@@ -134,7 +142,7 @@ GMIO_API int gmio_stl_write(
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  *
- *  \sa gmio_stream_stdio(FILE*)
+ *  \sa gmio_stl_write(), gmio_stream_stdio(FILE*)
  */
 GMIO_API int gmio_stl_write_file(
                 enum gmio_stl_format format,
