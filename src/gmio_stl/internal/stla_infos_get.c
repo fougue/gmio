@@ -49,14 +49,13 @@ static bool gmio_stringstream_icase_eat(
     return *str == 0;
 }
 
-/* Callback invoked by gmio_stringstream */
-static size_t gmio_stringstream_read(
+/* Callback invoked by gmio_stringstream for handling also stream total size */
+static size_t gmio_stringstream_read__flagsize(
         void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
 {
     gmio_streamsize_t* ptr_size = (gmio_streamsize_t*)(cookie);
     const size_t len_read = gmio_stream_read_bytes(stream, ptr, len);
-    if (ptr_size != NULL)
-        *ptr_size += len_read;
+    *ptr_size += len_read;
     return len_read;
 }
 
@@ -90,7 +89,10 @@ int gmio_stla_infos_get(
     if (flag_size) {
         infos->size = 0;
         sstream.cookie = &infos->size;
-        sstream.func_stream_read = gmio_stringstream_read;
+        sstream.func_stream_read = gmio_stringstream_read__flagsize;
+    }
+    else {
+        sstream.func_stream_read = gmio_stringstream_default_func_read;
     }
     gmio_stringstream_init_pos(&sstream);
 
