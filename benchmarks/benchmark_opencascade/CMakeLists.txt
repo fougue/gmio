@@ -1,6 +1,6 @@
 #############################################################################
 ## gmio
-## Copyright Fougue (2 Mar. 2015)
+## Copyright Fougue (24 Jun. 2016)
 ## contact@fougue.pro
 ##
 ## This software is a reusable library whose purpose is to provide complete

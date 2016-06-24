@@ -1,6 +1,6 @@
 /****************************************************************************
 ** gmio benchmarks
-** Copyright Fougue (2 Mar. 2015)
+** Copyright Fougue (24 Jun. 2016)
 ** contact@fougue.pro
 **
 ** This software provides performance benchmarks for the gmio library
