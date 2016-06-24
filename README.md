@@ -8,7 +8,8 @@
        src="https://scan.coverity.com/projects/5721/badge.svg"/>
 </a>
 [![Coverage Status](https://coveralls.io/repos/fougue/gmio/badge.svg?branch=master&service=github)](https://coveralls.io/github/fougue/gmio?branch=master) 
-[![License](https://img.shields.io/badge/license-CeCILL--B-blue.svg)](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)  
+[![License](https://img.shields.io/badge/license-CeCILL--B-blue.svg)](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html) 
+[![Version](https://img.shields.io/badge/version-v0.1.0-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
 
 
 C library for geometry input/output
@@ -27,10 +28,6 @@ Main highlights:
   * [x] Operations can be easily aborted
   * [x] Progress report about the I/O operation
   * [x] Available under the CeCILL-B license, which is fully BSD compatible
-
-
-Supported CAD files format
-==========================
 
 Current version only supports the STereoLithography format(STL), see module
 [gmio_stl](http://www.fougue.pro/docs/gmio/group__gmio__stl.html#details)
