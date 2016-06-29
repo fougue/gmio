@@ -23,7 +23,7 @@
  *
  *  Of course this requires the includepath and libpath to point to OpenCascade,
  *  the import libraries likely needed are:\n
- *      <tt>TKernel TKMath TKSTL</tt>
+ *      <tt>TKernel TKMath TKSTL TKTopAlgo</tt>
  *
  *  \addtogroup gmio_support
  *  @{
@@ -42,6 +42,8 @@
 
 #include <vector>
 
+#include <BRepBuilderAPI_CellFilter.hxx>
+#include <BRepBuilderAPI_VertexInspector.hxx>
 #include <StlMesh_Mesh.hxx>
 #include <StlMesh_MeshTriangle.hxx>
 #include <TColgp_SequenceOfXYZ.hxx>
@@ -50,7 +52,7 @@
  *
  *  gmio_stl_mesh_occmesh iterates efficiently over the triangles of all
  *  domains.
- *
+  *
  *  Example of use:
  *  \code{.cpp}
  *      const Handle_StlMesh_Mesh occmesh = ...;
@@ -73,35 +75,58 @@ private:
     void init_C_members();
     void init_cache();
 
-    struct triangle_data
-    {
+    struct domain_data {
+        std::vector<const gp_XYZ*> vec_coords;
+    };
+
+    struct triangle_data {
         const StlMesh_MeshTriangle* ptr_triangle;
-        const TColgp_SequenceOfXYZ* ptr_vec_vertices;
+        const domain_data* ptr_domain;
     };
 
     const StlMesh_Mesh* m_mesh;
-    int m_mesh_domain_count;
-
-    // Data to be used when mesh domain_count > 1
+    std::vector<domain_data> m_vec_domain_data;
     std::vector<triangle_data> m_vec_triangle_data;
-    // Data to be used when mesh domain_count == 1
-    const StlMesh_SequenceOfMeshTriangle* m_seq_triangle;
-    const TColgp_SequenceOfXYZ* m_seq_vertex;
 };
 
-/*! Returns a gmio_stl_mesh_creator that will build a new domain in a
- *  StlMesh_Mesh object
+/*! Provides creation of a new domain within an StlMesh_Mesh object
  *
- *  The creator's cookie will point \p mesh
+ *  gmio_stl_mesh_creator::func_add_triangle() calls
+ *  <tt>StlMesh_Mesh::AddVertex()</tt> only for new unique vertices, ie. they
+ *  are no vertex duplicates in the resulting domain.
+ *
+ *  As of OpenCascade v7.0.0, it's not possible to rely on
+ *  <tt>StlMesh_Mesh::AddOnlyNewVertex()</tt>: this function
+ *  still has the same effect as <tt>StlMesh_Mesh::AddVertex()</tt>
+ *
+ *  Example of use:
+ *  \code{.cpp}
+ *      Handle_StlMesh_Mesh occmesh = new StlMesh_Mesh;
+ *      gmio_stl_mesh_creator_occmesh meshcreator(occmesh);
+ *      gmio_stl_read_file(filepath, &meshcreator, &options);
+ *  \endcode
  */
-gmio_stl_mesh_creator gmio_stl_occmesh_creator(StlMesh_Mesh* mesh);
+struct gmio_stl_mesh_creator_occmesh : public gmio_stl_mesh_creator
+{
+    gmio_stl_mesh_creator_occmesh();
+    explicit gmio_stl_mesh_creator_occmesh(StlMesh_Mesh* mesh);
+    explicit gmio_stl_mesh_creator_occmesh(const Handle_StlMesh_Mesh& hnd);
 
-/*! Same as gmio_stl_occmesh_creator(StlMesh_Mesh*) but takes a handle
- *
- *  The creator's cookie will point to the internal data(ie StlMesh_Mesh*) of
- *  handle \p hnd
- */
-gmio_stl_mesh_creator gmio_stl_occmesh_creator(const Handle_StlMesh_Mesh& hnd);
+    inline StlMesh_Mesh* mesh() const { return m_mesh; }
+
+private:
+    static void begin_solid(
+            void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
+    static void add_triangle(
+            void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri);
+
+    void init_C_members();
+    int add_unique_vertex(const gmio_vec3f& v);
+
+    StlMesh_Mesh* m_mesh;
+    BRepBuilderAPI_CellFilter m_filter;
+    BRepBuilderAPI_VertexInspector m_inspector;
+};
 
 #endif /* GMIO_SUPPORT_STL_OCC_MESH_H */
 /*! @} */

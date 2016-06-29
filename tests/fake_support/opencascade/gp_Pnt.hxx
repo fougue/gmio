@@ -9,6 +9,7 @@ class gp_Pnt
 {
 public:
     gp_Pnt() {}
+    gp_Pnt(const gp_XYZ& /*coords*/) {}
     const gp_XYZ& XYZ() const { return coord; }
     void Transform(const gp_Trsf&) {}
 

@@ -15,7 +15,7 @@ void my_mesh_creator__begin_solid(
         void* cookie, const gmio_stl_mesh_creator_infos* infos)
 {
     gmio_stl_mesh_creator* base_creator =
-            reinterpret_cast<gmio_stl_mesh_creator*>(cookie);
+            static_cast<gmio_stl_mesh_creator*>(cookie);
     base_creator->func_begin_solid(base_creator->cookie, infos);
     // Do something more ...
 }
@@ -25,7 +25,7 @@ void my_mesh_creator__add_triangle(
         void* cookie, uint32_t tri_id, const gmio_stl_triangle* triangle)
 {
     gmio_stl_mesh_creator* base_creator =
-            reinterpret_cast<gmio_stl_mesh_creator*>(cookie);
+            static_cast<gmio_stl_mesh_creator*>(cookie);
     base_creator->func_add_triangle(base_creator->cookie, tri_id, triangle);
     // Do something more ...
 }
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     if (argc > 1) {
         const char* filepath = argv[1];
         Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
-        gmio_stl_mesh_creator base_creator = gmio_stl_occmesh_creator(mesh);
+        gmio_stl_mesh_creator_occmesh base_creator(mesh);
         gmio_stl_mesh_creator creator = {};
         creator.cookie = &base_creator;
         creator.func_begin_solid = my_mesh_creator__begin_solid;
