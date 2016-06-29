@@ -92,7 +92,10 @@ find_library(
     DOC "Path to the TKMesh import library")
 find_library(
     LIB_OPENCASCADE_TKSTEP TKSTEP ${LIBDIR_OPENCASCADE}
-    DOC "Path to the TKMesh import library")
+    DOC "Path to the TKSTEP import library")
+find_library(
+    LIB_OPENCASCADE_TKTOPALGO TKTopAlgo ${LIBDIR_OPENCASCADE}
+    DOC "Path to the TKTopAlgo import library")
 
 target_link_libraries(
     benchmark_opencascade
@@ -103,4 +106,5 @@ target_link_libraries(
     ${LIB_OPENCASCADE_TKIGES}
     ${LIB_OPENCASCADE_TKBREP}
     ${LIB_OPENCASCADE_TKMESH}
-    ${LIB_OPENCASCADE_TKSTEP})
+    ${LIB_OPENCASCADE_TKSTEP}
+    ${LIB_OPENCASCADE_TKTOPALGO})

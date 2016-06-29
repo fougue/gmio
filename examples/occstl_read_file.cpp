@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     if (argc > 1) {
         const char* filepath = argv[1];
         Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
-        gmio_stl_mesh_creator mesh_creator = gmio_stl_occmesh_creator(mesh);
+        gmio_stl_mesh_creator_occmesh mesh_creator(mesh);
 
         // Read, using default options(NULL)
         error = gmio_stl_read_file(filepath, &mesh_creator, NULL);
