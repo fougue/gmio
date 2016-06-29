@@ -11,7 +11,7 @@ int main()
 {
     // OpenCascade
     Handle_StlMesh_Mesh stlMesh;
-    gmio_stl_occmesh_creator(stlMesh);
+    gmio_stl_mesh_creator_occmesh mesh_creator(stlMesh);
 
     // Qt
     QFile file;

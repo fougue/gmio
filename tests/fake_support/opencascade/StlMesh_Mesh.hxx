@@ -17,6 +17,10 @@ public:
             const double /*Xn*/, const double /*Yn*/, const double /*Zn*/)
     { return -1; }
 
+    virtual int AddVertex(
+            const double /*X*/, const double /*Y*/, const double /*Z*/)
+    { return -1; }
+
     virtual int AddOnlyNewVertex(
             const double /*X*/, const double /*Y*/, const double /*Z*/)
     { return -1; }

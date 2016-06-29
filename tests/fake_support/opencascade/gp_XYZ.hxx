@@ -6,6 +6,8 @@
 class gp_XYZ 
 {
 public:
+    gp_XYZ() {}
+    gp_XYZ(Standard_Real /*x*/, Standard_Real /*y*/, Standard_Real /*z*/) {}
     Standard_Real X() const { return 0.; }
     Standard_Real Y() const { return 0.; }
     Standard_Real Z() const { return 0.; }
