@@ -6,6 +6,7 @@
 class TColStd_ListOfInteger
 {
 public:
+    TColStd_ListOfInteger() {}
     Standard_Boolean IsEmpty() const { return Standard_True; }
     int First() const { return -1; }
 };
