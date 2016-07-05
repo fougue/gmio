@@ -8,7 +8,7 @@
        src="https://scan.coverity.com/projects/5721/badge.svg"/>
 </a>
 [![Coverage Status](https://coveralls.io/repos/fougue/gmio/badge.svg?branch=master&service=github)](https://coveralls.io/github/fougue/gmio?branch=master) 
-[![License](https://img.shields.io/badge/license-CeCILL--B-blue.svg)](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html) 
+[![License](https://img.shields.io/badge/license-BSD%202--clause-blue.svg)](https://github.com/fougue/gmio/blob/master/LICENSE.txt)
 [![Version](https://img.shields.io/badge/version-v0.3.0-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
 
 
@@ -27,7 +27,6 @@ Main highlights:
   * [x] Buffering of input/ouput for efficient device usage
   * [x] Operations can be easily aborted
   * [x] Progress report about the I/O operation
-  * [x] Available under the CeCILL-B license, which is fully BSD compatible
 
 Current version only supports the STereoLithography format(STL), see module
 [gmio_stl](http://www.fougue.pro/docs/gmio/0.3/group__gmio__stl.html#details)
@@ -80,12 +79,7 @@ create a small test program that shows the problem when run.
 License
 =======
 
-This software is governed by the CeCILL-B license under French law and
-abiding by the rules of distribution of free software.
-
-You can  use, modify and/ or redistribute the software under the terms of the
-[CeCILL-B license](http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)
-as circulated by CEA, CNRS and INRIA
+gmio is made available under a "2-clause" BSD [license](https://github.com/fougue/gmio/blob/master/LICENSE.txt).
 
 
 Credits

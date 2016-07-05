@@ -13,7 +13,6 @@
   \li Buffering of input/ouput for efficient device usage
   \li Operations can be easily aborted
   \li Progress report about the I/O operation
-  \li Available under the CeCILL-B license, which is fully BSD compatible
 
   Current version only supports the STereoLithography format(STL), see module \ref gmio_stl
 
@@ -40,11 +39,8 @@ create a small test program that shows the problem when run.
 
 \section lic License
 
-This software is governed by the CeCILL-B license under French law and
-abiding by the rules of distribution of free software.\n
-You can  use, modify and/ or redistribute the software under the terms of the CeCILL-B
-license as circulated by CEA, CNRS and INRIA at this
-<a href="http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html">URL</a>
+gmio is made available under a "2-clause" BSD
+<a href="https://github.com/fougue/gmio/blob/master/LICENSE.txt">license</a>.
 
 \section creds Credits
 
