@@ -298,11 +298,17 @@ if(MSVC)
 
     # Set warning level to /W4
     string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+
+    # Set warning level to /Wall
+    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
+
+    # Enable static analysis
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
 
-    # Treat warnings as errors
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+    # Treat some warnings as errors
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
 
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
