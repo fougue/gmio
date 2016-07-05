@@ -1,32 +1,49 @@
 /****************************************************************************
-** gmio
-** Copyright Fougue (24 Jun. 2016)
-** contact@fougue.pro
+** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** All rights reserved.
 **
-** This software is a reusable library whose purpose is to provide complete
-** I/O support for various CAD file formats (eg. STL)
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
 **
-** This software is governed by the CeCILL-B license under French law and
-** abiding by the rules of distribution of free software.  You can  use,
-** modify and/ or redistribute the software under the terms of the CeCILL-B
-** license as circulated by CEA, CNRS and INRIA at the following URL
-** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
+**     1. Redistributions of source code must retain the above copyright
+**        notice, this list of conditions and the following disclaimer.
+**
+**     2. Redistributions in binary form must reproduce the above
+**        copyright notice, this list of conditions and the following
+**        disclaimer in the documentation and/or other materials provided
+**        with the distribution.
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
 #include "utest_assert.h"
 
 #include "stream_buffer.h"
 
+#include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
 #include "../src/gmio_core/internal/convert.h"
 #include "../src/gmio_core/internal/fast_atof.h"
+#include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/stringstream.h"
 #include "../src/gmio_core/internal/stringstream_fast_atof.h"
 #include "../src/gmio_core/internal/string_ascii_utils.h"
 
+#include <locale.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -264,7 +281,7 @@ static const char* test_internal__stringstream()
     return NULL;
 }
 
-static const char* test_internal__string_utils()
+static const char* test_internal__string_ascii_utils()
 {
     char c; /* for loop counter */
 
@@ -327,4 +344,41 @@ static const char* test_internal__string_utils()
     UTEST_ASSERT(gmio_ascii_istarts_with("FACET", "fa"));
 
     return NULL;
+}
+
+static const char* __tc__test_internal__locale_utils()
+{
+    const char* lc = setlocale(LC_NUMERIC, "");
+    if (lc != NULL
+            && gmio_ascii_stricmp(lc, "C") != 0
+            && gmio_ascii_stricmp(lc, "POSIX") != 0)
+    {
+        int error = GMIO_ERROR_OK;
+        UTEST_ASSERT(!gmio_lc_numeric_is_C());
+        UTEST_ASSERT(!gmio_check_lc_numeric(&error));
+        UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error);
+    }
+    else {
+        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
+    }
+
+    lc = setlocale(LC_NUMERIC, "C");
+    if (lc != NULL) {
+        int error = GMIO_ERROR_OK;
+        UTEST_ASSERT(gmio_lc_numeric_is_C());
+        UTEST_ASSERT(gmio_check_lc_numeric(&error));
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+    }
+
+    return NULL;
+}
+
+static const char* test_internal__locale_utils()
+{
+    const char* error_str = NULL;
+    gmio_lc_numeric_save();
+    printf("\ninfo: current locale is \"%s\"", gmio_lc_numeric());
+    error_str = __tc__test_internal__locale_utils();
+    gmio_lc_numeric_restore();
+    return error_str;
 }

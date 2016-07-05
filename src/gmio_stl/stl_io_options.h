@@ -1,16 +1,30 @@
 /****************************************************************************
-** gmio
-** Copyright Fougue (24 Jun. 2016)
-** contact@fougue.pro
+** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** All rights reserved.
 **
-** This software is a reusable library whose purpose is to provide complete
-** I/O support for various CAD file formats (eg. STL)
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
 **
-** This software is governed by the CeCILL-B license under French law and
-** abiding by the rules of distribution of free software.  You can  use,
-** modify and/ or redistribute the software under the terms of the CeCILL-B
-** license as circulated by CEA, CNRS and INRIA at the following URL
-** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
+**     1. Redistributions of source code must retain the above copyright
+**        notice, this list of conditions and the following disclaimer.
+**
+**     2. Redistributions in binary form must reproduce the above
+**        copyright notice, this list of conditions and the following
+**        disclaimer in the documentation and/or other materials provided
+**        with the distribution.
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
 /*! \file stl_io_options.h
@@ -30,7 +44,12 @@
 #include "../gmio_core/task_iface.h"
 #include "../gmio_core/text_format.h"
 
-/*! Options of function gmio_stl_read() */
+/*! Options of function gmio_stl_read()
+ *
+ *  Initialising gmio_stl_read_options with \c {0} (or \c {} in C++) is the
+ *  convenient way to set default values(passing \c NULL to gmio_stl_read() has
+ *  the same effect).
+ */
 struct gmio_stl_read_options
 {
     /*! Used by the stream to bufferize I/O operations
@@ -59,9 +78,27 @@ struct gmio_stl_read_options
     gmio_streamsize_t (*func_stla_get_streamsize)(
             struct gmio_stream* stream,
             struct gmio_memblock* stream_memblock);
+
+    /*! Flag allowing to disable checking of the current locale's numeric
+     *  formatting category
+     *
+     *  If \c false then \c LC_NUMERIC is checked to be "C" or "POSIX". If check
+     *  fails then the function returns \c GMIO_ERROR_BAD_LC_NUMERIC
+     *
+     *  This applies only for STL ascii, where it affects text-related standard
+     *  C functions(snprintf(), strtod(), ...)
+     *
+     *  \c LC_NUMERIC checking is enabled by default.
+     */
+    bool stla_dont_check_lc_numeric;
 };
 
-/*! Options of function gmio_stl_write() */
+/*! Options of function gmio_stl_write()
+ *
+ *  Initialising gmio_stl_write_options with \c {0} (or \c {} in C++) is the
+ *  convenient way to set default values(passing \c NULL to gmio_stl_write() has
+ *  the same effect).
+ */
 struct gmio_stl_write_options
 {
     /*! See gmio_stl_read_options::stream_memblock */
@@ -69,6 +106,9 @@ struct gmio_stl_write_options
 
     /*! See gmio_stl_read_options::task_iface */
     struct gmio_task_iface task_iface;
+
+    /*! See gmio_stl_read_options::stla_dont_check_lc_numeric */
+    bool stla_dont_check_lc_numeric;
 
     /*! Flag allowing to skip writting of any header/footer data, but just
      *  triangles

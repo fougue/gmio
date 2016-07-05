@@ -1,16 +1,30 @@
 /****************************************************************************
-** gmio
-** Copyright Fougue (24 Jun. 2016)
-** contact@fougue.pro
+** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** All rights reserved.
 **
-** This software is a reusable library whose purpose is to provide complete
-** I/O support for various CAD file formats (eg. STL)
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
 **
-** This software is governed by the CeCILL-B license under French law and
-** abiding by the rules of distribution of free software.  You can  use,
-** modify and/ or redistribute the software under the terms of the CeCILL-B
-** license as circulated by CEA, CNRS and INRIA at the following URL
-** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
+**     1. Redistributions of source code must retain the above copyright
+**        notice, this list of conditions and the following disclaimer.
+**
+**     2. Redistributions in binary form must reproduce the above
+**        copyright notice, this list of conditions and the following
+**        disclaimer in the documentation and/or other materials provided
+**        with the distribution.
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
 #include "utest_assert.h"
@@ -22,11 +36,13 @@
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_core/internal/string.h"
+#include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
 #include "../src/gmio_stl/stl_io.h"
 #include "../src/gmio_stl/stl_io_options.h"
 
+#include <locale.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -340,6 +356,42 @@ static const char* test_stl_read_multi_solid()
         return res;
     res = __tstl__test_stl_read_multi_solid(filepath_stlb_4meshs, 4);
     return res;
+}
+
+
+static const char* test_stla_lc_numeric()
+{
+    struct gmio_stream null_stream = {0};
+    const struct gmio_stl_mesh null_mesh = {0};
+    struct gmio_stl_mesh_creator null_meshcreator = {0};
+    int error[4] = {0};
+
+    gmio_lc_numeric_save();
+    setlocale(LC_NUMERIC, "");
+    if (!gmio_lc_numeric_is_C()) {
+        struct gmio_stl_read_options read_opts = {0};
+        struct gmio_stl_write_options write_opts = {0};
+
+        /* By default, check LC_NUMERIC */
+        error[0] = gmio_stla_read(&null_stream, &null_meshcreator, NULL);
+        error[1] = gmio_stl_write(
+                    GMIO_STL_FORMAT_ASCII, &null_stream, &null_mesh, NULL);
+        error[2] = gmio_stla_read(&null_stream, &null_meshcreator, &read_opts);
+        error[3] = gmio_stl_write(
+                    GMIO_STL_FORMAT_ASCII, &null_stream, &null_mesh, &write_opts);
+    }
+    else {
+        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
+    }
+    gmio_lc_numeric_restore();
+    {
+        size_t i = 0;
+        for (; i < GMIO_ARRAY_SIZE(error); ++i) {
+            UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error[i]);
+        }
+    }
+
+    return NULL;
 }
 
 static void generate_stlb_tests_models()

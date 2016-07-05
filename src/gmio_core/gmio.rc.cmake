@@ -12,7 +12,7 @@ VS_VERSION_INFO VERSIONINFO
        VALUE "FileDescription", "gmio DLL"
        VALUE "FileVersion", "@GMIO_VERSION@"
        VALUE "InternalName", "gmio"
-       VALUE "LegalCopyright", "Licensed under CeCILL-B v1.0"
+       VALUE "LegalCopyright", "Licensed under BSD 2-Clause"
        VALUE "ProductName", "gmio library, by Fougue Ltd."
        VALUE "ProductVersion", "@GMIO_VERSION@"
      END

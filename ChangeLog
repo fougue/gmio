@@ -1,0 +1,17 @@
+v0.3.0
+    * gmio_stl: check LC_NUMERIC is C or POSIX
+      gmio_stla_read() and gmio_stla_write() now checks LC_NUMERIC is
+      either "C" or "POSIX", if not then GMIO_ERROR_BAD_LC_NUMERIC is returned.
+      This option is controlled with:
+          - gmio_stl_read_options.stla_dont_check_lc_numeric
+          - gmio_write_read_options.stla_dont_check_lc_numeric
+
+    * Relicense under BSD 2-clause
+
+v0.2.1
+    * fake_support: fix compilation errors with Clang
+
+v0.2.0
+    * gmio_support: fix duplicated vertices when reading STL file into StlMesh_Mesh
+
+v0.1.0

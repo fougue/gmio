@@ -1,16 +1,30 @@
 #############################################################################
-## gmio
-## Copyright Fougue (2 Mar. 2015)
-## contact@fougue.pro
+## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## All rights reserved.
 ##
-## This software is a reusable library whose purpose is to provide complete
-## I/O support for various CAD file formats (eg. STL)
+## Redistribution and use in source and binary forms, with or without
+## modification, are permitted provided that the following conditions
+## are met:
 ##
-## This software is governed by the CeCILL-B license under French law and
-## abiding by the rules of distribution of free software.  You can  use,
-## modify and/ or redistribute the software under the terms of the CeCILL-B
-## license as circulated by CEA, CNRS and INRIA at the following URL
-## "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
+##     1. Redistributions of source code must retain the above copyright
+##        notice, this list of conditions and the following disclaimer.
+##
+##     2. Redistributions in binary form must reproduce the above
+##        copyright notice, this list of conditions and the following
+##        disclaimer in the documentation and/or other materials provided
+##        with the distribution.
+##
+## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+## "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+## LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+## A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+## OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+## SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+## LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+## DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+## THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
 cmake_minimum_required(VERSION 2.8)
@@ -24,8 +38,8 @@ include(CMakeDependentOption)
 
 project(gmio)
 set(GMIO_VERSION_MAJOR 0)
-set(GMIO_VERSION_MINOR 2)
-set(GMIO_VERSION_PATCH 1)
+set(GMIO_VERSION_MINOR 3)
+set(GMIO_VERSION_PATCH 0)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
@@ -298,11 +312,17 @@ if(MSVC)
 
     # Set warning level to /W4
     string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+
+    # Set warning level to /Wall
+    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
+
+    # Enable static analysis
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
     #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
 
-    # Treat warnings as errors
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /WX")
+    # Treat some warnings as errors
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
 
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))

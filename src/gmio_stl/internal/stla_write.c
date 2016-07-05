@@ -1,16 +1,30 @@
 /****************************************************************************
-** gmio
-** Copyright Fougue (24 Jun. 2016)
-** contact@fougue.pro
+** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** All rights reserved.
 **
-** This software is a reusable library whose purpose is to provide complete
-** I/O support for various CAD file formats (eg. STL)
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
 **
-** This software is governed by the CeCILL-B license under French law and
-** abiding by the rules of distribution of free software.  You can  use,
-** modify and/ or redistribute the software under the terms of the CeCILL-B
-** license as circulated by CEA, CNRS and INRIA at the following URL
-** "http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html".
+**     1. Redistributions of source code must retain the above copyright
+**        notice, this list of conditions and the following disclaimer.
+**
+**     2. Redistributions in binary form must reproduce the above
+**        copyright notice, this list of conditions and the following
+**        disclaimer in the documentation and/or other materials provided
+**        with the distribution.
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
 #include "stla_write.h"
@@ -25,6 +39,7 @@
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
+#include "../../gmio_core/internal/locale_utils.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
@@ -180,6 +195,8 @@ int gmio_stla_write(
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
+    const bool check_lcnum =
+            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
     const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
@@ -225,6 +242,8 @@ int gmio_stla_write(
     }
 
     /* Check validity of input parameters */
+    if (check_lcnum && !gmio_check_lc_numeric(&error))
+        goto label_end;
     if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
         goto label_end;
     if (!gmio_stl_check_mesh(&error, mesh))
