@@ -1,4 +1,4 @@
-version: 0.2_build{build}
+version: 0.3_build{build}
 
 os: Visual Studio 2013
 
