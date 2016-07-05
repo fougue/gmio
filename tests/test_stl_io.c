@@ -384,8 +384,11 @@ static const char* test_stla_lc_numeric()
         fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
     }
     gmio_lc_numeric_restore();
-    for (size_t i = 0; i < GMIO_ARRAY_SIZE(error); ++i) {
-        UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error[i]);
+    {
+        size_t i = 0;
+        for (; i < GMIO_ARRAY_SIZE(error); ++i) {
+            UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error[i]);
+        }
     }
 
     return NULL;
