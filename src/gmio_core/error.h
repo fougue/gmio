@@ -31,6 +31,9 @@ enum gmio_error
     /*! No error occurred, success */
     GMIO_ERROR_OK = 0,
 
+    /*! Unknown error */
+    GMIO_ERROR_UNKNOWN,
+
     /*! Pointer on argument memory block is NULL */
     GMIO_ERROR_NULL_MEMBLOCK,
 
@@ -50,8 +53,8 @@ enum gmio_error
      */
     GMIO_ERROR_STDIO,
 
-    /*! Unknown error */
-    GMIO_ERROR_UNKNOWN
+    /*! Checking of \c LC_NUMERIC failed(should be "C" or "POSIX") */
+    GMIO_ERROR_BAD_LC_NUMERIC
 };
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */

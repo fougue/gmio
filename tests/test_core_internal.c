@@ -17,16 +17,19 @@
 
 #include "stream_buffer.h"
 
+#include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
 #include "../src/gmio_core/internal/convert.h"
 #include "../src/gmio_core/internal/fast_atof.h"
+#include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/stringstream.h"
 #include "../src/gmio_core/internal/stringstream_fast_atof.h"
 #include "../src/gmio_core/internal/string_ascii_utils.h"
 
+#include <locale.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -264,7 +267,7 @@ static const char* test_internal__stringstream()
     return NULL;
 }
 
-static const char* test_internal__string_utils()
+static const char* test_internal__string_ascii_utils()
 {
     char c; /* for loop counter */
 
@@ -327,4 +330,41 @@ static const char* test_internal__string_utils()
     UTEST_ASSERT(gmio_ascii_istarts_with("FACET", "fa"));
 
     return NULL;
+}
+
+static const char* __tc__test_internal__locale_utils()
+{
+    const char* lc = setlocale(LC_NUMERIC, "");
+    if (lc != NULL
+            && gmio_ascii_stricmp(lc, "C") != 0
+            && gmio_ascii_stricmp(lc, "POSIX") != 0)
+    {
+        int error = GMIO_ERROR_OK;
+        UTEST_ASSERT(!gmio_lc_numeric_is_C());
+        UTEST_ASSERT(!gmio_check_lc_numeric(&error));
+        UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error);
+    }
+    else {
+        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
+    }
+
+    lc = setlocale(LC_NUMERIC, "C");
+    if (lc != NULL) {
+        int error = GMIO_ERROR_OK;
+        UTEST_ASSERT(gmio_lc_numeric_is_C());
+        UTEST_ASSERT(gmio_check_lc_numeric(&error));
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+    }
+
+    return NULL;
+}
+
+static const char* test_internal__locale_utils()
+{
+    const char* error_str = NULL;
+    gmio_lc_numeric_save();
+    printf("\ninfo: current locale is \"%s\"", gmio_lc_numeric());
+    error_str = __tc__test_internal__locale_utils();
+    gmio_lc_numeric_restore();
+    return error_str;
 }

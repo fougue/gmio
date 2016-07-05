@@ -22,11 +22,13 @@
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_core/internal/string.h"
+#include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
 #include "../src/gmio_stl/stl_io.h"
 #include "../src/gmio_stl/stl_io_options.h"
 
+#include <locale.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -340,6 +342,39 @@ static const char* test_stl_read_multi_solid()
         return res;
     res = __tstl__test_stl_read_multi_solid(filepath_stlb_4meshs, 4);
     return res;
+}
+
+
+static const char* test_stla_lc_numeric()
+{
+    struct gmio_stream null_stream = {0};
+    const struct gmio_stl_mesh null_mesh = {0};
+    struct gmio_stl_mesh_creator null_meshcreator = {0};
+    int error[4] = {0};
+
+    gmio_lc_numeric_save();
+    setlocale(LC_NUMERIC, "");
+    if (!gmio_lc_numeric_is_C()) {
+        struct gmio_stl_read_options read_opts = {0};
+        struct gmio_stl_write_options write_opts = {0};
+
+        /* By default, check LC_NUMERIC */
+        error[0] = gmio_stla_read(&null_stream, &null_meshcreator, NULL);
+        error[1] = gmio_stl_write(
+                    GMIO_STL_FORMAT_ASCII, &null_stream, &null_mesh, NULL);
+        error[2] = gmio_stla_read(&null_stream, &null_meshcreator, &read_opts);
+        error[3] = gmio_stl_write(
+                    GMIO_STL_FORMAT_ASCII, &null_stream, &null_mesh, &write_opts);
+    }
+    else {
+        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
+    }
+    gmio_lc_numeric_restore();
+    for (size_t i = 0; i < GMIO_ARRAY_SIZE(error); ++i) {
+        UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error[i]);
+    }
+
+    return NULL;
 }
 
 static void generate_stlb_tests_models()

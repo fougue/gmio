@@ -46,6 +46,7 @@ const char* all_tests()
 
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stl_read_multi_solid);
+    UTEST_RUN(test_stla_lc_numeric);
     UTEST_RUN(test_stla_write);
     UTEST_RUN(test_stlb_read);
     UTEST_RUN(test_stlb_write);

@@ -30,7 +30,12 @@
 #include "../gmio_core/task_iface.h"
 #include "../gmio_core/text_format.h"
 
-/*! Options of function gmio_stl_read() */
+/*! Options of function gmio_stl_read()
+ *
+ *  Initialising gmio_stl_read_options with \c {0} (or \c {} in C++) is the
+ *  convenient way to set default values(passing \c NULL to gmio_stl_read() has
+ *  the same effect).
+ */
 struct gmio_stl_read_options
 {
     /*! Used by the stream to bufferize I/O operations
@@ -59,9 +64,27 @@ struct gmio_stl_read_options
     gmio_streamsize_t (*func_stla_get_streamsize)(
             struct gmio_stream* stream,
             struct gmio_memblock* stream_memblock);
+
+    /*! Flag allowing to disable checking of the current locale's numeric
+     *  formatting category
+     *
+     *  If \c false then \c LC_NUMERIC is checked to be "C" or "POSIX". If check
+     *  fails then the function returns \c GMIO_ERROR_BAD_LC_NUMERIC
+     *
+     *  This applies only for STL ascii, where it affects text-related standard
+     *  C functions(snprintf(), strtod(), ...)
+     *
+     *  \c LC_NUMERIC checking is enabled by default.
+     */
+    bool stla_dont_check_lc_numeric;
 };
 
-/*! Options of function gmio_stl_write() */
+/*! Options of function gmio_stl_write()
+ *
+ *  Initialising gmio_stl_write_options with \c {0} (or \c {} in C++) is the
+ *  convenient way to set default values(passing \c NULL to gmio_stl_write() has
+ *  the same effect).
+ */
 struct gmio_stl_write_options
 {
     /*! See gmio_stl_read_options::stream_memblock */
@@ -69,6 +92,9 @@ struct gmio_stl_write_options
 
     /*! See gmio_stl_read_options::task_iface */
     struct gmio_task_iface task_iface;
+
+    /*! See gmio_stl_read_options::stla_dont_check_lc_numeric */
+    bool stla_dont_check_lc_numeric;
 
     /*! Flag allowing to skip writting of any header/footer data, but just
      *  triangles

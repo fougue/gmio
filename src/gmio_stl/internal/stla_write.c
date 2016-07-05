@@ -25,6 +25,7 @@
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
+#include "../../gmio_core/internal/locale_utils.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
@@ -180,6 +181,8 @@ int gmio_stla_write(
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
+    const bool check_lcnum =
+            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
     const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
@@ -225,6 +228,8 @@ int gmio_stla_write(
     }
 
     /* Check validity of input parameters */
+    if (check_lcnum && !gmio_check_lc_numeric(&error))
+        goto label_end;
     if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
         goto label_end;
     if (!gmio_stl_check_mesh(&error, mesh))

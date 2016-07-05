@@ -26,6 +26,7 @@
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
+#include "../gmio_core/internal/locale_utils.h"
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/safe_cast.h"
 #include "../gmio_core/internal/stringstream.h"
@@ -114,11 +115,17 @@ int gmio_stla_read(
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* opts)
 {
+    const bool check_lcnum =
+            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     struct gmio_memblock* const mblock = &mblock_helper.memblock;
     char fixed_buffer[GMIO_STLA_READ_STRING_MAX_LEN];
     struct gmio_stla_parse_data parse_data;
+    int error = GMIO_ERROR_OK;
+
+    if (check_lcnum && !gmio_check_lc_numeric(&error))
+        goto label_end;
 
     parse_data.token = unknown_token;
     parse_data.error = false;
@@ -145,13 +152,14 @@ int gmio_stla_read(
 
     parse_solid(&parse_data);
 
-    gmio_memblock_helper_release(&mblock_helper);
-
     if (parse_data.error)
-        return GMIO_STL_ERROR_PARSING;
+        error = GMIO_STL_ERROR_PARSING;
     if (parse_data.strstream_cookie.is_stop_requested)
-        return GMIO_ERROR_TRANSFER_STOPPED;
-    return GMIO_ERROR_OK;
+        error = GMIO_ERROR_TRANSFER_STOPPED;
+
+label_end:
+    gmio_memblock_helper_release(&mblock_helper);
+    return error;
 }
 
 
