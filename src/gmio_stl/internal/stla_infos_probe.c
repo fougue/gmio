@@ -27,7 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "stla_infos_get.h"
+#include "stla_infos_probe.h"
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/helper_memblock.h"
@@ -73,11 +73,11 @@ static size_t gmio_stringstream_read__flagsize(
     return len_read;
 }
 
-int gmio_stla_infos_get(
+int gmio_stla_infos_probe(
         struct gmio_stl_infos* infos,
         struct gmio_stream* stream,
         unsigned flags,
-        const struct gmio_stl_infos_get_options* opts)
+        const struct gmio_stl_infos_probe_options* opts)
 {
     const bool flag_facet_count =
             (flags & GMIO_STL_INFO_FLAG_FACET_COUNT) != 0;

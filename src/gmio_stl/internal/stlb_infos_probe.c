@@ -27,7 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "stlb_infos_get.h"
+#include "stlb_infos_probe.h"
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_swap.h"
@@ -45,11 +45,11 @@ static enum gmio_endianness gmio_stl_format_to_endianness(
     return GMIO_ENDIANNESS_UNKNOWN;
 }
 
-int gmio_stlb_infos_get(
+int gmio_stlb_infos_probe(
         struct gmio_stl_infos* infos,
         struct gmio_stream* stream,
         unsigned flags,
-        const struct gmio_stl_infos_get_options* opts)
+        const struct gmio_stl_infos_probe_options* opts)
 {
     if (flags != 0) {
         const enum gmio_endianness byte_order =

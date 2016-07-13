@@ -42,7 +42,7 @@
 #include "stlb_header.h"
 #include <stddef.h>
 
-/*! Informations retrieved by gmio_stl_infos_get() */
+/*! Informations retrieved by gmio_stl_infos_probe() */
 struct gmio_stl_infos
 {
     /*! STL format of the input stream */
@@ -58,14 +58,14 @@ struct gmio_stl_infos
 
     /*! STL ascii only: name of the solid
      *
-     *  The pointer has to be set before calling gmio_stl_infos_get()
+     *  The pointer has to be set before calling gmio_stl_infos_probe()
      *  \sa stla_solidname_maxlen
      */
     char* stla_solidname;
 
     /*! STL ascii only: maximum length(capacity) of stla_solidname
      *
-     *  The value has to be set before calling gmio_stl_infos_get()
+     *  The value has to be set before calling gmio_stl_infos_probe()
      *  \sa stla_solidname
      */
     size_t stla_solidname_maxlen;
@@ -100,8 +100,8 @@ enum gmio_stl_info_flag
     GMIO_STL_INFO_FLAG_ALL = 0xFFFF
 };
 
-/*! Options of function gmio_stl_infos_get() */
-struct gmio_stl_infos_get_options
+/*! Options of function gmio_stl_infos_probe() */
+struct gmio_stl_infos_probe_options
 {
     /*! See gmio_stl_read_options::stream_memblock */
     struct gmio_memblock stream_memblock;
@@ -110,7 +110,7 @@ struct gmio_stl_infos_get_options
      *  automatically guessed */
     enum gmio_stl_format format_hint;
 
-    /*! Restrict gmio_stl_infos_get() to not read further this limit(in bytes)
+    /*! Restrict gmio_stl_infos_probe() to not read further this limit(in bytes)
      *
      *  \warning Not yet supported
      */
@@ -133,15 +133,15 @@ GMIO_C_LINKAGE_BEGIN
  *
  *  \return Error code (see gmio_core/error.h and stl_error.h)
  */
-GMIO_API int gmio_stl_infos_get(
+GMIO_API int gmio_stl_infos_probe(
                 struct gmio_stl_infos* infos,
                 struct gmio_stream* stream,
                 unsigned flags,
-                const struct gmio_stl_infos_get_options* options);
+                const struct gmio_stl_infos_probe_options* options);
 
 /*! Returns the size(in bytes) of the next STL ascii solid in \p stream
  *
- *  It is a facade over gmio_stl_infos_get() for gmio_stl_infos::size only
+ *  It is a facade over gmio_stl_infos_probe() for gmio_stl_infos::size only
  *
  *  Pointer to this function can be given to
  *  gmio_stl_read_options::func_stla_get_streamsize() and is useful when
@@ -151,7 +151,7 @@ GMIO_API int gmio_stl_infos_get(
  *  \pre <tt> stream != NULL </tt>
  *  \pre <tt> stream_memblock != NULL </tt>
  */
-GMIO_API gmio_streamsize_t gmio_stla_infos_get_streamsize(
+GMIO_API gmio_streamsize_t gmio_stla_infos_probe_streamsize(
                 struct gmio_stream* stream,
                 struct gmio_memblock* stream_memblock);
 

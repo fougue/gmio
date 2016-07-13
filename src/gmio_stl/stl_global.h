@@ -80,10 +80,10 @@
  *    </tr>
  *    <tr>
  *      <td>Infos on contents</td>
- *      <td>gmio_stl_infos_get()<br/>
- *          gmio_stla_infos_get_streamsize()</td>
+ *      <td>gmio_stl_infos_probe()<br/>
+ *          gmio_stla_infos_probe_streamsize()</td>
  *      <td>gmio_stl_infos<br/>
- *          gmio_stl_infos_get_options</td>
+ *          gmio_stl_infos_probe_options</td>
  *    </tr>
  *    <tr>
  *      <td>Detect format</td>
