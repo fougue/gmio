@@ -88,6 +88,22 @@ label_end:
     return error;
 }
 
+int gmio_stl_infos_probe_file(
+        struct gmio_stl_infos *infos,
+        const char *filepath,
+        unsigned flags,
+        const struct gmio_stl_infos_probe_options *options)
+{
+    FILE* file = fopen(filepath, "rb");
+    if (file != NULL) {
+        struct gmio_stream stream = gmio_stream_stdio(file);
+        const int error = gmio_stl_infos_probe(infos, &stream, flags, options);
+        fclose(file);
+        return error;
+    }
+    return GMIO_ERROR_STDIO;
+}
+
 gmio_streamsize_t gmio_stla_infos_probe_streamsize(
         struct gmio_stream *stream, struct gmio_memblock *stream_memblock)
 {

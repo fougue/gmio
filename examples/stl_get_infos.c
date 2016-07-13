@@ -47,22 +47,15 @@ int main(int argc, char** argv)
     int error = 0;
     if (argc > 1) {
         const char* filepath = argv[1];
-        FILE* file = fopen(filepath, "rb");
-
-        if (file != NULL) {
-            struct gmio_stream stream = gmio_stream_stdio(file);
-            struct gmio_stl_infos infos = {0};
-            /* Retrieve STL informations, using default options(NULL) */
-            error = gmio_stl_infos_probe(
-                        &infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
-            printf("File: %s\n", filepath);
-            if (error == GMIO_ERROR_OK)
-                print_stl_infos(&infos);
-            else
-                fprintf(stderr, "gmio error: 0x%X\n", error);
-
-            fclose(file);
-        }
+        struct gmio_stl_infos infos = {0};
+        /* Retrieve STL informations, using default options(NULL) */
+        const int error = gmio_stl_infos_probe_file(
+                    &infos, filepath, GMIO_STL_INFO_FLAG_ALL, NULL);
+        printf("File: %s\n", filepath);
+        if (error == GMIO_ERROR_OK)
+            print_stl_infos(&infos);
+        else
+            fprintf(stderr, "gmio error: 0x%X\n", error);
     }
     return error;
 }

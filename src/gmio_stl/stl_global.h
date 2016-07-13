@@ -81,6 +81,7 @@
  *    <tr>
  *      <td>Infos on contents</td>
  *      <td>gmio_stl_infos_probe()<br/>
+ *          gmio_stl_infos_probe_file()<br/>
  *          gmio_stla_infos_probe_streamsize()</td>
  *      <td>gmio_stl_infos<br/>
  *          gmio_stl_infos_probe_options</td>
