@@ -2,7 +2,7 @@
  *
  * Example: get informations about an STL file
  *
- * Informations that can be retrieved by gmio_stl_infos_get() are:
+ * Informations that can be retrieved by gmio_stl_infos_probe() are:
  *   - STL format of the input stream
  *   - Count of facets(triangles)
  *   - Size of the STL contents in bytes
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
             struct gmio_stream stream = gmio_stream_stdio(file);
             struct gmio_stl_infos infos = {0};
             /* Retrieve STL informations, using default options(NULL) */
-            error = gmio_stl_infos_get(
+            error = gmio_stl_infos_probe(
                         &infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
             printf("File: %s\n", filepath);
             if (error == GMIO_ERROR_OK)

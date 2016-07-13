@@ -73,7 +73,7 @@ struct gmio_stl_read_options
      *  The resulting stream size is passed to
      *  gmio_task_iface::func_handle_progress() as the \p max_value argument.
      *
-     *  \sa gmio_stla_infos_get_streamsize()
+     *  \sa gmio_stla_infos_probe_streamsize()
      */
     gmio_streamsize_t (*func_stla_get_streamsize)(
             struct gmio_stream* stream,

@@ -51,7 +51,7 @@ static void my_3d_mesh__copy_triangle(
          * precisely known.
          * To overcome this:
          *    - instead of just using general gmio_stl_read(), call
-         *      call gmio_stl_infos_get(GMIO_STL_INFO_FLAG_FACET_COUNT) and then
+         *      call gmio_stl_infos_probe(GMIO_STL_INFO_FLAG_FACET_COUNT) and then
          *      gmio_stla_read()
          *    - or just grow the capacity of your mesh, here the triangle array
          *      is grown by 12.5% */
