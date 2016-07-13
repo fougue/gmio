@@ -232,53 +232,41 @@ static void bmk_gmio_stl_readwrite_conv(const void* filepath)
 void bmk_gmio_stl_infos_probe_all(const void* filepath)
 {
     static bool already_exec = false;
-    FILE* file = fopen(filepath, "rb");
+    const char* cfilepath = (const char*)filepath;
+    struct gmio_stl_infos infos = {0};
 
-    if (file != NULL) {
-        struct gmio_stream stream = gmio_stream_stdio(file);
-        struct gmio_stl_infos infos = {0};
-        gmio_stl_infos_probe(&infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
-
-        if (!already_exec) {
-            printf("stl_infos_probe(ALL)\n"
-                   "    File: %s\n"
-                   "    Size: %uKo\n"
-                   "    Facets: %u\n",
-                   (const char*)filepath,
-                   infos.size / 1024,
-                   infos.facet_count);
-            if (infos.format == GMIO_STL_FORMAT_ASCII)
-                printf("    [STLA]Solid name: %s\n", infos.stla_solidname);
-            else if (infos.format & GMIO_STL_FORMAT_TAG_BINARY)
-                printf("    [STLB]Header: %80.80s\n", infos.stlb_header.data);
-        }
-        already_exec = true;
+    gmio_stl_infos_probe_file(&infos, cfilepath, GMIO_STL_INFO_FLAG_ALL, NULL);
+    if (!already_exec) {
+        printf("stl_infos_probe(ALL)\n"
+               "    File: %s\n"
+               "    Size: %uKo\n"
+               "    Facets: %u\n",
+               cfilepath,
+               infos.size / 1024,
+               infos.facet_count);
+        if (infos.format == GMIO_STL_FORMAT_ASCII)
+            printf("    [STLA]Solid name: %s\n", infos.stla_solidname);
+        else if (infos.format & GMIO_STL_FORMAT_TAG_BINARY)
+            printf("    [STLB]Header: %80.80s\n", infos.stlb_header.data);
     }
-
-    fclose(file);
+    already_exec = true;
 }
 
 void bmk_gmio_stl_infos_probe_size(const void* filepath)
 {
     static bool already_exec = false;
-    FILE* file = fopen(filepath, "rb");
+    const char* cfilepath = (const char*)filepath;
+    struct gmio_stl_infos infos = {0};
 
-    if (file != NULL) {
-        struct gmio_stream stream = gmio_stream_stdio(file);
-        struct gmio_stl_infos infos = {0};
-        gmio_stl_infos_probe(&infos, &stream, GMIO_STL_INFO_FLAG_SIZE, NULL);
-
-        if (!already_exec) {
-            printf("stl_infos_probe(SIZE)\n"
-                   "    File: %s\n"
-                   "    Size: %uKo\n",
-                   (const char*)filepath,
-                   infos.size / 1024);
-        }
-        already_exec = true;
+    gmio_stl_infos_probe_file(&infos, cfilepath, GMIO_STL_INFO_FLAG_SIZE, NULL);
+    if (!already_exec) {
+        printf("stl_infos_probe(SIZE)\n"
+               "    File: %s\n"
+               "    Size: %uKo\n",
+               cfilepath,
+               infos.size / 1024);
     }
-
-    fclose(file);
+    already_exec = true;
 }
 
 int main(int argc, char** argv)

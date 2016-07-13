@@ -139,6 +139,24 @@ GMIO_API int gmio_stl_infos_probe(
                 unsigned flags,
                 const struct gmio_stl_infos_probe_options* options);
 
+/*! Finds informations about STL contents from a file
+ *
+ *  This is just a facility function over gmio_stl_infos_probe(). The internal
+ *  object is created to read file at \p filepath.
+ *
+ *  \pre <tt> infos != NULL </tt>
+ *  \pre <tt> filepath != \c NULL </tt>\n
+ *       The file is opened with \c fopen() so \p filepath shall follow the file
+ *       name specifications of the running environment
+ *
+ *  \sa gmio_stl_infos_probe(), gmio_stream_stdio(FILE*)
+ */
+GMIO_API int gmio_stl_infos_probe_file(
+                struct gmio_stl_infos* infos,
+                const char* filepath,
+                unsigned flags,
+                const struct gmio_stl_infos_probe_options* options);
+
 /*! Returns the size(in bytes) of the next STL ascii solid in \p stream
  *
  *  It is a facade over gmio_stl_infos_probe() for gmio_stl_infos::size only
