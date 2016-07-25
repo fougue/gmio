@@ -53,6 +53,13 @@ void gmio_stringstream_init_pos(struct gmio_stringstream *sstream)
     gmio_stringstream_next_char(sstream);
 }
 
+size_t gmio_stringstream_default_func_read(
+        void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
+{
+    GMIO_UNUSED(cookie);
+    return gmio_stream_read(stream, ptr, 1, len);
+}
+
 enum gmio_eat_word_error gmio_stringstream_eat_word(
         struct gmio_stringstream *sstream,
         struct gmio_string *str)
