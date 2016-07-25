@@ -73,7 +73,7 @@ struct gmio_stringstream gmio_stringstream(
 void gmio_stringstream_init_pos(struct gmio_stringstream* sstream);
 
 /*! Default function for gmio_stringstream::func_stream_read */
-GMIO_INLINE size_t gmio_stringstream_default_func_read(
+size_t gmio_stringstream_default_func_read(
         void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 
 /*! Returns the char where the iterator is currently pointing at */
@@ -144,7 +144,6 @@ GMIO_INLINE float gmio_to_float32(const char* str);
  */
 
 #include "c99_stdlib_compat.h"
-#include "helper_stream.h"
 #include "string_ascii_utils.h"
 #if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_IRRLICHT
 #  include "fast_atof.h"
@@ -161,13 +160,6 @@ const char* gmio_stringstream_current_char(
     return sstream->strbuff_at < sstream->strbuff_end ?
                 sstream->strbuff_at :
                 NULL;
-}
-
-size_t gmio_stringstream_default_func_read(
-        void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
-{
-    GMIO_UNUSED(cookie);
-    return gmio_stream_read(stream, ptr, 1, len);
 }
 
 const char *gmio_stringstream_next_char(struct gmio_stringstream *sstream)
