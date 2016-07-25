@@ -21,6 +21,7 @@ public:
     };
 
     int Size() const { return 0; }
+    int Length() const { return this->Size(); }
 
     const gp_XYZ& Value(const int /*Index*/) const
     {

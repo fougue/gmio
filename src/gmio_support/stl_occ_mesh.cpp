@@ -95,17 +95,23 @@ void gmio_stl_mesh_occmesh::init_cache()
         this->triangle_count += m_mesh->NbTriangles(dom_id);
 
     // Fill vector of triangle data
+    m_vec_domain_data.reserve(domain_count);
     m_vec_triangle_data.reserve(this->triangle_count);
     for (int dom_id = 1; dom_id <= domain_count; ++dom_id) {
         // Cache vertex indexes
         //   TColgp_SequenceOfXYZ::Value(int) is slow(linear search)
         const TColgp_SequenceOfXYZ& seq_vertices = m_mesh->Vertices(dom_id);
         struct domain_data domdata;
-        domdata.vec_coords.reserve(seq_vertices.Size());
+        domdata.vec_coords.reserve(seq_vertices.Length());
+#if OCC_VERSION_HEX >= 0x070000
         typedef TColgp_SequenceOfXYZ::const_iterator ConstIterSeqXYZ;
         const ConstIterSeqXYZ seq_end = seq_vertices.cend();
         for (ConstIterSeqXYZ it = seq_vertices.cbegin(); it != seq_end; ++it)
             domdata.vec_coords.push_back(&(*it));
+#else
+        for (int i = 1; i <= seq_vertices.Length(); ++i)
+            domdata.vec_coords.push_back(&seq_vertices.Value(i));
+#endif
         m_vec_domain_data.push_back(std::move(domdata));
 
         // Cache triangles

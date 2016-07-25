@@ -156,22 +156,34 @@ static void RWStl_WriteBinary(const void* filepath)
 
 static void StlAPI_WriteAscii(const void* filepath)
 {
-    StlAPI_Writer writer;
-    writer.ASCIIMode() = Standard_True;
-    const char* cfilepath = static_cast<const char*>(filepath);
-    const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
-    if (err != StlAPI_StatusOK)
-        std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
+    if (!BmkBRep::inputShape.IsNull()) {
+        StlAPI_Writer writer;
+        writer.ASCIIMode() = Standard_True;
+        const char* cfilepath = static_cast<const char*>(filepath);
+#if OCC_VERSION_HEX >= 0x060900
+        const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
+        if (err != StlAPI_StatusOK)
+            std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
+#else
+        writer.Write(BmkBRep::inputShape, cfilepath);
+#endif
+    }
 }
 
 static void StlAPI_WriteBinary(const void* filepath)
 {
-    StlAPI_Writer writer;
-    writer.ASCIIMode() = Standard_False;
-    const char* cfilepath = static_cast<const char*>(filepath);
-    const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
-    if (err != StlAPI_StatusOK)
-        std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
+    if (!BmkBRep::inputShape.IsNull()) {
+        StlAPI_Writer writer;
+        writer.ASCIIMode() = Standard_False;
+        const char* cfilepath = static_cast<const char*>(filepath);
+#if OCC_VERSION_HEX >= 0x060900
+        const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
+        if (err != StlAPI_StatusOK)
+            std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
+#else
+        writer.Write(BmkBRep::inputShape, cfilepath);
+#endif
+    }
 }
 
 } // namespace BmkOcc
