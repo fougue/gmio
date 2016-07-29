@@ -37,6 +37,7 @@
 #include "../../gmio_core/task_iface.h"
 #include "../../gmio_core/text_format.h"
 #include "../../gmio_core/internal/error_check.h"
+#include "../../gmio_core/internal/float_format_utils.h"
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
@@ -115,33 +116,6 @@ GMIO_INLINE char* gmio_write_rawstr_eol(char* buffer, const char* str)
 {
     buffer = gmio_write_rawstr(buffer, str);
     return gmio_write_eol(buffer);
-}
-
-GMIO_INLINE char gmio_float_text_format_to_specifier(
-        enum gmio_float_text_format format)
-{
-    switch (format) {
-    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE: return 'f';
-    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE: return 'F';
-    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE: return 'e';
-    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE: return 'E';
-    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE: return 'g';
-    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE: return 'G';
-    }
-    /* Default, should not be here */
-    return GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-}
-
-GMIO_INLINE char* gmio_write_stdio_format(
-        char* buffer, char format_specifier, uint8_t prec)
-{
-    int prec_len = 0;
-
-    buffer[0] = '%';
-    buffer[1] = '.';
-    prec_len = sprintf(buffer + 2, "%u", prec);
-    buffer[2 + prec_len] = format_specifier;
-    return buffer + 3 + prec_len;
 }
 
 struct gmio_vec3f_text_format
@@ -223,13 +197,13 @@ int gmio_stla_write(
     {
         const uint8_t f32_prec = vec_txtformat.coord_prec;
         enum gmio_float_text_format f32_format = opts->stla_float32_format;
-        const char f32_spec = gmio_float_text_format_to_specifier(f32_format);
+        const char f32_spec = gmio_float_text_format_to_stdio_specifier(f32_format);
         char* buffpos = vec_txtformat.str_printf_format;
-        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_stdio_float_format(buffpos, f32_spec, f32_prec);
         buffpos = gmio_write_char(buffpos, ' ');
-        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_stdio_float_format(buffpos, f32_spec, f32_prec);
         buffpos = gmio_write_char(buffpos, ' ');
-        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_stdio_float_format(buffpos, f32_spec, f32_prec);
         *buffpos = 0;
     }
 

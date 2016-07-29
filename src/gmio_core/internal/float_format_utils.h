@@ -27,31 +27,19 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+#ifndef GMIO_INTERNAL_FLOAT_FORMAT_UTILS_H
+#define GMIO_INTERNAL_FLOAT_FORMAT_UTILS_H
 
-#include "../src/gmio_core/stream.h"
+#include "../text_format.h"
 
-/* Read-only buffer */
-struct gmio_ro_buffer
-{
-    const void* ptr;
-    size_t len;
-    size_t pos;
-};
+char gmio_float_text_format_to_stdio_specifier(
+        enum gmio_float_text_format format);
 
-/* Read/write buffer */
-struct gmio_rw_buffer
-{
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
+char* gmio_write_stdio_float_format(
+        char* buffer, char specifier, uint8_t prec);
 
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+struct gmio_string_16 { char array[16]; };
+struct gmio_string_16 gmio_to_stdio_float_format(
+        enum gmio_float_text_format format, uint8_t prec);
 
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
-
-#endif /* GMIO_STREAM_BUFFER_H */
+#endif /* GMIO_INTERNAL_FLOAT_FORMAT_UTILS_H */

@@ -34,16 +34,6 @@
 
 #include <stddef.h>
 
-/*! Stores a read-only string of 8-bit chars
- *
- *  For faster lookups, it knowns the length of its contents.
- */
-struct gmio_const_string
-{
-    const char* ptr; /*!< Contents */
-    size_t len;      /*!< Size(length) of current contents */
-};
-
 /*! Stores a mutable string of 8-bit chars
  *
  *  For faster lookups, it knowns the length of its contents. Length must not
@@ -55,19 +45,6 @@ struct gmio_string
     size_t len; /*!< Size(length) of current contents */
     size_t capacity; /*!< Maximum contents size */
 };
-
-/*! Expands to bracket initialization of a gmio_const_string from const char[]
- *
- *  Example:
- *  \code{.c}
- *      static const char token[] = "woops";
- *      struct gmio_const_string token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
- *  \endcode
- */
-#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
-
-/*! Returns an initialized struct gmio_const_string object */
-GMIO_INLINE struct gmio_const_string gmio_const_string(const char* ptr, size_t len);
 
 /*! Returns an initialized struct gmio_string object
  *
@@ -98,14 +75,6 @@ GMIO_INLINE char* gmio_cstr_copy(
 
 #include <string.h>
 #include "min_max.h"
-
-struct gmio_const_string gmio_const_string(const char* ptr, size_t len)
-{
-    struct gmio_const_string cstr;
-    cstr.ptr = ptr;
-    cstr.len = len;
-    return cstr;
-}
 
 struct gmio_string gmio_string(char* ptr, size_t len, size_t capacity)
 {

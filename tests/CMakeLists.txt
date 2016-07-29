@@ -48,14 +48,23 @@ set(GMIO_TEST_CORE_SRC
 if(GMIO_BUILD_SHARED_LIBS)
     # Note_1: MSVC wants it because internal symbols are not exported (GCC
     #         exports all symbols)
+    if(GMIO_STR2FLOAT_LIBCODE EQUAL 2 OR GMIO_FLOAT2STR_LIBCODE EQUAL 2)
+        file(GLOB  GMIO_GOOGLE_DBLCONV_SRC  ../src/3rdparty/double-conversion/*.cc)
+        set(GMIO_TEST_CORE_SRC
+                ${GMIO_TEST_CORE_SRC}
+                ${GMIO_GOOGLE_DBLCONV_SRC}
+                ../src/gmio_core/internal/google_doubleconversion.cpp)
+    endif()
     set(GMIO_TEST_CORE_SRC
             ${GMIO_TEST_CORE_SRC}
+            ../src/3rdparty/miloyip_itoa/branchlut.c
+            ../src/3rdparty/base64/b64.c
             ../src/gmio_core/internal/error_check.c
             ../src/gmio_core/internal/locale_utils.c
             ../src/gmio_core/internal/numeric_utils.c
+            ../src/gmio_core/internal/ostringstream.c
             ../src/gmio_core/internal/stringstream.c)
 endif()
-
 add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
 target_link_libraries(test_core gmio)
 
@@ -75,9 +84,15 @@ if(GMIO_BUILD_SHARED_LIBS)
             ../src/gmio_core/internal/numeric_utils.c
             ../src/gmio_stl/internal/stl_error_check.c)
 endif()
-
 add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})
 target_link_libraries(test_stl gmio)
+
+# test_amf
+set(GMIO_TEST_AMF_SRC
+        main_test_amf.c
+        stream_buffer.c)
+add_executable(test_amf EXCLUDE_FROM_ALL ${GMIO_TEST_AMF_SRC})
+target_link_libraries(test_amf gmio)
 
 # fake_support
 if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
@@ -94,5 +109,5 @@ endif()
 # Declare tests
 add_test(NAME test_core  COMMAND test_core)
 add_test(NAME test_stl   COMMAND test_stl)
-
-add_dependencies(check test_core test_stl)
+add_test(NAME test_amf   COMMAND test_amf)
+add_dependencies(check test_core test_stl test_amf)

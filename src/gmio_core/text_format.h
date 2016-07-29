@@ -39,7 +39,8 @@
 
 #include "global.h"
 
-/*! This enum defines the various formats to textually represent a float */
+/*! This enum defines the various formats to textually represent a float(single
+ *  or double precision) */
 enum gmio_float_text_format
 {
     /*! Decimal floating point, lowercase (ex: 392.65) */

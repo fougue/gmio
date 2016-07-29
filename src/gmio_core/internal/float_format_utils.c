@@ -27,31 +27,41 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+#include "float_format_utils.h"
 
-#include "../src/gmio_core/stream.h"
+#include <stdio.h>
 
-/* Read-only buffer */
-struct gmio_ro_buffer
+char gmio_float_text_format_to_stdio_specifier(
+        enum gmio_float_text_format format)
 {
-    const void* ptr;
-    size_t len;
-    size_t pos;
-};
+    switch (format) {
+    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE: return 'f';
+    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE: return 'F';
+    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE: return 'e';
+    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE: return 'E';
+    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE: return 'g';
+    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE: return 'G';
+    }
+    /* Default, should not be here */
+    return GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
+}
 
-/* Read/write buffer */
-struct gmio_rw_buffer
+char* gmio_write_stdio_float_format(char* buffer, char specifier, uint8_t prec)
 {
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
+    int prec_len = 0;
 
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+    buffer[0] = '%';
+    buffer[1] = '.';
+    prec_len = sprintf(buffer + 2, "%u", prec);
+    buffer[2 + prec_len] = specifier;
+    return buffer + 3 + prec_len;
+}
 
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
-
-#endif /* GMIO_STREAM_BUFFER_H */
+struct gmio_string_16 gmio_to_stdio_float_format(
+        enum gmio_float_text_format format, uint8_t prec)
+{
+    struct gmio_string_16 buff = {0};
+    const char spec = gmio_float_text_format_to_stdio_specifier(format);
+    gmio_write_stdio_float_format(buff.array, spec, prec);
+    return buff;
+}
