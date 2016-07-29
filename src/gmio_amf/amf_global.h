@@ -27,31 +27,40 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+/*! \file amf_global.h
+ *  Global declarations for the AMF module
+ *
+ *  \defgroup gmio_amf gmioAMF
+ *  Provides API to handle input/output operations with the AMF file format
+ *
+ *  In addition, the gmioAMF module has the following advatanges:
+ *  \li The user keeps its own geometry data structures, no conversion needed.
+ *  \li Fixed memory consumption and independant of the geometry size
+ *
+ *  In this module, the name of all entities(structures, functions, ...) are
+ *  prefixed either with \c gmio_amf
+ *
+ *  <table>
+ *    <tr>
+ *      <th></th>  <th>Functions</th>  <th>Structures</th>
+ *    </tr>
+ *    <tr>
+ *      <td>Write</td>
+ *      <td>gmio_amf_write()<br/>
+ *          gmio_amf_write_file()</td>
+ *      <td>gmio_amf_document <br/>
+ *          gmio_amf_write_options</td>
+ *    </tr>
+ *  </table>
+ *
+ *  \addtogroup gmio_amf
+ *  @{
+ */
 
-#include "../src/gmio_core/stream.h"
+#ifndef GMIO_AMF_GLOBAL_H
+#define GMIO_AMF_GLOBAL_H
 
-/* Read-only buffer */
-struct gmio_ro_buffer
-{
-    const void* ptr;
-    size_t len;
-    size_t pos;
-};
+#include "../gmio_core/global.h"
 
-/* Read/write buffer */
-struct gmio_rw_buffer
-{
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
-
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
-
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
-
-#endif /* GMIO_STREAM_BUFFER_H */
+#endif /* GMIO_AMF_GLOBAL_H */
+/*! @} */

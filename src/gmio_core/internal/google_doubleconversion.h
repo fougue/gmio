@@ -42,8 +42,16 @@
 
 GMIO_C_LINKAGE_BEGIN
 float gmio_str2float_googledoubleconversion(const char* num, size_t numlen);
+double gmio_str2double_googledoubleconversion(const char* num, size_t numlen);
+
 int gmio_float2str_googledoubleconversion(
         float value,
+        char* buff,
+        size_t bufflen,
+        enum gmio_float_text_format textformat,
+        uint8_t prec);
+int gmio_double2str_googledoubleconversion(
+        double value,
         char* buff,
         size_t bufflen,
         enum gmio_float_text_format textformat,

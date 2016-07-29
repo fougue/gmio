@@ -43,5 +43,6 @@ build_script:
  - cmake --build . --config %CONFIGURATION%
  - cmake --build . --target test_core --config %CONFIGURATION%
  - cmake --build . --target test_stl  --config %CONFIGURATION%
+ - cmake --build . --target test_amf  --config %CONFIGURATION%
  - set PATH=%APPVEYOR_BUILD_FOLDER%\build\src\%CONFIGURATION%;%PATH%
  - cd tests && ctest . -V -C %CONFIGURATION%

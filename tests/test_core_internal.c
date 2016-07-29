@@ -39,6 +39,7 @@
 #include "../src/gmio_core/internal/fast_atof.h"
 #include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
+#include "../src/gmio_core/internal/ostringstream.h"
 #include "../src/gmio_core/internal/safe_cast.h"
 #include "../src/gmio_core/internal/stringstream.h"
 #include "../src/gmio_core/internal/stringstream_fast_atof.h"
@@ -279,6 +280,89 @@ static const char* test_internal__stringstream()
         UTEST_ASSERT(strcmp(str_copy.ptr, "Unecitation,o") == 0);
     }
 
+    return NULL;
+}
+
+static const char* test_internal__ostringstream()
+{
+    static const size_t size = 8192;
+    char* input = malloc(size);
+    char* output = malloc(size);
+    char strbuff[256] = {0};
+    struct gmio_rw_buffer rwbuff = gmio_rw_buffer(output, size, 0);
+    struct gmio_ostringstream sstream =
+            gmio_ostringstream(
+                gmio_stream_buffer(&rwbuff),
+                gmio_string(strbuff, 0, sizeof(strbuff) - 1));
+
+    {   /* Create "input" string */
+        size_t i = 0;
+        for (i = 0; i < size; ++i) {
+            const char c = 32 + (i % 94); /* Printable ASCII chars */
+            input[i] = c;
+        }
+        /* Test gmio_ostringstream_write_char() */
+        for (i = 0; i < size; ++i)
+            gmio_ostringstream_write_char(&sstream, input[i]);
+        gmio_ostringstream_flush(&sstream);
+        UTEST_ASSERT(strncmp(input, output, size) == 0);
+
+        /* Test gmio_ostringstream_write_[ui]32() */
+        {
+            static const char result[] =
+                    "20 12345 0 -1 -12345678 4294967295 2147483647";
+            static const unsigned result_len = sizeof(result) - 1;
+            rwbuff.pos = 0;
+            gmio_ostringstream_write_u32(&sstream, 20);
+            gmio_ostringstream_write_char(&sstream, ' ');
+            gmio_ostringstream_write_u32(&sstream, 12345);
+            gmio_ostringstream_write_char(&sstream, ' ');
+            gmio_ostringstream_write_u32(&sstream, 0);
+            gmio_ostringstream_write_char(&sstream, ' ');
+            gmio_ostringstream_write_i32(&sstream, -1);
+            gmio_ostringstream_write_char(&sstream, ' ');
+            gmio_ostringstream_write_i32(&sstream, -12345678);
+            gmio_ostringstream_write_char(&sstream, ' ');
+            gmio_ostringstream_write_u32(&sstream, (uint32_t)-1);
+            gmio_ostringstream_write_char(&sstream, ' ');
+            gmio_ostringstream_write_i32(&sstream, ((uint32_t)1 << 31) - 1);
+            gmio_ostringstream_flush(&sstream);
+            UTEST_ASSERT(strncmp(result, sstream.strbuff.ptr, result_len) == 0);
+            UTEST_ASSERT(strncmp(result, output, result_len) == 0);
+        }
+
+        /* Test gmio_ostringstream_write_base64() */
+        {
+            static const char str[] = "Fougue+gmio";
+            static const char str_b64[] = "Rm91Z3VlK2dtaW8=";
+            static const unsigned str_len = sizeof(str) - 1;
+            static const unsigned str_b64_len = sizeof(str_b64) - 1;
+            rwbuff.pos = 0;
+            gmio_ostringstream_write_base64(
+                        &sstream, (unsigned const char*)str, str_len);
+            gmio_ostringstream_flush(&sstream);
+            UTEST_ASSERT(strncmp(str_b64, sstream.strbuff.ptr, str_b64_len) == 0);
+            UTEST_ASSERT(strncmp(str_b64, output, str_b64_len) == 0);
+        }
+
+        /* Test gmio_ostringstream_write_xml...() */
+        {
+            static const char result[] =
+                    " foo=\"crac\" bar=\"456789\"<![CDATA[]]>";
+            static const unsigned result_len = sizeof(result) - 1;
+            rwbuff.pos = 0;
+            gmio_ostringstream_write_xmlattr_str(&sstream, "foo", "crac");
+            gmio_ostringstream_write_xmlattr_u32(&sstream, "bar", 456789);
+            gmio_ostringstream_write_xmlcdata_open(&sstream);
+            gmio_ostringstream_write_xmlcdata_close(&sstream);
+            gmio_ostringstream_flush(&sstream);
+            UTEST_ASSERT(strncmp(result, sstream.strbuff.ptr, result_len) == 0);
+            UTEST_ASSERT(strncmp(result, output, result_len) == 0);
+        }
+    }
+
+    free(input);
+    free(output);
     return NULL;
 }
 

@@ -27,31 +27,50 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+#ifndef GMIO_INTERNAL_ITOA_H
+#define GMIO_INTERNAL_ITOA_H
 
-#include "../src/gmio_core/stream.h"
+#include "../global.h"
 
-/* Read-only buffer */
-struct gmio_ro_buffer
+GMIO_INLINE char* gmio_u32toa(uint32_t value, char* str);
+GMIO_INLINE char* gmio_i32toa(int32_t value, char* str);
+#ifdef GMIO_HAVE_INT64_TYPE
+GMIO_INLINE char* gmio_u64toa(uint64_t value, char* str);
+GMIO_INLINE char* gmio_i64toa(int64_t value, char* str);
+#endif
+
+/*
+ * Implementation
+ */
+
+#include "../../3rdparty/miloyip_itoa/branchlut.h"
+
+char* gmio_u32toa(uint32_t value, char* str)
 {
-    const void* ptr;
-    size_t len;
-    size_t pos;
-};
+    if (value < 10) {
+        *str++ = '0' + (char)value;
+        return str;
+    }
+    else {
+        return u32toa_branchlut(value, str);
+    }
+}
 
-/* Read/write buffer */
-struct gmio_rw_buffer
+char* gmio_i32toa(int32_t value, char* str)
 {
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
+    return i32toa_branchlut(value, str);
+}
 
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+#ifdef GMIO_HAVE_INT64_TYPE
+char* gmio_u64toa(uint64_t value, char* str)
+{
+    return u64toa_branchlut(value, str);
+}
 
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
+char* gmio_i64toa(int64_t value, char* str)
+{
+    return i64toa_branchlut(value, str);
+}
+#endif /* GMIO_HAVE_INT64_TYPE */
 
-#endif /* GMIO_STREAM_BUFFER_H */
+#endif /* GMIO_INTERNAL_ITOA_H */

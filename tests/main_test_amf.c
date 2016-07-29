@@ -27,31 +27,29 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+#include "utest_lib.h"
 
-#include "../src/gmio_core/stream.h"
+#include "../src/gmio_core/global.h"
+#include "../src/gmio_core/memblock.h"
 
-/* Read-only buffer */
-struct gmio_ro_buffer
+#include "test_amf_io.c"
+
+#include <stddef.h>
+
+/* Static memblock */
+struct gmio_memblock gmio_memblock_for_tests()
 {
-    const void* ptr;
-    size_t len;
-    size_t pos;
-};
+    return gmio_memblock_malloc(512 * 1024); /* 512KB */
+}
 
-/* Read/write buffer */
-struct gmio_rw_buffer
+const char* all_tests()
 {
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
+    UTEST_SUITE_START();
 
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+    gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
 
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
+    UTEST_RUN(test_amf_write);
 
-#endif /* GMIO_STREAM_BUFFER_H */
+    return NULL;
+}
+UTEST_MAIN(all_tests)

@@ -27,31 +27,61 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+/*! \file const_string.h
+ *  Declaration of gmio_const_string and utility functions
+ *
+ *  \addtogroup gmio_core
+ *  @{
+ */
 
-#include "../src/gmio_core/stream.h"
+#ifndef GMIO_CONST_STRING_H
+#define GMIO_CONST_STRING_H
 
-/* Read-only buffer */
-struct gmio_ro_buffer
+#include "global.h"
+
+#include <stddef.h>
+
+/*! Stores a read-only string of 8-bit chars
+ *
+ *  For faster lookups, it knowns the length of its contents.
+ */
+struct gmio_const_string
 {
-    const void* ptr;
-    size_t len;
-    size_t pos;
+    const char* ptr; /*!< Contents */
+    size_t len;      /*!< Size(length) of current contents */
 };
 
-/* Read/write buffer */
-struct gmio_rw_buffer
+/*! Expands to bracket initialization of a gmio_const_string from const char[]
+ *
+ *  Example:
+ *  \code{.c}
+ *      static const char token[] = "woops";
+ *      struct gmio_const_string token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
+ *  \endcode
+ */
+#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
+
+/*! Returns an initialized gmio_const_string object */
+GMIO_INLINE struct gmio_const_string gmio_const_string(const char* ptr, size_t len);
+
+/*! Returns \c true if \p str has no characters, otherwise returns \c false */
+GMIO_INLINE bool gmio_const_string_is_empty(const struct gmio_const_string* str);
+
+/*
+ * -- Implementation
+ */
+
+struct gmio_const_string gmio_const_string(const char* ptr, size_t len)
 {
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
+    struct gmio_const_string cstr;
+    cstr.ptr = ptr;
+    cstr.len = len;
+    return cstr;
+}
 
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+bool gmio_const_string_is_empty(const struct gmio_const_string* str)
+{
+    return str->ptr == NULL || str->len == 0;
+}
 
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
-
-#endif /* GMIO_STREAM_BUFFER_H */
+#endif /* GMIO_CONST_STRING_H */

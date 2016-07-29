@@ -32,6 +32,7 @@ set(CMAKE_CTEST_COMMAND ctest -V --timeout 120)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
+include_directories(${ZLIB_INCLUDE_DIRS})
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 
@@ -41,7 +42,6 @@ set(GMIO_TEST_CORE_SRC
         core_utils.c
         stream_buffer.c
         ../benchmarks/commons/benchmark_tools.c)
-
 add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
 target_link_libraries(test_core gmio_static)
 
@@ -53,9 +53,16 @@ set(GMIO_TEST_STL_SRC
         stl_testcases.c
         core_utils.c
         stl_utils.c)
-
 add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})
 target_link_libraries(test_stl gmio_static)
+
+# test_amf
+set(GMIO_TEST_AMF_SRC
+        main_test_amf.c
+        stream_buffer.c)
+add_executable(test_amf EXCLUDE_FROM_ALL ${GMIO_TEST_AMF_SRC})
+target_link_libraries(test_amf gmio_static)
+target_link_libraries(test_amf ${ZLIB_LIBRARIES})
 
 # fake_support
 if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
@@ -72,5 +79,5 @@ endif()
 # Declare tests
 add_test(NAME test_core  COMMAND test_core)
 add_test(NAME test_stl   COMMAND test_stl)
-
-add_dependencies(check test_core test_stl)
+add_test(NAME test_amf   COMMAND test_amf)
+add_dependencies(check test_core test_stl test_amf)

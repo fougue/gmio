@@ -27,31 +27,59 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+/*! \file amf_io.h
+ *  AMF read/write functions
+ *
+ *  \addtogroup gmio_amf
+ *  @{
+ */
 
-#include "../src/gmio_core/stream.h"
+#ifndef GMIO_AMF_IO_H
+#define GMIO_AMF_IO_H
 
-/* Read-only buffer */
-struct gmio_ro_buffer
-{
-    const void* ptr;
-    size_t len;
-    size_t pos;
-};
+#include "amf_global.h"
+#include "amf_document.h"
+#include "amf_io_options.h"
+#include "../gmio_core/stream.h"
 
-/* Read/write buffer */
-struct gmio_rw_buffer
-{
-    void* ptr;
-    size_t len;
-    size_t pos;
-};
+GMIO_C_LINKAGE_BEGIN
 
-struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
-struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
+/*! Writes AMF document to stream
+ *
+ *  \pre <tt> stream != NULL </tt>
+ *  \pre <tt> doc != NULL </tt>
+ *
+ *  \p options may be \c NULL in this case default values are used
+ *
+ *  \return Error code (see gmio_core/error.h and amf_error.h)
+ *
+ *  \sa gmio_amf_write_file()
+ */
+GMIO_API int gmio_amf_write(
+        struct gmio_stream* stream,
+        const struct gmio_amf_document* doc,
+        const struct gmio_amf_write_options* opts);
 
-struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
+/*! Writes AMF document to stream
+ *
+ *  This is just a facility function over gmio_amf_write(). The internal stream
+ *  object is created to read file at \p filepath
+ *
+ *  \pre <tt> filepath != \c NULL </tt>\n
+ *       The file is opened with \c fopen() so \p filepath shall follow the file
+ *       name specifications of the running environment
+ *  \pre <tt> doc != NULL </tt>
+ *
+ *  \return Error code (see gmio_core/error.h and amf_error.h)
+ *
+ *  \sa gmio_amf_write(), gmio_stream_stdio(FILE*)
+ */
+GMIO_API int gmio_amf_write_file(
+        const char* filepath,
+        const struct gmio_amf_document* doc,
+        const struct gmio_amf_write_options* opts);
 
-#endif /* GMIO_STREAM_BUFFER_H */
+GMIO_C_LINKAGE_END
+
+#endif /* GMIO_AMF_IO_H */
+/*! @} */

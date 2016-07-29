@@ -92,8 +92,8 @@
 
 /* GMIO_HAVE_INT64_TYPE */
 #if defined(GMIO_HAVE_INT64_T) \
-      || defined(GMIO_HAVE_MSVC_INT64) \
-        || defined(GMIO_HAVE_LONG_LONG)
+    || defined(GMIO_HAVE_MSVC_INT64) \
+    || defined(GMIO_HAVE_LONG_LONG)
 #  define GMIO_HAVE_INT64_TYPE
 #endif
 

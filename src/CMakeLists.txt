@@ -39,6 +39,12 @@ file(GLOB  GMIO_SRC_FILES  gmio_core/*  gmio_core/internal/*)
 if(GMIO_STR2FLOAT_LIBCODE EQUAL 2 OR GMIO_FLOAT2STR_LIBCODE EQUAL 2)
     file(GLOB  GMIO_3RDPARTY_FILES  3rdparty/double-conversion/*)
 endif()
+set(GMIO_3RDPARTY_FILES
+        ${GMIO_3RDPARTY_FILES}
+        3rdparty/miloyip_itoa/branchlut.h
+        3rdparty/miloyip_itoa/branchlut.c
+        3rdparty/base64/b64.h
+        3rdparty/base64/b64.c)
 set(GMIO_SRC_FILES  ${GMIO_SRC_FILES} ${GMIO_3RDPARTY_FILES})
 
 configure_file(gmio_core/version.h.cmake gmio_core/version.h @ONLY)
@@ -59,6 +65,12 @@ set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBSTL_SRC_FILES})
 file(GLOB  GMIO_LIBSTL_HEADERS  gmio_stl/*.h)
 install(FILES ${GMIO_LIBSTL_HEADERS} DESTINATION include/gmio_stl)
 
+# Module libAMF
+file(GLOB  GMIO_LIBAMF_SRC_FILES  gmio_amf/*  gmio_amf/internal/*)
+set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBAMF_SRC_FILES})
+
+file(GLOB  GMIO_LIBAMF_HEADERS  gmio_amf/*.h)
+install(FILES ${GMIO_LIBAMF_HEADERS} DESTINATION include/gmio_amf)
 
 # Common for support modules
 install(FILES gmio_support/support_global.h DESTINATION include/gmio_support)
