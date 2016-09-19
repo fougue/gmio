@@ -38,13 +38,9 @@
 #define GMIO_STL_INFOS_H
 
 #include "stl_global.h"
-
-#include "../gmio_core/internal/helper_stream.h"
-
-#include <stddef.h>
-
 #include "stl_format.h"
 #include "stlb_header.h"
+#include <stddef.h>
 
 /*! Informations retrieved by gmio_stl_infos_get() */
 struct gmio_stl_infos
