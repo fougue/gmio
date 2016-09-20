@@ -95,18 +95,24 @@ void gmio_stl_mesh_occmesh::init_cache()
         this->triangle_count += m_mesh->NbTriangles(dom_id);
 
     // Fill vector of triangle data
-    m_vec_triangle_data.reserve(this->triangle_count);
+    m_vec_domain_data.resize(domain_count);
+    m_vec_triangle_data.resize(this->triangle_count);
+    std::size_t vec_tri_id = 0;
     for (int dom_id = 1; dom_id <= domain_count; ++dom_id) {
         // Cache vertex indexes
         //   TColgp_SequenceOfXYZ::Value(int) is slow(linear search)
         const TColgp_SequenceOfXYZ& seq_vertices = m_mesh->Vertices(dom_id);
-        struct domain_data domdata;
-        domdata.vec_coords.reserve(seq_vertices.Size());
+        struct domain_data& domdata = m_vec_domain_data.at(dom_id - 1);
+        domdata.vec_coords.reserve(seq_vertices.Length());
+#if OCC_VERSION_HEX >= 0x070000
         typedef TColgp_SequenceOfXYZ::const_iterator ConstIterSeqXYZ;
         const ConstIterSeqXYZ seq_end = seq_vertices.cend();
         for (ConstIterSeqXYZ it = seq_vertices.cbegin(); it != seq_end; ++it)
             domdata.vec_coords.push_back(&(*it));
-        m_vec_domain_data.push_back(std::move(domdata));
+#else
+        for (int i = 1; i <= seq_vertices.Length(); ++i)
+            domdata.vec_coords.push_back(&seq_vertices.Value(i));
+#endif
 
         // Cache triangles
         const StlMesh_SequenceOfMeshTriangle& seq_triangles =
@@ -114,10 +120,10 @@ void gmio_stl_mesh_occmesh::init_cache()
         for (int tri_id = 1; tri_id <= seq_triangles.Length(); ++tri_id) {
             const Handle_StlMesh_MeshTriangle& hnd_occtri =
                     seq_triangles.Value(tri_id);
-            struct triangle_data tridata;
+            struct triangle_data& tridata = m_vec_triangle_data.at(vec_tri_id);
             tridata.ptr_triangle = hnd_occtri.operator->();
-            tridata.ptr_domain = &m_vec_domain_data.back();
-            m_vec_triangle_data.push_back(std::move(tridata));
+            tridata.ptr_domain = &domdata;
+            ++vec_tri_id;
         }
     }
 }

@@ -45,13 +45,6 @@ add_executable(occstl_write_file
                    occstl_write_file.cpp ${SUPPORT_STL_OCC_FILES})
 add_executable(occstl_redefine_mesh_creator
                    occstl_redefine_mesh_creator.cpp ${SUPPORT_STL_OCC_FILES})
-if(CMAKE_COMPILER_IS_GNUCC)
-    set_target_properties(
-        occstl_read_file
-        occstl_write_file
-        occstl_redefine_mesh_creator
-        PROPERTIES COMPILE_FLAGS "-std=c++0x")
-endif()
 
 # gmio STL
 add_executable(stl_get_infos  stl_get_infos.c)

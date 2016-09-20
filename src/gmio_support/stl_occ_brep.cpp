@@ -61,32 +61,34 @@ gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
     }
 
     // Fill face and triangle datas
-    m_vec_face_data.reserve(face_count);
-    m_vec_triangle_data.reserve(this->triangle_count);
+    std::size_t vec_face_id = 0;
+    std::size_t vec_tri_id = 0;
+    m_vec_face_data.resize(face_count);
+    m_vec_triangle_data.resize(this->triangle_count);
     for (TopExp_Explorer expl(shape, TopAbs_FACE); expl.More(); expl.Next()) {
         const TopoDS_Face& topoface = TopoDS::Face(expl.Current());
         TopLoc_Location loc;
         const Handle_Poly_Triangulation& hnd_face_poly =
                 BRep_Tool::Triangulation(topoface, loc);
         if (!hnd_face_poly.IsNull()) {
-            {   // Add next face_data
-                struct face_data facedata;
-                facedata.trsf = loc.Transformation();
-                facedata.is_reversed = (topoface.Orientation() == TopAbs_REVERSED);
-                if (facedata.trsf.IsNegative())
-                    facedata.is_reversed = !facedata.is_reversed;
-                facedata.ptr_nodes = &hnd_face_poly->Nodes();
-                m_vec_face_data.push_back(std::move(facedata));
-            }
-            const struct face_data& last_facedata = m_vec_face_data.back();
-            // Add triangle_datas
+            // Copy next face_data
+            struct face_data& facedata = m_vec_face_data.at(vec_face_id);
+            facedata.trsf = loc.Transformation();
+            facedata.is_reversed = (topoface.Orientation() == TopAbs_REVERSED);
+            if (facedata.trsf.IsNegative())
+                facedata.is_reversed = !facedata.is_reversed;
+            facedata.ptr_nodes = &hnd_face_poly->Nodes();
+
+            // Copy triangle_datas
             const Poly_Array1OfTriangle& vec_face_tri = hnd_face_poly->Triangles();
             for (int i = vec_face_tri.Lower(); i <= vec_face_tri.Upper(); ++i) {
-                struct triangle_data tridata;
+                struct triangle_data& tridata = m_vec_triangle_data.at(vec_tri_id);
                 tridata.ptr_triangle = &vec_face_tri.Value(i);
-                tridata.ptr_face_data = &last_facedata;
-                m_vec_triangle_data.push_back(std::move(tridata));
+                tridata.ptr_face_data = &facedata;
+                ++vec_tri_id;
             }
+
+            ++vec_face_id;
         }
     }
 }

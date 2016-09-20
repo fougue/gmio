@@ -31,6 +31,7 @@
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_swap.h"
+#include "../../gmio_core/internal/helper_stream.h"
 
 #include <string.h>
 

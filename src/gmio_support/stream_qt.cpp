@@ -99,7 +99,7 @@ static int gmio_stream_qiodevice_set_pos(
 
 struct gmio_stream gmio_stream_qiodevice(QIODevice* device)
 {
-    struct gmio_stream stream = {0};
+    struct gmio_stream stream = {};
     stream.cookie = device;
     stream.func_at_end = gmio_stream_qiodevice_at_end;
     stream.func_error = gmio_stream_qiodevice_error;
