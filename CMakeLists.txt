@@ -323,6 +323,7 @@ if(MSVC)
 
     # Treat some warnings as errors
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4013")
 
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))

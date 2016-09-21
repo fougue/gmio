@@ -34,6 +34,7 @@
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
+#include "../src/gmio_core/internal/helper_stream.h"
 
 #include <stdio.h>
 #include <string.h>
