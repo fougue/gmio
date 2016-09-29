@@ -34,9 +34,10 @@
 #include "stl_utils.h"
 
 #include "../src/gmio_core/error.h"
+#include "../src/gmio_core/internal/helper_stream.h"
+#include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/min_max.h"
 #include "../src/gmio_core/internal/string.h"
-#include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_stl/stl_error.h"
 #include "../src/gmio_stl/stl_infos.h"
 #include "../src/gmio_stl/stl_io.h"
@@ -333,12 +334,13 @@ static const char* __tstl__test_stl_read_multi_solid(
         struct gmio_stl_read_options roptions = {0};
         struct gmio_stl_mesh_creator null_creator = {0};
         roptions.func_stla_get_streamsize = gmio_stla_infos_get_streamsize;
-        while (gmio_no_error(error)) {
+        while (gmio_no_error(error) && !gmio_stream_at_end(&stream)) {
             error = gmio_stl_read(&stream, &null_creator, &roptions);
             if (gmio_no_error(error))
                 ++solid_count;
         }
         fclose(infile);
+        UTEST_ASSERT(gmio_no_error(error));
         UTEST_COMPARE_UINT(expected_solid_count, solid_count);
     }
     else {
@@ -434,7 +436,7 @@ static void generate_stlb_tests_models()
         struct gmio_stream ostream = gmio_stream_stdio(outfile);
         struct gmio_stl_read_options ropts = {0};
         ropts.func_stla_get_streamsize = gmio_stla_infos_get_streamsize;
-        while (gmio_no_error(read_error)) {
+        while (gmio_no_error(read_error) && !gmio_stream_at_end(&istream)) {
             struct gmio_stl_data data = {0};
             struct gmio_stl_mesh_creator creator = gmio_stl_data_mesh_creator(&data);
             struct gmio_stl_mesh mesh = {0};

@@ -190,11 +190,23 @@ int gmio_stlb_read(
         gmio_task_iface_handle_progress(task, i_facet, total_facet_count);
     } /* end while */
 
-    if (gmio_no_error(error))
+    if (gmio_no_error(error)) {
         gmio_stl_mesh_creator_end_solid(mesh_creator);
-
-    if (gmio_no_error(error) && i_facet != total_facet_count)
-        error = GMIO_STL_ERROR_FACET_COUNT;
+        if (i_facet != total_facet_count) {
+            error = GMIO_STL_ERROR_FACET_COUNT;
+            goto label_end;
+        }
+        /* Try to eat EOF by probing next byte in stream */
+        if (!gmio_stream_at_end(stream)) {
+            struct gmio_streampos oldpos;
+            if (gmio_stream_get_pos(stream, &oldpos) == 0) {
+                uint8_t c;
+                gmio_stream_read_bytes(stream, &c, 1);
+                if (!gmio_stream_at_end(stream))
+                    gmio_stream_set_pos(stream, &oldpos);
+            }
+        }
+    }
 
 label_end:
     gmio_memblock_helper_release(&mblock_helper);
