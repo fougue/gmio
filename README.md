@@ -9,7 +9,7 @@
 </a>
 [![Coverage Status](https://coveralls.io/repos/fougue/gmio/badge.svg?branch=master&service=github)](https://coveralls.io/github/fougue/gmio?branch=master) 
 [![License](https://img.shields.io/badge/license-BSD%202--clause-blue.svg)](https://github.com/fougue/gmio/blob/master/LICENSE.txt)
-[![Version](https://img.shields.io/badge/version-v0.3.1-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
+[![Version](https://img.shields.io/badge/version-v0.3.2-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
 
 
 C library for geometry input/output

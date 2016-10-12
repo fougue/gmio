@@ -183,13 +183,26 @@ int gmio_stla_infos_get(
                 gmio_stringstream_skip_until_ascii_space(&sstream);
             }
         }
-        { /* Eat whole line */
+        {
+            /* Eat whole line containing "endsolid" */
             const char* c = gmio_stringstream_current_char(&sstream);
             while (c != NULL && *c != '\n' && *c != '\r')
                 c = gmio_stringstream_next_char(&sstream);
+            /* Try to move stream pos on EOF or next solid */
+            gmio_stringstream_skip_ascii_spaces(&sstream);
         }
-        infos->size -= sstream.strbuff_end - sstream.strbuff_at;
-        infos->size = GMIO_MAX(0, infos->size);
+        {
+            /* Whitespaces were just previously skipped, the stream pos can at
+             * either :
+             *     - on EOF => fine, stream is exhausted
+             *     - on some non-W/S => stream is then one char too far
+             * These two cases are detected by testing result of the
+             * stringstream's current char */
+            const int end_offset =
+                    gmio_stringstream_current_char(&sstream) != NULL ? 1 : 0;
+            infos->size -= sstream.strbuff_end - sstream.strbuff_at + end_offset;
+            infos->size = GMIO_MAX(0, infos->size);
+        }
     }
 
     return err;

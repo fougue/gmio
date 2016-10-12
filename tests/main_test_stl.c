@@ -50,6 +50,10 @@ const char* all_tests()
 
     gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
 
+#if 0
+    generate_stlb_tests_models();
+#endif
+
     UTEST_RUN(test_stl_coords_packing);
     UTEST_RUN(test_stl_triangle_packing);
     UTEST_RUN(test_stl_triangle_compute_normal);
@@ -68,10 +72,6 @@ const char* all_tests()
 
     UTEST_RUN(test_stlb_header_str);
     UTEST_RUN(test_stlb_header_to_printable_str);
-
-#if 0
-    generate_stlb_tests_models();
-#endif
 
     return NULL;
 }
