@@ -30,12 +30,14 @@
 #include "stla_infos_probe.h"
 
 #include "../../gmio_core/error.h"
+#include "../../gmio_core/internal/error_check.h"
+#include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/stringstream.h"
 #include "../stl_error.h"
 #include "stla_parsing.h"
-#include "stl_rw_common.h"
+#include "stl_error_check.h"
 
 #include <string.h>
 

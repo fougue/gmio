@@ -35,6 +35,7 @@
 #include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/byte_swap.h"
 #include "../src/gmio_core/internal/convert.h"
+#include "../src/gmio_core/internal/error_check.h"
 #include "../src/gmio_core/internal/fast_atof.h"
 #include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
@@ -381,4 +382,45 @@ static const char* test_internal__locale_utils()
     error_str = __tc__test_internal__locale_utils();
     gmio_lc_numeric_restore();
     return error_str;
+}
+
+static const char* test_internal__error_check()
+{
+    /* gmio_check_memblock() */
+    {
+        int error = GMIO_ERROR_OK;
+        uint8_t buff[128] = {0};
+        struct gmio_memblock mblock = {0};
+
+        UTEST_ASSERT(!gmio_check_memblock(&error, NULL));
+        UTEST_ASSERT(error == GMIO_ERROR_NULL_MEMBLOCK);
+
+        UTEST_ASSERT(!gmio_check_memblock(&error, &mblock));
+        UTEST_ASSERT(error == GMIO_ERROR_NULL_MEMBLOCK);
+
+        mblock = gmio_memblock(buff, 0, NULL);
+        UTEST_ASSERT(!gmio_check_memblock(&error, &mblock));
+        UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
+
+        /* Verify that gmio_check_memblock() doesn't touch error when in case of
+         * success */
+        mblock = gmio_memblock(buff, sizeof(buff), NULL);
+        UTEST_ASSERT(!gmio_check_memblock(&error, &mblock));
+        UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
+
+        error = GMIO_ERROR_OK;
+        UTEST_ASSERT(gmio_check_memblock(&error, &mblock));
+        UTEST_ASSERT(error == GMIO_ERROR_OK);
+    }
+
+    /* gmio_check_memblock_size() */
+    {
+        uint8_t buff[128] = {0};
+        struct gmio_memblock mblock = gmio_memblock(buff, sizeof(buff), NULL);
+        int error = GMIO_ERROR_OK;
+        UTEST_ASSERT(!gmio_check_memblock_size(&error, &mblock, 2*sizeof(buff)));
+        UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
+    }
+
+    return NULL;
 }

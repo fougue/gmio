@@ -32,7 +32,7 @@
 #include "stl_error.h"
 #include "internal/helper_stl_mesh_creator.h"
 #include "internal/stl_funptr_typedefs.h"
-#include "internal/stl_rw_common.h"
+#include "internal/stl_error_check.h"
 #include "internal/stla_parsing.h"
 
 #include "../gmio_core/error.h"

@@ -30,7 +30,7 @@
 #include "stlb_write.h"
 
 #include "stl_funptr_typedefs.h"
-#include "stl_rw_common.h"
+#include "stl_error_check.h"
 #include "stlb_byte_swap.h"
 #include "../stl_error.h"
 #include "../stl_io.h"
@@ -38,6 +38,7 @@
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_codec.h"
+#include "../../gmio_core/internal/error_check.h"
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
 #include "../../gmio_core/internal/min_max.h"

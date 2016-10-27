@@ -27,53 +27,35 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "utest_assert.h"
+#include "stl_error_check.h"
 
-#include "stl_utils.h"
+#include "../../gmio_core/error.h"
+#include "../stl_error.h"
+#include "../stl_io.h"
 
-#include "../src/gmio_core/error.h"
-#include "../src/gmio_stl/internal/stl_error_check.h"
-#include "../src/gmio_stl/stl_error.h"
-#include "../src/gmio_stl/stl_io.h"
-
-#include <stddef.h>
-
-static const char* test_stl_internal__error_check()
+bool gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
 {
-    /* gmio_stl_check_mesh() */
+    if (mesh == NULL
+            || (mesh->triangle_count > 0 && mesh->func_get_triangle == NULL))
     {
-        int error = GMIO_ERROR_OK;
-        struct gmio_stl_mesh mesh = {0};
-
-        UTEST_ASSERT(!gmio_stl_check_mesh(&error, NULL));
-        UTEST_ASSERT(error == GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE);
-
-        mesh.triangle_count = 100;
-        UTEST_ASSERT(!gmio_stl_check_mesh(&error, &mesh));
-        UTEST_ASSERT(error == GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE);
-
-        /* Verify that gmio_stl_check_mesh() doesn't touch error when in case of
-         * success */
-        mesh.triangle_count = 0;
-        mesh.func_get_triangle = &gmio_stl_nop_get_triangle;
-        UTEST_ASSERT(!gmio_stl_check_mesh(&error, &mesh));
-        UTEST_ASSERT(error == GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE);
-
-        error = GMIO_ERROR_OK;
-        UTEST_ASSERT(gmio_stl_check_mesh(&error, &mesh));
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
+        *error = GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE;
     }
+    return gmio_no_error(*error);
+}
 
-    /* gmio_stlb_check_byteorder() */
+bool gmio_stlb_check_byteorder(int* error, enum gmio_endianness byte_order)
+{
+    if (byte_order != GMIO_ENDIANNESS_LITTLE
+            && byte_order != GMIO_ENDIANNESS_BIG)
     {
-        int error = GMIO_ERROR_OK;
-
-        UTEST_ASSERT(gmio_stlb_check_byteorder(&error, GMIO_ENDIANNESS_HOST));
-        UTEST_ASSERT(error == GMIO_ERROR_OK);
-
-        UTEST_ASSERT(!gmio_stlb_check_byteorder(&error, GMIO_ENDIANNESS_UNKNOWN));
-        UTEST_ASSERT(error == GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER);
+        *error = GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER;
     }
+    return gmio_no_error(*error);
+}
 
-    return NULL;
+bool gmio_stla_check_float32_precision(int *error, uint8_t prec)
+{
+    if (prec == 0 || prec > 9)
+        *error = GMIO_STL_ERROR_INVALID_FLOAT32_PREC;
+    return gmio_no_error(*error);
 }
