@@ -50,6 +50,7 @@ if(GMIO_BUILD_SHARED_LIBS)
     #         exports all symbols)
     set(GMIO_TEST_CORE_SRC
             ${GMIO_TEST_CORE_SRC}
+            ../src/gmio_core/internal/error_check.c
             ../src/gmio_core/internal/locale_utils.c
             ../src/gmio_core/internal/numeric_utils.c
             ../src/gmio_core/internal/stringstream.c)
@@ -72,7 +73,7 @@ if(GMIO_BUILD_SHARED_LIBS)
             ${GMIO_TEST_STL_SRC}
             ../src/gmio_core/internal/locale_utils.c
             ../src/gmio_core/internal/numeric_utils.c
-            ../src/gmio_stl/internal/stl_rw_common.c)
+            ../src/gmio_stl/internal/stl_error_check.c)
 endif()
 
 add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})

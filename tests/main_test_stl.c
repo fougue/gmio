@@ -58,7 +58,7 @@ const char* all_tests()
     UTEST_RUN(test_stl_triangle_packing);
     UTEST_RUN(test_stl_triangle_compute_normal);
 
-    UTEST_RUN(test_stl_internal__rw_common);
+    UTEST_RUN(test_stl_internal__error_check);
 
     UTEST_RUN(test_stl_infos);
 

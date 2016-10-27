@@ -30,12 +30,13 @@
 #include "stla_write.h"
 
 #include "stl_funptr_typedefs.h"
-#include "stl_rw_common.h"
+#include "stl_error_check.h"
 #include "../stl_error.h"
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/task_iface.h"
 #include "../../gmio_core/text_format.h"
+#include "../../gmio_core/internal/error_check.h"
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_task_iface.h"

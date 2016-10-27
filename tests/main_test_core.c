@@ -50,6 +50,7 @@ const char* all_tests()
     UTEST_RUN(test_internal__byte_codec);
     UTEST_RUN(test_internal__fast_atof);
     UTEST_RUN(test_internal__locale_utils);
+    UTEST_RUN(test_internal__error_check);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__stringstream);
     UTEST_RUN(test_internal__string_ascii_utils);
