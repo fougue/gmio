@@ -29,6 +29,7 @@
 
 #include "error_check.h"
 
+#include "locale_utils.h"
 #include "../error.h"
 #include "../memblock.h"
 
@@ -46,5 +47,12 @@ bool gmio_check_memblock_size(
 {
     if (gmio_check_memblock(error, mblock) && mblock->size < minsize)
         *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
+    return gmio_no_error(*error);
+}
+
+bool gmio_check_lc_numeric(int *error)
+{
+    if (!gmio_lc_numeric_is_C())
+        *error = GMIO_ERROR_BAD_LC_NUMERIC;
     return gmio_no_error(*error);
 }

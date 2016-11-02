@@ -34,9 +34,5 @@ const char* gmio_lc_numeric();
 /*! Returns result of case-insensitive test <tt>LC_NUMERIC == "C|POSIX"</tt> */
 bool gmio_lc_numeric_is_C();
 
-/*! Checks gmio_lc_numeric_is_C(), if false sets \p *error to
- *  \c GMIO_ERROR_BAD_LC_NUMERIC*/
-bool gmio_check_lc_numeric(int* error);
-
 void gmio_lc_numeric_save();
 void gmio_lc_numeric_restore();
