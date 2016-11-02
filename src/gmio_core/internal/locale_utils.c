@@ -49,13 +49,6 @@ bool gmio_lc_numeric_is_C()
             || gmio_ascii_stricmp(lc, "POSIX") == 0);
 }
 
-bool gmio_check_lc_numeric(int *error)
-{
-    if (!gmio_lc_numeric_is_C())
-        *error = GMIO_ERROR_BAD_LC_NUMERIC;
-    return gmio_no_error(*error);
-}
-
 static char global_lc_numeric[64] = {0};
 
 void gmio_lc_numeric_save()

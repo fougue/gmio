@@ -39,4 +39,8 @@ bool gmio_check_memblock(
 bool gmio_check_memblock_size(
         int* error, const struct gmio_memblock* mblock, size_t minsize);
 
+/*! Checks gmio_lc_numeric_is_C(), if false sets \p *error to
+ *  \c GMIO_ERROR_BAD_LC_NUMERIC*/
+bool gmio_check_lc_numeric(int* error);
+
 #endif /* GMIO_INTERNAL_ERROR_CHECK_H */

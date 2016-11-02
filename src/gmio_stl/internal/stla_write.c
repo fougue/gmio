@@ -40,7 +40,6 @@
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
-#include "../../gmio_core/internal/locale_utils.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/safe_cast.h"
 

@@ -37,10 +37,10 @@
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/c99_stdio_compat.h"
+#include "../gmio_core/internal/error_check.h"
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
-#include "../gmio_core/internal/locale_utils.h"
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/safe_cast.h"
 #include "../gmio_core/internal/stringstream.h"
