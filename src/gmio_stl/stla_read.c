@@ -129,8 +129,9 @@ int gmio_stla_read(
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* opts)
 {
-    const bool check_lcnum =
-            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
+    /* Constants */
+    static const struct gmio_stl_read_options default_opts = {0};
+    /* Variables */
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     struct gmio_memblock* const mblock = &mblock_helper.memblock;
@@ -138,17 +139,22 @@ int gmio_stla_read(
     struct gmio_stla_parse_data parse_data;
     int error = GMIO_ERROR_OK;
 
-    if (check_lcnum && !gmio_check_lc_numeric(&error))
+    /* Make options non NULL */
+    opts = opts != NULL ? opts : &default_opts;
+
+    /* Check validity of input parameters */
+    if (!opts->stla_dont_check_lc_numeric && !gmio_check_lc_numeric(&error))
         goto label_end;
 
+    /* Initialize helper gmio_stla_parse_data object */
     parse_data.token = unknown_token;
     parse_data.error = false;
 
-    parse_data.strstream_cookie.task = opts != NULL ? &opts->task_iface : NULL;
+    parse_data.strstream_cookie.task = &opts->task_iface;
     parse_data.strstream_cookie.stream_offset = 0;
 
     parse_data.strstream_cookie.stream_size =
-            opts != NULL && opts->func_stla_get_streamsize != NULL ?
+            opts->func_stla_get_streamsize != NULL ?
                 opts->func_stla_get_streamsize(stream, mblock) :
                 gmio_stream_size(stream);
     parse_data.strstream_cookie.is_stop_requested = false;

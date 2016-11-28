@@ -195,8 +195,7 @@ int gmio_stla_write(
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
-    const bool check_lcnum =
-            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
+    static const struct gmio_stl_write_options default_opts = {0};
     const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
@@ -204,10 +203,6 @@ int gmio_stla_write(
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const uint32_t buffer_facet_count =
             gmio_size_to_uint32(mblock_size / GMIO_STLA_FACET_SIZE_P2);
-    const char* opt_solid_name = opts != NULL ? opts->stla_solid_name : NULL;
-    const char* solid_name = opt_solid_name != NULL ? opt_solid_name : "";
-    const bool write_triangles_only =
-            opts != NULL ? opts->stl_write_triangles_only : false;
 
     /* Variables */
     struct gmio_memblock* const mblock = &mblock_helper.memblock;
@@ -216,33 +211,30 @@ int gmio_stla_write(
     int error = GMIO_ERROR_OK;
     struct gmio_vec3f_text_format vec_txtformat = {0};
 
-    /* Initialize helper data for text formatting of vec3f coords */
-    {
-        const uint8_t opt_f32_prec =
-                opts != NULL ? opts->stla_float32_prec : 9;
-        const enum gmio_float_text_format f32_format =
-                opts != NULL ?
-                    opts->stla_float32_format :
-                    GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-        vec_txtformat.coord_prec = opt_f32_prec != 0 ? opt_f32_prec : 9;
-        vec_txtformat.coord_format = f32_format;
+    /* Make options non NULL */
+    opts = opts != NULL ? opts : &default_opts;
 
-        /* Create XYZ coords format string (for normal and vertex coords) */
-        {
-            const uint8_t f32_prec = vec_txtformat.coord_prec;
-            const char f32_spec = gmio_float_text_format_to_specifier(f32_format);
-            char* buffpos = vec_txtformat.str_printf_format;
-            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-            buffpos = gmio_write_char(buffpos, ' ');
-            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-            buffpos = gmio_write_char(buffpos, ' ');
-            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-            *buffpos = 0;
-        }
+    /* Initialize helper data for text formatting of vec3f coords */
+    vec_txtformat.coord_prec =
+            opts->stla_float32_prec != 0 ? opts->stla_float32_prec : 9;
+    vec_txtformat.coord_format = opts->stla_float32_format;
+
+    /* Create XYZ coords format string (for normal and vertex coords) */
+    {
+        const uint8_t f32_prec = vec_txtformat.coord_prec;
+        enum gmio_float_text_format f32_format = opts->stla_float32_format;
+        const char f32_spec = gmio_float_text_format_to_specifier(f32_format);
+        char* buffpos = vec_txtformat.str_printf_format;
+        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_char(buffpos, ' ');
+        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_char(buffpos, ' ');
+        buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
+        *buffpos = 0;
     }
 
     /* Check validity of input parameters */
-    if (check_lcnum && !gmio_check_lc_numeric(&error))
+    if (!opts->stla_dont_check_lc_numeric && !gmio_check_lc_numeric(&error))
         goto label_end;
     if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
         goto label_end;
@@ -252,10 +244,11 @@ int gmio_stla_write(
         goto label_end;
 
     /* Write solid declaration */
-    if (!write_triangles_only) {
+    if (!opts->stl_write_triangles_only) {
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "solid ");
-        buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
+        if (opts->stla_solid_name != NULL)
+            buffpos = gmio_write_rawstr_eol(buffpos, opts->stla_solid_name);
         if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos)) {
             error = GMIO_ERROR_STREAM;
             goto label_end;
@@ -306,10 +299,11 @@ int gmio_stla_write(
     } /* end for (ifacet) */
 
     /* Write end of solid */
-    if (gmio_no_error(error) && !write_triangles_only) {
+    if (gmio_no_error(error) && !opts->stl_write_triangles_only) {
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "endsolid ");
-        buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
+        if (opts->stla_solid_name != NULL)
+            buffpos = gmio_write_rawstr_eol(buffpos, opts->stla_solid_name);
         if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos))
             error = GMIO_ERROR_STREAM;
     }
