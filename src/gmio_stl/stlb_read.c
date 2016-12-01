@@ -186,7 +186,7 @@ int gmio_stlb_read(
                         mesh_creator, mblock->ptr, read_facet_count, i_facet);
             i_facet += read_facet_count;
             if (gmio_task_iface_is_stop_requested(task))
-                error = GMIO_ERROR_TRANSFER_STOPPED;
+                error = GMIO_ERROR_TASK_STOPPED;
         }
         gmio_task_iface_handle_progress(task, i_facet, total_facet_count);
     } /* end while */

@@ -167,7 +167,7 @@ int gmio_stlb_write(
 
         /* Handle stop request */
         if (gmio_no_error(error) && gmio_task_iface_is_stop_requested(task))
-            error = GMIO_ERROR_TRANSFER_STOPPED;
+            error = GMIO_ERROR_TASK_STOPPED;
     } /* end for */
 
 label_end:

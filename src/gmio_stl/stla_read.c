@@ -175,7 +175,7 @@ int gmio_stla_read(
     if (parse_data.error)
         error = GMIO_STL_ERROR_PARSING;
     if (parse_data.strstream_cookie.is_stop_requested)
-        error = GMIO_ERROR_TRANSFER_STOPPED;
+        error = GMIO_ERROR_TASK_STOPPED;
 
 label_end:
     gmio_memblock_helper_release(&mblock_helper);
