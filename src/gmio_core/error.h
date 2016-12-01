@@ -39,6 +39,10 @@
 
 #include "global.h"
 
+/*! \c GMIO_ZLIB_ERROR_TAG
+ *  Byte-mask to tag(identify) zlib-specific error codes */
+enum { GMIO_ZLIB_ERROR_TAG = 0x1000000 };
+
 /*! This enum defines common errors */
 enum gmio_error
 {
@@ -68,7 +72,27 @@ enum gmio_error
     GMIO_ERROR_STDIO,
 
     /*! Checking of \c LC_NUMERIC failed(should be "C" or "POSIX") */
-    GMIO_ERROR_BAD_LC_NUMERIC
+    GMIO_ERROR_BAD_LC_NUMERIC,
+
+    /* zlib */
+    /*! See \c Z_ERRNO (file operation error) */
+    GMIO_ERROR_ZLIB_FILE_OPERATION = GMIO_ZLIB_ERROR_TAG + 0x01,
+
+    /*! See \c Z_STREAM_ERROR */
+    GMIO_ERROR_ZLIB_STREAM,
+
+    /*! See \c Z_DATA_ERROR */
+    GMIO_ERROR_ZLIB_DATA,
+
+    /*! See \c Z_MEM_ERROR (not enough memory) */
+    GMIO_ERROR_ZLIB_MEM,
+
+    /*! See \c Z_BUF_ERROR */
+    GMIO_ERROR_ZLIB_BUF,
+
+    /*! See \c Z_VERSION_ERROR (zlib library version is incompatible with the
+     *  version assumed by the caller) */
+    GMIO_ERROR_ZLIB_VERSION
 };
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */

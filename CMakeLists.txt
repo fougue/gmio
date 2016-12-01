@@ -75,6 +75,7 @@ option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
 endif()
+option(GMIO_USE_BUNDLED_ZLIB "Use bundled version of zlib in gmio" ON)
 
 # Declare variable GMIO_STR2FLOAT_LIB(library for string-to-float conversion)
 #     - std:

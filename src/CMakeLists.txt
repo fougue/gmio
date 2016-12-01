@@ -91,13 +91,31 @@ install(FILES gmio_support/stl_occ_mesh.cpp   DESTINATION src/gmio_support)
 install(FILES gmio_support/stl_occ_meshvs.cpp DESTINATION src/gmio_support)
 install(FILES gmio_support/stl_occ_utils.h    DESTINATION src/gmio_support)
 
-# Installs for target
+# target
 if(GMIO_BUILD_SHARED_LIBS)
     add_library(gmio SHARED ${GMIO_SRC_FILES})
 else()
     add_library(gmio STATIC ${GMIO_SRC_FILES})
 endif()
-    
+
+# zlib
+if(GMIO_USE_BUNDLED_ZLIB)
+    message(STATUS "Building bundled verison of zlib")
+    add_subdirectory(3rdparty/zlib)
+    include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib
+        ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/zlib)
+    target_link_libraries(gmio zlibstatic)
+else()
+    find_package(ZLIB)
+    if (NOT(ZLIB_VERSION_MAJOR EQUAL 1) AND NOT(ZLIB_VERSION_MINOR EQUAL 2))
+        message(FATAL_ERROR "Incompatible zlib version ${ZLIB_VERSION_STRING} (gmio expects v1.2.x)")
+    endif()
+    include_directories(${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(gmio ${ZLIB_LIBRARIES})
+endif()
+
+# Installs for target
 install(TARGETS gmio
           RUNTIME DESTINATION lib
           LIBRARY DESTINATION lib
