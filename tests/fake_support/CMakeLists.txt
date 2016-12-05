@@ -43,7 +43,7 @@ add_executable(
         ../../src/gmio_support/stl_occ_meshvs.cpp
         ../../src/gmio_support/stl_occ_brep.cpp
         ../../src/gmio_support/stream_qt.cpp)
-target_link_libraries(fake_support gmio)
+target_link_libraries(fake_support gmio_static)
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/opencascade

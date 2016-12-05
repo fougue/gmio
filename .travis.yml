@@ -13,32 +13,32 @@ _anchors:
 
 matrix:
   include:
-    # Linux GCC-4.6 debug static coveralls
+    # Linux GCC-4.6 debug coveralls
     - compiler: gcc
       env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_COVERALLS=ON
-    # Linux GCC-4.6 debug static google_double-conversion
+    # Linux GCC-4.6 debug google_double-conversion
     - compiler: gcc
       env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_FLOAT2STR_LIB=google_doubleconversion
-    # Linux GCC-4.6 debug dll c90
+    # Linux GCC-4.6 debug no-dll c90
     - compiler: gcc
-      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=ON
-    # Linux GCC-4.9 release static
+      env: TRAVIS_BUILD_TYPE=Debug TRAVIS_BUILD_DLL=OFF  TRAVIS_STRICT_C90=ON
+    # Linux GCC-4.9 release
     - compiler: gcc-4.9
       addons: *gcc49-packages
       env: TRAVIS_BUILD_TYPE=Release  TRAVIS_GCC_VERSION=4.9
-    # OSX Clang debug static
+    # OSX Clang debug
     - os: osx
       compiler: clang
       env: TRAVIS_BUILD_TYPE=Debug
-    # OSX Clang debug static google_double-conversion
+    # OSX Clang debug google_double-conversion
     - os: osx
       compiler: clang
       env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_FLOAT2STR_LIB=google_doubleconversion
-    # OSX Clang debug dll c90
+    # OSX Clang debug no-dll c90
     - os: osx
       compiler: clang
-      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_SHARED_LIBS=ON  TRAVIS_STRICT_C90=ON
-    # OSX Clang release static
+      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_BUILD_DLL=OFF  TRAVIS_STRICT_C90=ON
+    # OSX Clang release
     - os: osx
       compiler: clang
       env: TRAVIS_BUILD_TYPE=Release

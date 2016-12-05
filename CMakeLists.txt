@@ -67,8 +67,8 @@ else()
 endif()
 
 # Options
+option(GMIO_BUILD_DLL         "Build gmio also as a shared library(DLL)" ON)
 option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
-option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
 option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
 option(GMIO_BUILD_EXAMPLES    "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)

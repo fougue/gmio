@@ -29,10 +29,6 @@
 
 enable_testing()
 set(CMAKE_CTEST_COMMAND ctest -V --timeout 120)
-if(WIN32 AND GMIO_BUILD_SHARED_LIBS)
-    configure_file(win_ctest_cmd.bat.cmake win_ctest_cmd.bat @ONLY)
-    set(CMAKE_CTEST_COMMAND win_ctest_cmd.bat)
-endif()
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
@@ -45,19 +41,9 @@ set(GMIO_TEST_CORE_SRC
         core_utils.c
         stream_buffer.c
         ../benchmarks/commons/benchmark_tools.c)
-if(GMIO_BUILD_SHARED_LIBS)
-    # Note_1: MSVC wants it because internal symbols are not exported (GCC
-    #         exports all symbols)
-    set(GMIO_TEST_CORE_SRC
-            ${GMIO_TEST_CORE_SRC}
-            ../src/gmio_core/internal/error_check.c
-            ../src/gmio_core/internal/locale_utils.c
-            ../src/gmio_core/internal/numeric_utils.c
-            ../src/gmio_core/internal/stringstream.c)
-endif()
 
 add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
-target_link_libraries(test_core gmio)
+target_link_libraries(test_core gmio_static)
 
 # test_stl
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
@@ -67,17 +53,9 @@ set(GMIO_TEST_STL_SRC
         stl_testcases.c
         core_utils.c
         stl_utils.c)
-if(GMIO_BUILD_SHARED_LIBS)
-    # See Note_1
-    set(GMIO_TEST_STL_SRC
-            ${GMIO_TEST_STL_SRC}
-            ../src/gmio_core/internal/locale_utils.c
-            ../src/gmio_core/internal/numeric_utils.c
-            ../src/gmio_stl/internal/stl_error_check.c)
-endif()
 
 add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})
-target_link_libraries(test_stl gmio)
+target_link_libraries(test_stl gmio_static)
 
 # fake_support
 if(GMIO_BUILD_TESTS_FAKE_SUPPORT)

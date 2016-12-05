@@ -30,7 +30,7 @@
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
 include_directories(${CMAKE_SOURCE_DIR}/tests/fake_support/opencascade)
-link_libraries(gmio)
+link_libraries(gmio_static)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     link_libraries(m) # -lm
 endif()
