@@ -340,6 +340,20 @@ endif()
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# zlib
+if(GMIO_USE_BUNDLED_ZLIB)
+    message(STATUS "Bundled version of zlib")
+    set(ZLIB_INCLUDE_DIRS
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/3rdparty/zlib
+            ${CMAKE_CURRENT_BINARY_DIR}/src/3rdparty/zlib)
+    set(ZLIB_LIBRARIES zlibstatic)
+else()
+    find_package(ZLIB)
+    if (NOT(ZLIB_VERSION_MAJOR EQUAL 1) AND NOT(ZLIB_VERSION_MINOR EQUAL 2))
+        message(FATAL_ERROR "Incompatible zlib version ${ZLIB_VERSION_STRING} (gmio expects v1.2.x)")
+    endif()
+endif()
+
 # Sub-directories
 add_subdirectory(src)
 add_subdirectory(tests)

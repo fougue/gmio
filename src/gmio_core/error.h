@@ -76,7 +76,7 @@ enum gmio_error
 
     /* zlib */
     /*! See \c Z_ERRNO (file operation error) */
-    GMIO_ERROR_ZLIB_FILE_OPERATION = GMIO_ZLIB_ERROR_TAG + 0x01,
+    GMIO_ERROR_ZLIB_ERRNO = GMIO_ZLIB_ERROR_TAG + 0x01,
 
     /*! See \c Z_STREAM_ERROR */
     GMIO_ERROR_ZLIB_STREAM,

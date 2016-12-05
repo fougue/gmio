@@ -100,20 +100,10 @@ endif()
 
 # zlib
 if(GMIO_USE_BUNDLED_ZLIB)
-    message(STATUS "Building bundled verison of zlib")
     add_subdirectory(3rdparty/zlib)
-    include_directories(
-        ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib
-        ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/zlib)
-    target_link_libraries(gmio zlibstatic)
-else()
-    find_package(ZLIB)
-    if (NOT(ZLIB_VERSION_MAJOR EQUAL 1) AND NOT(ZLIB_VERSION_MINOR EQUAL 2))
-        message(FATAL_ERROR "Incompatible zlib version ${ZLIB_VERSION_STRING} (gmio expects v1.2.x)")
-    endif()
-    include_directories(${ZLIB_INCLUDE_DIRS})
-    target_link_libraries(gmio ${ZLIB_LIBRARIES})
 endif()
+include_directories(${ZLIB_INCLUDE_DIRS})
+target_link_libraries(gmio ${ZLIB_LIBRARIES})
 
 # Installs for target
 install(TARGETS gmio
