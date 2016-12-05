@@ -14,6 +14,14 @@ set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation d
 set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Installation directory for manual pages")
 set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/share/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
 
+# -- Specific for bundled zlib
+set(SKIP_INSTALL_HEADERS 1)
+set(SKIP_INSTALL_FILES 1)
+if(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4127 /wd4131")
+endif()
+# --
+
 include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
@@ -63,7 +71,6 @@ if(MSVC)
     set(CMAKE_DEBUG_POSTFIX "d")
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4127 /wd4131")
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
@@ -219,6 +226,9 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
     install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${INSTALL_INC_DIR}")
+endif()
+if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+    install(FILES zlib.3 DESTINATION "${INSTALL_MAN_DIR}/man3")
 endif()
 if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
     install(FILES ${ZLIB_PC} DESTINATION "${INSTALL_PKGCONFIG_DIR}")
