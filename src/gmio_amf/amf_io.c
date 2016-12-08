@@ -37,6 +37,7 @@
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
 #include "../gmio_core/internal/ostringstream.h"
+#include "../gmio_core/internal/zlib_utils.h"
 
 #include <stddef.h>
 #include <zlib.h>
@@ -638,21 +639,6 @@ static bool gmio_amf_check_error(
     return gmio_no_error(*error);
 }
 
-/* Converts zlib error to gmio "zlib-specific" error */
-static int zlib_error_to_gmio_error(int error)
-{
-    switch (error) {
-    case Z_OK: return GMIO_ERROR_OK;
-    case Z_ERRNO: return GMIO_ERROR_ZLIB_ERRNO;
-    case Z_STREAM_ERROR: return GMIO_ERROR_ZLIB_STREAM;
-    case Z_DATA_ERROR: return GMIO_ERROR_ZLIB_DATA;
-    case Z_MEM_ERROR: return GMIO_ERROR_ZLIB_MEM;
-    case Z_BUF_ERROR: return GMIO_ERROR_ZLIB_BUF;
-    case Z_VERSION_ERROR: return GMIO_ERROR_ZLIB_VERSION;
-    }
-    return GMIO_ERROR_UNKNOWN;
-}
-
 /* Helper for gmio_amf_ostringstream_write() to write zlib compressed data */
 static size_t gmio_amf_ostringstream_write_zlib(
         struct gmio_amf_wcontext* context,
@@ -872,28 +858,18 @@ int gmio_amf_write(
 
         /* Initialize internal zlib stream for compression */
         if (opts->compress) {
-            const struct gmio_zlib_compress_options* z_opts =
-                    &opts->z_compress_options;
             const size_t mblock_halfsize = memblock->size / 2;
-            int z_init_error = Z_OK;
             context.sstream->strbuff.capacity = mblock_halfsize;
             context.z_memblock =
                     gmio_memblock(
                         (uint8_t*)memblock->ptr + mblock_halfsize,
                         mblock_halfsize,
                         NULL);
-            z_init_error =
-                    deflateInit2(
-                        &context.z_stream,
-                        z_opts->level,
-                        Z_DEFLATED, /* Method */
-                        15, /* Window bits(default value) */
-                        z_opts->memory_usage,
-                        z_opts->strategy);
-            if (z_init_error != Z_OK) {
-                context.error = zlib_error_to_gmio_error(z_init_error);
+            context.error =
+                    gmio_zlib_compress_init(
+                        &context.z_stream, &opts->z_compress_options);
+            if (gmio_error(context.error))
                 goto label_end;
-            }
             context.z_flush = Z_NO_FLUSH;
         }
     }

@@ -92,7 +92,14 @@ enum gmio_error
 
     /*! See \c Z_VERSION_ERROR (zlib library version is incompatible with the
      *  version assumed by the caller) */
-    GMIO_ERROR_ZLIB_VERSION
+    GMIO_ERROR_ZLIB_VERSION,
+
+    /*! Invalid compression level, see gmio_zlib_compress_options::level */
+    GMIO_ERROR_ZLIB_INVALID_COMPRESS_LEVEL,
+
+    /*! Invalid compression memory usage, see
+     *  gmio_zlib_compress_options::memory_usage */
+    GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE
 };
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
