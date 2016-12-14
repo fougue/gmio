@@ -3,7 +3,7 @@
  *     https://github.com/miloyip/itoa-benchmark/src/branchlut.cpp
  *     commit #27c6059
  *
- * Adapted to be C90 compatible
+ * Adapted to be C99 compatible
  */
 
 #include "branchlut.h"
@@ -112,7 +112,7 @@ char* i32toa_branchlut(int32_t value, char* buffer) {
 }
 
 #ifdef GMIO_HAVE_INT64_TYPE
-/* C90 does not support ULL literals */
+/* In case the compiler does not support ULL literals(C99) */
 #define GMIO_UINT64_C(high32, low32) (((uint64_t)(high32) << 32) | (low32))
 static const uint64_t one_e16 = GMIO_UINT64_C(0x002386f2, 0x6fc10000);
 static const uint64_t one_e15 = GMIO_UINT64_C(0x00038d7e, 0xa4c68000);

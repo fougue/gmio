@@ -19,9 +19,6 @@ matrix:
     # Linux GCC-4.6 debug google_double-conversion
     - compiler: gcc
       env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_FLOAT2STR_LIB=google_doubleconversion
-    # Linux GCC-4.6 debug no-dll c90
-    - compiler: gcc
-      env: TRAVIS_BUILD_TYPE=Debug TRAVIS_BUILD_DLL=OFF  TRAVIS_STRICT_C90=ON
     # Linux GCC-4.9 release
     - compiler: gcc-4.9
       addons: *gcc49-packages
@@ -34,10 +31,6 @@ matrix:
     - os: osx
       compiler: clang
       env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_FLOAT2STR_LIB=google_doubleconversion
-    # OSX Clang debug no-dll c90
-    - os: osx
-      compiler: clang
-      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_BUILD_DLL=OFF  TRAVIS_STRICT_C90=ON
     # OSX Clang release
     - os: osx
       compiler: clang

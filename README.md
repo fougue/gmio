@@ -19,7 +19,7 @@ gmio is a reusable C library providing complete I/O support for various CAD file
 formats(eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
 
 gmio aims to be [fast](https://github.com/fougue/gmio/wiki/4.-Benchmarks),
-portable(C90 conformance) and feature-rich.
+portable(C99 conformance) and feature-rich.
 
 Main highlights:
 

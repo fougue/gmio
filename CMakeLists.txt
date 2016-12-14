@@ -68,7 +68,6 @@ endif()
 
 # Options
 option(GMIO_BUILD_DLL         "Build gmio also as a shared library(DLL)" ON)
-option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
 option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
 option(GMIO_BUILD_EXAMPLES    "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
@@ -123,19 +122,14 @@ message(STATUS "GMIO_TARGET_ARCH_BIT_SIZE = ${GMIO_TARGET_ARCH_BIT_SIZE}")
 include(TestBigEndian)
 test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 
-# Adapt C compiler flags to satisfy the GMIO_BUILD_STRICT_C90 option
-#    It must be done before checking non ANSI features(C99, POSIX, ...)
-if(GMIO_BUILD_STRICT_C90)
-    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
-    elseif(MSVC)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Za")
-    endif()
+# Adapt C compiler flags to enable strict ISO C99 conformance
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
 endif()
 
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
 
-# Some compilers (like GCC v4.9) don't disable <stdint.h> in C90 mode
+# Some compilers (like GCC v4.9) don't disable <stdint.h> when needed
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
 # Find size of short, int and long types
@@ -167,29 +161,27 @@ elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
     set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
 endif()
 
-# Check C99 features
-if(NOT GMIO_BUILD_STRICT_C90)
-    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-        list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
-    endif()
-    check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
-    check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
-    check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
-    check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_MACRO)
-    check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_MACRO)
-    set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
+# Check Available C99 features
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
+endif()
+check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
+check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
+check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
+check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_MACRO)
+check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_MACRO)
+set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
 
-    check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
+check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
 
-    check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
-    if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
-        check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
-    endif()
+check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
+if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
+    check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
+endif()
 
-    check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
-    if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
-        check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
-    endif()
+check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
+if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
+    check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
 endif()
 
 # Check POSIX features

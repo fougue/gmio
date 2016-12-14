@@ -14,12 +14,10 @@ clone_folder: c:\projects\gmio.git
 
 environment:
   matrix:
-  - APPVEYOR_BUILD_DLL: ON
-    APPVEYOR_CMAKE_GENERATOR: "Visual Studio 12 2013"
+  - APPVEYOR_CMAKE_GENERATOR: "Visual Studio 12 2013"
     APPVEYOR_FLOAT2STR_LIB: std
 
-  - APPVEYOR_BUILD_DLL: ON
-    APPVEYOR_CMAKE_GENERATOR: "Visual Studio 12 2013"
+  - APPVEYOR_CMAKE_GENERATOR: "Visual Studio 12 2013"
     APPVEYOR_FLOAT2STR_LIB: google_doubleconversion
 
 build:
@@ -32,7 +30,6 @@ build_script:
          -G "%APPVEYOR_CMAKE_GENERATOR%"    ^
          -DCMAKE_BUILD_TYPE=%CONFIGURATION% ^
          -DCMAKE_DEBUG_POSTFIX=_d ^
-         -DGMIO_BUILD_DLL=%APPVEYOR_BUILD_DLL% ^
          -DGMIO_FLOAT2STR_LIB=%APPVEYOR_FLOAT2STR_LIB% ^
          -DGMIO_BUILD_EXAMPLES=ON   ^
          -DGMIO_BUILD_BENCHMARKS=ON ^

@@ -21,14 +21,6 @@ if [ -n "${TRAVIS_GCC_VERSION}" ]; then
     export CXX=g++-$TRAVIS_GCC_VERSION;
 fi
 
-if [ -z "${TRAVIS_BUILD_DLL}" ]; then
-    export TRAVIS_BUILD_DLL=OFF;
-fi
-
-if [ -z "${TRAVIS_STRICT_C90}" ]; then
-    export TRAVIS_STRICT_C90=OFF;
-fi
-
 if [ -z "${TRAVIS_FLOAT2STR_LIB}" ]; then
     export TRAVIS_FLOAT2STR_LIB=std;
 fi
@@ -41,8 +33,6 @@ cmake .. -G "Unix Makefiles"       \
          -DCMAKE_DEBUG_POSTFIX=_d  \
          -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE \
          -DCMAKE_INSTALL_PREFIX=../install     \
-         -DGMIO_BUILD_DLL=$TRAVIS_BUILD_DLL  \
-         -DGMIO_BUILD_STRICT_C90=$TRAVIS_STRICT_C90    \
          -DGMIO_BUILD_EXAMPLES=ON                      \
          -DGMIO_BUILD_BENCHMARKS=ON                    \
          -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF             \
