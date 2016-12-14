@@ -32,54 +32,81 @@
 
 #include "../global.h"
 
-/*! Reads a 16bit integer from memory-location \p bytes (little-endian) */
-GMIO_INLINE uint16_t gmio_decode_uint16_le(const uint8_t* bytes)
+/* Functions that read NNbit uint from memory (little-endian)
+ *   uintNN_t gmio_decode_uintNN_le(const uint8_t* bytes)
+ *
+ * Functions that read NNbit uint from memory (big-endian)
+ *   uintNN_t gmio_decode_uintNN_be(const uint8_t* bytes)
+ *
+ * Functions that writes NNbit uint to memory in little-endian
+ *   uintNN_t gmio_encode_uintNN_le(uintNN_t val, uint8_t* bytes);
+ *
+ * Functions that writes NNbit uint to memory in big-endian
+ *   uintNN_t gmio_encode_uintNN_be(uintNN_t val, uint8_t* bytes);
+ */
+
+GMIO_INLINE uint16_t gmio_decode_uint16_le(const uint8_t* bytes);
+GMIO_INLINE uint16_t gmio_decode_uint16_be(const uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint16_be(uint16_t val, uint8_t* bytes);
+
+GMIO_INLINE uint32_t gmio_decode_uint32_le(const uint8_t* bytes);
+GMIO_INLINE uint32_t gmio_decode_uint32_be(const uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint32_be(uint32_t val, uint8_t* bytes);
+
+#ifdef GMIO_HAVE_INT64_TYPE
+GMIO_INLINE uint64_t gmio_decode_uint64_le(const uint8_t* bytes);
+GMIO_INLINE uint64_t gmio_decode_uint64_be(const uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint64_le(uint64_t val, uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint64_be(uint64_t val, uint8_t* bytes);
+#endif /* GMIO_HAVE_INT64_TYPE */
+
+
+
+/*
+ * Implementation
+ */
+
+uint16_t gmio_decode_uint16_le(const uint8_t* bytes)
 {
     /* |0 |1 | */
     /* |BB|AA| -> 0xAABB */
     return (bytes[1] << 8) | bytes[0];
 }
 
-/*! Reads a 16bit integer from memory-location \p bytes (big-endian) */
-GMIO_INLINE uint16_t gmio_decode_uint16_be(const uint8_t* bytes)
+uint16_t gmio_decode_uint16_be(const uint8_t* bytes)
 {
     /* |0 |1 | */
     /* |AA|BB| -> 0xAABB */
     return (bytes[0] << 8) | bytes[1];
 }
 
-/*! Writes 16bit integer \p val to the memory location at \p bytes in
- *  little-endian */
-GMIO_INLINE void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes)
+void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes)
 {
     bytes[0] = val & 0xFF;
     bytes[1] = (val >> 8) & 0xFF;
 }
 
-/*! Reads a 32bit integer from memory-location \p bytes (little-endian) */
-GMIO_INLINE uint32_t gmio_decode_uint32_le(const uint8_t* bytes)
+void gmio_encode_uint16_be(uint16_t val, uint8_t* bytes)
+{
+    bytes[0] = (val >> 8) & 0xFF;
+    bytes[1] = val & 0xFF;
+}
+
+uint32_t gmio_decode_uint32_le(const uint8_t* bytes)
 {
     /* |DD|CC|BB|AA| -> 0xAABBCCDD */
     return bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
 }
 
-/*! Reads a 32bit integer from memory-location \p bytes (mixed-endian) */
-GMIO_INLINE uint32_t gmio_decode_uint32_me(const uint8_t* bytes)
-{
-    /* |DD|CC|BB|AA| -> 0xCCDDAABB */
-    return (bytes[0] << 16) | (bytes[1] << 24) | (bytes[3] << 8) | bytes[2];
-}
-
-/*! Reads a 32bit integer from memory-location \p bytes (big-endian) */
-GMIO_INLINE uint32_t gmio_decode_uint32_be(const uint8_t* bytes)
+uint32_t gmio_decode_uint32_be(const uint8_t* bytes)
 {
     /* |DD|CC|BB|AA| -> 0xDDCCBBAA */
     return bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
 }
 
-/*! Writes 32bit integer \p val to the memory location at \p bytes in
- *  little-endian */
-GMIO_INLINE void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes)
+void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes)
 {
     bytes[0] = val & 0xFF;
     bytes[1] = (val >> 8) & 0xFF;
@@ -87,14 +114,52 @@ GMIO_INLINE void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes)
     bytes[3] = (val >> 24) & 0xFF;
 }
 
-/*! Writes 32bit integer \p val to the memory location at \p bytes in
- *  big-endian */
-GMIO_INLINE void gmio_encode_uint32_be(uint32_t val, uint8_t* bytes)
+void gmio_encode_uint32_be(uint32_t val, uint8_t* bytes)
 {
     bytes[0] = (val >> 24) & 0xFF;
     bytes[1] = (val >> 16) & 0xFF;
     bytes[2] = (val >> 8) & 0xFF;
     bytes[3] = val & 0xFF;
 }
+
+#ifdef GMIO_HAVE_INT64_TYPE
+
+uint64_t gmio_decode_uint64_le(const uint8_t* bytes)
+{
+    const uint64_t h32 = gmio_decode_uint32_le(bytes + 4); /* Decode high 32b */
+    return (h32 << 32) | gmio_decode_uint32_le(bytes);
+}
+
+uint64_t gmio_decode_uint64_be(const uint8_t* bytes)
+{
+    const uint64_t l32 = gmio_decode_uint32_be(bytes); /* Decode low 32b */
+    return (l32 << 32) | gmio_decode_uint32_be(bytes + 4);
+}
+
+void gmio_encode_uint64_le(uint64_t val, uint8_t* bytes)
+{
+    bytes[0] = val & 0xFF;
+    bytes[1] = (val >> 8)  & 0xFF;
+    bytes[2] = (val >> 16) & 0xFF;
+    bytes[3] = (val >> 24) & 0xFF;
+    bytes[4] = (val >> 32) & 0xFF;
+    bytes[5] = (val >> 40) & 0xFF;
+    bytes[6] = (val >> 48) & 0xFF;
+    bytes[7] = (val >> 56) & 0xFF;
+}
+
+void gmio_encode_uint64_be(uint64_t val, uint8_t* bytes)
+{
+    bytes[0] = (val >> 56) & 0xFF;
+    bytes[1] = (val >> 48) & 0xFF;
+    bytes[2] = (val >> 40) & 0xFF;
+    bytes[3] = (val >> 32) & 0xFF;
+    bytes[4] = (val >> 24) & 0xFF;
+    bytes[5] = (val >> 16) & 0xFF;
+    bytes[6] = (val >> 8)  & 0xFF;
+    bytes[7] = val & 0xFF;
+}
+
+#endif /* GMIO_HAVE_INT64_TYPE */
 
 #endif /* GMIO_INTERNAL_BYTE_CODEC_H */

@@ -60,21 +60,44 @@ static const char* test_internal__byte_swap()
 static const char* test_internal__byte_codec()
 {
     { /* decode */
-        const uint8_t data[] = { 0x11, 0x22, 0x33, 0x44 };
+        const uint8_t data[] = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
         UTEST_ASSERT(gmio_decode_uint16_le(data) == 0x2211);
         UTEST_ASSERT(gmio_decode_uint16_be(data) == 0x1122);
         UTEST_ASSERT(gmio_decode_uint32_le(data) == 0x44332211);
         UTEST_ASSERT(gmio_decode_uint32_be(data) == 0x11223344);
+#ifdef GMIO_HAVE_INT64_TYPE
+        UTEST_ASSERT(gmio_decode_uint64_le(data) == 0x8877665544332211);
+        UTEST_ASSERT(gmio_decode_uint64_be(data) == 0x1122334455667788);
+#endif
     }
 
     { /* encode */
-        uint8_t data[] = { 0, 0, 0, 0 };
-        gmio_encode_uint16_le(0x1122, data);
-        UTEST_ASSERT(data[0] == 0x22 && data[1] == 0x11);
-        gmio_encode_uint32_le(0x11223344, data);
-        UTEST_ASSERT(data[0] == 0x44 && data[1] == 0x33 && data[2] == 0x22 && data[3] == 0x11);
-        gmio_encode_uint32_be(0x11223344, data);
-        UTEST_ASSERT(data[3] == 0x44 && data[2] == 0x33 && data[1] == 0x22 && data[0] == 0x11);
+        uint8_t bytes[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+        gmio_encode_uint16_le(0x1122, bytes);
+        UTEST_ASSERT(bytes[0] == 0x22 && bytes[1] == 0x11);
+        gmio_encode_uint16_be(0x1122, bytes);
+        UTEST_ASSERT(bytes[0] == 0x11 && bytes[1] == 0x22);
+
+        gmio_encode_uint32_le(0x11223344, bytes);
+        static const uint8_t bytes_uint32_le[] = { 0x44, 0x33, 0x22, 0x11 };
+        UTEST_ASSERT(memcmp(bytes, bytes_uint32_le, 4) == 0);
+
+        gmio_encode_uint32_be(0x11223344, bytes);
+        static const uint8_t bytes_uint32_be[] = { 0x11, 0x22, 0x33, 0x44 };
+        UTEST_ASSERT(memcmp(bytes, bytes_uint32_be, 4) == 0);
+
+#ifdef GMIO_HAVE_INT64_TYPE
+        gmio_encode_uint64_le(0x1122334455667788, bytes);
+        static const uint8_t bytes_uint64_le[] =
+                { 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11 };
+        UTEST_ASSERT(memcmp(bytes, bytes_uint64_le, 8) == 0);
+
+        gmio_encode_uint64_be(0x1122334455667788, bytes);
+        static const uint8_t bytes_uint64_be[] =
+                { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
+        UTEST_ASSERT(memcmp(bytes, bytes_uint64_be, 8) == 0);
+#endif
     }
 
     return NULL;
