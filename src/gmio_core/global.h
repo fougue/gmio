@@ -139,6 +139,11 @@ typedef int32_t  intmax_t;
 typedef uint32_t uintmax_t;
 #  endif
 
+#  define INT16_MAX  0x7FFF
+#  define UINT16_MAX 0xFFFF
+#  define INT32_MAX  0x7FFFFFFF
+#  define UINT32_MAX 0xFFFFFFFF
+
 #endif
 
 /* GMIO_HAVE_STDBOOL_H */

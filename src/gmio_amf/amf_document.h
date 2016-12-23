@@ -47,16 +47,16 @@
 
 struct gmio_amf_metadata
 {
-    const char* type; /* UTF8-encoded */
-    const char* data; /* UTF8-encoded */
+    const char* type; /*!< UTF8-encoded */
+    const char* data; /*!< UTF8-encoded */
 };
 
 struct gmio_amf_color
 {
-    double r; /* in [0,1] */
-    double g; /* in [0,1] */
-    double b; /* in [0,1] */
-    double a; /* in [0,1] optional */
+    double r; /*!< Red channel in [0,1] */
+    double g; /*!< Green channel in [0,1] */
+    double b; /*!< Blue channel in [0,1] */
+    double a; /*!< Optional alpha(transparency) channel in [0,1] */
     const char* r_formula;
     const char* g_formula;
     const char* b_formula;
@@ -71,13 +71,19 @@ struct gmio_amf_material
     uint32_t metadata_count;
 };
 
+/*! Proportion of the composition of another material
+ *
+ *  The proportion can be specified as a formula(with \c value_formula) or as a
+ *  constant mixing(with \c value).
+ */
 struct gmio_amf_composite
 {
     uint32_t materialid; /* XML:nonNegativeInteger, required */
-    double value; /* governs the percent of material */
+    double value; /*!< governs the percent of material */
     const char* value_formula;
 };
 
+/*! Vertex within an AMF mesh */
 struct gmio_amf_vertex
 {
     struct gmio_vec3d coords;
@@ -88,6 +94,7 @@ struct gmio_amf_vertex
     uint32_t metadata_count;
 };
 
+/*! Edge within an AMF mesh, for curved triangles */
 struct gmio_amf_edge
 {
     uint32_t v1; /* XML:nonNegativeInteger */
@@ -126,11 +133,12 @@ enum gmio_amf_volume_type
     GMIO_AMF_VOLUME_TYPE_SUPPORT
 };
 
+/*! Volume within an AMF mesh */
 struct gmio_amf_volume
 {
     uint32_t materialid; /* XML:nonNegativeInteger */
     enum gmio_amf_volume_type type;
-    uint32_t triangle_count; /* Should be >= 4 */
+    uint32_t triangle_count; /*!< Should be >= 4 */
     uint32_t metadata_count;
     bool has_color;
     struct gmio_amf_color color; /* XML:Color */
@@ -155,10 +163,11 @@ struct gmio_amf_object
 struct gmio_amf_constellation
 {
     uint32_t id; /* XML:integer */
-    uint32_t instance_count; /* Should be >= 2 */
+    uint32_t instance_count; /*!< Should be >= 2 */
     uint32_t metadata_count;
 };
 
+/*! Instance within an AMF constellation */
 struct gmio_amf_instance
 {
     uint32_t objectid; /* XML:nonNegativeInteger */
@@ -179,9 +188,10 @@ struct gmio_amf_texture
     uint32_t depth;  /* XML:nonNegativeInteger */
     bool tiled;
     enum gmio_amf_texture_type type;
-    struct gmio_memblock binary_data; /* Will be converted to base64 */
+    struct gmio_memblock binary_data; /*!< Will be converted to base64 */
 };
 
+/*! Units supported by AMF */
 enum gmio_amf_unit
 {
     GMIO_AMF_UNIT_UNKNOWN,
@@ -192,6 +202,7 @@ enum gmio_amf_unit
     GMIO_AMF_UNIT_MICRON
 };
 
+/*! The direct elements of an AMF document(ie. inside <tt><amf>...</amf></tt>) */
 enum gmio_amf_document_element
 {
     GMIO_AMF_DOCUMENT_ELEMENT_OBJECT,
@@ -201,6 +212,7 @@ enum gmio_amf_document_element
     GMIO_AMF_DOCUMENT_ELEMENT_METADATA
 };
 
+/*! The direct elements of an AMF mesh(ie. inside <tt><mesh>...</mesh></tt>) */
 enum gmio_amf_mesh_element
 {
     GMIO_AMF_MESH_ELEMENT_VERTEX,
@@ -223,7 +235,7 @@ struct gmio_amf_document
     const void* cookie;
 
     enum gmio_amf_unit unit;
-    uint32_t object_count; /* Must be >= 1 */
+    uint32_t object_count; /*!< Must be >= 1 */
     uint32_t material_count;
     uint32_t texture_count;
     uint32_t constellation_count;

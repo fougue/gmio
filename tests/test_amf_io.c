@@ -33,12 +33,15 @@
 #include "stream_buffer.h"
 
 #include "../src/gmio_core/error.h"
+#include "../src/gmio_core/internal/byte_codec.h"
 #include "../src/gmio_core/internal/helper_stream.h"
+#include "../src/gmio_core/internal/zip_utils.h"
 #include "../src/gmio_amf/amf_error.h"
 #include "../src/gmio_amf/amf_io.h"
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include <zlib.h>
 
 struct __tamf__material
@@ -108,10 +111,10 @@ static void __tamf__get_object_mesh(
         uint32_t mesh_index,
         struct gmio_amf_mesh* ptr_mesh)
 {
-    const struct __tamf__document* doc =
-            (const struct __tamf__document*)cookie;
     GMIO_UNUSED(object_index);
     GMIO_UNUSED(mesh_index);
+    const struct __tamf__document* doc =
+            (const struct __tamf__document*)cookie;
     ptr_mesh->vertex_count = doc->mesh.vertex_count;
     ptr_mesh->edge_count = 0;
     ptr_mesh->volume_count = 1;
@@ -147,9 +150,9 @@ static void __tamf__get_object_mesh_volume_triangle(
         uint32_t triangle_index,
         struct gmio_amf_triangle* ptr_triangle)
 {
+    GMIO_UNUSED(volume_index);
     const struct __tamf__document* doc = (const struct __tamf__document*)cookie;
     const struct __tamf__triangle* tri = &doc->mesh.vec_triangle[triangle_index];
-    GMIO_UNUSED(volume_index);
     ptr_triangle->v1 = tri->vertex[0];
     ptr_triangle->v2 = tri->vertex[1];
     ptr_triangle->v3 = tri->vertex[2];
@@ -162,12 +165,17 @@ static void __tamf__get_document_element_metadata(
         uint32_t metadata_index,
         struct gmio_amf_metadata* ptr_metadata)
 {
-    const struct __tamf__document* doc = (const struct __tamf__document*)cookie;
     GMIO_UNUSED(metadata_index);
+    const struct __tamf__document* doc = (const struct __tamf__document*)cookie;
     if (element == GMIO_AMF_DOCUMENT_ELEMENT_MATERIAL) {
         ptr_metadata->type = "name";
         ptr_metadata->data = doc->vec_material[element_index].name;
     }
+}
+
+static void __tamf__skip_zip_local_file_header()
+{
+
 }
 
 static const char* test_amf_write()
@@ -247,19 +255,70 @@ static const char* test_amf_write()
             if (gmio_error(error))
                 printf("\n0x%x\n", error);
             UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-            printf("%s\n", wbuff.ptr);
+            /* printf("%s\n", wbuff.ptr); */
         }
 
-#if 0
-        /* Write compressed */
+        /* Write compressed ZIP */
         {
-            int error = GMIO_ERROR_OK;
+            const size_t source_len = wbuff.pos;
+            uint8_t* source = calloc(source_len, 1);
+
+            memcpy(source, wbuff.ptr, source_len);
             wbuff.pos = 0;
             options.compress = true;
-            error = gmio_amf_write(&stream, &doc, &options);
+            static const char zip_entry_filename[] = "test.amf";
+            options.zip_entry_filename = zip_entry_filename;
+            options.zip_entry_filename_len = sizeof(zip_entry_filename) - 1;
+            const int error = gmio_amf_write(&stream, &doc, &options);
             UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-        }
+#if 0
+            FILE* file = fopen("output.zip", "wb");
+            fwrite(wbuff.ptr, 1, wbuff.pos, file);
+            fclose(file);
 #endif
+
+            /* Unzip and compare with source data */
+            uint8_t* rbuff = wbuff.ptr;
+            /* -- Read local file header */
+            UTEST_COMPARE_UINT(gmio_decode_uint32_le(rbuff), 0x04034b50);
+            rbuff += 8;
+            /* -- Read compression method */
+            UTEST_COMPARE_UINT(
+                        gmio_decode_uint16_le(rbuff),
+                        GMIO_ZIP_COMPRESS_METHOD_DEFLATE);
+            rbuff += 18;
+            /* -- Read filename length */
+            UTEST_COMPARE_UINT(
+                        gmio_decode_uint16_le(rbuff),
+                        options.zip_entry_filename_len);
+            rbuff += 2;
+            /* -- Read extrafield length */
+            const uint16_t zip_extrafield_len = gmio_decode_uint16_le(rbuff);
+            rbuff += 2;
+            /* -- Read filename */
+            UTEST_ASSERT(strncmp(
+                             (const char*)rbuff,
+                             options.zip_entry_filename,
+                             options.zip_entry_filename_len)
+                         == 0);
+            rbuff += options.zip_entry_filename_len;
+            /* -- Skip extrafield */
+            rbuff += zip_extrafield_len;
+
+#if 0 /* TODO: check other ZIP records, and uncompress file */
+            uint8_t* dest = calloc(wbuffsize, 1);
+            unsigned long dest_len = (unsigned long)wbuffsize;
+            const unsigned long z_len = wbuff.pos;
+            const int zerr = uncompress(dest, &dest_len, wbuff.ptr, z_len);
+            printf("\n-- Info: z_len=%i  src_len=%i\n", z_len, source_len);
+            UTEST_COMPARE_INT(zerr, Z_OK);
+            UTEST_COMPARE_UINT(source_len, dest_len);
+            UTEST_COMPARE_INT(memcmp(dest, source, source_len), 0);
+            free(dest);
+#endif
+
+            free(source);
+        }
 
         free(wbuff.ptr);
     }

@@ -30,21 +30,6 @@
 #include "zlib_utils.h"
 #include "../error.h"
 
-/* Converts zlib error to gmio "zlib-specific" error */
-int zlib_error_to_gmio_error(int z_error)
-{
-    switch (z_error) {
-    case Z_OK: return GMIO_ERROR_OK;
-    case Z_ERRNO: return GMIO_ERROR_ZLIB_ERRNO;
-    case Z_STREAM_ERROR: return GMIO_ERROR_ZLIB_STREAM;
-    case Z_DATA_ERROR: return GMIO_ERROR_ZLIB_DATA;
-    case Z_MEM_ERROR: return GMIO_ERROR_ZLIB_MEM;
-    case Z_BUF_ERROR: return GMIO_ERROR_ZLIB_BUF;
-    case Z_VERSION_ERROR: return GMIO_ERROR_ZLIB_VERSION;
-    }
-    return GMIO_ERROR_UNKNOWN;
-}
-
 static int gmio_to_zlib_compress_level(int gmio_compress_level)
 {
     if (gmio_compress_level == GMIO_ZLIB_COMPRESS_LEVEL_DEFAULT)
@@ -61,6 +46,21 @@ static int gmio_to_zlib_compress_memusage(int gmio_compress_memusage)
     return gmio_compress_memusage;
 }
 
+/* Converts zlib error to gmio "zlib-specific" error */
+int zlib_error_to_gmio_error(int z_error)
+{
+    switch (z_error) {
+    case Z_OK: return GMIO_ERROR_OK;
+    case Z_ERRNO: return GMIO_ERROR_ZLIB_ERRNO;
+    case Z_STREAM_ERROR: return GMIO_ERROR_ZLIB_STREAM;
+    case Z_DATA_ERROR: return GMIO_ERROR_ZLIB_DATA;
+    case Z_MEM_ERROR: return GMIO_ERROR_ZLIB_MEM;
+    case Z_BUF_ERROR: return GMIO_ERROR_ZLIB_BUF;
+    case Z_VERSION_ERROR: return GMIO_ERROR_ZLIB_VERSION;
+    }
+    return GMIO_ERROR_UNKNOWN;
+}
+
 int gmio_zlib_compress_init(
         struct z_stream_s* z_stream,
         const struct gmio_zlib_compress_options* z_opts)
@@ -69,12 +69,23 @@ int gmio_zlib_compress_init(
             gmio_to_zlib_compress_level(z_opts->level);
     const int zlib_compress_memusage =
             gmio_to_zlib_compress_memusage(z_opts->memory_usage);
+   /* zlib doc:
+    *   the windowBits parameter is the base two logarithm of the window size
+    *   (the size of the history buffer). It should be in the range 8..15 for
+    *   this version of the library. Larger values of this parameter result in
+    *   better compression at the expense of memory usage. The default value is
+    *   15 if deflateInit is used instead.
+    *   windowBits can also be –8..–15 for raw deflate. In this case, -windowBits
+    *   determines the window size. deflate() will then generate raw deflate
+    *   data with no zlib header or trailer, and will not compute an adler32
+    *   check value. */
+    static const int z_window_bits = -15;
     const int z_init_error =
             deflateInit2_(
                 z_stream,
                 zlib_compress_level,
                 Z_DEFLATED, /* Method */
-                15, /* Window bits(default value) */
+                z_window_bits,
                 zlib_compress_memusage,
                 z_opts->strategy,
                 ZLIB_VERSION,

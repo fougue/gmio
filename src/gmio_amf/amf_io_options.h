@@ -76,10 +76,12 @@ struct gmio_amf_write_options
      */
     uint8_t float64_prec;
 
-    /* ZIP compression */
+    /* ZIP/Deflate compression */
 
     bool compress;
     struct gmio_zlib_compress_options z_compress_options;
+    const char* zip_entry_filename;
+    uint16_t zip_entry_filename_len;
 };
 
 #endif /* GMIO_AMF_IO_OPTIONS_H */
