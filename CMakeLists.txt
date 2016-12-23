@@ -125,6 +125,7 @@ test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 # Adapt C compiler flags to enable strict ISO C99 conformance
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
+    add_definitions(-D_POSIX_SOURCE)
 endif()
 
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
