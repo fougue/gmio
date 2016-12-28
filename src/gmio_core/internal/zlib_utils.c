@@ -97,9 +97,9 @@ bool gmio_check_zlib_compress_options(
         int* error, const struct gmio_zlib_compress_options* z_opts)
 {
     if (z_opts != NULL) {
-        if (!(-1 <= z_opts->level && z_opts->level <= 9))
+        if (z_opts->level > 9)
             *error = GMIO_ERROR_ZLIB_INVALID_COMPRESS_LEVEL;
-        if (!(0 <= z_opts->memory_usage && z_opts->memory_usage <= 9))
+        if (z_opts->memory_usage > 9)
             *error = GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE;
     }
     return gmio_no_error(*error);
