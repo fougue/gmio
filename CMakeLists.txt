@@ -162,7 +162,7 @@ elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
     set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
 endif()
 
-# Check Available C99 features
+# Check available C99 features
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
 endif()
@@ -185,7 +185,7 @@ if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
     check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
 endif()
 
-# Check POSIX features
+# Check available POSIX features
 if(UNIX)
     # See:
     #   http://linux.die.net/man/2/fstat64
@@ -289,7 +289,6 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     endif()
 
     # Force PIC for GCC
-    #     See https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 

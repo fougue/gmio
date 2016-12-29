@@ -42,7 +42,7 @@ cmake .. -G "Unix Makefiles"       \
          -DGMIO_FLOAT2STR_LIB=$TRAVIS_FLOAT2STR_LIB
 
 # Make
-make -j4
+make -j4 VERBOSE=1
 make install
 make check  # Unit tests
 
