@@ -28,6 +28,7 @@
 #############################################################################
 
 cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0018 NEW)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -122,10 +123,23 @@ message(STATUS "GMIO_TARGET_ARCH_BIT_SIZE = ${GMIO_TARGET_ARCH_BIT_SIZE}")
 include(TestBigEndian)
 test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 
-# Adapt C compiler flags to enable strict ISO C99 conformance
+# Adapt C compiler flags for GCC
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    # Enable strict ISO C99 conformance
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
     add_definitions(-D_POSIX_SOURCE)
+
+    # cmake < v2.8.9 does not support CMAKE_POSITION_INDEPENDENT_CODE
+    #     For this project, gcc needs -fPIC option on x86_64 UNIX platform
+    if(NOT (WIN32 OR CYGWIN)
+           AND (CMAKE_VERSION VERSION_LESS 2.8.9)
+           AND (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i.86")
+           AND (GMIO_TARGET_ARCH_BIT_SIZE EQUAL 64))
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
+    endif()
+
+    # Force PIC
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
@@ -287,9 +301,6 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
     endif()
-
-    # Force PIC for GCC
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 # Specific flags for Clang
