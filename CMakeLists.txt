@@ -129,6 +129,9 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
     add_definitions(-D_POSIX_SOURCE)
 
+    message(STATUS "CMAKE_SHARED_LIBRARY_C_FLAGS = ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
+    message(STATUS "CMAKE_SYSTEM_PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
+
     # cmake < v2.8.9 does not support CMAKE_POSITION_INDEPENDENT_CODE
     #     For this project, gcc needs -fPIC option on x86_64 UNIX platform
     if(NOT (WIN32 OR CYGWIN)
