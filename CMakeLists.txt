@@ -127,7 +127,9 @@ test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     # Enable strict ISO C99 conformance
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
-    add_definitions(-D_POSIX_SOURCE)
+    if(CMAKE_COMPILER_IS_GNUCC)
+        add_definitions(-D_POSIX_SOURCE)
+    endif()
 
     message(STATUS "CMAKE_SHARED_LIBRARY_C_FLAGS = ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
     message(STATUS "CMAKE_SYSTEM_PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
