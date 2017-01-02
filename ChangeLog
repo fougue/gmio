@@ -1,4 +1,16 @@
-v0.3.0
+v0.3.2 (12-10-2016)
+    * gmio_stl: fix ending error when reading multiple STL solids from stream
+      (GitHub issue #2)
+
+v0.3.1 (21-09-2016)
+    * gmio_support: fix compilation error with OpenCascade v6.8.0
+      (GitHub issue #1)
+
+    * gmio_support: OpenCascade related files no longer requires C++11
+
+    * gmio_stl: remove public #include of internal header
+
+v0.3.0 (05-07-2016)
     * gmio_stl: check LC_NUMERIC is C or POSIX
       gmio_stla_read() and gmio_stla_write() now checks LC_NUMERIC is
       either "C" or "POSIX", if not then GMIO_ERROR_BAD_LC_NUMERIC is returned.
@@ -8,10 +20,10 @@ v0.3.0
 
     * Relicense under BSD 2-clause
 
-v0.2.1
+v0.2.1 (30-06-2016)
     * fake_support: fix compilation errors with Clang
 
-v0.2.0
+v0.2.0 (29-06-2016)
     * gmio_support: fix duplicated vertices when reading STL file into StlMesh_Mesh
 
-v0.1.0
+v0.1.0 (24-06-2016)
