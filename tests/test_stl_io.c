@@ -369,7 +369,7 @@ static const char* test_stla_lc_numeric()
     int error[4] = {0};
 
     gmio_lc_numeric_save();
-    setlocale(LC_NUMERIC, "");
+    setlocale(LC_NUMERIC, ""); /* "" -> environment's default locale */
     if (!gmio_lc_numeric_is_C()) {
         struct gmio_stl_read_options read_opts = {0};
         struct gmio_stl_write_options write_opts = {0};
@@ -381,17 +381,14 @@ static const char* test_stla_lc_numeric()
         error[2] = gmio_stla_read(&null_stream, &null_meshcreator, &read_opts);
         error[3] = gmio_stl_write(
                     GMIO_STL_FORMAT_ASCII, &null_stream, &null_mesh, &write_opts);
-    }
-    else {
-        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
-    }
-    gmio_lc_numeric_restore();
-    {
-        size_t i = 0;
-        for (; i < GMIO_ARRAY_SIZE(error); ++i) {
+        for (size_t i = 0; i < GMIO_ARRAY_SIZE(error); ++i) {
             UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error[i]);
         }
     }
+    else {
+        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX\n");
+    }
+    gmio_lc_numeric_restore();
 
     return NULL;
 }
