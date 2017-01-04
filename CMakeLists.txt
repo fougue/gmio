@@ -131,9 +131,6 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
         add_definitions(-D_POSIX_SOURCE)
     endif()
 
-    message(STATUS "CMAKE_SHARED_LIBRARY_C_FLAGS = ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
-    message(STATUS "CMAKE_SYSTEM_PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
-
     # cmake < v2.8.9 does not support CMAKE_POSITION_INDEPENDENT_CODE
     #     For this project, gcc needs -fPIC option on x86_64 UNIX platform
     if(NOT (WIN32 OR CYGWIN)
@@ -146,6 +143,75 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
 
     # Force PIC
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
+# Adapt C compiler flags GCC-like compilers
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
+    if(CMAKE_COMPILER_IS_GNUCC)
+        # Undefined behavior sanitizer(ubsan), requires GCC >= v4.9
+        #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
+    endif()
+
+    # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
+    # in case GCC wrongly warns about universal zero initializer {0}
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
+    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} -Werror=missing-braces")
+    check_c_source_compiles(
+        "struct data { char array[128]; };
+         int main() {
+             struct data d = {0};
+             return d.array[0];
+         }"
+        GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
+    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}") # Restore CMAKE_REQUIRED_FLAGS
+    if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+    endif()
+endif()
+
+# Adapt C compiler flags Clang
+if(CMAKE_COMPILER_IS_CLANG)
+    # Clang on apple-darwin13.4.0 wrongly reports many unused functions
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
+endif()
+
+# Adapt C compiler flags for Visual C++
+if(MSVC)
+    # Set warning level to /W4
+    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+
+    # Set warning level to /Wall
+    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
+
+    # Enable static analysis
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
+
+    # Treat some warnings as errors
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4013")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4024")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4057")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4090")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
+
+    # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
+    if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
+    endif()
+
+    # Disable deprecation warnings about "non-secure" CRT functions
+    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
+
+    # Enable "Generate Intrinsic Functions"
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
 endif()
 
 set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
@@ -189,11 +255,21 @@ endif()
 check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
 check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
 check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
-check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_MACRO)
-check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_MACRO)
+check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_SYM)
+check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_SYM)
+if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
+    check_symbol_exists(_finite float.h GMIO_HAVE_WIN__FINITE_SYM)
+endif()
+if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
+    check_symbol_exists(_isnan float.h GMIO_HAVE_WIN__ISNAN_SYM)
+endif()
+
 set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
 
-check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
+check_c_source_compiles(
+    "#include <stdbool.h>
+     int main() { const bool c = 0; return 0; }"
+    GMIO_HAVE_C99_BOOL)
 
 check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
 if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
@@ -276,78 +352,6 @@ elseif(MSVC)
         "#include <stdlib.h>
          int main() { return (int)_byteswap_ulong(0x11223344); }"
         GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
-endif()
-
-# Specific flags for GCC-like compilers
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
-    if(CMAKE_COMPILER_IS_GNUCC)
-        # Undefined behavior sanitizer(ubsan), requires GCC >= v4.9
-        #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
-    else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
-    endif()
-
-    # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
-    # in case GCC wrongly warns about universal zero initializer {0}
-    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
-    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} -Werror=missing-braces")
-    check_c_source_compiles(
-        "struct data { char array[128]; };
-         int main() {
-             struct data d = {0};
-             return d.array[0];
-         }"
-        GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}") # Restore CMAKE_REQUIRED_FLAGS
-    if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
-    endif()
-endif()
-
-# Specific flags for Clang
-if(CMAKE_COMPILER_IS_CLANG)
-    # Clang on apple-darwin13.4.0 wrongly reports many unused functions
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
-endif()
-
-# Specific flags for Visual C++
-if(MSVC)
-    # Treat all files a C source files
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TC")
-
-    # Set warning level to /W4
-    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-
-    # Set warning level to /Wall
-    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
-
-    # Enable static analysis
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
-
-    # Treat some warnings as errors
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4013")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4024")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4057")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4090")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
-
-    # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
-    if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
-    endif()
-
-    # Disable deprecation warnings about "non-secure" CRT functions
-    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
-
-    # Enable "Generate Intrinsic Functions"
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
 endif()
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

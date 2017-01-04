@@ -146,16 +146,20 @@ typedef uint32_t uintmax_t;
 
 #endif
 
-/* GMIO_HAVE_STDBOOL_H */
-#ifdef GMIO_HAVE_STDBOOL_H
-#  include <stdbool.h>
-#elif !defined(DOXYGEN) && !defined(__cplusplus)
+/* GMIO_HAVE_C99_BOOL */
+#ifndef __cplusplus
+#  if defined(GMIO_HAVE_C99_BOOL)
+#    include <stdbool.h>
+#  endif
+#  if !defined(__bool_true_false_are_defined) && !defined(DOXYGEN)
 typedef int bool;
 enum gmio_bool_value
 {
     false = 0,
     true = 1
 };
+#  define __bool_true_false_are_defined 1
+#  endif
 #endif
 
 /* GMIO_UNUSED */

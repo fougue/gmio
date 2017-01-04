@@ -85,7 +85,7 @@ struct gmio_stream
     /*! Pointer on a function that checks end-of-stream indicator
      *
      *  Checks whether the end-of-stream indicator associated with stream
-     *  pointed by \p cookie is set, returning true if is.
+     *  pointed by \p cookie is set, returning true if it is.
      *
      *  The function should behaves like C standard [feof()]
      *  (http://pubs.opengroup.org/onlinepubs/007904975/functions/feof.html)

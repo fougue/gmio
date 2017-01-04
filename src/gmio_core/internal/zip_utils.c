@@ -122,7 +122,8 @@ size_t gmio_zip_write_local_file_header(
     uint8_t* buff = fixed_data;
 
     const bool use_data_descriptor =
-            info->general_purpose_flags & GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR;
+            info->general_purpose_flags
+            & GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR;
 
     /* 4-bytes magic number 0x04034b50 */
     buff = gmio_adv_encode_uint32_le(0x04034b50, buff);

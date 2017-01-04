@@ -50,8 +50,8 @@
 #cmakedefine GMIO_HAVE_STDINT_H
 #endif
 
-#ifndef GMIO_HAVE_STDBOOL_H
-#cmakedefine GMIO_HAVE_STDBOOL_H
+#ifndef GMIO_HAVE_C99_BOOL
+#cmakedefine GMIO_HAVE_C99_BOOL
 #endif
 
 #cmakedefine GMIO_HAVE_STRTOF_FUNC
@@ -61,8 +61,10 @@
 #cmakedefine GMIO_HAVE_VSNPRINTF_FUNC
 #cmakedefine GMIO_HAVE_WIN__VSNPRINTF_FUNC
 
-#cmakedefine GMIO_HAVE_ISFINITE_MACRO
-#cmakedefine GMIO_HAVE_ISNAN_MACRO
+#cmakedefine GMIO_HAVE_ISFINITE_SYM
+#cmakedefine GMIO_HAVE_WIN__FINITE_SYM
+#cmakedefine GMIO_HAVE_ISNAN_SYM
+#cmakedefine GMIO_HAVE_WIN__ISNAN_SYM
 
 /* POSIX */
 #cmakedefine GMIO_HAVE_SYS_TYPES_H

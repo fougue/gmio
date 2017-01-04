@@ -374,8 +374,7 @@ bool stla_token_match_candidate(
         enum gmio_stla_token token, const enum gmio_stla_token* candidates)
 {
     bool found = false;
-    size_t i;
-    for (i = 0; !found && candidates[i] != null_token; ++i)
+    for (size_t i = 0; !found && candidates[i] != null_token; ++i)
         found = token == candidates[i];
     return found;
 }
@@ -416,10 +415,9 @@ int gmio_stla_eat_next_token(
         enum gmio_stla_token expected_token)
 {
     struct gmio_string* token_str = &data->token_str;
-    enum gmio_eat_word_error eat_error;
-
     token_str->len = 0;
-    eat_error = gmio_stringstream_eat_word(&data->strstream, token_str);
+    const enum gmio_eat_word_error eat_error =
+            gmio_stringstream_eat_word(&data->strstream, token_str);
     if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
         const char* expected_token_str = stla_token_to_string(expected_token);
         if (gmio_ascii_stricmp(token_str->ptr, expected_token_str) == 0) {
@@ -443,12 +441,11 @@ int gmio_stla_eat_next_token_inplace(
         enum gmio_stla_token expected_token)
 {
     struct gmio_stringstream* sstream = &data->strstream;
-    const char* stream_char = NULL;
     const char* expected_token_str = stla_token_to_string(expected_token);
     bool error = false;
 
     data->token = unknown_token;
-    stream_char = gmio_stringstream_skip_ascii_spaces(sstream);
+    const char* stream_char = gmio_stringstream_skip_ascii_spaces(sstream);
     while (!error) {
         if (stream_char == NULL || gmio_ascii_isspace(*stream_char)) {
             if (*expected_token_str == 0) {
@@ -472,11 +469,9 @@ int gmio_stla_eat_next_token_inplace(
     {
         size_t i = 0;
         /* -- Copy the matching part of the expected token */
-        {
-            const char* it = stla_token_to_string(expected_token);
-            while (it != expected_token_str)
-                data->token_str.ptr[i++] = *(it++);
-        }
+        const char* it = stla_token_to_string(expected_token);
+        while (it != expected_token_str)
+            data->token_str.ptr[i++] = *(it++);
         /* -- Copy the non matching part */
         while (i < data->token_str.capacity
                && stream_char != NULL
@@ -508,15 +503,13 @@ int gmio_stla_eat_until_token(
 
         do {
             const size_t previous_buff_len = strbuff->len;
-            enum gmio_eat_word_error eat_word_err = 0;
-            const char* next_word = NULL; /* Pointer on next word string */
-            size_t next_word_len = 0; /* Length of next word string */
-
             gmio_stringstream_copy_ascii_spaces(sstream, strbuff);
             /* Next word */
-            next_word = strbuff->ptr + strbuff->len;
-            eat_word_err = gmio_stringstream_eat_word(sstream, strbuff);
-            next_word_len = (strbuff->ptr + strbuff->len) - next_word;
+            const char* next_word = strbuff->ptr + strbuff->len;
+            const enum gmio_eat_word_error eat_word_err =
+                    gmio_stringstream_eat_word(sstream, strbuff);
+            const size_t next_word_len =
+                    (strbuff->ptr + strbuff->len) - next_word;
             /* Qualify token */
             data->token =
                     eat_word_err == GMIO_EAT_WORD_ERROR_OK ?

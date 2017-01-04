@@ -29,7 +29,6 @@
 
 #ifndef GMIO_INTERNAL_C99_MATH_COMPAT_H
 #define GMIO_INTERNAL_C99_MATH_COMPAT_H
-
 #include "../global.h"
 
 #include <math.h>
@@ -50,17 +49,23 @@ GMIO_INLINE float gmio_sqrtf(float x)
 { return (float)sqrt((double)x); }
 #endif
 
-#ifdef GMIO_HAVE_ISFINITE_MACRO
+#if defined(GMIO_HAVE_ISFINITE_SYM)
 #  define gmio_isfinite(x) isfinite(x)
+#elif defined(GMIO_HAVE_WIN__FINITE_SYM)
+#  include <float.h>
+#  define gmio_isfinite(x) _finite(x)
 #else
-/* No isfinite() macro*/
+/* No isfinite() symbol */
 #  define gmio_isfinite(x) (((x) != NAN) && ((x) != INFINITY))
 #endif
 
-#ifdef GMIO_HAVE_ISNAN_MACRO
+#if defined(GMIO_HAVE_ISNAN_SYM)
 #  define gmio_isnan(x) isnan(x)
+#elif defined(GMIO_HAVE_WIN__ISNAN_SYM)
+#  include <float.h>
+#  define gmio_isnan(x) _isnan(x)
 #else
-/* No isnan() macro*/
+/* No isnan() symbol */
 #  define gmio_isnan(x) ((x) == NAN)
 #endif
 
