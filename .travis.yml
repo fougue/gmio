@@ -37,5 +37,5 @@ matrix:
       env: TRAVIS_BUILD_TYPE=Release
 
 script:
-  - chmod +x travis-build.sh
-  - ./travis-build.sh
+  - chmod +x scripts/travis-build.sh
+  - ./scripts/travis-build.sh
