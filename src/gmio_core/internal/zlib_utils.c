@@ -30,6 +30,18 @@
 #include "zlib_utils.h"
 #include "../error.h"
 
+/* zlib doc:
+ *   the windowBits parameter is the base two logarithm of the window size
+ *   (the size of the history buffer). It should be in the range 8..15 for
+ *   this version of the library. Larger values of this parameter result in
+ *   better compression at the expense of memory usage. The default value is
+ *   15 if deflateInit is used instead.
+ *   windowBits can also be –8..–15 for raw deflate. In this case, -windowBits
+ *   determines the window size. deflate() will then generate raw deflate
+ *   data with no zlib header or trailer, and will not compute an adler32
+ *   check value. */
+static const int z_window_bits_for_no_zlib_wrapper = -15;
+
 static int gmio_to_zlib_compress_level(int gmio_compress_level)
 {
     if (gmio_compress_level == GMIO_ZLIB_COMPRESS_LEVEL_DEFAULT)
@@ -69,23 +81,12 @@ int gmio_zlib_compress_init(
             gmio_to_zlib_compress_level(z_opts->level);
     const int zlib_compress_memusage =
             gmio_to_zlib_compress_memusage(z_opts->memory_usage);
-   /* zlib doc:
-    *   the windowBits parameter is the base two logarithm of the window size
-    *   (the size of the history buffer). It should be in the range 8..15 for
-    *   this version of the library. Larger values of this parameter result in
-    *   better compression at the expense of memory usage. The default value is
-    *   15 if deflateInit is used instead.
-    *   windowBits can also be –8..–15 for raw deflate. In this case, -windowBits
-    *   determines the window size. deflate() will then generate raw deflate
-    *   data with no zlib header or trailer, and will not compute an adler32
-    *   check value. */
-    static const int z_window_bits = -15;
     const int z_init_error =
             deflateInit2_(
                 z_stream,
                 zlib_compress_level,
                 Z_DEFLATED, /* Method */
-                z_window_bits,
+                z_window_bits_for_no_zlib_wrapper,
                 zlib_compress_memusage,
                 z_opts->strategy,
                 ZLIB_VERSION,
@@ -103,4 +104,61 @@ bool gmio_check_zlib_compress_options(
             *error = GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE;
     }
     return gmio_no_error(*error);
+}
+
+int gmio_zlib_uncompress_buffer(
+        uint8_t* dest, size_t* dest_len, const uint8_t* src, size_t src_len)
+{
+    z_stream stream;
+    int err;
+
+    stream.next_in = (z_const Bytef *)src;
+    stream.avail_in = (uInt)src_len;
+    /* Check for source > 64K on 16-bit machine: */
+    if ((uLong)stream.avail_in != src_len)
+        return GMIO_ERROR_ZLIB_BUF;
+
+    stream.next_out = dest;
+    stream.avail_out = (uInt)*dest_len;
+    if ((uLong)stream.avail_out != *dest_len)
+        return GMIO_ERROR_ZLIB_BUF;
+
+    stream.zalloc = (alloc_func)NULL;
+    stream.zfree = (free_func)NULL;
+
+    err = inflateInit2_(
+                &stream,
+                z_window_bits_for_no_zlib_wrapper,
+                ZLIB_VERSION,
+                sizeof(z_stream));
+    if (err != Z_OK)
+        return err;
+
+    err = inflate(&stream, Z_FINISH);
+    if (err != Z_STREAM_END) {
+        inflateEnd(&stream);
+        if (err == Z_NEED_DICT || (err == Z_BUF_ERROR && stream.avail_in == 0))
+            return GMIO_ERROR_ZLIB_DATA;
+        return err;
+    }
+    *dest_len = stream.total_out;
+
+    err = inflateEnd(&stream);
+    return zlib_error_to_gmio_error(err);
+}
+
+uint32_t gmio_zlib_crc32(const uint8_t *buff, size_t buff_len)
+{
+    return gmio_zlib_crc32_update(gmio_zlib_crc32_initial(), buff, buff_len);
+}
+
+uint32_t gmio_zlib_crc32_update(
+        uint32_t crc, const uint8_t *buff, size_t buff_len)
+{
+    return crc32(crc, (const Bytef*)buff, (uInt)buff_len);
+}
+
+uint32_t gmio_zlib_crc32_initial()
+{
+    return crc32(0, NULL, 0);
 }
