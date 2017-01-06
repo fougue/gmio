@@ -161,7 +161,7 @@ size_t gmio_zip_read_local_file_header(
         int *ptr_error)
 {
     uint8_t buff[GMIO_ZIP_SIZE_LOCAL_FILE_HEADER];
-    uint8_t* buffit = buff;
+    const uint8_t* buffit = buff;
 
     const size_t read_len = gmio_stream_read_bytes(stream, buff, sizeof(buff));
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))
@@ -251,7 +251,7 @@ size_t gmio_zip_read_central_directory_header(
         int *ptr_error)
 {
     uint8_t buff[GMIO_ZIP_SIZE_CENTRAL_DIRECTORY_HEADER];
-    uint8_t* buffit = buff;
+    const uint8_t* buffit = buff;
 
     const size_t read_len = gmio_stream_read_bytes(stream, buff, sizeof(buff));
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))
@@ -311,7 +311,7 @@ size_t gmio_zip_read_end_of_central_directory_record(
         int *ptr_error)
 {
     uint8_t buff[GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD];
-    uint8_t* buffit = buff;
+    const uint8_t* buffit = buff;
 
     const size_t read_len = gmio_stream_read_bytes(stream, buff, sizeof(buff));
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))
@@ -404,7 +404,7 @@ size_t gmio_zip_read_data_descriptor(
         int* ptr_error)
 {
     uint8_t buff[GMIO_ZIP_SIZE_DATA_DESCRIPTOR];
-    uint8_t* buffit = buff;
+    const uint8_t* buffit = buff;
 
     const size_t read_len = gmio_stream_read_bytes(stream, buff, sizeof(buff));
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))
@@ -427,7 +427,7 @@ size_t gmio_zip64_read_data_descriptor(
 {
 #ifdef GMIO_HAVE_INT64_TYPE
     uint8_t buff[GMIO_ZIP64_SIZE_DATA_DESCRIPTOR];
-    uint8_t* buffit = buff;
+    const uint8_t* buffit = buff;
 
     const size_t read_len = gmio_stream_read_bytes(stream, buff, sizeof(buff));
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))

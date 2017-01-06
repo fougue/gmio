@@ -246,7 +246,7 @@ struct gmio_zip_write_result {
     size_t written_len;
 };
 
-enum { GMIO_ZIP_UTILS_ERROR_TAG = 0xAA000000 };
+enum { GMIO_ZIP_UTILS_ERROR_TAG = 0x00AA0000 };
 enum gmio_zip_utils_error {
     GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 0x01
 };
