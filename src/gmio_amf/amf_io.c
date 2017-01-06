@@ -632,7 +632,8 @@ static size_t gmio_amf_ostringstream_write_zlib(
     int z_retcode = Z_OK;
 
     context->z_uncompressed_size += len;
-    context->z_crc32 = crc32(context->z_crc32, (const Bytef*)ptr, len);
+    context->z_crc32 =
+            gmio_zlib_crc32_update(context->z_crc32, (const uint8_t*)ptr, len);
 
     z_stream->next_in = (z_const Bytef*)ptr;
     z_stream->avail_in = len;
@@ -866,7 +867,7 @@ int gmio_amf_write(
                     (uint8_t*)memblock->ptr + mblock_halfsize,
                     mblock_halfsize,
                     NULL);
-        context.z_crc32 = crc32(0, NULL, 0);
+        context.z_crc32 = gmio_zlib_crc32_initial();
         context.error =
                 gmio_zlib_compress_init(
                     &context.z_stream, &opts->z_compress_options);

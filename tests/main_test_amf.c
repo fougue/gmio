@@ -48,7 +48,8 @@ const char* all_tests()
 
     gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
 
-    UTEST_RUN(test_amf_write);
+    UTEST_RUN(test_amf_write_doc_null);
+    UTEST_RUN(test_amf_write_doc_1);
 
     return NULL;
 }

@@ -46,4 +46,24 @@ int gmio_zlib_compress_init(
 bool gmio_check_zlib_compress_options(
         int* error, const struct gmio_zlib_compress_options* z_opts);
 
+/* Decompresses the source buffer into the destination buffer.
+ *
+ * \p sourceLen is the byte length of the source buffer. Upon entry, \p destLen
+ * is the total size of the destination buffer, which must be large enough to
+ * hold the entire uncompressed data.
+ * Upon exit, destLen is the actual size of the compressed buffer.
+ */
+int gmio_zlib_uncompress_buffer(
+        uint8_t* dest, size_t* dest_len, const uint8_t* src, size_t src_len);
+
+/* Computes the CRC-32 value with the bytes buff[0..buff_len-1] */
+uint32_t gmio_zlib_crc32(const uint8_t* buff, size_t buff_len);
+
+/* Returns the required initial value for the gmio_zlib_crc32_update() */
+uint32_t gmio_zlib_crc32_initial();
+
+/* Updates a running CRC-32 with the bytes buff[0..buff_len-1] */
+uint32_t gmio_zlib_crc32_update(
+        uint32_t crc, const uint8_t* buff, size_t buff_len);
+
 #endif /* GMIO_INTERNAL_ZLIB_UTILS_H */

@@ -165,10 +165,10 @@ struct gmio_zip_local_file_header {
     uint32_t crc32;
     uint32_t compressed_size;
     uint32_t uncompressed_size;
-    const char* filename;
-    const uint8_t* extrafield;
     uint16_t filename_len;
     uint16_t extrafield_len;
+    const char* filename;
+    const uint8_t* extrafield;
 };
 
 /*! Zip data descriptor */
@@ -246,23 +246,58 @@ struct gmio_zip_write_result {
     size_t written_len;
 };
 
+enum { GMIO_ZIP_UTILS_ERROR_TAG = 0xAA000000 };
+enum gmio_zip_utils_error {
+    GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 0x01
+};
+
+/*! Reads ZIP local file header from \p stream */
+size_t gmio_zip_read_local_file_header(
+        struct gmio_stream* stream,
+        struct gmio_zip_local_file_header* info,
+        int* ptr_error);
+
+/*! Reads ZIP data descriptor from \p stream */
+size_t gmio_zip_read_data_descriptor(
+        struct gmio_stream* stream,
+        struct gmio_zip_data_descriptor* info,
+        int* ptr_error);
+
+/*! Reads Zip64 data descriptor from \p stream */
+size_t gmio_zip64_read_data_descriptor(
+        struct gmio_stream* stream,
+        struct gmio_zip_data_descriptor* info,
+        int* ptr_error);
+
+/*! Reads ZIP central directory header from \p stream */
+size_t gmio_zip_read_central_directory_header(
+        struct gmio_stream* stream,
+        struct gmio_zip_central_directory_header* info,
+        int* ptr_error);
+
+/*! Reads ZIP end of central directory record from \p stream */
+size_t gmio_zip_read_end_of_central_directory_record(
+        struct gmio_stream* stream,
+        struct gmio_zip_end_of_central_directory_record* info,
+        int* ptr_error);
+
 /*! Writes ZIP local file header to \p stream */
 size_t gmio_zip_write_local_file_header(
         struct gmio_stream* stream,
         const struct gmio_zip_local_file_header* info,
-        int* error);
+        int* ptr_error);
 
 /*! Writes ZIP data descriptor to \p stream */
 size_t gmio_zip_write_data_descriptor(
         struct gmio_stream* stream,
         const struct gmio_zip_data_descriptor* info,
-        int* error);
+        int* ptr_error);
 
 /*! Writes ZIP central directory header to \p stream */
 size_t gmio_zip_write_central_directory_header(
         struct gmio_stream* stream,
         const struct gmio_zip_central_directory_header* info,
-        int* error);
+        int* ptr_error);
 
 /*! Writes ZIP local file header to \p buff
  *
@@ -273,12 +308,12 @@ size_t gmio_zip64_write_extrafield_extended_info(
         uint8_t* buff,
         size_t buff_capacity,
         const struct gmio_zip64_extrablock_extended_info* info,
-        int* error);
+        int* ptr_error);
 
-/*! Writes ZIP end of central directory record \p stream */
+/*! Writes ZIP end of central directory record to \p stream */
 size_t gmio_zip_write_end_of_central_directory_record(
         struct gmio_stream* stream,
         const struct gmio_zip_end_of_central_directory_record* info,
-        int* error);
+        int* ptr_error);
 
 #endif /* GMIO_INTERNAL_ZIP_UTILS_H */
