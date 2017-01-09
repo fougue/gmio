@@ -263,39 +263,24 @@ size_t gmio_zip_read_central_directory_header(
                     read_len, GMIO_ZIP_UTILS_ERROR_BAD_MAGIC, ptr_error);
     }
 
-    /* 2-bytes version made by */
     info->version_made_by = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes version needed to extract */
     info->version_needed_to_extract = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes general purpose bit flag */
     info->general_purpose_flags = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes compression method */
     info->compress_method = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes last mod file time */
-    /* 2-bytes last mod file date */
+    /* 2-bytes last mod file time + 2-bytes last mod file date */
     /* TODO: convert DOS datetime to struct tm */
     const uint32_t dos_datetime = gmio_adv_decode_uint32_le(&buffit);
     GMIO_UNUSED(dos_datetime);
     info->lastmod_datetime = NULL;
-    /* 4-bytes crc-32 */
     info->crc32 = gmio_adv_decode_uint32_le(&buffit);
-    /* 4-bytes compressed size */
     info->compressed_size = gmio_adv_decode_uint32_le(&buffit);
-    /* 4-bytes uncompressed size */
     info->uncompressed_size = gmio_adv_decode_uint32_le(&buffit);
-    /* 2-bytes file name length */
     info->filename_len = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes extra field length */
     info->extrafield_len = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes file comment length */
     info->filecomment_len = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes disk number start */
     info->disk_nb_start = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes internal file attributes */
     info->internal_file_attrs = gmio_adv_decode_uint16_le(&buffit);
-    /* 4-bytes external file attributes */
     info->external_file_attrs = gmio_adv_decode_uint32_le(&buffit);
-    /* 4-bytes relative offset of local header */
     info->relative_offset_local_header = gmio_adv_decode_uint32_le(&buffit);
 
     info->filename = NULL;
@@ -323,24 +308,15 @@ size_t gmio_zip_read_end_of_central_directory_record(
                     read_len, GMIO_ZIP_UTILS_ERROR_BAD_MAGIC, ptr_error);
     }
 
-    /* 2-bytes number of this disk */
     info->disk_nb = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes number of the disk with the start of the central directory */
     info->disk_nb_with_start_of_central_dir = gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes total number of entries in the central directory on this disk */
     info->total_entry_count_in_central_dir_on_disk =
             gmio_adv_decode_uint16_le(&buffit);
-    /* 2-bytes total number of entries in the central directory */
     info->total_entry_count_in_central_dir = gmio_adv_decode_uint16_le(&buffit);
-    /* 4-bytes size of the central directory */
     info->central_dir_size = gmio_adv_decode_uint32_le(&buffit);
-    /* 4-bytes offset of start of central directory with respect to the starting
-     * disk number */
     info->start_offset_central_dir_from_disk_start_nb =
             gmio_adv_decode_uint32_le(&buffit);
-    /* 2-bytes .ZIP file comment length */
     info->filecomment_len = gmio_adv_decode_uint16_le(&buffit);
-
     info->filecomment = NULL;
 
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
@@ -358,30 +334,20 @@ size_t gmio_zip_write_local_file_header(
             info->general_purpose_flags
             & GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR;
 
-    /* 4-bytes magic number 0x04034b50 */
     buff = gmio_adv_encode_uint32_le(0x04034b50, buff);
-    /* 2-bytes version needed to extract */
     buff = gmio_adv_encode_uint16_le(info->version_needed_to_extract, buff);
-    /* 2-bytes general purpose bit flag */
     buff = gmio_adv_encode_uint16_le(info->general_purpose_flags, buff);
-    /* 2-bytes compression method */
     buff = gmio_adv_encode_uint16_le(info->compress_method, buff);
-    /* 2-bytes last mod file time */
-    /* 2-bytes last mod file date */
+    /* 2-bytes last mod file time + 2-bytes last mod file date */
     const struct tm* lastmod = gmio_nonnull_datetime(info->lastmod_datetime);
     buff = gmio_adv_encode_uint32_le(gmio_to_msdos_datetime(lastmod), buff);
-    /* 4-bytes crc-32 */
     buff = gmio_adv_encode_uint32_le(
                 use_data_descriptor ? 0 : info->crc32, buff);
-    /* 4-bytes compressed size */
     buff = gmio_adv_encode_uint32_le(
                 use_data_descriptor ? 0 : info->compressed_size, buff);
-    /* 4-bytes uncompressed size */
     buff = gmio_adv_encode_uint32_le(
                 use_data_descriptor ? 0 : info->uncompressed_size, buff);
-    /* 2-bytes file name length */
     buff = gmio_adv_encode_uint16_le(info->filename_len, buff);
-    /* 2-bytes extra field length */
     buff = gmio_adv_encode_uint16_le(info->extrafield_len, buff);
 
     /* Write to stream */
@@ -410,11 +376,8 @@ size_t gmio_zip_read_data_descriptor(
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))
         return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
 
-    /* 4-bytes crc-32 */
     info->crc32 = gmio_adv_decode_uint32_le(&buffit);
-    /* 4-bytes compressed size */
     info->compressed_size = gmio_adv_decode_uint32_le(&buffit);
-    /* 4-bytes uncompressed size */
     info->uncompressed_size = gmio_adv_decode_uint32_le(&buffit);
 
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
@@ -433,11 +396,8 @@ size_t gmio_zip64_read_data_descriptor(
     if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(buff)))
         return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
 
-    /* 4-bytes crc-32 */
     info->crc32 = gmio_adv_decode_uint32_le(&buffit);
-    /* 8-bytes compressed size */
     info->compressed_size = gmio_adv_decode_uint64_le(&buffit);
-    /* 8-bytes uncompressed size */
     info->uncompressed_size = gmio_adv_decode_uint64_le(&buffit);
 
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
@@ -455,43 +415,27 @@ size_t gmio_zip_write_central_directory_header(
     uint8_t fixed_data[GMIO_ZIP_SIZE_CENTRAL_DIRECTORY_HEADER];
     uint8_t* buff = fixed_data;
 
-    /* 4-bytes magic number 0x02014b50 */
     buff = gmio_adv_encode_uint32_le(0x02014b50, buff);
-    /* 2-bytes version made by */
     buff = gmio_adv_encode_uint16_le(info->version_made_by, buff);
-    /* 2-bytes version needed to extract */
     buff = gmio_adv_encode_uint16_le(info->version_needed_to_extract, buff);
-    /* 2-bytes general purpose bit flag */
     buff = gmio_adv_encode_uint16_le(info->general_purpose_flags, buff);
-    /* 2-bytes compression method */
     buff = gmio_adv_encode_uint16_le(info->compress_method, buff);
-    /* 2-bytes last mod file time */
-    /* 2-bytes last mod file date */
+    /* 2-bytes last mod file time + 2-bytes last mod file date */
     const struct tm* lastmod = gmio_nonnull_datetime(info->lastmod_datetime);
     buff = gmio_adv_encode_uint32_le(gmio_to_msdos_datetime(lastmod), buff);
-    /* 4-bytes crc-32 */
     buff = gmio_adv_encode_uint32_le(info->crc32, buff);
-    /* 4-bytes compressed size */
     const uint32_t compressed_size =
             info->use_zip64 ? UINT32_MAX : info->compressed_size;
-    buff = gmio_adv_encode_uint32_le(compressed_size, buff);
-    /* 4-bytes uncompressed size */
     const uint32_t uncompressed_size =
             info->use_zip64 ? UINT32_MAX : info->uncompressed_size;
+    buff = gmio_adv_encode_uint32_le(compressed_size, buff);
     buff = gmio_adv_encode_uint32_le(uncompressed_size, buff);
-    /* 2-bytes file name length */
     buff = gmio_adv_encode_uint16_le(info->filename_len, buff);
-    /* 2-bytes extra field length */
     buff = gmio_adv_encode_uint16_le(info->extrafield_len, buff);
-    /* 2-bytes file comment length */
     buff = gmio_adv_encode_uint16_le(info->filecomment_len, buff);
-    /* 2-bytes disk number start */
     buff = gmio_adv_encode_uint16_le(info->disk_nb_start, buff);
-    /* 2-bytes internal file attributes */
     buff = gmio_adv_encode_uint16_le(info->internal_file_attrs, buff);
-    /* 4-bytes external file attributes */
     buff = gmio_adv_encode_uint32_le(info->external_file_attrs, buff);
-    /* 4-bytes relative offset of local header */
     const uint32_t relative_offset_local_header =
             info->use_zip64 ? UINT32_MAX : info->relative_offset_local_header;
     buff = gmio_adv_encode_uint32_le(relative_offset_local_header, buff);
@@ -529,13 +473,9 @@ size_t gmio_zip64_write_extrafield_extended_info(
     /* Size of the "extra" block */
     buff = gmio_adv_encode_uint16_le(
                 GMIO_ZIP64_SIZE_EXTRAFIELD_EXTENDED_INFO - 2, buff);
-    /* Original uncompressed file size */
     buff = gmio_adv_encode_uint64_le(info->uncompressed_size, buff);
-    /* Size of compressed data */
     buff = gmio_adv_encode_uint64_le(info->compressed_size, buff);
-    /* Offset of local header record */
     buff = gmio_adv_encode_uint64_le(info->relative_offset_local_header, buff);
-    /* Number of the disk on which this file starts */
     buff = gmio_adv_encode_uint32_le(info->disk_nb_start, buff);
     return gmio_zip_io_returnerr(
                 GMIO_ZIP64_SIZE_EXTRAFIELD_EXTENDED_INFO,
