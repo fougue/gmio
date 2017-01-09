@@ -75,53 +75,6 @@ static const struct tm* gmio_nonnull_datetime(const struct tm* datetime)
     return datetime;
 }
 
-/* Reads 16b uint from memory (little-endian) and advances buffer pos */
-static uint16_t gmio_adv_decode_uint16_le(const uint8_t** bytes)
-{
-    const uint16_t val = gmio_decode_uint16_le(*bytes);
-    *bytes += 2;
-    return val;
-}
-
-/* Reads 32b uint from memory (little-endian) and advances buffer pos */
-static uint32_t gmio_adv_decode_uint32_le(const uint8_t** bytes)
-{
-    const uint32_t val = gmio_decode_uint32_le(*bytes);
-    *bytes += 4;
-    return val;
-}
-
-/* Encodes little-endian 32b val in buffer and returns advanced buffer pos */
-static uint8_t* gmio_adv_encode_uint32_le(uint32_t val, uint8_t* bytes)
-{
-    gmio_encode_uint32_le(val, bytes);
-    return bytes + 4;
-}
-
-/* Encodes little-endian 16b val in buffer and returns advanced buffer pos */
-static uint8_t* gmio_adv_encode_uint16_le(uint16_t val, uint8_t* bytes)
-{
-    gmio_encode_uint16_le(val, bytes);
-    return bytes + 2;
-}
-
-#ifdef GMIO_HAVE_INT64_TYPE
-/* Reads 64b uint from memory (little-endian) and advances buffer pos */
-static uint64_t gmio_adv_decode_uint64_le(const uint8_t** bytes)
-{
-    const uint64_t val = gmio_decode_uint64_le(*bytes);
-    *bytes += 8;
-    return val;
-}
-
-/* Encodes little-endian 64b val in buffer and returns advanced buffer pos */
-static uint8_t* gmio_adv_encode_uint64_le(uint64_t val, uint8_t* bytes)
-{
-    gmio_encode_uint64_le(val, bytes);
-    return bytes + 8;
-}
-#endif
-
 /* Helper to facilitate return from gmio_zip_write_xxx() API functions */
 static size_t gmio_zip_write_returnhelper(
         struct gmio_stream* stream,
@@ -142,8 +95,7 @@ static bool gmio_zip_read_checkhelper(
     return read == expected && !gmio_stream_error(stream);
 }
 
-/* Helper to facilitate return from gmio_zip_read_xxx() and gmio_zip_write_xxx()
- * API functions */
+/* Helper to facilitate return from gmio_zip_[read,write]_xxx() API functions */
 static size_t gmio_zip_io_returnerr(size_t io_len, int error, int* ptr_error)
 {
     if (ptr_error != NULL)

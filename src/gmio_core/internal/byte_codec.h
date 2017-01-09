@@ -39,19 +39,18 @@
  *   uintNN_t gmio_decode_uintNN_be(const uint8_t* bytes)
  *
  * Functions that writes NNbit uint to memory in little-endian
- *   uintNN_t gmio_encode_uintNN_le(uintNN_t val, uint8_t* bytes);
+ *   void gmio_encode_uintNN_le(uintNN_t val, uint8_t* bytes);
  *
  * Functions that writes NNbit uint to memory in big-endian
- *   uintNN_t gmio_encode_uintNN_be(uintNN_t val, uint8_t* bytes);
+ *   void gmio_encode_uintNN_be(uintNN_t val, uint8_t* bytes);
  */
 
 GMIO_INLINE uint16_t gmio_decode_uint16_le(const uint8_t* bytes);
 GMIO_INLINE uint16_t gmio_decode_uint16_be(const uint8_t* bytes);
-GMIO_INLINE void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes);
-GMIO_INLINE void gmio_encode_uint16_be(uint16_t val, uint8_t* bytes);
-
 GMIO_INLINE uint32_t gmio_decode_uint32_le(const uint8_t* bytes);
 GMIO_INLINE uint32_t gmio_decode_uint32_be(const uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint16_le(uint16_t val, uint8_t* bytes);
+GMIO_INLINE void gmio_encode_uint16_be(uint16_t val, uint8_t* bytes);
 GMIO_INLINE void gmio_encode_uint32_le(uint32_t val, uint8_t* bytes);
 GMIO_INLINE void gmio_encode_uint32_be(uint32_t val, uint8_t* bytes);
 
@@ -60,6 +59,39 @@ GMIO_INLINE uint64_t gmio_decode_uint64_le(const uint8_t* bytes);
 GMIO_INLINE uint64_t gmio_decode_uint64_be(const uint8_t* bytes);
 GMIO_INLINE void gmio_encode_uint64_le(uint64_t val, uint8_t* bytes);
 GMIO_INLINE void gmio_encode_uint64_be(uint64_t val, uint8_t* bytes);
+#endif /* GMIO_HAVE_INT64_TYPE */
+
+/* Functions that reads NNbit uint from memory (little-endian) and advances
+ * buffer pos
+ *   uintNN_t gmio_adv_decode_uintNN_le(const uint8_t** bytes)
+ *
+ * Functions that reads NNbit uint from memory (big-endian) and advances
+ * buffer pos
+ *   uintNN_t gmio_adv_decode_uintNN_be(const uint8_t** bytes)
+ *
+ * Functions that writes NNbit uint to memory in little-endian and returns
+ * advanced buffer pos
+ *   uint8_t* gmio_adv_encode_uintNN_le(uintNN_t val, uint8_t* bytes)
+ *
+ * Functions that writes NNbit uint to memory in big-endian and returns
+ * advanced buffer pos
+ *   uint8_t* gmio_adv_encode_uintNN_be(uintNN_t val, uint8_t* bytes)
+ */
+
+GMIO_INLINE uint16_t gmio_adv_decode_uint16_le(const uint8_t** bytes);
+GMIO_INLINE uint16_t gmio_adv_decode_uint16_be(const uint8_t** bytes);
+GMIO_INLINE uint32_t gmio_adv_decode_uint32_le(const uint8_t** bytes);
+GMIO_INLINE uint32_t gmio_adv_decode_uint32_be(const uint8_t** bytes);
+GMIO_INLINE uint8_t* gmio_adv_encode_uint16_le(uint16_t val, uint8_t* bytes);
+GMIO_INLINE uint8_t* gmio_adv_encode_uint16_be(uint16_t val, uint8_t* bytes);
+GMIO_INLINE uint8_t* gmio_adv_encode_uint32_le(uint32_t val, uint8_t* bytes);
+GMIO_INLINE uint8_t* gmio_adv_encode_uint32_be(uint32_t val, uint8_t* bytes);
+
+#ifdef GMIO_HAVE_INT64_TYPE
+GMIO_INLINE uint64_t gmio_adv_decode_uint64_le(const uint8_t** bytes);
+GMIO_INLINE uint64_t gmio_adv_decode_uint64_be(const uint8_t** bytes);
+GMIO_INLINE uint8_t* gmio_adv_encode_uint64_le(uint64_t val, uint8_t* bytes);
+GMIO_INLINE uint8_t* gmio_adv_encode_uint64_be(uint64_t val, uint8_t* bytes);
 #endif /* GMIO_HAVE_INT64_TYPE */
 
 
@@ -158,6 +190,88 @@ void gmio_encode_uint64_be(uint64_t val, uint8_t* bytes)
     bytes[5] = (val >> 16) & 0xFF;
     bytes[6] = (val >> 8)  & 0xFF;
     bytes[7] = val & 0xFF;
+}
+
+#endif /* GMIO_HAVE_INT64_TYPE */
+
+uint16_t gmio_adv_decode_uint16_le(const uint8_t** bytes)
+{
+    const uint16_t val = gmio_decode_uint16_le(*bytes);
+    *bytes += 2;
+    return val;
+}
+
+uint16_t gmio_adv_decode_uint16_be(const uint8_t** bytes)
+{
+    const uint16_t val = gmio_decode_uint16_be(*bytes);
+    *bytes += 2;
+    return val;
+}
+
+uint32_t gmio_adv_decode_uint32_le(const uint8_t** bytes)
+{
+    const uint32_t val = gmio_decode_uint32_le(*bytes);
+    *bytes += 4;
+    return val;
+}
+
+uint32_t gmio_adv_decode_uint32_be(const uint8_t** bytes)
+{
+    const uint32_t val = gmio_decode_uint32_be(*bytes);
+    *bytes += 4;
+    return val;
+}
+
+uint8_t* gmio_adv_encode_uint16_le(uint16_t val, uint8_t* bytes)
+{
+    gmio_encode_uint16_le(val, bytes);
+    return bytes + 2;
+}
+
+uint8_t* gmio_adv_encode_uint16_be(uint16_t val, uint8_t* bytes)
+{
+    gmio_encode_uint16_be(val, bytes);
+    return bytes + 2;
+}
+
+uint8_t* gmio_adv_encode_uint32_le(uint32_t val, uint8_t* bytes)
+{
+    gmio_encode_uint32_le(val, bytes);
+    return bytes + 4;
+}
+
+uint8_t* gmio_adv_encode_uint32_be(uint32_t val, uint8_t* bytes)
+{
+    gmio_encode_uint32_be(val, bytes);
+    return bytes + 4;
+}
+
+#ifdef GMIO_HAVE_INT64_TYPE
+
+uint64_t gmio_adv_decode_uint64_le(const uint8_t** bytes)
+{
+    const uint64_t val = gmio_decode_uint64_le(*bytes);
+    *bytes += 8;
+    return val;
+}
+
+uint64_t gmio_adv_decode_uint64_be(const uint8_t** bytes)
+{
+    const uint64_t val = gmio_decode_uint64_be(*bytes);
+    *bytes += 8;
+    return val;
+}
+
+uint8_t* gmio_adv_encode_uint64_le(uint64_t val, uint8_t* bytes)
+{
+    gmio_encode_uint64_le(val, bytes);
+    return bytes + 8;
+}
+
+uint8_t* gmio_adv_encode_uint64_be(uint64_t val, uint8_t* bytes)
+{
+    gmio_encode_uint64_be(val, bytes);
+    return bytes + 8;
 }
 
 #endif /* GMIO_HAVE_INT64_TYPE */
