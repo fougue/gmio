@@ -51,23 +51,18 @@ struct gmio_stl_infos
     /*! Count of facets(triangles) */
     uint32_t facet_count;
 
-    /*! Size of the STL data in bytes
-     *
+    /*! Size of the STL data in bytes.
      *  For STL ascii it includes the "endsolid" tag */
     gmio_streamsize_t size;
 
-    /*! STL ascii only: name of the solid
-     *
+    /*! STL ascii only: name of the solid.
      *  The pointer has to be set before calling gmio_stl_infos_probe()
-     *  \sa stla_solidname_maxlen
-     */
+     *  \sa stla_solidname_maxlen */
     char* stla_solidname;
 
-    /*! STL ascii only: maximum length(capacity) of stla_solidname
-     *
+    /*! STL ascii only: maximum length(capacity) of stla_solidname.
      *  The value has to be set before calling gmio_stl_infos_probe()
-     *  \sa stla_solidname
-     */
+     *  \sa stla_solidname */
     size_t stla_solidname_maxlen;
 
     /*! STL binary only: header(80-bytes) of STL data */
@@ -111,9 +106,7 @@ struct gmio_stl_infos_probe_options
     enum gmio_stl_format format_hint;
 
     /*! Restrict gmio_stl_infos_probe() to not read further this limit(in bytes)
-     *
-     *  \warning Not yet supported
-     */
+     *  \warning Not yet supported */
     gmio_streamsize_t size_limit;
 };
 

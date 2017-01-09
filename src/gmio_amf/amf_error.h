@@ -41,8 +41,7 @@
  *  Byte-mask to tag(identify) AMF-specific error codes */
 enum { GMIO_AMF_ERROR_TAG = 0x12000000 };
 
-/*! This enum defines the specific error codes reported by AMF read/write
- *  functions */
+/*! Specific error codes reported by AMF read/write functions */
 enum gmio_amf_error
 {
     /*! The input gmio_amf_document is \c NULL */

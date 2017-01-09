@@ -37,7 +37,7 @@
 
 /*! Output stream that operates on a string
  *
- *  To be used with API below.
+ *  To be used with API below
  */
 struct gmio_ostringstream
 {
@@ -56,7 +56,7 @@ struct gmio_ostringstream
             void* cookie, struct gmio_stream* stream, const char* ptr, size_t len);
 };
 
-/*! Returns an initialized gmio_ostringstream object */
+/*! Returns an initialized ostringstream */
 struct gmio_ostringstream gmio_ostringstream(
         const struct gmio_stream stream,
         const struct gmio_string strbuff);
@@ -124,13 +124,13 @@ GMIO_INLINE void gmio_ostringstream_flush(struct gmio_ostringstream* sstream);
 
 /* XML */
 
-/*! Write XML attribute of name \p attr and value \p val */
+/*! Writes XML attribute of name \p attr and value \p val */
 void gmio_ostringstream_write_xmlattr_str(
         struct gmio_ostringstream* sstream, const char* attr, const char* val);
 void gmio_ostringstream_write_xmlattr_u32(
         struct gmio_ostringstream* sstream, const char* attr, uint32_t val);
 
-/*! Write XML element containing \p val : <elt>val</elt> */
+/*! Writes XML element containing \p val : <elt>val</elt> */
 void gmio_ostringstream_write_xmlelt_f64(
         struct gmio_ostringstream* sstream, const char* elt, double val);
 

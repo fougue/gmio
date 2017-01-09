@@ -377,3 +377,4 @@ struct gmio_amf_document
 };
 
 #endif /* GMIO_AMF_DOCUMENT_H */
+/*! @} */

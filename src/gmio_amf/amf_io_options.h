@@ -85,3 +85,4 @@ struct gmio_amf_write_options
 };
 
 #endif /* GMIO_AMF_IO_OPTIONS_H */
+/*! @} */

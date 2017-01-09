@@ -58,8 +58,7 @@ GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
 #elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
     return _byteswap_ulong(val);
 #else
-    return
-            ((val & 0x000000FF) << 24)
+    return ((val & 0x000000FF) << 24)
             | ((val & 0x0000FF00) << 8)
             | ((val >> 8) & 0x0000FF00)
             | ((val >> 24) & 0x000000FF);

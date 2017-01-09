@@ -44,7 +44,7 @@
  *  Byte-mask to tag(identify) STL binary formats */
 enum { GMIO_STL_FORMAT_TAG_BINARY = 0x10 };
 
-/*! This enums defines the various STL formats */
+/*! Various STL formats */
 enum gmio_stl_format
 {
     /*! Unknown STL format */

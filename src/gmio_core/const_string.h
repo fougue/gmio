@@ -85,3 +85,4 @@ bool gmio_const_string_is_empty(const struct gmio_const_string* str)
 }
 
 #endif /* GMIO_CONST_STRING_H */
+/*! @} */

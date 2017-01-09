@@ -58,13 +58,12 @@ struct gmio_stringstream
     /*! Data to be passed to callback func_stream_read */
     void* cookie;
 
-    /*! Pointer on a function called each time next contents chunk has to be
-     * read */
+    /*! Pointer on a function called each time next contents chunk has to be read */
     size_t (*func_stream_read)(
             void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 };
 
-/*! Returns an initialized gmio_stringstream object */
+/*! Returns an initialized stringstream */
 struct gmio_stringstream gmio_stringstream(
         const struct gmio_stream stream,
         const struct gmio_string strbuff);
@@ -110,10 +109,8 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
         struct gmio_stringstream* sstream, struct gmio_string* str);
 
 #if 0
-/*! Iterate over stream while it matches input string \p str
- *
- *  Returns true if \p str was fully matched
- */
+/*! Iterate over stream while it matches input string \p str.
+ *  Returns true if \p str was fully matched */
 bool gmio_stringstream_checked_next_chars(
         struct gmio_stringstream* sstream, const char* str);
 #endif

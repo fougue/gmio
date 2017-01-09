@@ -94,3 +94,4 @@ struct gmio_zlib_compress_options
 };
 
 #endif /* GMIO_ZLIB_COMPRESS_H */
+/*! @} */

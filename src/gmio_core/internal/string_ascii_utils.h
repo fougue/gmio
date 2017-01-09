@@ -52,37 +52,27 @@ GMIO_INLINE char gmio_ascii_toupper(char c);
 /*! Returns the uppercase letter converted to lowercase */
 GMIO_INLINE char gmio_ascii_tolower(char c);
 
-/*! Returns 0 if \p c1 compare equals to \p c2, non-zero otherwise
- *
- *  Comparison is case-insensitive
- */
+/*! Returns 0 if \p c1 compare equals to \p c2, non-zero otherwise.
+ *  \note Comparison is case-insensitive */
 GMIO_INLINE bool gmio_ascii_char_iequals(char c1, char c2);
 
-/*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise
- *
- *  Comparison is case-insensitive
- */
+/*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise.
+ *  \note Comparison is case-insensitive */
 GMIO_INLINE int gmio_ascii_stricmp(const char* str1, const char* str2);
 
-/*! Returns 0 if the first \p n characreters of \p str1 and \p str2 compare
- *  equal, non-zero otherwise
- *
- *  Comparison is case-insensitive
- */
+/*! Returns 0 if the first \p n characters of \p str1 and \p str2 compare equal,
+ *  non-zero otherwise.
+ *  \note Comparison is case-insensitive */
 GMIO_INLINE int gmio_ascii_strincmp(
         const char* str1, const char* str2, size_t n);
 
-/*! Returns true if \p str starts with string \p begin
- *
- *  Comparison is case-insensitive
- */
+/*! Returns true if \p str starts with string \p begin.
+ *  \note Comparison is case-insensitive */
 GMIO_INLINE bool gmio_ascii_istarts_with(
         const char* str, const char* begin);
 
-/*! Locate substring (insensitive case string matching)
- *
- *  Behaves the same as strstr()
- */
+/*! Locate substring (insensitive case string matching).
+ *  Behaves the same as strstr() */
 const char* gmio_ascii_istrstr(const char *str1, const char *str2);
 
 

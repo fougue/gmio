@@ -46,16 +46,12 @@ struct gmio_string
     size_t capacity; /*!< Maximum contents size */
 };
 
-/*! Returns an initialized struct gmio_string object
- *
- *  gmio_string::capacity is set to <tt>max(len,capacity)</tt>
- */
+/*! Returns an initialized struct string.
+ *  gmio_string::capacity is set to <tt>max(len,capacity)</tt> */
 GMIO_INLINE struct gmio_string gmio_string(char* ptr, size_t len, size_t capacity);
 
-/*! Clears the contents of the string \p str and makes it null
- *
- *  \warning Memory pointed to by gmio_string::ptr is not freed in any way
- */
+/*! Clears the contents of the string \p str and makes it null.
+ *  \warning Memory pointed to by gmio_string::ptr is not freed in any way */
 GMIO_INLINE void gmio_string_clear(struct gmio_string* str);
 
 /*! Returns a pointer after the last character of \p str */

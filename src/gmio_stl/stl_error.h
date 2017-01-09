@@ -41,8 +41,7 @@
  *  Byte-mask to tag(identify) STL-specific error codes */
 enum { GMIO_STL_ERROR_TAG = 0x11000000 };
 
-/*! This enum defines the various error codes reported by STL read/write
- *  functions */
+/*! Specific error codes reported by STL read/write functions */
 enum gmio_stl_error
 {
     /*! STL format could not be guessed in read function */

@@ -43,7 +43,7 @@
  *  Byte-mask to tag(identify) zlib-specific error codes */
 enum { GMIO_ZLIB_ERROR_TAG = 0x1000000 };
 
-/*! This enum defines common errors */
+/*! Common errors */
 enum gmio_error
 {
     /*! No error occurred, success */
@@ -52,7 +52,7 @@ enum gmio_error
     /*! Unknown error */
     GMIO_ERROR_UNKNOWN,
 
-    /*! Pointer on argument memory block is NULL */
+    /*! Pointer on argument memory block is \c NULL */
     GMIO_ERROR_NULL_MEMBLOCK,
 
     /*! Argument size for the memory block is too small */
@@ -65,10 +65,8 @@ enum gmio_error
      *  gmio_task_iface::func_is_stop_requested() returned true */
     GMIO_ERROR_TASK_STOPPED,
 
-    /*! An error occured after a call to a <stdio.h> function
-     *
-     *  The caller can check errno to get the real error number
-     */
+    /*! An error occured after a call to a \c <stdio.h> function.
+     *  The caller can check \c errno to get the real error number */
     GMIO_ERROR_STDIO,
 
     /*! Checking of \c LC_NUMERIC failed(should be "C" or "POSIX") */
