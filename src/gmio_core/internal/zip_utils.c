@@ -89,18 +89,42 @@ static size_t gmio_zip_write_returnhelper(
     return written;
 }
 
-static bool gmio_zip_read_checkhelper(
-        struct gmio_stream* stream, size_t read, size_t expected)
-{
-    return read == expected && !gmio_stream_error(stream);
-}
-
 /* Helper to facilitate return from gmio_zip_[read,write]_xxx() API functions */
 static size_t gmio_zip_io_returnerr(size_t io_len, int error, int* ptr_error)
 {
     if (ptr_error != NULL)
         *ptr_error = error;
     return io_len;
+}
+
+/* Helper to read and check a 32b uint from buffer */
+static bool gmio_zip_readcheckmagic(
+        const uint8_t** ptr_buff, uint32_t expected_magic, int* ptr_error)
+{
+    if (gmio_adv_decode_uint32_le(ptr_buff) != expected_magic) {
+        if (ptr_error != NULL)
+            *ptr_error = GMIO_ZIP_UTILS_ERROR_BAD_MAGIC;
+        return false;
+    }
+    return true;
+}
+
+/* Helper to read and check some bytes from buffer */
+static bool gmio_zip_readcheckbytes(
+        struct gmio_stream* stream,
+        uint8_t* buff,
+        size_t expected_len,
+        size_t* ptr_read_len,
+        int* ptr_error)
+{
+    *ptr_read_len = gmio_stream_read_bytes(stream, buff, expected_len);
+    const int error =
+            (*ptr_read_len == expected_len && !gmio_stream_error(stream)) ?
+                GMIO_ERROR_OK :
+                GMIO_ERROR_STREAM;
+    if (ptr_error != NULL)
+        *ptr_error = error;
+    return gmio_no_error(error);
 }
 
 /* ----------
@@ -113,16 +137,13 @@ size_t gmio_zip_read_local_file_header(
         int *ptr_error)
 {
     uint8_t bytes[GMIO_ZIP_SIZE_LOCAL_FILE_HEADER];
+    size_t read_len = 0;
+    if (!gmio_zip_readcheckbytes(stream, bytes, sizeof(bytes), &read_len, ptr_error))
+        return read_len;
+
     const uint8_t* buff = bytes;
-
-    const size_t read_len = gmio_stream_read_bytes(stream, bytes, sizeof(bytes));
-    if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(bytes)))
-        return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
-
-    if (gmio_adv_decode_uint32_le(&buff) != 0x04034b50) {
-        return gmio_zip_io_returnerr(
-                    read_len, GMIO_ZIP_UTILS_ERROR_BAD_MAGIC, ptr_error);
-    }
+    if (!gmio_zip_readcheckmagic(&buff, 0x04034b50, ptr_error))
+        return read_len;
     info->version_needed_to_extract = gmio_adv_decode_uint16_le(&buff);
     info->general_purpose_flags = gmio_adv_decode_uint16_le(&buff);
     info->compress_method = gmio_adv_decode_uint16_le(&buff);
@@ -194,16 +215,11 @@ size_t gmio_zip_read_central_directory_header(
 {
     uint8_t bytes[GMIO_ZIP_SIZE_CENTRAL_DIRECTORY_HEADER];
     const uint8_t* buff = bytes;
-
-    const size_t read_len = gmio_stream_read_bytes(stream, bytes, sizeof(bytes));
-    if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(bytes)))
-        return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
-
-    if (gmio_adv_decode_uint32_le(&buff) != 0x02014b50) {
-        return gmio_zip_io_returnerr(
-                    read_len, GMIO_ZIP_UTILS_ERROR_BAD_MAGIC, ptr_error);
-    }
-
+    size_t read_len = 0;
+    if (!gmio_zip_readcheckbytes(stream, bytes, sizeof(bytes), &read_len, ptr_error))
+        return read_len;
+    if (!gmio_zip_readcheckmagic(&buff, 0x02014b50, ptr_error))
+        return read_len;
     info->version_made_by = gmio_adv_decode_uint16_le(&buff);
     info->version_needed_to_extract = gmio_adv_decode_uint16_le(&buff);
     info->general_purpose_flags = gmio_adv_decode_uint16_le(&buff);
@@ -238,17 +254,11 @@ size_t gmio_zip_read_end_of_central_directory_record(
 {
     uint8_t bytes[GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD];
     const uint8_t* buff = bytes;
-
-    const size_t read_len = gmio_stream_read_bytes(stream, bytes, sizeof(bytes));
-    if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(bytes)))
-        return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
-
-    /* 4-bytes magic */
-    if (gmio_adv_decode_uint32_le(&buff) != 0x06054b50) {
-        return gmio_zip_io_returnerr(
-                    read_len, GMIO_ZIP_UTILS_ERROR_BAD_MAGIC, ptr_error);
-    }
-
+    size_t read_len = 0;
+    if (!gmio_zip_readcheckbytes(stream, bytes, sizeof(bytes), &read_len, ptr_error))
+        return read_len;
+    if (!gmio_zip_readcheckmagic(&buff, 0x06054b50, ptr_error))
+        return read_len;
     info->disk_nb = gmio_adv_decode_uint16_le(&buff);
     info->disk_nb_with_start_of_central_dir = gmio_adv_decode_uint16_le(&buff);
     info->total_entry_count_in_central_dir_on_disk =
@@ -311,15 +321,12 @@ size_t gmio_zip_read_data_descriptor(
 {
     uint8_t bytes[GMIO_ZIP_SIZE_DATA_DESCRIPTOR];
     const uint8_t* buff = bytes;
-
-    const size_t read_len = gmio_stream_read_bytes(stream, bytes, sizeof(bytes));
-    if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(bytes)))
-        return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
-
+    size_t read_len = 0;
+    if (!gmio_zip_readcheckbytes(stream, bytes, sizeof(bytes), &read_len, ptr_error))
+        return read_len;
     info->crc32 = gmio_adv_decode_uint32_le(&buff);
     info->compressed_size = gmio_adv_decode_uint32_le(&buff);
     info->uncompressed_size = gmio_adv_decode_uint32_le(&buff);
-
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
 }
 
@@ -331,15 +338,12 @@ size_t gmio_zip64_read_data_descriptor(
 #ifdef GMIO_HAVE_INT64_TYPE
     uint8_t bytes[GMIO_ZIP64_SIZE_DATA_DESCRIPTOR];
     const uint8_t* buff = bytes;
-
-    const size_t read_len = gmio_stream_read_bytes(stream, bytes, sizeof(bytes));
-    if (!gmio_zip_read_checkhelper(stream, read_len, sizeof(bytes)))
-        return gmio_zip_io_returnerr(read_len, GMIO_ERROR_STREAM, ptr_error);
-
+    size_t read_len = 0;
+    if (!gmio_zip_readcheckbytes(stream, bytes, sizeof(bytes), &read_len, ptr_error))
+        return read_len;
     info->crc32 = gmio_adv_decode_uint32_le(&buff);
     info->compressed_size = gmio_adv_decode_uint64_le(&buff);
     info->uncompressed_size = gmio_adv_decode_uint64_le(&buff);
-
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
 #else
     /* TODO: error code */
