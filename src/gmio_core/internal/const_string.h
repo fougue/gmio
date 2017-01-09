@@ -27,22 +27,14 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-/*! \file const_string.h
- *  Declaration of gmio_const_string and utility functions
- *
- *  \addtogroup gmio_core
- *  @{
- */
+#ifndef GMIO_INTERNAL_CONST_STRING_H
+#define GMIO_INTERNAL_CONST_STRING_H
 
-#ifndef GMIO_CONST_STRING_H
-#define GMIO_CONST_STRING_H
-
-#include "global.h"
+#include "../global.h"
 
 #include <stddef.h>
 
-/*! Stores a read-only string of 8-bit chars
- *
+/*! Stores a read-only string of 8-bit chars.
  *  For faster lookups, it knowns the length of its contents.
  */
 struct gmio_const_string
@@ -84,5 +76,4 @@ bool gmio_const_string_is_empty(const struct gmio_const_string* str)
     return str->ptr == NULL || str->len == 0;
 }
 
-#endif /* GMIO_CONST_STRING_H */
-/*! @} */
+#endif /* GMIO_INTERNAL_CONST_STRING_H */

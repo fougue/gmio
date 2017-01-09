@@ -35,9 +35,9 @@
 #include "internal/stl_error_check.h"
 #include "internal/stla_parsing.h"
 
-#include "../gmio_core/const_string.h"
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/c99_stdio_compat.h"
+#include "../gmio_core/internal/const_string.h"
 #include "../gmio_core/internal/error_check.h"
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
