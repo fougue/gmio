@@ -34,8 +34,7 @@
 
 #include <stddef.h>
 
-/*! Stores a mutable string of 8-bit chars
- *
+/*! Stores a mutable string of 8-bit chars.
  *  For faster lookups, it knowns the length of its contents. Length must not
  *  exceeds the maximum size(capacity).
  */

@@ -82,6 +82,7 @@ struct gmio_amf_write_options
     struct gmio_zlib_compress_options z_compress_options;
     const char* zip_entry_filename;
     uint16_t zip_entry_filename_len;
+    bool force_zip64_format;
 };
 
 #endif /* GMIO_AMF_IO_OPTIONS_H */

@@ -203,11 +203,11 @@ struct gmio_zip_central_directory_header {
 };
 
 enum {
-    GMIO_ZIP64_SIZE_EXTRAFIELD_EXTENDED_INFO = 2*2 + 3*8 + 4
+    GMIO_ZIP64_SIZE_EXTRAFIELD = 2*2 + 3*8 + 4
 };
 
 /*! Zip64 extended info (extra field) */
-struct gmio_zip64_extrablock_extended_info {
+struct gmio_zip64_extrafield {
     uintmax_t compressed_size;
     uintmax_t uncompressed_size;
     uintmax_t relative_offset_local_header;
@@ -229,7 +229,6 @@ struct gmio_zip_end_of_central_directory_record {
 
 /*! Zip64 end of central directory record */
 struct gmio_zip64_end_of_central_directory_record {
-    uintmax_t remaining_record_size;                       /* should be 64b */
     uint16_t version_made_by;
     enum gmio_zip_feature_version version_needed_to_extract;
     uint32_t disk_nb;
@@ -239,6 +238,13 @@ struct gmio_zip64_end_of_central_directory_record {
     uintmax_t central_dir_size;                            /* should be 64b */
     uintmax_t start_offset_central_dir_from_disk_start_nb; /* should be 64b */
     const uint8_t* extensible_data_sector; /* Reserved for use by PKWARE */
+};
+
+/*! Zip64 end of central directory locator */
+struct gmio_zip64_end_of_central_directory_locator {
+    uint32_t disk_nb_with_start_of_central_dir;
+    uintmax_t relative_offset; /* should be 64b */
+    uint32_t total_disk_count;
 };
 
 struct gmio_zip_write_result {
@@ -275,6 +281,18 @@ size_t gmio_zip_read_central_directory_header(
         struct gmio_zip_central_directory_header* info,
         int* ptr_error);
 
+/*! Reads Zip64 end of central directory record from \p stream */
+size_t gmio_zip64_read_end_of_central_directory_record(
+        struct gmio_stream* stream,
+        struct gmio_zip64_end_of_central_directory_record* info,
+        int* ptr_error);
+
+/*! Reads Zip64 end of central directory locator from \p stream */
+size_t gmio_zip64_read_end_of_central_directory_locator(
+        struct gmio_stream* stream,
+        struct gmio_zip64_end_of_central_directory_locator* info,
+        int* ptr_error);
+
 /*! Reads ZIP end of central directory record from \p stream */
 size_t gmio_zip_read_end_of_central_directory_record(
         struct gmio_stream* stream,
@@ -299,21 +317,52 @@ size_t gmio_zip_write_central_directory_header(
         const struct gmio_zip_central_directory_header* info,
         int* ptr_error);
 
-/*! Writes ZIP local file header to \p buff
- *
+/*! Writes Zip64 extra field to \p buff.
  *  Returns \c GMIO_ERROR_INVALID_MEMBLOCK_SIZE if \p buff_capacity is less than
- *  \c GMIO_ZIP64_SIZE_EXTRAFIELD_EXTENDED_INFO
- */
-size_t gmio_zip64_write_extrafield_extended_info(
+ *  \c GMIO_ZIP64_SIZE_EXTRAFIELD */
+size_t gmio_zip64_write_extrafield(
         uint8_t* buff,
         size_t buff_capacity,
-        const struct gmio_zip64_extrablock_extended_info* info,
+        const struct gmio_zip64_extrafield* info,
+        int* ptr_error);
+
+/*! Writes Zip64 end of central directory record to \p stream */
+size_t gmio_zip64_write_end_of_central_directory_record(
+        struct gmio_stream* stream,
+        const struct gmio_zip64_end_of_central_directory_record* info,
+        int* ptr_error);
+
+/*! Writes Zip64 end of central directory locator to \p stream */
+size_t gmio_zip64_write_end_of_central_directory_locator(
+        struct gmio_stream* stream,
+        const struct gmio_zip64_end_of_central_directory_locator* info,
         int* ptr_error);
 
 /*! Writes ZIP end of central directory record to \p stream */
 size_t gmio_zip_write_end_of_central_directory_record(
         struct gmio_stream* stream,
         const struct gmio_zip_end_of_central_directory_record* info,
+        int* ptr_error);
+
+/*! Is Zip64 format required for this file uncompress/compress sizes ? */
+bool gmio_zip64_required(
+        uintmax_t uncompressed_size, uintmax_t compressed_size);
+
+/*! Defines a file entry in a ZIP archive */
+struct gmio_zip_file_entry {
+    enum gmio_zip_compress_method compress_method;
+    enum gmio_zip_feature_version feature_version;
+    const char* filename;
+    uint16_t filename_len;
+    void* cookie_func_write_file_data;
+    int (*func_write_file_data)(
+            void* cookie, struct gmio_zip_data_descriptor* dd);
+};
+
+/*! Writes a ZIP archive containing a single file */
+bool gmio_zip_write_single_file(
+        struct gmio_stream* stream,
+        const struct gmio_zip_file_entry* file_entry,
         int* ptr_error);
 
 #endif /* GMIO_INTERNAL_ZIP_UTILS_H */

@@ -39,9 +39,15 @@
 
 #include "global.h"
 
-/*! \c GMIO_ZLIB_ERROR_TAG
- *  Byte-mask to tag(identify) zlib-specific error codes */
-enum { GMIO_ZLIB_ERROR_TAG = 0x1000000 };
+enum {
+    /*! \c GMIO_ZLIB_ERROR_TAG
+     *  Byte-mask to tag(identify) zlib-specific error codes */
+    GMIO_ZLIB_ERROR_TAG = 0x01000000,
+
+    /*! \c GMIO_ZIP_ERROR_TAG
+     *  Byte-mask to tag(identify) ZIP-specific error codes */
+    GMIO_ZIP_ERROR_TAG = 0x02000000
+};
 
 /*! Common errors */
 enum gmio_error
@@ -97,7 +103,14 @@ enum gmio_error
 
     /*! Invalid compression memory usage, see
      *  gmio_zlib_compress_options::memory_usage */
-    GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE
+    GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE,
+
+    /*! Zip64 format requires the compiler to provide a 64b integer type */
+    GMIO_ERROR_ZIP_INT64_TYPE_REQUIRED = GMIO_ZIP_ERROR_TAG + 0x01,
+
+    /*! The size of some ZIP file entry exceeds 32b limit and so requires Zip64
+     *  format */
+    GMIO_ERROR_ZIP64_FORMAT_REQUIRED = GMIO_ZIP_ERROR_TAG + 0x02
 };
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */

@@ -67,6 +67,7 @@ struct __tamf__mesh
 struct __tamf__document
 {
     const struct __tamf__material* vec_material;
+    uint32_t material_count;
     struct __tamf__mesh mesh;
 };
 
@@ -174,11 +175,6 @@ static void __tamf__get_document_element_metadata(
     }
 }
 
-static void __tamf__skip_zip_local_file_header()
-{
-
-}
-
 static const char* test_amf_write_doc_null()
 {
     struct gmio_stream stream = {0};
@@ -188,205 +184,382 @@ static const char* test_amf_write_doc_null()
     return NULL;
 }
 
-static const char* test_amf_write_doc_1()
+const struct __tamf__material __tamf__doc_1_materials[] = {
+    { { 1., 0., 0. }, "red" },
+    { { 0., 1., 0. }, "green" },
+    { { 0., 0., 1. }, "blue" },
+    { { 1., 1., 1. }, "white" }
+};
+
+const struct gmio_vec3d __tamf__doc_1_vertices[] = {
+    { 0.,  0., 0.},
+    { 1.,  0., 0.},
+    { 1., -1., 0.},
+    { 0., -1., 0.},
+    { 1.,  0., 1.},
+    { 1., -1., 1.},
+    { 0.,  0., 1.},
+    { 0., -1., 1.}
+};
+
+const struct __tamf__triangle __tamf__doc_1_triangles[] = {
+    { 0, 1, 2},
+    { 0, 2, 3},
+    { 1, 5, 2},
+    { 1, 4, 5},
+    { 6, 5, 7},
+    { 6, 4, 5},
+    { 0, 6, 7},
+    { 0, 7, 3},
+    { 0, 6, 4},
+    { 0, 4, 1},
+    { 3, 7, 5},
+    { 3, 5, 2}
+};
+
+struct __tamf__document __tamf__create_doc_1()
+{
+    struct __tamf__document doc = {0};
+    doc.vec_material = __tamf__doc_1_materials;
+    doc.material_count = GMIO_ARRAY_SIZE(__tamf__doc_1_materials);
+    doc.mesh.vec_vertex = __tamf__doc_1_vertices;
+    doc.mesh.vertex_count = GMIO_ARRAY_SIZE(__tamf__doc_1_vertices);
+    doc.mesh.vec_triangle = __tamf__doc_1_triangles;
+    doc.mesh.triangle_count = GMIO_ARRAY_SIZE(__tamf__doc_1_triangles);
+    return doc;
+}
+
+struct gmio_amf_document __tamf_create_doc(
+        const struct __tamf__document* testdoc)
+{
+    struct gmio_amf_document doc = {0};
+    doc.cookie = testdoc;
+    doc.unit = GMIO_AMF_UNIT_MILLIMETER;
+    doc.func_get_document_element = __tamf__get_document_element;
+    doc.func_get_object_mesh = __tamf__get_object_mesh;
+    doc.func_get_object_mesh_element = __tamf__get_object_mesh_element;
+    doc.func_get_object_mesh_volume_triangle =
+            __tamf__get_object_mesh_volume_triangle;
+    doc.func_get_document_element_metadata =
+            __tamf__get_document_element_metadata;
+    doc.object_count = 1;
+    doc.material_count = testdoc->material_count;
+    return doc;
+}
+
+static int __tamf__write_amf(
+        struct gmio_rw_buffer* wbuff,
+        const struct gmio_amf_document* doc,
+        const struct gmio_amf_write_options* opts)
+{
+    struct gmio_stream stream = gmio_stream_buffer(wbuff);
+    return gmio_amf_write(&stream, doc, opts);
+}
+
+
+static const char* test_amf_write_doc_1_plaintext()
 {
     static const size_t wbuffsize = 8192;
     struct gmio_rw_buffer wbuff = {0};
-    struct gmio_amf_document doc = {0};
-
-    const struct __tamf__material testmaterials[] = {
-        { { 1., 0., 0. }, "red" },
-        { { 0., 1., 0. }, "green" },
-        { { 0., 0., 1. }, "blue" },
-        { { 1., 1., 1. }, "white" }
-    };
-
-    const struct gmio_vec3d testvertices[] = {
-        { 0.,  0., 0.},
-        { 1.,  0., 0.},
-        { 1., -1., 0.},
-        { 0., -1., 0.},
-        { 1.,  0., 1.},
-        { 1., -1., 1.},
-        { 0.,  0., 1.},
-        { 0., -1., 1.}
-    };
-    const struct __tamf__triangle testtriangles[] = {
-        { 0, 1, 2},
-        { 0, 2, 3},
-        { 1, 5, 2},
-        { 1, 4, 5},
-        { 6, 5, 7},
-        { 6, 4, 5},
-        { 0, 6, 7},
-        { 0, 7, 3},
-        { 0, 6, 4},
-        { 0, 4, 1},
-        { 3, 7, 5},
-        { 3, 5, 2}
-    };
-    struct __tamf__document testdoc = {0};
-
     wbuff.ptr = calloc(wbuffsize, 1);
     wbuff.len = wbuffsize;
 
-    testdoc.vec_material = testmaterials;
-    testdoc.mesh.vec_vertex = testvertices;
-    testdoc.mesh.vertex_count = GMIO_ARRAY_SIZE(testvertices);
-    testdoc.mesh.vec_triangle = testtriangles;
-    testdoc.mesh.triangle_count = GMIO_ARRAY_SIZE(testtriangles);
+    const struct __tamf__document testdoc = __tamf__create_doc_1();
+    const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
+    struct gmio_amf_write_options options = {0};
+    options.float64_prec = 9;
+    const int error = __tamf__write_amf(&wbuff, &doc, &options);
+#if 0
+    if (gmio_error(error))
+        printf("\n0x%x\n", error);
+#endif
+    UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+    /* printf("%s\n", wbuff.ptr); */
+    free(wbuff.ptr);
+    return NULL;
+}
 
-    doc.cookie = &testdoc;
-    doc.unit = GMIO_AMF_UNIT_MILLIMETER;
-    doc.func_get_document_element = &__tamf__get_document_element;
-    doc.func_get_object_mesh = &__tamf__get_object_mesh;
-    doc.func_get_object_mesh_element = &__tamf__get_object_mesh_element;
-    doc.func_get_object_mesh_volume_triangle =
-            &__tamf__get_object_mesh_volume_triangle;
-    doc.func_get_document_element_metadata =
-            &__tamf__get_document_element_metadata;
-    doc.object_count = 1;
-    doc.material_count = GMIO_ARRAY_SIZE(testmaterials);
+static const char zip_entry_filename[] = "test.amf";
+static const uint16_t zip_entry_filename_len = sizeof(zip_entry_filename) - 1;
 
-    /* Write as raw contents(uncompressed) */
-    {
-        struct gmio_stream stream = gmio_stream_buffer(&wbuff);
+static const char* __tamf__check_zip_local_file_header(
+        const struct gmio_zip_local_file_header* zip_lfh)
+{
+    UTEST_COMPARE_UINT(
+                zip_lfh->compress_method,
+                GMIO_ZIP_COMPRESS_METHOD_DEFLATE);
+    UTEST_ASSERT(
+                (zip_lfh->general_purpose_flags &
+                 GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
+                != 0);
+    UTEST_COMPARE_UINT(
+                zip_lfh->filename_len,
+                zip_entry_filename_len);
+    UTEST_ASSERT(strncmp(
+                     zip_lfh->filename,
+                     zip_entry_filename,
+                     zip_entry_filename_len)
+                 == 0);
+    return NULL;
+}
+
+static const char* test_amf_write_doc_1_zip()
+{
+    static const size_t wbuffsize = 8192;
+    struct gmio_rw_buffer wbuff = {0};
+    wbuff.ptr = calloc(wbuffsize, 1);
+    wbuff.len = wbuffsize;
+
+    const struct __tamf__document testdoc = __tamf__create_doc_1();
+    const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
+    {   /* Write uncompressed */
         struct gmio_amf_write_options options = {0};
         options.float64_prec = 9;
-        const int error = gmio_amf_write(&stream, &doc, &options);
-        if (gmio_error(error))
-            printf("\n0x%x\n", error);
+        const int error = __tamf__write_amf(&wbuff, &doc, &options);
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-        /* printf("%s\n", wbuff.ptr); */
     }
 
-    /* Write compressed ZIP */
-    {
-        const size_t source_len = wbuff.pos;
-        const uint32_t crc32_amf_data = gmio_zlib_crc32(wbuff.ptr, source_len);
-        uint8_t* source = calloc(source_len, 1);
-        memcpy(source, wbuff.ptr, source_len);
+    const size_t source_len = wbuff.pos;
+    const uint32_t crc32_amf_data = gmio_zlib_crc32(wbuff.ptr, source_len);
+    uint8_t* source = calloc(source_len, 1);
+    memcpy(source, wbuff.ptr, source_len);
 
-        static const char zip_entry_filename[] = "test.amf";
-        static const uint16_t zip_entry_filename_len =
-                sizeof(zip_entry_filename) - 1;
-        {
-            wbuff.pos = 0;
-            struct gmio_stream stream = gmio_stream_buffer(&wbuff);
-            struct gmio_amf_write_options options = {0};
-            options.float64_prec = 9;
-            options.compress = true;
-            options.zip_entry_filename = zip_entry_filename;
-            options.zip_entry_filename_len = zip_entry_filename_len;
-            const int error = gmio_amf_write(&stream, &doc, &options);
-            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-#if 0
-            FILE* file = fopen("output.zip", "wb");
-            fwrite(wbuff.ptr, 1, wbuff.pos, file);
-            fclose(file);
+    {   /* Write compressed(ZIP) */
+        wbuff.pos = 0;
+        struct gmio_amf_write_options options = {0};
+        options.float64_prec = 9;
+        options.compress = true;
+        options.zip_entry_filename = zip_entry_filename;
+        options.zip_entry_filename_len = zip_entry_filename_len;
+        const int error = __tamf__write_amf(&wbuff, &doc, &options);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+#if 1
+        FILE* file = fopen("output.zip", "wb");
+        fwrite(wbuff.ptr, 1, wbuff.pos, file);
+        fclose(file);
 #endif
-        }
-
-        /* Unzip and compare with source data */
-        {
-            /* Total size in bytes of the ZIP archive */
-            const uintmax_t zip_archive_len = wbuff.pos;
-            wbuff.pos = 0;
-            struct gmio_stream stream = gmio_stream_buffer(&wbuff);
-            int error = GMIO_ERROR_OK;
-            /* -- Read ZIP local file header */
-            struct gmio_zip_local_file_header zip_lfh = {0};
-            const size_t lfh_read_len =
-                    gmio_zip_read_local_file_header(&stream, &zip_lfh, &error);
-            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-            UTEST_COMPARE_UINT(
-                        zip_lfh.compress_method,
-                        GMIO_ZIP_COMPRESS_METHOD_DEFLATE);
-            UTEST_ASSERT(
-                        (zip_lfh.general_purpose_flags &
-                         GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
-                        != 0);
-            UTEST_COMPARE_UINT(
-                        zip_lfh.filename_len,
-                        sizeof(zip_entry_filename) - 1);
-            UTEST_ASSERT(strncmp(
-                             (const char*)wbuff.ptr + wbuff.pos,
-                             zip_entry_filename,
-                             zip_entry_filename_len)
-                         == 0);
-            /* -- Read ZIP end of central directory record */
-            static const size_t end_of_central_dir_record_len = 22;
-            wbuff.pos = zip_archive_len - end_of_central_dir_record_len;;
-            struct gmio_zip_end_of_central_directory_record zip_eocdr = {0};
-            gmio_zip_read_end_of_central_directory_record(
-                        &stream, &zip_eocdr, &error);
-            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-            UTEST_COMPARE_UINT(zip_eocdr.disk_nb, 0);
-            UTEST_COMPARE_UINT(
-                        zip_eocdr.disk_nb_with_start_of_central_dir, 0);
-            UTEST_COMPARE_UINT(
-                        zip_eocdr.total_entry_count_in_central_dir_on_disk, 1);
-            UTEST_COMPARE_UINT(
-                        zip_eocdr.total_entry_count_in_central_dir, 1);
-            /* -- Read ZIP central directory */
-            wbuff.pos = zip_eocdr.start_offset_central_dir_from_disk_start_nb;
-            struct gmio_zip_central_directory_header zip_cdh = {0};
-            gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
-            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-            UTEST_COMPARE_UINT(
-                        zip_cdh.compress_method,
-                        GMIO_ZIP_COMPRESS_METHOD_DEFLATE);
-            UTEST_ASSERT(
-                        (zip_cdh.general_purpose_flags &
-                         GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
-                        != 0);
-            UTEST_COMPARE_UINT(crc32_amf_data, zip_cdh.crc32);
-            UTEST_COMPARE_UINT(
-                        zip_cdh.filename_len, zip_entry_filename_len);
-            UTEST_ASSERT(strncmp(
-                             (const char*)wbuff.ptr + wbuff.pos,
-                             zip_entry_filename,
-                             zip_entry_filename_len)
-                         == 0);
-            /* -- Read compressed AMF data */
-            const size_t pos_start_amf_data =
-                    lfh_read_len + zip_lfh.filename_len + zip_lfh.extrafield_len;
-            wbuff.pos = pos_start_amf_data;
-            {
-                uint8_t* dest = calloc(zip_cdh.uncompressed_size, 1);
-                size_t dest_len = zip_cdh.uncompressed_size;
-                const int error =
-                        gmio_zlib_uncompress_buffer(
-                            dest,
-                            &dest_len,
-                            (const uint8_t*)wbuff.ptr + wbuff.pos,
-                            zip_cdh.compressed_size);
-                printf("\n-- Info: z_len=%i  src_len=%i\n",
-                       zip_cdh.compressed_size, source_len);
-                UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-                UTEST_COMPARE_UINT(source_len, dest_len);
-                UTEST_COMPARE_UINT(dest_len, zip_cdh.uncompressed_size);
-                UTEST_COMPARE_INT(memcmp(dest, source, source_len), 0);
-                const uint32_t crc32_uncomp = gmio_zlib_crc32(dest, dest_len);
-                UTEST_COMPARE_UINT(crc32_amf_data, crc32_uncomp);
-                free(dest);
-            }
-            /* -- Read ZIP data descriptor */
-            wbuff.pos = pos_start_amf_data + zip_cdh.compressed_size;
-            struct gmio_zip_data_descriptor zip_dd = {0};
-            gmio_zip_read_data_descriptor(&stream, &zip_dd, &error);
-            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-            UTEST_COMPARE_UINT(zip_dd.crc32, crc32_amf_data);
-            UTEST_COMPARE_UINT(
-                        zip_dd.compressed_size, zip_cdh.compressed_size);
-            UTEST_COMPARE_UINT(
-                        zip_dd.uncompressed_size, zip_cdh.uncompressed_size);
-        }
-
-        free(source);
     }
 
-    free(wbuff.ptr);
+    /* Unzip and compare with source data */
+    {
+        /* Total size in bytes of the ZIP archive */
+        const uintmax_t zip_archive_len = wbuff.pos;
+        wbuff.pos = 0;
+        struct gmio_stream stream = gmio_stream_buffer(&wbuff);
+        int error = GMIO_ERROR_OK;
+        /* -- Read ZIP local file header */
+        struct gmio_zip_local_file_header zip_lfh = {0};
+        const size_t lfh_read_len =
+                gmio_zip_read_local_file_header(&stream, &zip_lfh, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        zip_lfh.filename = (const char*)wbuff.ptr + wbuff.pos;
+        const char* check_str = __tamf__check_zip_local_file_header(&zip_lfh);
+        if (check_str != NULL)
+            return check_str;
+        /* -- Read ZIP end of central directory record */
+        static const size_t end_of_central_dir_record_len = 22;
+        wbuff.pos = zip_archive_len - end_of_central_dir_record_len;;
+        struct gmio_zip_end_of_central_directory_record zip_eocdr = {0};
+        gmio_zip_read_end_of_central_directory_record(
+                    &stream, &zip_eocdr, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(zip_eocdr.disk_nb, 0);
+        UTEST_COMPARE_UINT(
+                    zip_eocdr.disk_nb_with_start_of_central_dir, 0);
+        UTEST_COMPARE_UINT(
+                    zip_eocdr.total_entry_count_in_central_dir_on_disk, 1);
+        UTEST_COMPARE_UINT(
+                    zip_eocdr.total_entry_count_in_central_dir, 1);
+        /* -- Read ZIP central directory */
+        wbuff.pos = zip_eocdr.start_offset_central_dir_from_disk_start_nb;
+        struct gmio_zip_central_directory_header zip_cdh = {0};
+        gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(
+                    zip_cdh.compress_method,
+                    GMIO_ZIP_COMPRESS_METHOD_DEFLATE);
+        UTEST_ASSERT(
+                    (zip_cdh.general_purpose_flags &
+                     GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
+                    != 0);
+        UTEST_COMPARE_UINT(crc32_amf_data, zip_cdh.crc32);
+        UTEST_COMPARE_UINT(
+                    zip_cdh.filename_len, zip_entry_filename_len);
+        UTEST_ASSERT(strncmp(
+                         (const char*)wbuff.ptr + wbuff.pos,
+                         zip_entry_filename,
+                         zip_entry_filename_len)
+                     == 0);
+        /* -- Read compressed AMF data */
+        const size_t pos_start_amf_data =
+                lfh_read_len + zip_lfh.filename_len + zip_lfh.extrafield_len;
+        wbuff.pos = pos_start_amf_data;
+        {
+            uint8_t* dest = calloc(zip_cdh.uncompressed_size, 1);
+            size_t dest_len = zip_cdh.uncompressed_size;
+            const int error =
+                    gmio_zlib_uncompress_buffer(
+                        dest,
+                        &dest_len,
+                        (const uint8_t*)wbuff.ptr + wbuff.pos,
+                        zip_cdh.compressed_size);
+            printf("\n-- Info: z_len=%i  src_len=%i\n",
+                   zip_cdh.compressed_size, source_len);
+            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+            UTEST_COMPARE_UINT(source_len, dest_len);
+            UTEST_COMPARE_UINT(dest_len, zip_cdh.uncompressed_size);
+            UTEST_COMPARE_INT(memcmp(dest, source, source_len), 0);
+            const uint32_t crc32_uncomp = gmio_zlib_crc32(dest, dest_len);
+            UTEST_COMPARE_UINT(crc32_amf_data, crc32_uncomp);
+            free(dest);
+        }
+        /* -- Read ZIP data descriptor */
+        wbuff.pos = pos_start_amf_data + zip_cdh.compressed_size;
+        struct gmio_zip_data_descriptor zip_dd = {0};
+        gmio_zip_read_data_descriptor(&stream, &zip_dd, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(zip_dd.crc32, crc32_amf_data);
+        UTEST_COMPARE_UINT(
+                    zip_dd.compressed_size, zip_cdh.compressed_size);
+        UTEST_COMPARE_UINT(
+                    zip_dd.uncompressed_size, zip_cdh.uncompressed_size);
+    }
 
+    free(source);
+    free(wbuff.ptr);
+    return NULL;
+}
+
+static const char* test_amf_write_doc_1_zip64()
+{
+    static const size_t wbuffsize = 8192;
+    struct gmio_rw_buffer wbuff = {0};
+    wbuff.ptr = calloc(wbuffsize, 1);
+    wbuff.len = wbuffsize;
+
+    const struct __tamf__document testdoc = __tamf__create_doc_1();
+    const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
+    {   /* Write uncompressed */
+        struct gmio_amf_write_options options = {0};
+        options.float64_prec = 9;
+        const int error = __tamf__write_amf(&wbuff, &doc, &options);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+    }
+
+    const size_t source_len = wbuff.pos;
+    const uint32_t crc32_amf_data = gmio_zlib_crc32(wbuff.ptr, source_len);
+    uint8_t* source = calloc(source_len, 1);
+    memcpy(source, wbuff.ptr, source_len);
+
+    static const char zip_entry_filename[] = "test.amf";
+    static const uint16_t zip_entry_filename_len = sizeof(zip_entry_filename) - 1;
+    {   /* Write compressed(Zip64) */
+        wbuff.pos = 0;
+        struct gmio_amf_write_options options = {0};
+        options.float64_prec = 9;
+        options.compress = true;
+        options.zip_entry_filename = zip_entry_filename;
+        options.zip_entry_filename_len = zip_entry_filename_len;
+        options.force_zip64_format = true;
+        const int error = __tamf__write_amf(&wbuff, &doc, &options);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+#if 1
+        FILE* file = fopen("output_64.zip", "wb");
+        fwrite(wbuff.ptr, 1, wbuff.pos, file);
+        fclose(file);
+#endif
+    }
+
+    /* Unzip and compare with source data */
+    {
+        /* Total size in bytes of the ZIP archive */
+        const uintmax_t zip_archive_len = wbuff.pos;
+        wbuff.pos = 0;
+        struct gmio_stream stream = gmio_stream_buffer(&wbuff);
+        int error = GMIO_ERROR_OK;
+        /* -- Read ZIP local file header */
+        struct gmio_zip_local_file_header zip_lfh = {0};
+        const size_t lfh_read_len =
+                gmio_zip_read_local_file_header(&stream, &zip_lfh, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        zip_lfh.filename = (const char*)wbuff.ptr + wbuff.pos;
+        const char* check_str = __tamf__check_zip_local_file_header(&zip_lfh);
+        if (check_str != NULL)
+            return check_str;
+        /* -- Read ZIP end of central directory record */
+        static const size_t end_of_central_dir_record_len = 22;
+        wbuff.pos = zip_archive_len - end_of_central_dir_record_len;;
+        struct gmio_zip_end_of_central_directory_record zip_eocdr = {0};
+        gmio_zip_read_end_of_central_directory_record(
+                    &stream, &zip_eocdr, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(zip_eocdr.disk_nb, 0xFFFF);
+        UTEST_COMPARE_UINT(zip_eocdr.disk_nb_with_start_of_central_dir, 0xFFFF);
+        UTEST_COMPARE_UINT(
+                    zip_eocdr.total_entry_count_in_central_dir_on_disk, 0xFFFF);
+        UTEST_COMPARE_UINT(zip_eocdr.total_entry_count_in_central_dir, 0xFFFF);
+        UTEST_COMPARE_UINT(zip_eocdr.central_dir_size, 0xFFFFFFFF);
+        UTEST_COMPARE_UINT(
+                    zip_eocdr.start_offset_central_dir_from_disk_start_nb,
+                    0xFFFFFFFF);
+#if 0
+        /* -- Read ZIP central directory */
+        wbuff.pos = zip_eocdr.start_offset_central_dir_from_disk_start_nb;
+        struct gmio_zip_central_directory_header zip_cdh = {0};
+        gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(
+                    zip_cdh.compress_method,
+                    GMIO_ZIP_COMPRESS_METHOD_DEFLATE);
+        UTEST_ASSERT(
+                    (zip_cdh.general_purpose_flags &
+                     GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
+                    != 0);
+        UTEST_COMPARE_UINT(crc32_amf_data, zip_cdh.crc32);
+        UTEST_COMPARE_UINT(
+                    zip_cdh.filename_len, zip_entry_filename_len);
+        UTEST_ASSERT(strncmp(
+                         (const char*)wbuff.ptr + wbuff.pos,
+                         zip_entry_filename,
+                         zip_entry_filename_len)
+                     == 0);
+        /* -- Read compressed AMF data */
+        const size_t pos_start_amf_data =
+                lfh_read_len + zip_lfh.filename_len + zip_lfh.extrafield_len;
+        wbuff.pos = pos_start_amf_data;
+        {
+            uint8_t* dest = calloc(zip_cdh.uncompressed_size, 1);
+            size_t dest_len = zip_cdh.uncompressed_size;
+            const int error =
+                    gmio_zlib_uncompress_buffer(
+                        dest,
+                        &dest_len,
+                        (const uint8_t*)wbuff.ptr + wbuff.pos,
+                        zip_cdh.compressed_size);
+            printf("\n-- Info: z_len=%i  src_len=%i\n",
+                   zip_cdh.compressed_size, source_len);
+            UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+            UTEST_COMPARE_UINT(source_len, dest_len);
+            UTEST_COMPARE_UINT(dest_len, zip_cdh.uncompressed_size);
+            UTEST_COMPARE_INT(memcmp(dest, source, source_len), 0);
+            const uint32_t crc32_uncomp = gmio_zlib_crc32(dest, dest_len);
+            UTEST_COMPARE_UINT(crc32_amf_data, crc32_uncomp);
+            free(dest);
+        }
+        /* -- Read ZIP data descriptor */
+        wbuff.pos = pos_start_amf_data + zip_cdh.compressed_size;
+        struct gmio_zip_data_descriptor zip_dd = {0};
+        gmio_zip64_read_data_descriptor(&stream, &zip_dd, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(zip_dd.crc32, crc32_amf_data);
+        UTEST_COMPARE_UINT(
+                    zip_dd.compressed_size, zip_cdh.compressed_size);
+        UTEST_COMPARE_UINT(
+                    zip_dd.uncompressed_size, zip_cdh.uncompressed_size);
+#endif
+    }
+
+    free(source);
+    free(wbuff.ptr);
     return NULL;
 }

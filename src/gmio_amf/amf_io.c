@@ -46,8 +46,8 @@
 /* Writing(output) context */
 struct gmio_amf_wcontext
 {
+    struct gmio_ostringstream sstream;
     const struct gmio_amf_write_options* options;
-    struct gmio_ostringstream* sstream;
     const struct gmio_amf_document* document;
     const struct gmio_task_iface* task_iface;
     intmax_t task_progress_current;
@@ -85,7 +85,7 @@ static void gmio_amf_write_double(
         double value,
         const char* value_formula)
 {
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     if (value_formula == NULL || *value_formula == '\0')
         gmio_ostringstream_write_f64(sstream, value, &context->f64_format);
     else
@@ -98,7 +98,7 @@ static void gmio_amf_write_color_component(
         double value,
         const char* value_formula)
 {
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     if (value_formula == NULL || *value_formula == '\0') {
         gmio_ostringstream_write_f64(sstream, value, &context->f64_format);
     }
@@ -114,7 +114,7 @@ static void gmio_amf_write_color(
         struct gmio_amf_wcontext* context,
         const struct gmio_amf_color* color)
 {
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     gmio_ostringstream_write_chararray(sstream, "<color><r>");
     gmio_amf_write_color_component(context, color->r, color->r_formula);
     gmio_ostringstream_write_chararray(sstream, "</r><g>");
@@ -177,7 +177,7 @@ static bool gmio_amf_write_root_metadata(struct gmio_amf_wcontext* context)
         doc->func_get_document_element(
                     doc->cookie,
                     GMIO_AMF_DOCUMENT_ELEMENT_METADATA, imeta, &metadata);
-        gmio_amf_write_metadata(context->sstream, &metadata);
+        gmio_amf_write_metadata(&context->sstream, &metadata);
         gmio_amf_wcontext_incr_task_progress(context);
     }
     return gmio_no_error(context->error);
@@ -187,7 +187,7 @@ static bool gmio_amf_write_root_metadata(struct gmio_amf_wcontext* context)
 static bool gmio_amf_write_root_materials(struct gmio_amf_wcontext* context)
 {
     const struct gmio_amf_document* doc = context->document;
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     struct gmio_amf_material material = {0};
     for (uint32_t imat = 0; imat < doc->material_count; ++imat) {
         doc->func_get_document_element(
@@ -280,7 +280,7 @@ static bool gmio_amf_write_mesh(
         const struct gmio_amf_object_mesh_element_index* base_mesh_element_index)
 {
     const struct gmio_amf_document* doc = context->document;
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     struct gmio_amf_object_mesh_element_index mesh_elt_index =
             *base_mesh_element_index;
     const struct gmio_ostringstream_format_float* f64_format =
@@ -441,7 +441,7 @@ static bool gmio_amf_write_mesh(
 static bool gmio_amf_write_root_objects(struct gmio_amf_wcontext* context)
 {
     const struct gmio_amf_document* doc = context->document;
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     struct gmio_amf_object object = {0};
     for (uint32_t iobj = 0; iobj < doc->object_count; ++iobj) {
         doc->func_get_document_element(
@@ -496,7 +496,7 @@ static bool gmio_amf_write_root_objects(struct gmio_amf_wcontext* context)
 static bool gmio_amf_write_root_textures(struct gmio_amf_wcontext* context)
 {
     const struct gmio_amf_document* doc = context->document;
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     struct gmio_amf_texture texture = {0};
     for (uint32_t itex = 0; itex < doc->texture_count; ++itex) {
         doc->func_get_document_element(
@@ -532,7 +532,7 @@ static bool gmio_amf_write_root_textures(struct gmio_amf_wcontext* context)
 static bool gmio_amf_write_root_constellations(struct gmio_amf_wcontext* context)
 {
     const struct gmio_amf_document* doc = context->document;
-    struct gmio_ostringstream* sstream = context->sstream;
+    struct gmio_ostringstream* sstream = &context->sstream;
     struct gmio_amf_constellation constellation = {0};
     for (uint32_t icons = 0; icons < doc->constellation_count; ++icons) {
         doc->func_get_document_element(
@@ -814,6 +814,39 @@ static struct gmio_zip_entry_filename gmio_amf_zip_entry_filename(
     return zip_filename;
 }
 
+/* Writes AMF file data, plain text or compressed(ZIP)
+ * This function satisfies the signature required by gmio_zip_write_single_file()
+ */
+static int gmio_amf_write_file_data(
+        void* cookie, struct gmio_zip_data_descriptor* dd)
+{
+    struct gmio_amf_wcontext* context = (struct gmio_amf_wcontext*)cookie;
+    struct gmio_ostringstream* sstream = &context->sstream;
+    gmio_amf_write_amf_begin(sstream, context->document);
+    if (!gmio_amf_write_root_metadata(context))
+        return context->error;
+    if (!gmio_amf_write_root_materials(context))
+        return context->error;
+    if (!gmio_amf_write_root_objects(context))
+        return context->error;
+    if (!gmio_amf_write_root_textures(context))
+        return context->error;
+    if (!gmio_amf_write_root_constellations(context))
+        return context->error;
+    if (context->options->compress) {
+        gmio_ostringstream_flush(sstream);
+        context->z_flush = Z_FINISH;
+    }
+    gmio_ostringstream_write_chararray(sstream, "</amf>\n");
+    gmio_ostringstream_flush(sstream);
+    if (context->options->compress && dd != NULL) {
+        dd->crc32 = context->z_crc32;
+        dd->uncompressed_size = context->z_uncompressed_size;
+        dd->compressed_size = context->z_compressed_size;
+    }
+    return context->error;
+}
+
 int gmio_amf_write(
         struct gmio_stream* stream,
         const struct gmio_amf_document* doc,
@@ -822,19 +855,10 @@ int gmio_amf_write(
     static const struct gmio_amf_write_options default_write_opts = {0};
     opts = opts != NULL ? opts : &default_write_opts;
 
-    /* Constants */
+    struct gmio_amf_wcontext context = {0};
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     const struct gmio_memblock* memblock = &mblock_helper.memblock;
-    const struct gmio_zip_entry_filename zip_entry_filename =
-            gmio_amf_zip_entry_filename(opts);
-
-    /* Variables */
-    struct gmio_amf_wcontext context = {0};
-    struct gmio_ostringstream sstream =
-            gmio_ostringstream(
-                *stream, gmio_string(memblock->ptr, 0, memblock->size));
-    uintmax_t zip_write_pos = 0;
 
     /* Check validity of input parameters */
     context.error = GMIO_ERROR_OK;
@@ -847,8 +871,12 @@ int gmio_amf_write(
     /* Initialize writing context */
     const struct gmio_string_16 f64_stdio_format =
             gmio_to_stdio_float_format(opts->float64_format, opts->float64_prec);
+    context.sstream =
+            gmio_ostringstream(
+                *stream, gmio_string(memblock->ptr, 0, memblock->size));
+    context.sstream.cookie = &context;
+    context.sstream.func_stream_write = &gmio_amf_ostringstream_write;
     context.options = opts;
-    context.sstream = &sstream;
     context.document = doc;
     context.task_iface = &opts->task_iface;
     context.task_progress_current = 0;
@@ -858,10 +886,11 @@ int gmio_amf_write(
     context.f64_format.text_format = opts->float64_format;
     context.f64_format.precision =
             opts->float64_prec != 0 ? opts->float64_prec : 16;
+
     if (opts->compress) {
         /* Initialize internal zlib stream for compression */
         const size_t mblock_halfsize = memblock->size / 2;
-        context.sstream->strbuff.capacity = mblock_halfsize;
+        context.sstream.strbuff.capacity = mblock_halfsize;
         context.z_memblock =
                 gmio_memblock(
                     (uint8_t*)memblock->ptr + mblock_halfsize,
@@ -874,85 +903,23 @@ int gmio_amf_write(
         if (gmio_error(context.error))
             goto label_end;
         context.z_flush = Z_NO_FLUSH;
+        /* Write ZIP file */
+        struct gmio_zip_file_entry file_entry = {0};
+        file_entry.compress_method = GMIO_ZIP_COMPRESS_METHOD_DEFLATE;
+        file_entry.feature_version =
+                opts->force_zip64_format ?
+                    GMIO_ZIP_FEATURE_VERSION_FILE_ZIP64_FORMAT_EXTENSIONS :
+                    GMIO_ZIP_FEATURE_VERSION_FILE_COMPRESSED_DEFLATE;
+        const struct gmio_zip_entry_filename zip_entry_filename =
+                gmio_amf_zip_entry_filename(opts);
+        file_entry.filename = zip_entry_filename.ptr;
+        file_entry.filename_len = zip_entry_filename.len;
+        file_entry.cookie_func_write_file_data = &context;
+        file_entry.func_write_file_data = gmio_amf_write_file_data;
+        gmio_zip_write_single_file(stream, &file_entry, &context.error);
     }
-
-    sstream.cookie = &context;
-    sstream.func_stream_write = &gmio_amf_ostringstream_write;
-
-    /* If compression enabled, write ZIP local file header */
-    if (opts->compress) {
-        struct gmio_zip_local_file_header info = {0};
-        info.general_purpose_flags =
-                GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR;
-        info.compress_method = GMIO_ZIP_COMPRESS_METHOD_DEFLATE;
-        info.filename = zip_entry_filename.ptr;
-        info.filename_len = zip_entry_filename.len;
-        zip_write_pos +=
-                gmio_zip_write_local_file_header(stream, &info, &context.error);
-        if (gmio_error(context.error))
-            goto label_end;
-    }
-
-    gmio_amf_write_amf_begin(&sstream, doc);
-    if (!gmio_amf_write_root_metadata(&context))
-        goto label_end;
-    if (!gmio_amf_write_root_materials(&context))
-        goto label_end;
-    if (!gmio_amf_write_root_objects(&context))
-        goto label_end;
-    if (!gmio_amf_write_root_textures(&context))
-        goto label_end;
-    if (!gmio_amf_write_root_constellations(&context))
-        goto label_end;
-
-    if (opts->compress) {
-        gmio_ostringstream_flush(&sstream);
-        context.z_flush = Z_FINISH;
-    }
-    gmio_ostringstream_write_chararray(&sstream, "</amf>\n");
-    gmio_ostringstream_flush(&sstream);
-
-    /* Write ending ZIP archive data */
-    if (opts->compress && gmio_no_error(context.error)) {
-        zip_write_pos += context.z_compressed_size;
-        /* Write data descriptor */
-        struct gmio_zip_data_descriptor dd = {0};
-        dd.crc32 = context.z_crc32;
-        dd.compressed_size = context.z_compressed_size;
-        dd.uncompressed_size = context.z_uncompressed_size;
-        zip_write_pos +=
-                gmio_zip_write_data_descriptor(stream, &dd, &context.error);
-        if (gmio_error(context.error))
-            goto label_end;
-        /* Write central directory header */
-        struct gmio_zip_central_directory_header cdh = {0};
-        cdh.version_needed_to_extract =
-                GMIO_ZIP_FEATURE_VERSION_FILE_COMPRESSED_DEFLATE;
-        cdh.general_purpose_flags =
-                GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR;
-        cdh.compress_method = GMIO_ZIP_COMPRESS_METHOD_DEFLATE;
-        cdh.crc32 = context.z_crc32;
-        cdh.compressed_size = (uint32_t)context.z_compressed_size;
-        cdh.uncompressed_size = (uint32_t)context.z_uncompressed_size;
-        cdh.filename = zip_entry_filename.ptr;
-        cdh.filename_len = zip_entry_filename.len;
-        const uintmax_t central_dir_startpos = zip_write_pos;
-        const size_t central_dir_size =
-                gmio_zip_write_central_directory_header(
-                    stream, &cdh, &context.error);
-        zip_write_pos += central_dir_size;
-        if (gmio_error(context.error))
-            goto label_end;
-        /* Write end of central directory record */
-        struct gmio_zip_end_of_central_directory_record eocdr = {0};
-        eocdr.total_entry_count_in_central_dir_on_disk = 1;
-        eocdr.total_entry_count_in_central_dir = 1;
-        eocdr.central_dir_size = (uint32_t)central_dir_size;
-        eocdr.start_offset_central_dir_from_disk_start_nb =
-                (uint32_t)central_dir_startpos;
-        zip_write_pos +=
-                gmio_zip_write_end_of_central_directory_record(
-                    stream, &eocdr, &context.error);
+    else {
+        context.error = gmio_amf_write_file_data(&context, NULL);
     }
 
 label_end:
