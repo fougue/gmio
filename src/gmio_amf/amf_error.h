@@ -39,7 +39,7 @@
 
 /*! \c GMIO_AMF_ERROR_TAG
  *  Byte-mask to tag(identify) AMF-specific error codes */
-enum { GMIO_AMF_ERROR_TAG = 0x12000000 };
+enum { GMIO_AMF_ERROR_TAG = 0x02000000 };
 
 /*! Specific error codes reported by AMF read/write functions */
 enum gmio_amf_error

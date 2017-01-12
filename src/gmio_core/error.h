@@ -39,17 +39,20 @@
 
 #include "global.h"
 
-enum {
-    /*! \c GMIO_ZLIB_ERROR_TAG
-     *  Byte-mask to tag(identify) zlib-specific error codes */
-    GMIO_ZLIB_ERROR_TAG = 0x01000000,
-
-    /*! \c GMIO_ZIP_ERROR_TAG
-     *  Byte-mask to tag(identify) ZIP-specific error codes */
-    GMIO_ZIP_ERROR_TAG = 0x02000000
-};
-
-/*! Common errors */
+/*! Common errors
+ *
+ *  Format:
+ *  <code>
+ *    4-bytes signed integer (ISO C restricts enumerator value to 'int')
+ *    max value: 0x7FFFFFFF
+ *    bits 0x00FFFFFF..0x7FFFFFFF: tag identifying the error category
+ *    bits 0x001FFFFF..0x00FFFFFF: tag identifying an error sub-category
+ *    bits 0x00000000..0x000FFFFF: error value in the (sub)category
+ *    Max count of categories : 128 (2^7)
+ *    Max count of sub-categories : 15 (2^4 - 1)
+ *    Max count of error values : 1048576 (2^20)
+ *  <encode>
+ */
 enum gmio_error
 {
     /*! No error occurred, success */
@@ -80,7 +83,7 @@ enum gmio_error
 
     /* zlib */
     /*! See \c Z_ERRNO (file operation error) */
-    GMIO_ERROR_ZLIB_ERRNO = GMIO_ZLIB_ERROR_TAG + 0x01,
+    GMIO_ERROR_ZLIB_ERRNO,
 
     /*! See \c Z_STREAM_ERROR */
     GMIO_ERROR_ZLIB_STREAM,
@@ -105,13 +108,18 @@ enum gmio_error
      *  gmio_zlib_compress_options::memory_usage */
     GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE,
 
+    /* ZIP */
     /*! Zip64 format requires the compiler to provide a 64b integer type */
-    GMIO_ERROR_ZIP_INT64_TYPE_REQUIRED = GMIO_ZIP_ERROR_TAG + 0x01,
+    GMIO_ERROR_ZIP_INT64_TYPE_REQUIRED,
 
     /*! The size of some ZIP file entry exceeds 32b limit and so requires Zip64
      *  format */
-    GMIO_ERROR_ZIP64_FORMAT_REQUIRED = GMIO_ZIP_ERROR_TAG + 0x02
+    GMIO_ERROR_ZIP64_FORMAT_REQUIRED
 };
+
+/*! \c GMIO_CORE_ERROR_TAG
+ *  Byte-mask to tag(identify) gmio_core error codes */
+enum { GMIO_CORE_ERROR_TAG = 0x00 };
 
 /*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
 GMIO_INLINE bool gmio_no_error(int code)

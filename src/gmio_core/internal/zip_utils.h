@@ -252,9 +252,9 @@ struct gmio_zip_write_result {
     size_t written_len;
 };
 
-enum { GMIO_ZIP_UTILS_ERROR_TAG = 0xAA000000 };
+enum { GMIO_ZIP_UTILS_ERROR_TAG = 0x00100000 };
 enum gmio_zip_utils_error {
-    GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 0x01
+    GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 1
 };
 
 /*! Reads ZIP local file header from \p stream */
