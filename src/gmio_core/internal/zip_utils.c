@@ -235,7 +235,7 @@ size_t gmio_zip_read_central_directory_header(
     info->filename_len = gmio_adv_decode_uint16_le(&buff);
     info->extrafield_len = gmio_adv_decode_uint16_le(&buff);
     info->filecomment_len = gmio_adv_decode_uint16_le(&buff);
-    info->disk_nb_start = gmio_adv_decode_uint16_le(&buff);
+    gmio_adv_decode_uint16_le(&buff); /* disk_nb_start */
     info->internal_file_attrs = gmio_adv_decode_uint16_le(&buff);
     info->external_file_attrs = gmio_adv_decode_uint32_le(&buff);
     info->relative_offset_local_header = gmio_adv_decode_uint32_le(&buff);
@@ -260,16 +260,16 @@ size_t gmio_zip64_read_end_of_central_directory_record(
         return read_len;
     if (!gmio_zip_readcheckmagic(&buff, 0x06064b50, ptr_error))
         return read_len;
+    /* Size of zip64 end of central directory record */
     gmio_adv_decode_uint64_le(&buff);
     info->version_made_by = gmio_adv_decode_uint16_le(&buff);
     info->version_needed_to_extract = gmio_adv_decode_uint16_le(&buff);
-    info->disk_nb = gmio_adv_decode_uint32_le(&buff);
-    info->disk_nb_with_start_of_central_dir = gmio_adv_decode_uint32_le(&buff);
-    info->total_entry_count_in_central_dir_on_disk =
-            gmio_adv_decode_uint64_le(&buff);
+    gmio_adv_decode_uint32_le(&buff); /* disk_nb */
+    gmio_adv_decode_uint32_le(&buff); /* disk_nb_with_start_of_central_dir */
+    gmio_adv_decode_uint64_le(&buff); /* total_entry_count_in_central_dir_on_disk */
+    info->entry_count = gmio_adv_decode_uint64_le(&buff);
     info->central_dir_size = gmio_adv_decode_uint64_le(&buff);
-    info->start_offset_central_dir_from_disk_start_nb =
-            gmio_adv_decode_uint64_le(&buff);
+    info->start_offset = gmio_adv_decode_uint64_le(&buff);
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
 #else
     return gmio_zip_io_returnerr(
@@ -290,9 +290,12 @@ size_t gmio_zip64_read_end_of_central_directory_locator(
         return read_len;
     if (!gmio_zip_readcheckmagic(&buff, 0x07064b50, ptr_error))
         return read_len;
-    info->disk_nb_with_start_of_central_dir = gmio_adv_decode_uint32_le(&buff);
+    /* Number of the disk with the start of the zip64 end of central directory */
+    gmio_adv_decode_uint32_le(&buff);
+    /* Relative offset of the zip64 end of central directory record */
     info->relative_offset = gmio_adv_decode_uint64_le(&buff);
-    info->total_disk_count = gmio_adv_decode_uint32_le(&buff);
+    /* Total number of disks */
+    gmio_adv_decode_uint32_le(&buff);
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
 #else
     return gmio_zip_io_returnerr(
@@ -312,14 +315,12 @@ size_t gmio_zip_read_end_of_central_directory_record(
         return read_len;
     if (!gmio_zip_readcheckmagic(&buff, 0x06054b50, ptr_error))
         return read_len;
-    info->disk_nb = gmio_adv_decode_uint16_le(&buff);
-    info->disk_nb_with_start_of_central_dir = gmio_adv_decode_uint16_le(&buff);
-    info->total_entry_count_in_central_dir_on_disk =
-            gmio_adv_decode_uint16_le(&buff);
-    info->total_entry_count_in_central_dir = gmio_adv_decode_uint16_le(&buff);
+    gmio_adv_decode_uint16_le(&buff); /* disk_nb */
+    gmio_adv_decode_uint16_le(&buff); /* disk_nb_with_start_of_central_dir */
+    gmio_adv_decode_uint16_le(&buff); /* total_entry_count_in_central_dir_on_disk */
+    info->entry_count = gmio_adv_decode_uint16_le(&buff);
     info->central_dir_size = gmio_adv_decode_uint32_le(&buff);
-    info->start_offset_central_dir_from_disk_start_nb =
-            gmio_adv_decode_uint32_le(&buff);
+    info->start_offset = gmio_adv_decode_uint32_le(&buff);
     info->filecomment_len = gmio_adv_decode_uint16_le(&buff);
     info->filecomment = NULL;
     return gmio_zip_io_returnerr(read_len, GMIO_ERROR_OK, ptr_error);
@@ -433,7 +434,7 @@ size_t gmio_zip_write_central_directory_header(
     gmio_adv_encode_uint16_le(info->filename_len, &buff);
     gmio_adv_encode_uint16_le(info->extrafield_len, &buff);
     gmio_adv_encode_uint16_le(info->filecomment_len, &buff);
-    gmio_adv_encode_uint16_le(info->disk_nb_start, &buff);
+    gmio_adv_encode_uint16_le(0, &buff); /* Disk number start */
     gmio_adv_encode_uint16_le(info->internal_file_attrs, &buff);
     gmio_adv_encode_uint32_le(info->external_file_attrs, &buff);
     const uint32_t relative_offset_local_header =
@@ -475,7 +476,7 @@ size_t gmio_zip64_write_extrafield(
     gmio_adv_encode_uint64_le(info->uncompressed_size, &buff);
     gmio_adv_encode_uint64_le(info->compressed_size, &buff);
     gmio_adv_encode_uint64_le(info->relative_offset_local_header, &buff);
-    gmio_adv_encode_uint32_le(info->disk_nb_start, &buff);
+    gmio_adv_encode_uint32_le(0, &buff); /* Disk start number */
     return gmio_zip_io_returnerr(
                 GMIO_ZIP64_SIZE_EXTRAFIELD, GMIO_ERROR_OK, ptr_error);
 #else
@@ -492,18 +493,20 @@ size_t gmio_zip64_write_end_of_central_directory_record(
 #ifdef GMIO_HAVE_INT64_TYPE
     uint8_t bytes[GMIO_ZIP64_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD];
     uint8_t* buff = bytes;
+    const uint32_t disk_nb = 0;
+    const uint32_t disk_nb_start = 0;
+    const uint64_t disk_entry_count = info->entry_count;
     gmio_adv_encode_uint32_le(0x06064b50, &buff);
     gmio_adv_encode_uint64_le(sizeof(bytes) - 12, &buff);
     gmio_adv_encode_uint16_le(info->version_made_by, &buff);
     gmio_adv_encode_uint16_le(info->version_needed_to_extract, &buff);
-    gmio_adv_encode_uint32_le(info->disk_nb, &buff);
-    gmio_adv_encode_uint32_le(info->disk_nb_with_start_of_central_dir, &buff);
-    gmio_adv_encode_uint64_le(
-                info->total_entry_count_in_central_dir_on_disk, &buff);
-    gmio_adv_encode_uint64_le(info->total_entry_count_in_central_dir, &buff);
+    gmio_adv_encode_uint32_le(disk_nb, &buff);
+    gmio_adv_encode_uint32_le(disk_nb_start, &buff);
+    gmio_adv_encode_uint64_le(disk_entry_count, &buff);
+    gmio_adv_encode_uint64_le(info->entry_count, &buff);
     gmio_adv_encode_uint64_le(info->central_dir_size, &buff);
-    gmio_adv_encode_uint64_le(
-                info->start_offset_central_dir_from_disk_start_nb, &buff);
+    gmio_adv_encode_uint64_le(info->start_offset, &buff);
+    /* Note: don't write any PKWARE reserved "zip64 extensible data sector"
     /* Write to stream */
     const size_t expected_written_len = sizeof(bytes);
     const size_t written_len =
@@ -524,10 +527,12 @@ size_t gmio_zip64_write_end_of_central_directory_locator(
 #ifdef GMIO_HAVE_INT64_TYPE
     uint8_t bytes[GMIO_ZIP64_SIZE_END_OF_CENTRAL_DIRECTORY_LOCATOR];
     uint8_t* buff = bytes;
+    const uint32_t disk_nb = 0;
+    const uint32_t disk_count = 1;
     gmio_adv_encode_uint32_le(0x07064b50, &buff);
-    gmio_adv_encode_uint32_le(info->disk_nb_with_start_of_central_dir, &buff);
+    gmio_adv_encode_uint32_le(disk_nb, &buff);
     gmio_adv_encode_uint64_le(info->relative_offset, &buff);
-    gmio_adv_encode_uint32_le(info->total_disk_count, &buff);
+    gmio_adv_encode_uint32_le(disk_count, &buff);
     /* Write to stream */
     const size_t expected_written_len = sizeof(bytes);
     const size_t written_len =
@@ -541,55 +546,37 @@ size_t gmio_zip64_write_end_of_central_directory_locator(
 }
 
 size_t gmio_zip_write_end_of_central_directory_record(
-        struct gmio_stream *stream,
-        const struct gmio_zip_end_of_central_directory_record *info,
+        struct gmio_stream* stream,
+        const struct gmio_zip_end_of_central_directory_record* info,
         int* ptr_error)
 {
     uint8_t bytes[GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD];
     uint8_t* buff = bytes;
 
-    /* 4-bytes magic number 0x06054b50 */
     gmio_adv_encode_uint32_le(0x06054b50, &buff);
 
-    /* 2-bytes number of this disk */
-    const uint16_t disk_nb = info->use_zip64 ? UINT16_MAX : info->disk_nb;
+    const uint16_t disk_nb = info->use_zip64 ? UINT16_MAX : 0;
     gmio_adv_encode_uint16_le(disk_nb, &buff);
 
-    /* 2-bytes number of the disk with the start of the central directory */
-    const uint16_t disk_nb_with_start_of_central_dir =
-            info->use_zip64 ?
-                UINT16_MAX :
-                info->disk_nb_with_start_of_central_dir;
-    gmio_adv_encode_uint16_le(disk_nb_with_start_of_central_dir, &buff);
+    const uint16_t disk_nb_start = info->use_zip64 ? UINT16_MAX : 0;
+    gmio_adv_encode_uint16_le(disk_nb_start, &buff);
 
-    /* 2-bytes total number of entries in the central directory on this disk */
-    const uint16_t total_entry_count_in_central_dir_on_disk =
-            info->use_zip64 ?
-                UINT16_MAX :
-                info->total_entry_count_in_central_dir_on_disk;
-    gmio_adv_encode_uint16_le(total_entry_count_in_central_dir_on_disk, &buff);
+    const uint16_t disk_entry_count =
+            info->use_zip64 ? UINT16_MAX : info->entry_count;
+    gmio_adv_encode_uint16_le(disk_entry_count, &buff);
 
-    /* 2-bytes total number of entries in the central directory */
-    const uint16_t total_entry_count_in_central_dir =
-            info->use_zip64 ?
-                UINT16_MAX :
-                info->total_entry_count_in_central_dir;
-    gmio_adv_encode_uint16_le(total_entry_count_in_central_dir, &buff);
+    const uint16_t entry_count =
+            info->use_zip64 ? UINT16_MAX : info->entry_count;
+    gmio_adv_encode_uint16_le(entry_count, &buff);
 
-    /* 4-bytes size of the central directory */
     const uint32_t central_dir_size =
             info->use_zip64 ? UINT32_MAX : info->central_dir_size;
     gmio_adv_encode_uint32_le(central_dir_size, &buff);
 
-    /* 4-bytes offset of start of central directory with respect to the starting
-     * disk number */
-    const uint32_t start_offset_central_dir_from_disk_start_nb =
-            info->use_zip64 ?
-                UINT32_MAX :
-                info->start_offset_central_dir_from_disk_start_nb;
-    gmio_adv_encode_uint32_le(start_offset_central_dir_from_disk_start_nb, &buff);
+    const uint32_t start_offset =
+            info->use_zip64 ? UINT32_MAX : info->start_offset;
+    gmio_adv_encode_uint32_le(start_offset, &buff);
 
-    /* 2-bytes .ZIP file comment length */
     gmio_adv_encode_uint16_le(info->filecomment_len, &buff);
 
     /* Write to stream */
@@ -670,8 +657,7 @@ bool gmio_zip_write_single_file(
     struct gmio_zip_central_directory_header cdh = {0};
     cdh.use_zip64 = needs_zip64;
     cdh.version_needed_to_extract = version_needed;
-    cdh.general_purpose_flags =
-            GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR;
+    cdh.general_purpose_flags = lfh.general_purpose_flags;
     cdh.compress_method = file_entry->compress_method;
     cdh.crc32 = dd.crc32;
     cdh.compressed_size = (uint32_t)dd.compressed_size;
@@ -703,12 +689,9 @@ bool gmio_zip_write_single_file(
         /* Write Zip64 end of central directory record */
         struct gmio_zip64_end_of_central_directory_record eocdr64 = {0};
         eocdr64.version_needed_to_extract = version_needed;
-        eocdr64.total_entry_count_in_central_dir_on_disk = 1;
-        eocdr64.total_entry_count_in_central_dir = 1;
-        eocdr64.central_dir_size =
-                pos_end_central_dir - pos_start_central_dir;
-        eocdr64.start_offset_central_dir_from_disk_start_nb =
-                pos_start_central_dir;
+        eocdr64.entry_count = 1;
+        eocdr64.central_dir_size = pos_end_central_dir - pos_start_central_dir;
+        eocdr64.start_offset = pos_start_central_dir;
         zip_write_pos +=
                 gmio_zip64_write_end_of_central_directory_record(
                     stream, &eocdr64, ptr_error);
@@ -718,7 +701,6 @@ bool gmio_zip_write_single_file(
         /* Write Zip64 end of central directory locator */
         struct gmio_zip64_end_of_central_directory_locator eocdl64 = {0};
         eocdl64.relative_offset = pos_end_central_dir;
-        eocdl64.total_disk_count = 1;
         zip_write_pos +=
                 gmio_zip64_write_end_of_central_directory_locator(
                     stream, &eocdl64, ptr_error);
@@ -729,11 +711,9 @@ bool gmio_zip_write_single_file(
     /* Write end of central directory record */
     struct gmio_zip_end_of_central_directory_record eocdr = {0};
     eocdr.use_zip64 = needs_zip64;
-    eocdr.total_entry_count_in_central_dir_on_disk = 1;
-    eocdr.total_entry_count_in_central_dir = 1;
+    eocdr.entry_count = 1;
     eocdr.central_dir_size = (uint32_t)central_dir_size;
-    eocdr.start_offset_central_dir_from_disk_start_nb =
-            (uint32_t)central_dir_startpos;
+    eocdr.start_offset = (uint32_t)central_dir_startpos;
     zip_write_pos +=
             gmio_zip_write_end_of_central_directory_record(
                 stream, &eocdr, ptr_error);

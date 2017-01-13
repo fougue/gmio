@@ -363,15 +363,9 @@ static const char* test_amf_write_doc_1_zip()
         gmio_zip_read_end_of_central_directory_record(
                     &stream, &zip_eocdr, &error);
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-        UTEST_COMPARE_UINT(zip_eocdr.disk_nb, 0);
-        UTEST_COMPARE_UINT(
-                    zip_eocdr.disk_nb_with_start_of_central_dir, 0);
-        UTEST_COMPARE_UINT(
-                    zip_eocdr.total_entry_count_in_central_dir_on_disk, 1);
-        UTEST_COMPARE_UINT(
-                    zip_eocdr.total_entry_count_in_central_dir, 1);
+        UTEST_COMPARE_UINT(zip_eocdr.entry_count, 1);
         /* -- Read ZIP central directory */
-        wbuff.pos = zip_eocdr.start_offset_central_dir_from_disk_start_nb;
+        wbuff.pos = zip_eocdr.start_offset;
         struct gmio_zip_central_directory_header zip_cdh = {0};
         gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
@@ -493,15 +487,9 @@ static const char* test_amf_write_doc_1_zip64()
         gmio_zip_read_end_of_central_directory_record(
                     &stream, &zip_eocdr, &error);
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
-        UTEST_COMPARE_UINT(zip_eocdr.disk_nb, 0xFFFF);
-        UTEST_COMPARE_UINT(zip_eocdr.disk_nb_with_start_of_central_dir, 0xFFFF);
-        UTEST_COMPARE_UINT(
-                    zip_eocdr.total_entry_count_in_central_dir_on_disk, 0xFFFF);
-        UTEST_COMPARE_UINT(zip_eocdr.total_entry_count_in_central_dir, 0xFFFF);
+        UTEST_COMPARE_UINT(zip_eocdr.entry_count, 0xFFFF);
         UTEST_COMPARE_UINT(zip_eocdr.central_dir_size, 0xFFFFFFFF);
-        UTEST_COMPARE_UINT(
-                    zip_eocdr.start_offset_central_dir_from_disk_start_nb,
-                    0xFFFFFFFF);
+        UTEST_COMPARE_UINT(zip_eocdr.start_offset, 0xFFFFFFFF);
 #if 0
         /* -- Read ZIP central directory */
         wbuff.pos = zip_eocdr.start_offset_central_dir_from_disk_start_nb;

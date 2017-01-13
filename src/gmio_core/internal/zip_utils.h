@@ -156,7 +156,6 @@ enum gmio_zip_feature_version {
     GMIO_ZIP_FEATURE_VERSION_FILE_ENCRYPTED_TWOFISH = 63
 };
 
-/*! Zip local file header */
 struct gmio_zip_local_file_header {
     enum gmio_zip_feature_version version_needed_to_extract;
     uint16_t general_purpose_flags;
@@ -171,7 +170,6 @@ struct gmio_zip_local_file_header {
     const uint8_t* extrafield;
 };
 
-/*! Zip data descriptor */
 struct gmio_zip_data_descriptor {
     bool use_zip64;
     uint32_t crc32;
@@ -179,7 +177,6 @@ struct gmio_zip_data_descriptor {
     uintmax_t uncompressed_size;
 };
 
-/*! Zip central directory header */
 struct gmio_zip_central_directory_header {
     bool use_zip64;
     uint16_t version_made_by;
@@ -193,7 +190,6 @@ struct gmio_zip_central_directory_header {
     uint16_t filename_len;
     uint16_t extrafield_len;
     uint16_t filecomment_len;
-    uint16_t disk_nb_start;
     uint16_t internal_file_attrs;
     uint32_t external_file_attrs;
     uint32_t relative_offset_local_header;
@@ -202,54 +198,34 @@ struct gmio_zip_central_directory_header {
     const char* filecomment;
 };
 
-enum {
-    GMIO_ZIP64_SIZE_EXTRAFIELD = 2*2 + 3*8 + 4
-};
+enum { GMIO_ZIP64_SIZE_EXTRAFIELD = 2*2 + 3*8 + 4 };
 
 /*! Zip64 extended info (extra field) */
 struct gmio_zip64_extrafield {
     uintmax_t compressed_size;
     uintmax_t uncompressed_size;
     uintmax_t relative_offset_local_header;
-    uint32_t disk_nb_start;
 };
 
-/*! Zip end of central directory record */
 struct gmio_zip_end_of_central_directory_record {
     bool use_zip64;
-    uint16_t disk_nb;
-    uint16_t disk_nb_with_start_of_central_dir;
-    uint16_t total_entry_count_in_central_dir_on_disk;
-    uint16_t total_entry_count_in_central_dir;
+    uint16_t entry_count;
     uint32_t central_dir_size;
-    uint32_t start_offset_central_dir_from_disk_start_nb;
+    uint32_t start_offset;
     uint16_t filecomment_len;
     const char* filecomment;
 };
 
-/*! Zip64 end of central directory record */
 struct gmio_zip64_end_of_central_directory_record {
     uint16_t version_made_by;
     enum gmio_zip_feature_version version_needed_to_extract;
-    uint32_t disk_nb;
-    uint32_t disk_nb_with_start_of_central_dir;
-    uintmax_t total_entry_count_in_central_dir_on_disk;    /* should be 64b */
-    uintmax_t total_entry_count_in_central_dir;            /* should be 64b */
-    uintmax_t central_dir_size;                            /* should be 64b */
-    uintmax_t start_offset_central_dir_from_disk_start_nb; /* should be 64b */
-    const uint8_t* extensible_data_sector; /* Reserved for use by PKWARE */
+    uintmax_t entry_count;      /* should be 64b */
+    uintmax_t central_dir_size; /* should be 64b */
+    uintmax_t start_offset;     /* should be 64b */
 };
 
-/*! Zip64 end of central directory locator */
 struct gmio_zip64_end_of_central_directory_locator {
-    uint32_t disk_nb_with_start_of_central_dir;
     uintmax_t relative_offset; /* should be 64b */
-    uint32_t total_disk_count;
-};
-
-struct gmio_zip_write_result {
-    int error;
-    size_t written_len;
 };
 
 enum { GMIO_ZIP_UTILS_ERROR_TAG = 0x00100000 };
@@ -257,61 +233,51 @@ enum gmio_zip_utils_error {
     GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 1
 };
 
-/*! Reads ZIP local file header from \p stream */
 size_t gmio_zip_read_local_file_header(
         struct gmio_stream* stream,
         struct gmio_zip_local_file_header* info,
         int* ptr_error);
 
-/*! Reads ZIP data descriptor from \p stream */
 size_t gmio_zip_read_data_descriptor(
         struct gmio_stream* stream,
         struct gmio_zip_data_descriptor* info,
         int* ptr_error);
 
-/*! Reads Zip64 data descriptor from \p stream */
 size_t gmio_zip64_read_data_descriptor(
         struct gmio_stream* stream,
         struct gmio_zip_data_descriptor* info,
         int* ptr_error);
 
-/*! Reads ZIP central directory header from \p stream */
 size_t gmio_zip_read_central_directory_header(
         struct gmio_stream* stream,
         struct gmio_zip_central_directory_header* info,
         int* ptr_error);
 
-/*! Reads Zip64 end of central directory record from \p stream */
 size_t gmio_zip64_read_end_of_central_directory_record(
         struct gmio_stream* stream,
         struct gmio_zip64_end_of_central_directory_record* info,
         int* ptr_error);
 
-/*! Reads Zip64 end of central directory locator from \p stream */
 size_t gmio_zip64_read_end_of_central_directory_locator(
         struct gmio_stream* stream,
         struct gmio_zip64_end_of_central_directory_locator* info,
         int* ptr_error);
 
-/*! Reads ZIP end of central directory record from \p stream */
 size_t gmio_zip_read_end_of_central_directory_record(
         struct gmio_stream* stream,
         struct gmio_zip_end_of_central_directory_record* info,
         int* ptr_error);
 
-/*! Writes ZIP local file header to \p stream */
 size_t gmio_zip_write_local_file_header(
         struct gmio_stream* stream,
         const struct gmio_zip_local_file_header* info,
         int* ptr_error);
 
-/*! Writes ZIP data descriptor to \p stream */
 size_t gmio_zip_write_data_descriptor(
         struct gmio_stream* stream,
         const struct gmio_zip_data_descriptor* info,
         int* ptr_error);
 
-/*! Writes ZIP central directory header to \p stream */
 size_t gmio_zip_write_central_directory_header(
         struct gmio_stream* stream,
         const struct gmio_zip_central_directory_header* info,
@@ -326,19 +292,16 @@ size_t gmio_zip64_write_extrafield(
         const struct gmio_zip64_extrafield* info,
         int* ptr_error);
 
-/*! Writes Zip64 end of central directory record to \p stream */
 size_t gmio_zip64_write_end_of_central_directory_record(
         struct gmio_stream* stream,
         const struct gmio_zip64_end_of_central_directory_record* info,
         int* ptr_error);
 
-/*! Writes Zip64 end of central directory locator to \p stream */
 size_t gmio_zip64_write_end_of_central_directory_locator(
         struct gmio_stream* stream,
         const struct gmio_zip64_end_of_central_directory_locator* info,
         int* ptr_error);
 
-/*! Writes ZIP end of central directory record to \p stream */
 size_t gmio_zip_write_end_of_central_directory_record(
         struct gmio_stream* stream,
         const struct gmio_zip_end_of_central_directory_record* info,
