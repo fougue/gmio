@@ -37,6 +37,7 @@
 #include "../src/gmio_core/internal/convert.h"
 #include "../src/gmio_core/internal/error_check.h"
 #include "../src/gmio_core/internal/fast_atof.h"
+#include "../src/gmio_core/internal/helper_stream.h"
 #include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/ostringstream.h"
@@ -44,6 +45,8 @@
 #include "../src/gmio_core/internal/stringstream.h"
 #include "../src/gmio_core/internal/stringstream_fast_atof.h"
 #include "../src/gmio_core/internal/string_ascii_utils.h"
+#include "../src/gmio_core/internal/zip_utils.h"
+#include "../src/gmio_core/internal/zlib_utils.h"
 
 #include <locale.h>
 #include <stdlib.h>
@@ -529,5 +532,282 @@ static const char* test_internal__error_check()
         UTEST_ASSERT(error == GMIO_ERROR_INVALID_MEMBLOCK_SIZE);
     }
 
+    return NULL;
+}
+
+static void __tc__write_file(const char* filepath, uint8_t* bytes, size_t len)
+{
+    FILE* file = fopen(filepath, "wb");
+    fwrite(bytes, 1, len, file);
+    fclose(file);
+}
+
+struct __tc__func_write_file_data_cookie {
+    struct gmio_stream* stream;
+    const uint8_t* data;
+    size_t data_len;
+    uint32_t data_crc32;
+};
+
+static int __tc__write_zip_uncompressed_file_data(
+        void* cookie, struct gmio_zip_data_descriptor* dd)
+{
+    struct __tc__func_write_file_data_cookie* fcookie =
+            (struct __tc__func_write_file_data_cookie*)cookie;
+    gmio_stream_write_bytes(fcookie->stream, fcookie->data, fcookie->data_len);
+    dd->crc32 = fcookie->data_crc32;
+    dd->uncompressed_size = fcookie->data_len;
+    dd->compressed_size = fcookie->data_len;
+    return GMIO_ERROR_OK;
+}
+
+static const char* __tc__zip_compare_entry(
+        const struct gmio_zip_file_entry* lhs,
+        const struct gmio_zip_file_entry* rhs)
+{
+    UTEST_COMPARE_UINT(lhs->compress_method, rhs->compress_method);
+    UTEST_COMPARE_UINT(lhs->feature_version, rhs->feature_version);
+    UTEST_COMPARE_UINT(lhs->filename_len, rhs->filename_len);
+    UTEST_ASSERT(strncmp(lhs->filename, rhs->filename, lhs->filename_len) == 0);
+    return NULL;
+}
+
+static const char* test_internal__zip_utils()
+{
+    static const unsigned bytes_size = 1024;
+    uint8_t* bytes = calloc(bytes_size, 1);
+    struct gmio_rw_buffer wbuff = gmio_rw_buffer(bytes, bytes_size, 0);
+    struct gmio_stream stream = gmio_stream_buffer(&wbuff);
+    int error;
+
+    /* Write empty ZIP file */
+    {
+        struct gmio_zip_end_of_central_directory_record eocdr = {0};
+        gmio_zip_write_end_of_central_directory_record(&stream, &eocdr, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+#if 1
+        __tc__write_file("test_output_empty.zip", wbuff.ptr, wbuff.pos);
+#endif
+    }
+
+    /* Write empty Zip64 file */
+    wbuff.pos = 0;
+    {
+        struct gmio_zip64_end_of_central_directory_record eocdr64 = {0};
+        eocdr64.version_needed_to_extract =
+                GMIO_ZIP_FEATURE_VERSION_FILE_ZIP64_FORMAT_EXTENSIONS;
+        gmio_zip64_write_end_of_central_directory_record(
+            &stream, &eocdr64, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+
+        struct gmio_zip64_end_of_central_directory_locator eocdl64 = {0};
+        gmio_zip64_write_end_of_central_directory_locator(
+                    &stream, &eocdl64, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+
+        struct gmio_zip_end_of_central_directory_record eocdr = {0};
+        gmio_zip_write_end_of_central_directory_record(&stream, &eocdr, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+#if 1
+        __tc__write_file("test_output_empty_64.zip", wbuff.ptr, wbuff.pos);
+#endif
+    }
+
+    /* Common constants */
+    static const char zip_entry_filedata[] =
+            "On ne fait bien que ce qu'on fait soi-même";
+    struct __tc__func_write_file_data_cookie fcookie = {0};
+    fcookie.stream = &stream;
+    fcookie.data = (const uint8_t*)zip_entry_filedata;
+    fcookie.data_len = GMIO_ARRAY_SIZE(zip_entry_filedata) - 1;
+    fcookie.data_crc32 = gmio_zlib_crc32(fcookie.data, fcookie.data_len);
+    static const char zip_entry_filename[] = "file.txt";
+    static const uint16_t zip_entry_filename_len =
+            GMIO_ARRAY_SIZE(zip_entry_filename) - 1;
+
+    /* Common variables */
+    struct gmio_zip_file_entry entry = {0};
+    entry.compress_method = GMIO_ZIP_COMPRESS_METHOD_NO_COMPRESSION;
+    entry.feature_version = GMIO_ZIP_FEATURE_VERSION_DEFAULT;
+    entry.filename = zip_entry_filename;
+    entry.filename_len = zip_entry_filename_len;
+    entry.cookie_func_write_file_data = &fcookie;
+    entry.func_write_file_data = __tc__write_zip_uncompressed_file_data;
+
+    /*
+     * Write one-entry ZIP file
+     */
+    {
+        wbuff.pos = 0;
+        entry.feature_version = GMIO_ZIP_FEATURE_VERSION_DEFAULT;
+        UTEST_ASSERT(gmio_zip_write_single_file(&stream, &entry, &error));
+        UTEST_COMPARE_UINT(error, GMIO_ERROR_OK);
+#if 1
+        __tc__write_file("test_output_one_file.zip", wbuff.ptr, wbuff.pos);
+#endif
+
+        const uintmax_t zip_archive_len = wbuff.pos;
+        wbuff.pos = 0;
+        /* -- Read ZIP local file header */
+        struct gmio_zip_local_file_header zip_lfh = {0};
+        const size_t lfh_read_len =
+                gmio_zip_read_local_file_header(&stream, &zip_lfh, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        struct gmio_zip_file_entry lfh_entry = {0};
+        lfh_entry.compress_method = zip_lfh.compress_method;
+        lfh_entry.feature_version = zip_lfh.version_needed_to_extract;
+        lfh_entry.filename = (const char*)wbuff.ptr + wbuff.pos;
+        lfh_entry.filename_len = zip_lfh.filename_len;
+        const char* check_str = __tc__zip_compare_entry(&entry, &lfh_entry);
+        if (check_str != NULL) return check_str;
+        /* -- Read ZIP end of central directory record */
+        wbuff.pos =
+                zip_archive_len - GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD;
+        struct gmio_zip_end_of_central_directory_record zip_eocdr = {0};
+        gmio_zip_read_end_of_central_directory_record(
+                    &stream, &zip_eocdr, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(zip_eocdr.entry_count, 1);
+        /* -- Read ZIP central directory */
+        wbuff.pos = zip_eocdr.central_dir_offset;
+        struct gmio_zip_central_directory_header zip_cdh = {0};
+        gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
+        struct gmio_zip_file_entry cdh_entry = {0};
+        cdh_entry.compress_method = zip_cdh.compress_method;
+        cdh_entry.feature_version = zip_cdh.version_needed_to_extract;
+        cdh_entry.filename = (const char*)wbuff.ptr + wbuff.pos;
+        cdh_entry.filename_len = zip_lfh.filename_len;
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_ASSERT((zip_cdh.general_purpose_flags &
+                      GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
+                     != 0);
+        UTEST_COMPARE_UINT(fcookie.data_crc32, zip_cdh.crc32);
+        UTEST_COMPARE_UINT(fcookie.data_len, zip_cdh.uncompressed_size);
+        UTEST_COMPARE_UINT(fcookie.data_len, zip_cdh.compressed_size);
+        UTEST_COMPARE_UINT(zip_cdh.local_header_offset, 0);
+        check_str = __tc__zip_compare_entry(&entry, &cdh_entry);
+        if (check_str != NULL) return check_str;
+        /* -- Read file data */
+        const size_t pos_file_data =
+                lfh_read_len + zip_lfh.filename_len + zip_lfh.extrafield_len;
+        UTEST_ASSERT(strncmp((const char*)wbuff.ptr + pos_file_data,
+                             (const char*)fcookie.data,
+                             fcookie.data_len)
+                     == 0);
+        /* -- Read ZIP data descriptor */
+        wbuff.pos = pos_file_data + zip_cdh.compressed_size;
+        struct gmio_zip_data_descriptor zip_dd = {0};
+        gmio_zip_read_data_descriptor(&stream, &zip_dd, &error);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE_UINT(zip_dd.crc32, zip_cdh.crc32);
+        UTEST_COMPARE_UINT(zip_dd.compressed_size, zip_cdh.compressed_size);
+        UTEST_COMPARE_UINT(zip_dd.uncompressed_size, zip_cdh.uncompressed_size);
+    }
+
+    /*
+     * Write one-entry Zip64 file
+     */
+    {
+        wbuff.pos = 0;
+        entry.feature_version =
+                GMIO_ZIP_FEATURE_VERSION_FILE_ZIP64_FORMAT_EXTENSIONS;
+        UTEST_ASSERT(gmio_zip_write_single_file(&stream, &entry, &error));
+        UTEST_COMPARE_UINT(error, GMIO_ERROR_OK);
+#if 1
+        __tc__write_file("test_output_one_file_64.zip", wbuff.ptr, wbuff.pos);
+#endif
+
+        const uintmax_t zip_archive_len = wbuff.pos;
+        /* -- Read ZIP end of central directory record */
+        wbuff.pos =
+                zip_archive_len - GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD;
+        struct gmio_zip_end_of_central_directory_record zip_eocdr = {0};
+        gmio_zip_read_end_of_central_directory_record(
+                    &stream, &zip_eocdr, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(UINT16_MAX, zip_eocdr.entry_count);
+        UTEST_COMPARE_UINT(UINT32_MAX, zip_eocdr.central_dir_size);
+        UTEST_COMPARE_UINT(UINT32_MAX, zip_eocdr.central_dir_offset);
+        /* -- Read Zip64 end of central directory locator */
+        wbuff.pos =
+                zip_archive_len
+                - GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD
+                - GMIO_ZIP64_SIZE_END_OF_CENTRAL_DIRECTORY_LOCATOR;
+        struct gmio_zip64_end_of_central_directory_locator zip64_eocdl = {0};
+        gmio_zip64_read_end_of_central_directory_locator(
+                    &stream, &zip64_eocdl, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        /* -- Read Zip64 end of central directory record */
+        wbuff.pos = zip64_eocdl.zip64_end_of_central_dir_offset;
+        struct gmio_zip64_end_of_central_directory_record zip64_eocdr = {0};
+        gmio_zip64_read_end_of_central_directory_record(
+                    &stream, &zip64_eocdr, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(
+                    GMIO_ZIP_FEATURE_VERSION_FILE_ZIP64_FORMAT_EXTENSIONS,
+                    zip64_eocdr.version_needed_to_extract);
+        UTEST_COMPARE_UINT(1, zip64_eocdr.entry_count);
+        /* -- Read ZIP central directory header */
+        wbuff.pos = zip64_eocdr.central_dir_offset;
+        struct gmio_zip_central_directory_header zip_cdh = {0};
+        size_t zip_cdh_len =
+                gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
+        zip_cdh_len +=
+                zip_cdh.filename_len
+                + zip_cdh.extrafield_len
+                + zip_cdh.filecomment_len;
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(zip64_eocdr.central_dir_size, zip_cdh_len);
+        UTEST_ASSERT((zip_cdh.general_purpose_flags &
+                      GMIO_ZIP_GENERAL_PURPOSE_FLAG_USE_DATA_DESCRIPTOR)
+                     != 0);
+        UTEST_COMPARE_UINT(fcookie.data_crc32, zip_cdh.crc32);
+        UTEST_COMPARE_UINT(UINT32_MAX, zip_cdh.uncompressed_size);
+        UTEST_COMPARE_UINT(UINT32_MAX, zip_cdh.compressed_size);
+        UTEST_COMPARE_UINT(UINT32_MAX, zip_cdh.local_header_offset);
+        struct gmio_zip_file_entry cdh_entry = {0};
+        cdh_entry.compress_method = zip_cdh.compress_method;
+        cdh_entry.feature_version = zip_cdh.version_needed_to_extract;
+        cdh_entry.filename = (const char*)wbuff.ptr + wbuff.pos;
+        cdh_entry.filename_len = zip_cdh.filename_len;
+        const char* check_str = __tc__zip_compare_entry(&entry, &cdh_entry);
+        if (check_str != NULL) return check_str;
+        /* Read Zip64 extra field */
+        wbuff.pos =
+                zip64_eocdr.central_dir_offset
+                + GMIO_ZIP_SIZE_CENTRAL_DIRECTORY_HEADER
+                + zip_cdh.filename_len;
+        struct gmio_zip64_extrafield zip64_extra = {0};
+        gmio_zip64_read_extrafield(&stream, &zip64_extra, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(fcookie.data_len, zip64_extra.uncompressed_size);
+        UTEST_COMPARE_UINT(fcookie.data_len, zip64_extra.compressed_size);
+        UTEST_COMPARE_UINT(0, zip64_extra.local_header_offset);
+        /* Read ZIP local file header */
+        wbuff.pos = 0;
+        struct gmio_zip_local_file_header zip_lfh = {0};
+        gmio_zip_read_local_file_header(&stream, &zip_lfh, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_INT(0, zip_lfh.crc32);
+        UTEST_COMPARE_INT(0, zip_lfh.compressed_size);
+        UTEST_COMPARE_INT(0, zip_lfh.uncompressed_size);
+        /* Read ZIP local file header extrafield */
+        wbuff.pos = GMIO_ZIP_SIZE_LOCAL_FILE_HEADER + zip_lfh.filename_len;
+        gmio_zip64_read_extrafield(&stream, &zip64_extra, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(0, zip64_extra.uncompressed_size);
+        UTEST_COMPARE_UINT(0, zip64_extra.compressed_size);
+        UTEST_COMPARE_UINT(0, zip64_extra.local_header_offset);
+        /* Read Zip64 data descriptor */
+        wbuff.pos += fcookie.data_len;
+        struct gmio_zip_data_descriptor zip_dd = {0};
+        gmio_zip64_read_data_descriptor(&stream, &zip_dd, &error);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE_UINT(fcookie.data_crc32, zip_dd.crc32);
+        UTEST_COMPARE_UINT(fcookie.data_len, zip_dd.uncompressed_size);
+        UTEST_COMPARE_UINT(fcookie.data_len, zip_dd.compressed_size);
+    }
+
+    free(bytes);
     return NULL;
 }
