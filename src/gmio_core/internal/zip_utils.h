@@ -192,26 +192,35 @@ struct gmio_zip_central_directory_header {
     uint16_t filecomment_len;
     uint16_t internal_file_attrs;
     uint32_t external_file_attrs;
-    uint32_t relative_offset_local_header;
+    uint32_t local_header_offset;
     const char* filename;
     const uint8_t* extrafield;
     const char* filecomment;
 };
 
-enum { GMIO_ZIP64_SIZE_EXTRAFIELD = 2*2 + 3*8 + 4 };
+enum {
+    GMIO_ZIP_SIZE_LOCAL_FILE_HEADER = 4 + 5*2 + 3*4 + 2*2,
+    GMIO_ZIP_SIZE_CENTRAL_DIRECTORY_HEADER = 4 + 6*2 + 3*4 + 5*2 +2*4,
+    GMIO_ZIP_SIZE_DATA_DESCRIPTOR = 4 + 4 + 4 + 4,
+    GMIO_ZIP64_SIZE_EXTRAFIELD = 2*2 + 3*8 + 4,
+    GMIO_ZIP64_SIZE_DATA_DESCRIPTOR = 4 + 4 + 2*8,
+    GMIO_ZIP64_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD = 4 + 8 + 2*2 + 2*4 + 4*8,
+    GMIO_ZIP64_SIZE_END_OF_CENTRAL_DIRECTORY_LOCATOR = 4 + 4 + 8 + 4,
+    GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD = 4 + 4*2 + 2*4 + 2
+};
 
 /*! Zip64 extended info (extra field) */
 struct gmio_zip64_extrafield {
     uintmax_t compressed_size;
     uintmax_t uncompressed_size;
-    uintmax_t relative_offset_local_header;
+    uintmax_t local_header_offset;
 };
 
 struct gmio_zip_end_of_central_directory_record {
     bool use_zip64;
     uint16_t entry_count;
     uint32_t central_dir_size;
-    uint32_t start_offset;
+    uint32_t central_dir_offset;
     uint16_t filecomment_len;
     const char* filecomment;
 };
@@ -219,19 +228,25 @@ struct gmio_zip_end_of_central_directory_record {
 struct gmio_zip64_end_of_central_directory_record {
     uint16_t version_made_by;
     enum gmio_zip_feature_version version_needed_to_extract;
-    uintmax_t entry_count;      /* should be 64b */
-    uintmax_t central_dir_size; /* should be 64b */
-    uintmax_t start_offset;     /* should be 64b */
+    uintmax_t entry_count;        /* should be 64b */
+    uintmax_t central_dir_size;   /* should be 64b */
+    uintmax_t central_dir_offset; /* should be 64b */
 };
 
 struct gmio_zip64_end_of_central_directory_locator {
-    uintmax_t relative_offset; /* should be 64b */
+    uintmax_t zip64_end_of_central_dir_offset; /* should be 64b */
 };
 
 enum { GMIO_ZIP_UTILS_ERROR_TAG = 0x00100000 };
 enum gmio_zip_utils_error {
-    GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 1
+    GMIO_ZIP_UTILS_ERROR_BAD_MAGIC = GMIO_ZIP_UTILS_ERROR_TAG + 1,
+    GMIO_ZIP_UTILS_ERROR_BAD_EXTRAFIELD_TAG,
+    GMIO_ZIP_UTILS_ERROR_BAD_EXTRAFIELD_SIZE
 };
+
+/*
+ * ZIP read functions
+ */
 
 size_t gmio_zip_read_local_file_header(
         struct gmio_stream* stream,
@@ -253,6 +268,11 @@ size_t gmio_zip_read_central_directory_header(
         struct gmio_zip_central_directory_header* info,
         int* ptr_error);
 
+size_t gmio_zip64_read_extrafield(
+        struct gmio_stream* stream,
+        struct gmio_zip64_extrafield* info,
+        int* ptr_error);
+
 size_t gmio_zip64_read_end_of_central_directory_record(
         struct gmio_stream* stream,
         struct gmio_zip64_end_of_central_directory_record* info,
@@ -267,6 +287,10 @@ size_t gmio_zip_read_end_of_central_directory_record(
         struct gmio_stream* stream,
         struct gmio_zip_end_of_central_directory_record* info,
         int* ptr_error);
+
+/*
+ * ZIP write functions
+ */
 
 size_t gmio_zip_write_local_file_header(
         struct gmio_stream* stream,
