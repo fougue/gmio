@@ -725,7 +725,7 @@ static size_t gmio_amf_ostringstream_write(
     struct gmio_amf_wcontext* context = (struct gmio_amf_wcontext*)cookie;
     size_t len_written = 0;
     if (gmio_no_error(context->error)) {
-        if (context->options->compress) {
+        if (context->options->create_zip_archive) {
             len_written =
                     gmio_amf_ostringstream_write_zlib(context, stream, ptr, len);
         }
@@ -833,13 +833,13 @@ static int gmio_amf_write_file_data(
         return context->error;
     if (!gmio_amf_write_root_constellations(context))
         return context->error;
-    if (context->options->compress) {
+    if (context->options->create_zip_archive) {
         gmio_ostringstream_flush(sstream);
         context->z_flush = Z_FINISH;
     }
     gmio_ostringstream_write_chararray(sstream, "</amf>\n");
     gmio_ostringstream_flush(sstream);
-    if (context->options->compress && dd != NULL) {
+    if (context->options->create_zip_archive && dd != NULL) {
         dd->crc32 = context->z_crc32;
         dd->uncompressed_size = context->z_uncompressed_size;
         dd->compressed_size = context->z_compressed_size;
@@ -887,7 +887,7 @@ int gmio_amf_write(
     context.f64_format.precision =
             opts->float64_prec != 0 ? opts->float64_prec : 16;
 
-    if (opts->compress) {
+    if (opts->create_zip_archive) {
         /* Initialize internal zlib stream for compression */
         const size_t mblock_halfsize = memblock->size / 2;
         context.sstream.strbuff.capacity = mblock_halfsize;
@@ -907,7 +907,7 @@ int gmio_amf_write(
         struct gmio_zip_file_entry file_entry = {0};
         file_entry.compress_method = GMIO_ZIP_COMPRESS_METHOD_DEFLATE;
         file_entry.feature_version =
-                opts->force_zip64_format ?
+                !opts->dont_use_zip64_extensions ?
                     GMIO_ZIP_FEATURE_VERSION_FILE_ZIP64_FORMAT_EXTENSIONS :
                     GMIO_ZIP_FEATURE_VERSION_FILE_COMPRESSED_DEFLATE;
         const struct gmio_zip_entry_filename zip_entry_filename =
@@ -923,7 +923,7 @@ int gmio_amf_write(
     }
 
 label_end:
-    if (opts->compress)
+    if (opts->create_zip_archive)
         deflateEnd(&context.z_stream);
     gmio_memblock_helper_release(&mblock_helper);
     return context.error;
@@ -934,7 +934,7 @@ int gmio_amf_write_file(
         const struct gmio_amf_document* doc,
         const struct gmio_amf_write_options* opts)
 {
-    const bool compress = opts != NULL ? opts->compress : false;
+    const bool compress = opts != NULL ? opts->create_zip_archive : false;
     FILE* file = fopen(filepath, compress ? "wb" : "w");
     if (file != NULL) {
         /* TODO: if opts->zip_entry_filename is empty then try to take the

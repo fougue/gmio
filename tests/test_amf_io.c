@@ -306,9 +306,10 @@ static const char* test_amf_write_doc_1_zip()
         wbuff.pos = 0;
         struct gmio_amf_write_options options = {0};
         options.float64_prec = 9;
-        options.compress = true;
+        options.create_zip_archive = true;
         options.zip_entry_filename = zip_entry_filename;
         options.zip_entry_filename_len = zip_entry_filename_len;
+        options.dont_use_zip64_extensions = true;
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
 #if 1
@@ -390,10 +391,9 @@ static const char* test_amf_write_doc_1_zip64()
         wbuff.pos = 0;
         struct gmio_amf_write_options options = {0};
         options.float64_prec = 9;
-        options.compress = true;
+        options.create_zip_archive = true;
         options.zip_entry_filename = zip_entry_filename;
         options.zip_entry_filename_len = zip_entry_filename_len;
-        options.force_zip64_format = true;
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
 #if 1
