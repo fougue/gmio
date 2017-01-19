@@ -57,6 +57,7 @@ const char* all_tests()
     UTEST_RUN(test_internal__string_ascii_utils);
     UTEST_RUN(test_internal__benchmark_gmio_fast_atof);
     UTEST_RUN(test_internal__zip_utils);
+    UTEST_RUN(test_internal__zlib_enumvalues);
 
     return NULL;
 }

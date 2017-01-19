@@ -39,7 +39,6 @@
 
 #include "global.h"
 
-/* TODO: check enum values in unit tests*/
 /*! zlib compression level, specific values */
 enum gmio_zlib_compress_level
 {
@@ -49,7 +48,6 @@ enum gmio_zlib_compress_level
     GMIO_ZLIB_COMPRESS_LEVEL_BEST_SIZE = 9   /*! -> Z_BEST_COMPRESSION */
 };
 
-/* TODO: check enum values in unit tests*/
 /*! zlib compression strategy */
 enum gmio_zlib_compress_strategy
 {
