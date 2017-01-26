@@ -62,21 +62,14 @@ enum gmio_zlib_compress_strategy
  *
  *  Initialising gmio_zlib_compress_options with \c {0} (or \c {} in C++) is the
  *  convenient way to set default values.
- */
+*/
 struct gmio_zlib_compress_options
 {
-    /*! Compression level
-     *
-     *  \c 0 : default compression
-     *  \c 1 : best speed
-     *  \c 9 : best compression */
+    /*! Compression level.
+     *  Use enum value from \c gmio_zlib_compress_level */
     uint8_t level;
 
-    /*! Compression strategy
-     *
-     *  \c 0 : default strategy
-     *  \c 1 : filtered
-     *  \c 9 : best compression */
+    /*! Compression strategy */
     enum gmio_zlib_compress_strategy strategy;
 
     /*! Specifies how much memory should be allocated for the internal
@@ -86,8 +79,7 @@ struct gmio_zlib_compress_options
      *  default usage.
      *
      *  \c 1 uses minimum memory but is slow and reduces compression ratio
-     *  \c 9 uses maximum memory for optimal speed
-     */
+     *  \c 9 uses maximum memory for optimal speed */
     uint8_t memory_usage;
 };
 

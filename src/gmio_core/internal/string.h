@@ -34,10 +34,9 @@
 
 #include <stddef.h>
 
-/*! Stores a mutable string of 8-bit chars.
+/*! Stores a mutable string of chars.
  *  For faster lookups, it knowns the length of its contents. Length must not
- *  exceeds the maximum size(capacity).
- */
+ *  exceeds the maximum size(capacity).  */
 struct gmio_string
 {
     char*  ptr; /*!< Contents */
@@ -103,9 +102,7 @@ char* gmio_cstr_copy(
         char* dst, size_t dst_capacity, const char* src, size_t src_len)
 {
     const size_t copy_len =
-            dst_capacity > 0 ?
-                GMIO_MIN(dst_capacity - 1, src_len) :
-                0;
+            dst_capacity > 0 ? GMIO_MIN(dst_capacity - 1, src_len) : 0;
     if (copy_len > 0) {
         strncpy(dst, src, copy_len);
         dst[copy_len] = '\0';
