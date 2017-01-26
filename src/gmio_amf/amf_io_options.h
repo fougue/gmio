@@ -51,11 +51,9 @@
  */
 struct gmio_amf_write_options
 {
-    /*! Used by the stream to bufferize I/O operations
-     *
+    /*! Used by the stream to bufferize I/O operations.
      *  If null, then a temporary memblock is created with the global default
      *  constructor function
-     *
      *  \sa gmio_memblock_isnull()
      *  \sa gmio_memblock_default() */
     struct gmio_memblock stream_memblock;
@@ -63,17 +61,13 @@ struct gmio_amf_write_options
     /*! Optional interface by which the I/O operation can be controlled */
     struct gmio_task_iface task_iface;
 
-    /*! The format used when writting double values as strings
-     *
-     *  Defaulted to \c GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE when calling
-     *  gmio_amf_write() with \c options==NULL
-     */
+    /*! The format used when writting double values as strings.
+     *  Defaults to \c GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE when calling
+     *  gmio_amf_write() with \c options==NULL */
     enum gmio_float_text_format float64_format;
 
-    /*! The maximum number of significant digits when writting double values
-     *
-     *  Defaulted to \c 16 when calling gmio_amf_write() with \c options==NULL
-     */
+    /*! The maximum number of significant digits when writting \c double values.
+     *  Defaults to \c 16 when calling gmio_amf_write() with \c options==NULL */
     uint8_t float64_prec;
 
     /* ZIP/Deflate compression */
@@ -91,7 +85,7 @@ struct gmio_amf_write_options
     /*! Flag to disable use of the Zip64 format extensions */
     bool dont_use_zip64_extensions;
 
-    /*! Options for the deflate(zlib) compression */
+    /*! Options for the zlib(deflate) compression */
     struct gmio_zlib_compress_options z_compress_options;
 };
 

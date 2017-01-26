@@ -32,6 +32,7 @@
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/error_check.h"
+#include "../gmio_core/internal/file_utils.h"
 #include "../gmio_core/internal/float_format_utils.h"
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
@@ -936,13 +937,33 @@ int gmio_amf_write_file(
 {
     const bool compress = opts != NULL ? opts->create_zip_archive : false;
     FILE* file = fopen(filepath, compress ? "wb" : "w");
+    int error = GMIO_ERROR_OK;
     if (file != NULL) {
-        /* TODO: if opts->zip_entry_filename is empty then try to take the
-         *       filename part of filepath */
         struct gmio_stream stream = gmio_stream_stdio(file);
-        const int error = gmio_amf_write(&stream, doc, opts);
-        fclose(file);
-        return error;
+        if (compress && opts->zip_entry_filename_len == 0) {
+            /* opts->zip_entry_filename is empty then try to take the filename
+             * part of filepath */
+            const struct gmio_const_string basefilename =
+                    gmio_fileutils_find_basefilename(filepath);
+            if (!gmio_const_string_is_empty(&basefilename)) {
+                char filename[512] = {0};
+                const struct gmio_const_string suffix = { ".amf", 4 };
+                const size_t filename_len = gmio_const_string_concat(
+                            filename, sizeof(filename), &basefilename, &suffix);
+                struct gmio_amf_write_options ovr_opts = *opts;
+                ovr_opts.zip_entry_filename = filename;
+                ovr_opts.zip_entry_filename_len = (uint16_t)filename_len;
+                error = gmio_amf_write(&stream, doc, &ovr_opts);
+                goto label_end;
+            }
+        }
+        error = gmio_amf_write(&stream, doc, opts);
     }
-    return GMIO_ERROR_STDIO;
+    else {
+        error = GMIO_ERROR_STDIO;
+    }
+
+label_end:
+    fclose(file);
+    return error;
 }

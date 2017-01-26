@@ -439,3 +439,15 @@ static const char* test_amf_write_doc_1_zip64()
     free(wbuff.ptr);
     return NULL;
 }
+
+static const char* test_amf_write_doc_1_zip64_file()
+{
+    const struct __tamf__document testdoc = __tamf__create_doc_1();
+    const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
+    struct gmio_amf_write_options options = {0};
+    options.float64_prec = 9;
+    options.create_zip_archive = true;
+    const int error = gmio_amf_write_file("output_64_file.zip", &doc, &options);
+    UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+    return NULL;
+}

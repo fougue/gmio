@@ -52,6 +52,7 @@ const char* all_tests()
     UTEST_RUN(test_amf_write_doc_1_plaintext);
     UTEST_RUN(test_amf_write_doc_1_zip);
     UTEST_RUN(test_amf_write_doc_1_zip64);
+    UTEST_RUN(test_amf_write_doc_1_zip64_file);
 
     return NULL;
 }
