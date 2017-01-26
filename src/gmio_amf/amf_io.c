@@ -898,6 +898,9 @@ int gmio_amf_write(
                     mblock_halfsize,
                     NULL);
         context.z_crc32 = gmio_zlib_crc32_initial();
+        context.z_stream.zalloc = opts->z_compress_options.func_alloc;
+        context.z_stream.zfree = opts->z_compress_options.func_free;
+        context.z_stream.opaque = opts->z_compress_options.opaque;
         context.error =
                 gmio_zlib_compress_init(
                     &context.z_stream, &opts->z_compress_options);

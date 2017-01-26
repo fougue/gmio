@@ -81,6 +81,20 @@ struct gmio_zlib_compress_options
      *  \c 1 uses minimum memory but is slow and reduces compression ratio
      *  \c 9 uses maximum memory for optimal speed */
     uint8_t memory_usage;
+
+    /*! Optional pointer to a function used to allocate the internal state
+     *  within \c z_stream structure.
+     *  \sa z_stream::zalloc */
+    void* (*func_alloc)(void* opaque, unsigned int items, unsigned int size);
+
+    /*! Optional pointer to a function used to free the internal state within
+     *  \c z_stream structure.
+     *  \sa z_stream::zfree */
+    void  (*func_free)(void* opaque, void* address);
+
+    /*! Optional private data object passed to func_alloc and func_free.
+     *  \sa z_stream::opaque */
+    void* opaque;
 };
 
 #endif /* GMIO_ZLIB_COMPRESS_H */
