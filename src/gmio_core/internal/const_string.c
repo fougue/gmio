@@ -27,40 +27,22 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "utest_lib.h"
+#include "const_string.h"
+#include "min_max.h"
 
-#include "test_core.c"
-#include "test_core_benchmark_fast_atof.c"
-#include "test_core_internal.c"
-#include "test_core_platform.c"
+#include <string.h>
 
-const char* all_tests()
+size_t gmio_const_string_concat(
+        char* dst, size_t dst_capacity,
+        const struct gmio_const_string* lhs,
+        const struct gmio_const_string* rhs)
 {
-    UTEST_SUITE_START();
-
-    UTEST_RUN(test_core__buffer);
-    UTEST_RUN(test_core__endian);
-    UTEST_RUN(test_core__error);
-    UTEST_RUN(test_core__stream);
-
-    UTEST_RUN(test_platform__global_h);
-    UTEST_RUN(test_platform__compiler);
-
-    UTEST_RUN(test_internal__byte_swap);
-    UTEST_RUN(test_internal__byte_codec);
-    UTEST_RUN(test_internal__const_string);
-    UTEST_RUN(test_internal__fast_atof);
-    UTEST_RUN(test_internal__locale_utils);
-    UTEST_RUN(test_internal__error_check);
-    UTEST_RUN(test_internal__ostringstream);
-    UTEST_RUN(test_internal__safe_cast);
-    UTEST_RUN(test_internal__stringstream);
-    UTEST_RUN(test_internal__string_ascii_utils);
-    UTEST_RUN(test_internal__benchmark_gmio_fast_atof);
-    UTEST_RUN(test_internal__zip_utils);
-    UTEST_RUN(test_internal__zlib_enumvalues);
-    UTEST_RUN(test_internal__file_utils);
-
-    return NULL;
+    const size_t capacity_sub_rhs = dst_capacity - rhs->len - 1;
+    const size_t lhs_copy_len = GMIO_MIN(capacity_sub_rhs, lhs->len);
+    strncpy(dst, lhs->ptr, lhs_copy_len);
+    const size_t dst_remaining_cap = dst_capacity - lhs_copy_len;
+    const size_t rhs_copy_len = GMIO_MIN(dst_remaining_cap, rhs->len);
+    strncpy(dst + lhs_copy_len, rhs->ptr, rhs_copy_len);
+    dst[lhs_copy_len + rhs_copy_len] = '\0';
+    return lhs_copy_len + rhs_copy_len;
 }
-UTEST_MAIN(all_tests)

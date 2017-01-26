@@ -37,6 +37,7 @@
 #include "../src/gmio_core/internal/convert.h"
 #include "../src/gmio_core/internal/error_check.h"
 #include "../src/gmio_core/internal/fast_atof.h"
+#include "../src/gmio_core/internal/file_utils.h"
 #include "../src/gmio_core/internal/helper_stream.h"
 #include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
@@ -102,6 +103,35 @@ static const char* test_internal__byte_codec()
         UTEST_ASSERT(memcmp(bytes, bytes_uint64_be, 8) == 0);
 #endif
     }
+
+    return NULL;
+}
+
+static const char* test_internal__const_string()
+{
+    char buff[512] = {0};
+    struct gmio_const_string lhs = { "file", 4 };
+    struct gmio_const_string rhs = { ".txt", 4 };
+    UTEST_COMPARE_UINT(
+                lhs.len + rhs.len,
+                gmio_const_string_concat(buff, sizeof(buff), &lhs, &rhs));
+    UTEST_COMPARE_CSTR("file.txt", buff);
+
+    lhs = gmio_const_string("a", 1);
+    rhs = gmio_const_string("b", 1);
+    UTEST_COMPARE_UINT(
+                lhs.len + rhs.len,
+                gmio_const_string_concat(buff, sizeof(buff), &lhs, &rhs));
+    UTEST_COMPARE_CSTR("ab", buff);
+
+    char small_buff[8] = {0};
+    lhs = gmio_const_string("1234567890", 10);
+    rhs = gmio_const_string("abc", 3);
+    UTEST_COMPARE_UINT(
+                sizeof(small_buff)-1,
+                gmio_const_string_concat(
+                    small_buff, sizeof(small_buff), &lhs, &rhs));
+    UTEST_COMPARE_CSTR("1234abc", small_buff);
 
     return NULL;
 }
@@ -830,4 +860,40 @@ static const char* test_internal__zlib_enumvalues()
     UTEST_COMPARE_INT(Z_HUFFMAN_ONLY, GMIO_ZLIB_COMPRESSION_STRATEGY_HUFFMAN_ONLY);
     UTEST_COMPARE_INT(Z_RLE, GMIO_ZLIB_COMPRESSION_STRATEGY_RLE);
     UTEST_COMPARE_INT(Z_FIXED, GMIO_ZLIB_COMPRESSION_STRATEGY_FIXED);
+
+    return NULL;
+}
+
+static const char* test_internal__file_utils()
+{
+    struct gmio_const_string cstr = {0};
+
+    cstr = gmio_fileutils_find_basefilename("");
+    UTEST_ASSERT(gmio_const_string_is_empty(&cstr));
+
+    cstr = gmio_fileutils_find_basefilename("file");
+    UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("file.txt");
+    UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("file.txt.zip");
+    UTEST_ASSERT(strncmp("file.txt", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("/home/me/file.txt");
+    UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("/home/me/file.");
+    UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("/home/me/file");
+    UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("/home/me/file for you.txt");
+    UTEST_ASSERT(strncmp("file for you", cstr.ptr, cstr.len) == 0);
+
+    cstr = gmio_fileutils_find_basefilename("C:\\Program Files\\gmio\\file.txt");
+    UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
+
+    return NULL;
 }

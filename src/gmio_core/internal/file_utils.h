@@ -27,40 +27,14 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "utest_lib.h"
+#ifndef GMIO_INTERNAL_FILE_UTILS_H
+#define GMIO_INTERNAL_FILE_UTILS_H
 
-#include "test_core.c"
-#include "test_core_benchmark_fast_atof.c"
-#include "test_core_internal.c"
-#include "test_core_platform.c"
+#include "const_string.h"
 
-const char* all_tests()
-{
-    UTEST_SUITE_START();
+/*! Returns the base name of the file without the path.
+ *  The base name consists of all characters in the file up to (but not including)
+ *  the last '.' character. */
+struct gmio_const_string gmio_fileutils_find_basefilename(const char* filepath);
 
-    UTEST_RUN(test_core__buffer);
-    UTEST_RUN(test_core__endian);
-    UTEST_RUN(test_core__error);
-    UTEST_RUN(test_core__stream);
-
-    UTEST_RUN(test_platform__global_h);
-    UTEST_RUN(test_platform__compiler);
-
-    UTEST_RUN(test_internal__byte_swap);
-    UTEST_RUN(test_internal__byte_codec);
-    UTEST_RUN(test_internal__const_string);
-    UTEST_RUN(test_internal__fast_atof);
-    UTEST_RUN(test_internal__locale_utils);
-    UTEST_RUN(test_internal__error_check);
-    UTEST_RUN(test_internal__ostringstream);
-    UTEST_RUN(test_internal__safe_cast);
-    UTEST_RUN(test_internal__stringstream);
-    UTEST_RUN(test_internal__string_ascii_utils);
-    UTEST_RUN(test_internal__benchmark_gmio_fast_atof);
-    UTEST_RUN(test_internal__zip_utils);
-    UTEST_RUN(test_internal__zlib_enumvalues);
-    UTEST_RUN(test_internal__file_utils);
-
-    return NULL;
-}
-UTEST_MAIN(all_tests)
+#endif /* GMIO_INTERNAL_FILE_UTILS_H */

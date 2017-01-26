@@ -27,40 +27,34 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "utest_lib.h"
+#include "file_utils.h"
 
-#include "test_core.c"
-#include "test_core_benchmark_fast_atof.c"
-#include "test_core_internal.c"
-#include "test_core_platform.c"
+#include <string.h>
 
-const char* all_tests()
+struct gmio_const_string gmio_fileutils_find_basefilename(const char* filepath)
 {
-    UTEST_SUITE_START();
+    struct gmio_const_string basefilename = {0};
+    const size_t filepath_len = filepath != NULL ? strlen(filepath) : 0;
+    if (filepath_len == 0)
+        return basefilename;
 
-    UTEST_RUN(test_core__buffer);
-    UTEST_RUN(test_core__endian);
-    UTEST_RUN(test_core__error);
-    UTEST_RUN(test_core__stream);
-
-    UTEST_RUN(test_platform__global_h);
-    UTEST_RUN(test_platform__compiler);
-
-    UTEST_RUN(test_internal__byte_swap);
-    UTEST_RUN(test_internal__byte_codec);
-    UTEST_RUN(test_internal__const_string);
-    UTEST_RUN(test_internal__fast_atof);
-    UTEST_RUN(test_internal__locale_utils);
-    UTEST_RUN(test_internal__error_check);
-    UTEST_RUN(test_internal__ostringstream);
-    UTEST_RUN(test_internal__safe_cast);
-    UTEST_RUN(test_internal__stringstream);
-    UTEST_RUN(test_internal__string_ascii_utils);
-    UTEST_RUN(test_internal__benchmark_gmio_fast_atof);
-    UTEST_RUN(test_internal__zip_utils);
-    UTEST_RUN(test_internal__zlib_enumvalues);
-    UTEST_RUN(test_internal__file_utils);
-
-    return NULL;
+    const char* const pos_filepath_begin = filepath;
+    const char* const pos_filepath_end = filepath + filepath_len;
+    const char* pos_last_dot = pos_filepath_end;
+    const char* it = filepath_len != 0 ? pos_filepath_end - 1 : NULL;
+    while (it != pos_filepath_begin
+           && *it != '/'
+           && *it != '\\')
+    {
+        if (*it == '.' && pos_last_dot == pos_filepath_end)
+            pos_last_dot = it;
+        --it;
+    }
+    it = it != pos_filepath_begin ? it + 1 : it;
+    basefilename.ptr = it;
+    basefilename.len =
+            filepath_len
+            - (it - pos_filepath_begin) /* complete filename */
+            - (pos_filepath_end - pos_last_dot); /* filename suffix */
+    return basefilename;
 }
-UTEST_MAIN(all_tests)

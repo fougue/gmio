@@ -59,6 +59,13 @@ GMIO_INLINE struct gmio_const_string gmio_const_string(const char* ptr, size_t l
 /*! Returns \c true if \p str has no characters, otherwise returns \c false */
 GMIO_INLINE bool gmio_const_string_is_empty(const struct gmio_const_string* str);
 
+/*! Concatenates \p lhs + \p rhs into destination string \p dst and returns
+ *  total string length */
+size_t gmio_const_string_concat(
+        char* dst, size_t dst_capacity,
+        const struct gmio_const_string* lhs,
+        const struct gmio_const_string* rhs);
+
 /*
  * -- Implementation
  */
