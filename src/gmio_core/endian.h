@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_ENDIAN_H
-#define GMIO_ENDIAN_H
+#pragma once
 
 #include "global.h"
 
@@ -72,5 +71,4 @@ GMIO_API enum gmio_endianness gmio_host_endianness();
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_ENDIAN_H */
 /*! @} */

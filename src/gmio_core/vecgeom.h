@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_CORE_VECGEOM_H
-#define GMIO_CORE_VECGEOM_H
+#pragma once
 
 /*! Vector of three float coords */
 struct gmio_vec3f
@@ -53,5 +52,4 @@ struct gmio_vec3d
     double z;
 };
 
-#endif /* GMIO_CORE_VECGEOM_H */
 /*! @} */

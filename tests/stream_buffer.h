@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+#pragma once
 
 #include "../src/gmio_core/stream.h"
 
@@ -53,5 +52,3 @@ struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
 
 struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
 struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);
-
-#endif /* GMIO_STREAM_BUFFER_H */

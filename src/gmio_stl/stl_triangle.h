@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_TRIANGLE_H
-#define GMIO_STL_TRIANGLE_H
+#pragma once
 
 #include "stl_global.h"
 #include "../gmio_core/vecgeom.h"
@@ -57,5 +56,4 @@ GMIO_API void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri);
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_STL_TRIANGLE_H */
 /*! @} */

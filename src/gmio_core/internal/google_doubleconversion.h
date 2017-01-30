@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_GOOGLE_DOUBLECONVERSION_H
-#define GMIO_INTERNAL_GOOGLE_DOUBLECONVERSION_H
+#pragma once
 
 #include "../global.h"
 #include "../text_format.h"
@@ -41,6 +40,7 @@
  */
 
 GMIO_C_LINKAGE_BEGIN
+
 float gmio_str2float_googledoubleconversion(const char* num, size_t numlen);
 double gmio_str2double_googledoubleconversion(const char* num, size_t numlen);
 
@@ -56,6 +56,5 @@ int gmio_double2str_googledoubleconversion(
         size_t bufflen,
         enum gmio_float_text_format textformat,
         uint8_t prec);
-GMIO_C_LINKAGE_END
 
-#endif /* GMIO_INTERNAL_GOOGLE_DOUBLECONVERSION_H */
+GMIO_C_LINKAGE_END

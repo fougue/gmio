@@ -47,8 +47,7 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STL_OCC_MESHVS_H
-#define GMIO_SUPPORT_STL_OCC_MESHVS_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
@@ -91,5 +90,4 @@ private:
     mutable TColStd_Array1OfReal m_element_coords;
 };
 
-#endif /* GMIO_SUPPORT_STL_OCC_MESHVS_H */
 /*! @} */

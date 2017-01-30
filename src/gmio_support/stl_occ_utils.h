@@ -34,11 +34,9 @@
  *  @{
  */
 
-#ifndef GMIO_SUPPORT_STL_OCC_UTILS_H
-#define GMIO_SUPPORT_STL_OCC_UTILS_H
+#pragma once
 
 #include <gmio_support/support_global.h>
-
 #include <gmio_core/vecgeom.h>
 #include <gp_XYZ.hxx>
 
@@ -56,5 +54,4 @@ GMIO_INLINE void gmio_stl_occ_copy_xyz(
     gmio_stl_occ_copy_xyz(vec, coords.X(), coords.Y(), coords.Z());
 }
 
-#endif /* GMIO_SUPPORT_STL_OCC_UTILS_H */
 /*! @} */

@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_AMF_IO_OPTIONS_H
-#define GMIO_AMF_IO_OPTIONS_H
+#pragma once
 
 #include "amf_global.h"
 #include "../gmio_core/memblock.h"
@@ -89,5 +88,4 @@ struct gmio_amf_write_options
     struct gmio_zlib_compress_options z_compress_options;
 };
 
-#endif /* GMIO_AMF_IO_OPTIONS_H */
 /*! @} */

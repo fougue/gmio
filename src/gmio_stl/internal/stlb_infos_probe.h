@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLB_INFOS_PROBE_H
-#define GMIO_INTERNAL_STLB_INFOS_PROBE_H
+#pragma once
 
 #include "../stl_infos.h"
 #include "../../gmio_core/endian.h"
@@ -43,5 +42,3 @@ int gmio_stlb_infos_probe(
 /*! Returns the size(in bytes) of the whole STL binary data given some facet
  *  count */
 gmio_streamsize_t gmio_stlb_infos_size(uint32_t facet_count);
-
-#endif /* GMIO_INTERNAL_STLB_INFOS_PROBE_H */

@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STREAMPOS_H
-#define GMIO_STREAMPOS_H
+#pragma once
 
 #include "global.h"
 
@@ -58,5 +57,4 @@ struct gmio_streampos
     uint8_t cookie[GMIO_STREAMPOS_COOKIE_SIZE];
 };
 
-#endif /* GMIO_STREAMPOS_H */
 /*! @} */

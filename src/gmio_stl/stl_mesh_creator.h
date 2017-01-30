@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_MESH_CREATOR_H
-#define GMIO_STL_MESH_CREATOR_H
+#pragma once
 
 #include "stl_global.h"
 #include "stl_format.h"
@@ -115,5 +114,4 @@ struct gmio_stl_mesh_creator
     void (*func_end_solid)(void* cookie);
 };
 
-#endif /* GMIO_STL_MESH_CREATOR_H */
 /*! @} */

@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STL_FUNPTR_TYPEDEFS_H
-#define GMIO_INTERNAL_STL_FUNPTR_TYPEDEFS_H
+#pragma once
 
 #include <stddef.h>
-
 #include "../stl_mesh.h"
 #include "../stl_mesh_creator.h"
 
@@ -50,5 +48,3 @@ typedef void (*gmio_stl_mesh_creator_func_binary_begin_solid_t)(
 typedef void (*gmio_stl_mesh_creator_func_add_triangle_t)(
         void*, uint32_t, const struct gmio_stl_triangle*);
 typedef void (*gmio_stl_mesh_creator_func_end_solid_t)(void*);
-
-#endif /* GMIO_INTERNAL_STL_FUNPTR_TYPEDEFS_H */

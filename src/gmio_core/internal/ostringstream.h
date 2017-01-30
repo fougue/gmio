@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_OSTRINGSTREAM_H
-#define GMIO_INTERNAL_OSTRINGSTREAM_H
+#pragma once
 
 #include "../global.h"
 #include "../stream.h"
@@ -176,5 +175,3 @@ void gmio_ostringstream_write_xmlcdata_close(struct gmio_ostringstream *sstream)
 {
     gmio_ostringstream_write_chararray(sstream, "]]>");
 }
-
-#endif /* GMIO_INTERNAL_OSTRINGSTREAM_H */

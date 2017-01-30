@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STREAM_H
-#define GMIO_STREAM_H
+#pragma once
 
 #include "global.h"
 #include "memblock.h"
@@ -160,5 +159,4 @@ GMIO_API struct gmio_stream gmio_stream_stdio(FILE* file);
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_STREAM_H */
 /*! @} */

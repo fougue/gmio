@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef BENCHMARK_TOOLS_H
-#define BENCHMARK_TOOLS_H
+#pragma once
 
 #include "../../src/gmio_core/global.h"
 #include <stddef.h>
@@ -117,5 +116,3 @@ void benchmark_print_results(
         struct benchmark_cmp_result_array result_array);
 
 GMIO_C_LINKAGE_END
-
-#endif /* BENCHMARK_TOOLS_H */

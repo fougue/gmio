@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_INFOS_H
-#define GMIO_STL_INFOS_H
+#pragma once
 
 #include "stl_global.h"
 #include "stl_format.h"
@@ -168,5 +167,4 @@ GMIO_API gmio_streamsize_t gmio_stla_infos_probe_streamsize(
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_STL_INFOS_H */
 /*! @} */

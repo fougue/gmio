@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLA_PARSING_H
-#define GMIO_INTERNAL_STLA_PARSING_H
+#pragma once
 
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/stream.h"
@@ -123,5 +122,3 @@ int gmio_stla_eat_next_token_inplace(
  */
 int gmio_stla_eat_until_token(
         struct gmio_stla_parse_data* data, const enum gmio_stla_token* end_tokens);
-
-#endif /* GMIO_INTERNAL_STLA_PARSING_H */

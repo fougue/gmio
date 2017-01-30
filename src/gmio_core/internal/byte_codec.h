@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_BYTE_CODEC_H
-#define GMIO_INTERNAL_BYTE_CODEC_H
+#pragma once
 
 #include "../global.h"
 
@@ -275,5 +274,3 @@ void gmio_adv_encode_uint64_be(uint64_t val, uint8_t** bytes)
 }
 
 #endif /* GMIO_HAVE_INT64_TYPE */
-
-#endif /* GMIO_INTERNAL_BYTE_CODEC_H */

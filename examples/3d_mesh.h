@@ -1,5 +1,4 @@
-#ifndef GMIO_EXAMPLES_3D_MESH_H
-#define GMIO_EXAMPLES_3D_MESH_H
+#pragma once
 
 #include <stddef.h>
 
@@ -22,5 +21,3 @@ struct my_3d_mesh
     size_t triangle_array_count;
     size_t triangle_array_capacity;
 };
-
-#endif /* GMIO_EXAMPLES_3D_MESH_H */

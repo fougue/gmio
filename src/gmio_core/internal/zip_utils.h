@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_ZIP_UTILS_H
-#define GMIO_INTERNAL_ZIP_UTILS_H
+#pragma once
 
 #include "../global.h"
-
 #include "../stream.h"
 #include <time.h>
 
@@ -351,5 +349,3 @@ bool gmio_zip_write_single_file(
         struct gmio_stream* stream,
         const struct gmio_zip_file_entry* file_entry,
         int* ptr_error);
-
-#endif /* GMIO_INTERNAL_ZIP_UTILS_H */

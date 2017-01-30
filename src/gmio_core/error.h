@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_ERROR_H
-#define GMIO_ERROR_H
+#pragma once
 
 #include "global.h"
 
@@ -129,5 +128,4 @@ GMIO_INLINE bool gmio_no_error(int code)
 GMIO_INLINE bool gmio_error(int code)
 { return code != GMIO_ERROR_OK ? true : false; }
 
-#endif /* GMIO_ERROR_H */
 /*! @} */

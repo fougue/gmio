@@ -38,12 +38,10 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STREAM_CPP_H
-#define GMIO_SUPPORT_STREAM_CPP_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_core/stream.h"
-
 #include <cstring>
 #include <iostream>
 
@@ -205,5 +203,4 @@ gmio_stream gmio_ostream_cpp(std::basic_ostream<CHAR, TRAITS>* s)
 
 #endif // !DOXYGEN
 
-#endif /* GMIO_SUPPORT_STREAM_CPP_H */
 /*! @} */

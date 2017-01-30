@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STRING_ASCII_UTILS_H
-#define GMIO_INTERNAL_STRING_ASCII_UTILS_H
+#pragma once
 
 #include "../global.h"
-
 #include <stddef.h>
 
 /*! Returns non-zero if \p c is a space, zero otherwise */
@@ -207,5 +205,3 @@ bool gmio_ascii_istarts_with(const char* str, const char* begin)
     }
     return true;
 }
-
-#endif /* GMIO_INTERNAL_STRING_ASCII_UTILS_H */

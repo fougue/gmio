@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_TASK_IFACE_H
-#define GMIO_TASK_IFACE_H
+#pragma once
 
 #include "global.h"
 
@@ -65,5 +64,4 @@ struct gmio_task_iface
             void* cookie, intmax_t value, intmax_t max_value);
 };
 
-#endif /* GMIO_TASK_IFACE_H */
 /*! @} */

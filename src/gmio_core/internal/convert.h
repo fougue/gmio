@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_CONVERT_H
-#define GMIO_INTERNAL_CONVERT_H
+#pragma once
 
 #include "../global.h"
 
@@ -71,5 +70,3 @@ GMIO_INLINE int32_t gmio_convert_int32(float val)
     conv.as_float32 = val;
     return conv.as_int32;
 }
-
-#endif /* GMIO_INTERNAL_CONVERT_H */

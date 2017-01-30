@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_AMF_IO_H
-#define GMIO_AMF_IO_H
+#pragma once
 
 #include "amf_global.h"
 #include "amf_document.h"
@@ -81,5 +80,4 @@ GMIO_API int gmio_amf_write_file(
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_AMF_IO_H */
 /*! @} */

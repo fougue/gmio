@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_BYTE_SWAP_H
-#define GMIO_INTERNAL_BYTE_SWAP_H
+#pragma once
 
 #include "../global.h"
 
@@ -64,5 +63,3 @@ GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
             | ((val >> 24) & 0x000000FF);
 #endif
 }
-
-#endif /* GMIO_INTERNAL_BYTE_SWAP_H */

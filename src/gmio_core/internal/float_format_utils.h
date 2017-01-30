@@ -27,9 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_FLOAT_FORMAT_UTILS_H
-#define GMIO_INTERNAL_FLOAT_FORMAT_UTILS_H
+#pragma once
 
+#include "../global.h"
 #include "../text_format.h"
 
 char gmio_float_text_format_to_stdio_specifier(
@@ -41,5 +41,3 @@ char* gmio_write_stdio_float_format(
 struct gmio_string_16 { char array[16]; };
 struct gmio_string_16 gmio_to_stdio_float_format(
         enum gmio_float_text_format format, uint8_t prec);
-
-#endif /* GMIO_INTERNAL_FLOAT_FORMAT_UTILS_H */

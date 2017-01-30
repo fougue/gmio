@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STLB_HEADER_H
-#define GMIO_STLB_HEADER_H
+#pragma once
 
 #include "stl_global.h"
 #include "stl_constants.h"
@@ -71,5 +70,4 @@ GMIO_API void gmio_stlb_header_to_printable_str(
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_STLB_HEADER_H */
 /*! @} */

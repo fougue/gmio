@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_VECGEOM_UTILS_H
-#define GMIO_INTERNAL_VECGEOM_UTILS_H
+#pragma once
 
 #include "../global.h"
 
@@ -120,5 +119,3 @@ void gmio_vec3d_normalize(struct gmio_vec3d* v)
         v->z /= d;
     }
 }
-
-#endif /* GMIO_INTERNAL_VECGEOM_UTILS_H */

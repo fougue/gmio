@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_FILE_UTILS_H
-#define GMIO_INTERNAL_FILE_UTILS_H
+#pragma once
 
 #include "const_string.h"
 
@@ -36,5 +35,3 @@
  *  The base name consists of all characters in the file up to (but not including)
  *  the last '.' character. */
 struct gmio_const_string gmio_fileutils_find_basefilename(const char* filepath);
-
-#endif /* GMIO_INTERNAL_FILE_UTILS_H */

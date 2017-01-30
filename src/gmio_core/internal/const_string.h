@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_CONST_STRING_H
-#define GMIO_INTERNAL_CONST_STRING_H
+#pragma once
 
 #include "../global.h"
-
 #include <stddef.h>
 
 /*! Stores a read-only string of 8-bit chars.
@@ -82,5 +80,3 @@ bool gmio_const_string_is_empty(const struct gmio_const_string* str)
 {
     return str->ptr == NULL || str->len == 0;
 }
-
-#endif /* GMIO_INTERNAL_CONST_STRING_H */

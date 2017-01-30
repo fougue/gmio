@@ -47,8 +47,7 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STL_OCC_MESH_H
-#define GMIO_SUPPORT_STL_OCC_MESH_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
@@ -142,5 +141,4 @@ private:
     BRepBuilderAPI_VertexInspector m_inspector;
 };
 
-#endif /* GMIO_SUPPORT_STL_OCC_MESH_H */
 /*! @} */

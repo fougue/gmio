@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_ZLIB_UTILS_H
-#define GMIO_INTERNAL_ZLIB_UTILS_H
+#pragma once
 
 #include "../global.h"
 #include "../zlib_compress.h"
@@ -63,5 +62,3 @@ uint32_t gmio_zlib_crc32_initial();
 /*! Updates a running CRC-32 with the bytes from \p buff */
 uint32_t gmio_zlib_crc32_update(
         uint32_t crc, const uint8_t* buff, size_t buff_len);
-
-#endif /* GMIO_INTERNAL_ZLIB_UTILS_H */

@@ -27,10 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_C99_MATH_COMPAT_H
-#define GMIO_INTERNAL_C99_MATH_COMPAT_H
-#include "../global.h"
+#pragma once
 
+#include "../global.h"
 #include <math.h>
 
 #ifdef GMIO_HAVE_POWF_FUNC
@@ -68,5 +67,3 @@ GMIO_INLINE float gmio_sqrtf(float x)
 /* No isnan() symbol */
 #  define gmio_isnan(x) ((x) == NAN)
 #endif
-
-#endif /* GMIO_INTERNAL_C99_MATH_COMPAT_H */

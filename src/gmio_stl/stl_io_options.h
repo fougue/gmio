@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_IO_OPTIONS_H
-#define GMIO_STL_IO_OPTIONS_H
+#pragma once
 
 #include "stl_global.h"
 #include "stlb_header.h"
@@ -160,5 +159,4 @@ struct gmio_stl_write_options
     struct gmio_stlb_header stlb_header;
 };
 
-#endif /* GMIO_STL_IO_OPTIONS_H */
 /*! @} */

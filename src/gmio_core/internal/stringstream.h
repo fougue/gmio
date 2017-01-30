@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STRINGSTREAM_H
-#define GMIO_INTERNAL_STRINGSTREAM_H
+#pragma once
 
 #include "../global.h"
 #include "../stream.h"
@@ -254,5 +253,3 @@ float gmio_stringstream_parse_float32(struct gmio_stringstream* sstream)
     return gmio_str2float_googledoubleconversion(num, strnum.len);
 #endif
 }
-
-#endif /* GMIO_INTERNAL_STRINGSTREAM_H */

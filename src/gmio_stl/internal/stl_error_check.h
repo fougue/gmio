@@ -29,8 +29,7 @@
 
 /* TODO : documentation */
 
-#ifndef GMIO_INTERNAL_STL_ERROR_CHECK_H
-#define GMIO_INTERNAL_STL_ERROR_CHECK_H
+#pragma once
 
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/endian.h"
@@ -40,5 +39,3 @@ struct gmio_stl_mesh;
 bool gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
 bool gmio_stla_check_float32_precision(int* error, uint8_t prec);
 bool gmio_stlb_check_byteorder(int* error, enum gmio_endianness byte_order);
-
-#endif /* GMIO_INTERNAL_STL_ERROR_CHECK_H */

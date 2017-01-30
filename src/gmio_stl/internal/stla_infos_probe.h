@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLA_INFOS_PROBE_H
-#define GMIO_INTERNAL_STLA_INFOS_PROBE_H
+#pragma once
 
 #include "../stl_infos.h"
 
@@ -38,5 +37,3 @@ int gmio_stla_infos_probe(
         struct gmio_stream* stream,
         unsigned flags,
         const struct gmio_stl_infos_probe_options* opts);
-
-#endif /* GMIO_INTERNAL_STLA_INFOS_PROBE_H */

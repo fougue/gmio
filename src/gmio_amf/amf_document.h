@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_AMF_DOCUMENT_H
-#define GMIO_AMF_DOCUMENT_H
+#pragma once
 
 #include "amf_global.h"
 
@@ -376,5 +375,4 @@ struct gmio_amf_document
             struct gmio_amf_metadata* ptr_metadata);
 };
 
-#endif /* GMIO_AMF_DOCUMENT_H */
 /*! @} */

@@ -27,10 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_MIN_MAX_H
-#define GMIO_INTERNAL_MIN_MAX_H
+#pragma once
 
 #define GMIO_MIN(v1, v2)  ((v1) < (v2) ? (v1) : (v2))
 #define GMIO_MAX(v1, v2)  ((v1) > (v2) ? (v1) : (v2))
-
-#endif /* GMIO_INTERNAL_MIN_MAX_H */

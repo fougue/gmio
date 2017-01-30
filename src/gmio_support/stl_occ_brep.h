@@ -47,8 +47,7 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STL_OCC_BREP_H
-#define GMIO_SUPPORT_STL_OCC_BREP_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
@@ -100,5 +99,4 @@ private:
     const TopoDS_Shape* m_shape;
 };
 
-#endif /* GMIO_SUPPORT_STL_OCC_BREP_H */
 /*! @} */

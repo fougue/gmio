@@ -34,11 +34,9 @@
  *  @{
  */
 
-#ifndef GMIO_MEMBLOCK_H
-#define GMIO_MEMBLOCK_H
+#pragma once
 
 #include "global.h"
-
 #include <stddef.h>
 
 /*! Basic memory block
@@ -130,5 +128,4 @@ GMIO_API struct gmio_memblock gmio_memblock_default();
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_MEMBLOCK_H */
 /*! @} */

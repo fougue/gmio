@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_HELPER_TASK_IFACE_H
-#define GMIO_INTERNAL_HELPER_TASK_IFACE_H
+#pragma once
 
 #include "../task_iface.h"
-
 #include <stddef.h>
 
 /*! Safe and convenient function for gmio_task_iface::func_is_stop_requested() */
@@ -50,5 +48,3 @@ GMIO_INLINE void gmio_task_iface_handle_progress(
     if (itask != NULL && itask->func_handle_progress != NULL)
         itask->func_handle_progress(itask->cookie, value, max_value);
 }
-
-#endif /* GMIO_INTERNAL_HELPER_TASK_IFACE_H */

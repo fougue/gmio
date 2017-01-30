@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_ITOA_H
-#define GMIO_INTERNAL_ITOA_H
+#pragma once
 
 #include "../global.h"
 
@@ -72,5 +71,3 @@ char* gmio_i64toa(int64_t value, char* str)
     return i64toa_branchlut(value, str);
 }
 #endif /* GMIO_HAVE_INT64_TYPE */
-
-#endif /* GMIO_INTERNAL_ITOA_H */

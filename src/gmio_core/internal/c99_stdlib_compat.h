@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_C99_STDLIB_COMPAT_H
-#define GMIO_INTERNAL_C99_STDLIB_COMPAT_H
+#pragma once
 
 #include "../global.h"
 
@@ -41,5 +40,3 @@
 GMIO_INLINE float gmio_strtof(const char* str, char** endptr)
 { return (float)strtod(str, endptr); }
 #endif
-
-#endif /* GMIO_INTERNAL_C99_STDLIB_COMPAT_H */

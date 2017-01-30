@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STRING_H
-#define GMIO_INTERNAL_STRING_H
+#pragma once
 
 #include "../global.h"
-
 #include <stddef.h>
 
 /*! Stores a mutable string of chars.
@@ -109,5 +107,3 @@ char* gmio_cstr_copy(
     }
     return dst + copy_len;
 }
-
-#endif /* GMIO_INTERNAL_STRING_H */

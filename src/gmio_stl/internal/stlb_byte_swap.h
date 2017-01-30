@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLB_BYTE_SWAP_H
-#define GMIO_INTERNAL_STLB_BYTE_SWAP_H
+#pragma once
 
 #include "../../gmio_core/global.h"
 #include "../stl_triangle.h"
@@ -39,5 +38,3 @@
  *  the "attribute byte count" member.
  */
 void gmio_stl_triangle_bswap(struct gmio_stl_triangle* triangle);
-
-#endif /* GMIO_INTERNAL_STLB_BYTE_SWAP_H */

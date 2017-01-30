@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_ZLIB_COMPRESS_H
-#define GMIO_ZLIB_COMPRESS_H
+#pragma once
 
 #include "global.h"
 
@@ -97,5 +96,4 @@ struct gmio_zlib_compress_options
     void* opaque;
 };
 
-#endif /* GMIO_ZLIB_COMPRESS_H */
 /*! @} */

@@ -34,10 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_TEXT_FORMAT_H
-#define GMIO_TEXT_FORMAT_H
-
-#include "global.h"
+#pragma once
 
 /*! Various formats to textually represent a float(single/double precision) */
 enum gmio_float_text_format
@@ -56,5 +53,4 @@ enum gmio_float_text_format
     GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE
 };
 
-#endif /* GMIO_TEXT_FORMAT_H */
 /*! @} */

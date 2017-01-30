@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLB_WRITE_H
-#define GMIO_INTERNAL_STLB_WRITE_H
+#pragma once
 
 #include "../../gmio_core/endian.h"
 #include "../../gmio_core/stream.h"
@@ -46,5 +45,3 @@ int gmio_stlb_write(
         struct gmio_stream* stream,
         const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* opts);
-
-#endif /* GMIO_INTERNAL_STLB_WRITE_H */

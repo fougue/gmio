@@ -27,12 +27,10 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_TESTS_CORE_UTILS_H
-#define GMIO_TESTS_CORE_UTILS_H
+#pragma once
 
 #include "../src/gmio_core/global.h"
 #include "../src/gmio_core/vecgeom.h"
-
 #include <stddef.h>
 
 /*! Trim whitespaces in string \p str from end */
@@ -43,5 +41,3 @@ bool gmio_vec3f_equal(
         const struct gmio_vec3f* lhs,
         const struct gmio_vec3f* rhs,
         uint32_t max_ulp_diff);
-
-#endif /* GMIO_TESTS_CORE_UTILS_H */

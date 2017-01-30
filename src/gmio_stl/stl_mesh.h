@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_MESH_H
-#define GMIO_STL_MESH_H
+#pragma once
 
 #include "stl_global.h"
 #include "stl_triangle.h"
@@ -58,5 +57,4 @@ struct gmio_stl_mesh
             struct gmio_stl_triangle* triangle);
 };
 
-#endif /* GMIO_STL_MESH_H */
 /*! @} */

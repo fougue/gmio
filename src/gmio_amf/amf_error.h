@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_AMF_ERROR_H
-#define GMIO_AMF_ERROR_H
+#pragma once
 
 /*! \c GMIO_AMF_ERROR_TAG
  *  Byte-mask to tag(identify) AMF-specific error codes */
@@ -83,5 +82,4 @@ enum gmio_amf_error
     GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_VOLUME_METADATA
 };
 
-#endif /* GMIO_AMF_ERROR_H */
 /*! @} */

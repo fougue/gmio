@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_ERROR_H
-#define GMIO_STL_ERROR_H
+#pragma once
 
 /*! \c GMIO_STL_ERROR_TAG
  *  Byte-mask to tag(identify) STL-specific error codes */
@@ -72,5 +71,4 @@ enum gmio_stl_error
     GMIO_STL_ERROR_FACET_COUNT = GMIO_STL_ERROR_TAG + 0x1002
 };
 
-#endif /* GMIO_STL_ERROR_H */
 /*! @} */

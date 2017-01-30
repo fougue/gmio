@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_IO_H
-#define GMIO_STL_IO_H
+#pragma once
 
 #include "stl_global.h"
 
@@ -184,5 +183,4 @@ GMIO_API int gmio_stlb_header_write(
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_STL_IO_H */
 /*! @} */

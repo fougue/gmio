@@ -38,8 +38,7 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STREAM_QT_H
-#define GMIO_SUPPORT_STREAM_QT_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_core/stream.h"
@@ -58,5 +57,4 @@ struct gmio_stream gmio_stream_qiodevice(
 #endif /* !DOXYGEN */
         );
 
-#endif /* GMIO_SUPPORT_STREAM_QT_H */
 /*! @} */

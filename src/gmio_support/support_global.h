@@ -112,10 +112,8 @@
  *
  */
 
-#ifndef GMIO_SUPPORT_GLOBAL_H
-#define GMIO_SUPPORT_GLOBAL_H
+#pragma once
 
 #include "../gmio_core/global.h"
 
-#endif /* GMIO_SUPPORT_GLOBAL_H */
 /*! @} */
