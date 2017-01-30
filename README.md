@@ -28,8 +28,16 @@ Main highlights:
   * [x] Operations can be easily aborted
   * [x] Progress report about the I/O operation
 
-Current version only supports the STereoLithography format(STL), see module
-[gmio_stl](http://www.fougue.pro/docs/gmio/0.4/group__gmio__stl.html#details)
+Supported formats:
+
+                          |  Read     |  Write
+--------------------------|-----------|---------
+STL ascii                 |  &#10004; | &#10004;
+STL binary(little-endian) |  &#10004; | &#10004;
+STL binary(big-endian)    |  &#10004; | &#10004;
+AMF uncompressed          |  &#10007; | &#10004;
+AMF zip                   |  &#10007; | &#10004;
+AMF zip64                 |  &#10007; | &#10004;
 
 
 Building gmio
