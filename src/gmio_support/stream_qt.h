@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 /*! \file stream_qt.h
- *  Support of Qt's QIODevice (requires at least Qt4)
+ *  Support of Qt's \c QIODevice (requires at least Qt4)
  *
 *  \addtogroup gmio_support
  *  @{

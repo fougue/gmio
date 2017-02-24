@@ -6,7 +6,7 @@
   file formats(eg. <a href="https://en.wikipedia.org/wiki/STL_%28file_format%29">STL</a>)
 
   gmio aims to be <a href="https://github.com/fougue/gmio/wiki/4.-Benchmarks">fast</a>,
-  portable(C90 conformance) and feature-rich.
+  portable(C99 conformance) and feature-rich.
   Main highlights:
 
   \li <i>Abstract</i> streams that does not tie the user to C stream(\c FILE*)
@@ -14,7 +14,16 @@
   \li Operations can be easily aborted
   \li Progress report about the I/O operation
 
-  Current version only supports the STereoLithography format(STL), see module \ref gmio_stl
+
+ Supported formats        |  Read  |  Write
+--------------------------|--------|---------
+STL ascii                 |  yes   | yes
+STL binary(little-endian) |  yes   | yes
+STL binary(big-endian)    |  yes   | yes
+AMF uncompressed          |  no    | yes
+AMF zip                   |  no    | yes
+AMF zip64                 |  no    | yes
+
 
 \section build Building gmio
 

@@ -51,10 +51,8 @@ struct gmio_stl_mesh_creator_infos
     /*! Format of the input STL mesh */
     enum gmio_stl_format format;
 
-    /*! Null terminated C-string holding the STL mesh(solid) name
-     *
-     *  Available only if STL ASCII format, \c NULL otherwise
-     */
+    /*! Null terminated C-string holding the STL mesh(solid) name.
+     *  Available only if STL ASCII format, \c NULL otherwise */
     const char* stla_solid_name;
 
     /*! Total size (in bytes) of the input stream
@@ -66,16 +64,12 @@ struct gmio_stl_mesh_creator_infos
      */
     gmio_streamsize_t stla_stream_size;
 
-    /*! Contains the header data(80 bytes)
-     *
-     *  Available only if binary STL, \c NULL otherwise
-     */
+    /*! Contains the header data(80 bytes).
+     *  Available only if binary STL, \c NULL otherwise */
     const struct gmio_stlb_header* stlb_header;
 
-    /*! Count of mesh facets(triangles)
-     *
-     *  Available only if binary STL, \c 0 otherwise
-     */
+    /*! Count of mesh facets(triangles).
+     *  Available only if binary STL, \c 0 otherwise */
     uint32_t stlb_triangle_count;
 };
 
@@ -109,8 +103,7 @@ struct gmio_stl_mesh_creator
     /*! Optional pointer on a function that finalizes creation of the user mesh
      *
      *  The function is called at the end of the read process, ie. after all
-     *  triangles have been added
-     */
+     *  triangles have been added */
     void (*func_end_solid)(void* cookie);
 };
 

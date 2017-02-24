@@ -31,7 +31,6 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
-
 #include <cstring>
 
 QT_USE_NAMESPACE
