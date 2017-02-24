@@ -80,13 +80,15 @@ install(FILES gmio_support/stream_qt.h   DESTINATION include/gmio_support)
 install(FILES gmio_support/stream_qt.cpp DESTINATION src/gmio_support)
 
 # OpenCASCADE support
-install(FILES gmio_support/stl_occ_brep.h     DESTINATION include/gmio_support)
-install(FILES gmio_support/stl_occ_mesh.h     DESTINATION include/gmio_support)
-install(FILES gmio_support/stl_occ_meshvs.h   DESTINATION include/gmio_support)
-install(FILES gmio_support/stl_occ_brep.cpp   DESTINATION src/gmio_support)
-install(FILES gmio_support/stl_occ_mesh.cpp   DESTINATION src/gmio_support)
-install(FILES gmio_support/stl_occ_meshvs.cpp DESTINATION src/gmio_support)
-install(FILES gmio_support/stl_occ_utils.h    DESTINATION src/gmio_support)
+install(FILES gmio_support/stl_occ_brep.h      DESTINATION include/gmio_support)
+install(FILES gmio_support/stl_occ_mesh.h      DESTINATION include/gmio_support)
+install(FILES gmio_support/stl_occ_meshvs.h    DESTINATION include/gmio_support)
+install(FILES gmio_support/stl_occ_polytri.h   DESTINATION include/gmio_support)
+install(FILES gmio_support/stl_occ_brep.cpp    DESTINATION src/gmio_support)
+install(FILES gmio_support/stl_occ_mesh.cpp    DESTINATION src/gmio_support)
+install(FILES gmio_support/stl_occ_meshvs.cpp  DESTINATION src/gmio_support)
+install(FILES gmio_support/stl_occ_polytri.cpp DESTINATION src/gmio_support)
+install(FILES gmio_support/stl_occ_utils.h     DESTINATION src/gmio_support)
 
 # zlib
 if(GMIO_USE_BUNDLED_ZLIB)

@@ -38,20 +38,77 @@
 
 #include <gmio_support/support_global.h>
 #include <gmio_core/vecgeom.h>
+
 #include <gp_XYZ.hxx>
+#include <BRepBuilderAPI_CellFilter.hxx>
+#include <BRepBuilderAPI_VertexInspector.hxx>
+#include <Precision.hxx>
 
 GMIO_INLINE void gmio_stl_occ_copy_xyz(
-        gmio_vec3f* vec, double x, double y, double z)
+        gmio_vec3f* vec, double x, double y, double z);
+
+GMIO_INLINE void gmio_stl_occ_copy_xyz(
+        gmio_vec3f* vec, const gp_XYZ& coords);
+
+GMIO_INLINE int gmio_occ_find_vertex_index(
+        const gp_XYZ& coords,
+        BRepBuilderAPI_CellFilter* filter,
+        BRepBuilderAPI_VertexInspector* inspector);
+
+GMIO_INLINE void gmio_occ_add_vertex_index(
+        const gp_XYZ& coords,
+        int index,
+        BRepBuilderAPI_CellFilter* filter,
+        BRepBuilderAPI_VertexInspector* inspector);
+
+
+
+/*
+ * Implementation
+ */
+
+void gmio_stl_occ_copy_xyz(gmio_vec3f* vec, double x, double y, double z)
 {
     vec->x = static_cast<float>(x);
     vec->y = static_cast<float>(y);
     vec->z = static_cast<float>(z);
 }
 
-GMIO_INLINE void gmio_stl_occ_copy_xyz(
-        gmio_vec3f* vec, const gp_XYZ& coords)
+void gmio_stl_occ_copy_xyz(gmio_vec3f* vec, const gp_XYZ& coords)
 {
     gmio_stl_occ_copy_xyz(vec, coords.X(), coords.Y(), coords.Z());
+}
+
+int gmio_occ_find_vertex_index(
+        const gp_XYZ& coords,
+        BRepBuilderAPI_CellFilter* filter,
+        BRepBuilderAPI_VertexInspector* inspector)
+{
+    //--------------------------------------------------------------------------
+    // Code excerpted from OpenCascade v7.0.0
+    //     File: RWStl/RWStl.cxx
+    //     Function: "static int AddVertex(...)" lines 38..61
+    //--------------------------------------------------------------------------
+    inspector->SetCurrent(coords);
+    const gp_XYZ min_pnt = inspector->Shift(coords, -Precision::Confusion());
+    const gp_XYZ max_pnt = inspector->Shift(coords, +Precision::Confusion());
+    filter->Inspect(min_pnt, max_pnt, *inspector);
+    if (!inspector->ResInd().IsEmpty()) {
+        const int index = inspector->ResInd().First(); // There should be only one
+        inspector->ClearResList();
+        return index;
+    }
+    return -1;
+}
+
+void gmio_occ_add_vertex_index(
+        const gp_XYZ& coords,
+        int index,
+        BRepBuilderAPI_CellFilter* filter,
+        BRepBuilderAPI_VertexInspector* inspector)
+{
+    filter->Add(index, coords);
+    inspector->Add(coords);
 }
 
 /*! @} */

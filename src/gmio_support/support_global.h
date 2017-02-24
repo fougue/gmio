@@ -53,11 +53,20 @@
  *    </tr>
  *    <tr>
  *      <td>TopoDS_Shape</td>
- *      <td style="color:red">no</td>
+ *      <td style="color:green">yes<sup>1</sup></td>
  *      <td style="color:green">yes</td>
  *      <td>stl_occ_brep.h</td>
  *    </tr>
+ *    <tr>
+ *      <td>Poly_Triangulation</td>
+ *      <td style="color:green">yes</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stl_occ_polytri.h</td>
+ *    </tr>
  *  </table>
+ *
+ *  <sup>1</sup> The resulting \c TopoDS_Shape object has no geometrical surface
+ *  but only a \c Poly_Triangulation structure containing all the triangles.
  *
  *  \n
  *
@@ -96,12 +105,13 @@
 
 /*
  *  OpenCascade support :
- *   |                   |       STL       |
- *   |                   | import | export |
- *   |-------------------|--------|--------|
- *   | StlMesh_Mesh      |  yes   |  yes   |
- *   | MeshVS_DataSource |  no    |  yes   |
- *   | TopoDS_Shape      |  no    |  yes   |
+ *   |                    |       STL       |
+ *   |                    | import | export |
+ *   |--------------------|--------|--------|
+ *   | StlMesh_Mesh       |  yes   |  yes   |
+ *   | MeshVS_DataSource  |  no    |  yes   |
+ *   | TopoDS_Shape       |  yes   |  yes   |
+ *   | Poly_Triangulation |  yes   |  yes   |
  *
  *  I/O stream support :
  *   |                      | read | write |

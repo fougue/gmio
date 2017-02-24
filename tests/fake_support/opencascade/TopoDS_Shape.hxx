@@ -2,6 +2,7 @@
 #define _TopoDS_Shape_HeaderFile
 
 #include <Standard_TypeDef.hxx>
+#include <TopoDS_TShape.hxx>
 
 enum TopAbs_Orientation
 {
@@ -31,7 +32,11 @@ public:
     Standard_Boolean IsNull() const { return Standard_True; }
     TopAbs_Orientation Orientation() const { return myOrient; }
 
+    const Handle_TopoDS_TShape& TShape() const { return myTShape; }
+    void TShape(const Handle_TopoDS_TShape& other) { myTShape = other; }
+
 private:
+    Handle_TopoDS_TShape myTShape;
     TopAbs_Orientation myOrient;
 };
 

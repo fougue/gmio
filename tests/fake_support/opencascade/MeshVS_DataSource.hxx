@@ -40,7 +40,7 @@ public:
     { return 0; }
 };
 
-#include "generic_handle.h"
-typedef FakeOcc::GenericHandle<MeshVS_DataSource> Handle_MeshVS_DataSource;
+#include <Standard_Handle.hxx>
+typedef opencascade::handle<MeshVS_DataSource> Handle_MeshVS_DataSource;
 
 #endif // _MeshVS_DataSource_HeaderFile

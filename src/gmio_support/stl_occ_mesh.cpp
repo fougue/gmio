@@ -44,56 +44,26 @@
 // -----------------------------------------------------------------------------
 
 gmio_stl_mesh_occmesh::gmio_stl_mesh_occmesh()
-    : m_mesh(NULL)
 {
-    this->init_C_members();
-}
-
-gmio_stl_mesh_occmesh::gmio_stl_mesh_occmesh(const StlMesh_Mesh *mesh)
-    : m_mesh(mesh)
-{
-    this->init_C_members();
-    this->init_cache();
+    this->init();
 }
 
 gmio_stl_mesh_occmesh::gmio_stl_mesh_occmesh(const Handle_StlMesh_Mesh &hnd)
-    : m_mesh(hnd.operator->())
+    : m_mesh(hnd)
 {
-    this->init_C_members();
-    this->init_cache();
+    this->init();
 }
 
-void gmio_stl_mesh_occmesh::init_C_members()
+void gmio_stl_mesh_occmesh::init()
 {
+    // C members
     this->cookie = this;
     this->func_get_triangle = &gmio_stl_mesh_occmesh::get_triangle;
     this->triangle_count = 0;
-}
-
-void gmio_stl_mesh_occmesh::get_triangle(
-        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
-{
-    const gmio_stl_mesh_occmesh* it =
-            static_cast<const gmio_stl_mesh_occmesh*>(cookie);
-    const triangle_data& tridata = it->m_vec_triangle_data.at(tri_id);
-    const std::vector<const gp_XYZ*>& vec_coords = tridata.ptr_domain->vec_coords;
-
-    int iv1, iv2, iv3;
-    double nx, ny, nz;
-    tridata.ptr_triangle->GetVertexAndOrientation(iv1, iv2, iv3, nx, ny, nz);
-    gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
-    gmio_stl_occ_copy_xyz(&tri->v1, *vec_coords.at(iv1 - 1));
-    gmio_stl_occ_copy_xyz(&tri->v2, *vec_coords.at(iv2 - 1));
-    gmio_stl_occ_copy_xyz(&tri->v3, *vec_coords.at(iv3 - 1));
-}
-
-void gmio_stl_mesh_occmesh::init_cache()
-{
     // Count triangles
-    const int domain_count = m_mesh != NULL ? m_mesh->NbDomains() : 0;
+    const int domain_count = !m_mesh.IsNull() ? m_mesh->NbDomains() : 0;
     for (int dom_id = 1; dom_id <= domain_count; ++dom_id)
         this->triangle_count += m_mesh->NbTriangles(dom_id);
-
     // Fill vector of triangle data
     m_vec_domain_data.resize(domain_count);
     m_vec_triangle_data.resize(this->triangle_count);
@@ -128,33 +98,41 @@ void gmio_stl_mesh_occmesh::init_cache()
     }
 }
 
+void gmio_stl_mesh_occmesh::get_triangle(
+        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
+{
+    const gmio_stl_mesh_occmesh* mesh =
+            static_cast<const gmio_stl_mesh_occmesh*>(cookie);
+    const triangle_data& tridata = mesh->m_vec_triangle_data.at(tri_id);
+    const std::vector<const gp_XYZ*>& vec_coords = tridata.ptr_domain->vec_coords;
+
+    int iv1, iv2, iv3;
+    double nx, ny, nz;
+    tridata.ptr_triangle->GetVertexAndOrientation(iv1, iv2, iv3, nx, ny, nz);
+    gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
+    gmio_stl_occ_copy_xyz(&tri->v1, *vec_coords.at(iv1 - 1));
+    gmio_stl_occ_copy_xyz(&tri->v2, *vec_coords.at(iv2 - 1));
+    gmio_stl_occ_copy_xyz(&tri->v3, *vec_coords.at(iv3 - 1));
+}
+
 // -----------------------------------------------------------------------------
 // gmio_stl_mesh_creator_occmesh
 // -----------------------------------------------------------------------------
 
 gmio_stl_mesh_creator_occmesh::gmio_stl_mesh_creator_occmesh()
-    : m_mesh(NULL),
-      m_filter(Precision::Confusion()),
+    : m_filter(Precision::Confusion()),
       m_inspector(Precision::Confusion())
 {
-    this->init_C_members();
-}
-
-gmio_stl_mesh_creator_occmesh::gmio_stl_mesh_creator_occmesh(StlMesh_Mesh *mesh)
-    : m_mesh(mesh),
-      m_filter(Precision::Confusion()),
-      m_inspector(Precision::Confusion())
-{
-    this->init_C_members();
+    this->init();
 }
 
 gmio_stl_mesh_creator_occmesh::gmio_stl_mesh_creator_occmesh(
-        const Handle_StlMesh_Mesh &hnd)
-    : m_mesh(hnd.operator->()),
+        const Handle_StlMesh_Mesh& hnd)
+    : m_mesh(hnd),
       m_filter(Precision::Confusion()),
       m_inspector(Precision::Confusion())
 {
-    this->init_C_members();
+    this->init();
 }
 
 void gmio_stl_mesh_creator_occmesh::begin_solid(
@@ -179,7 +157,7 @@ void gmio_stl_mesh_creator_occmesh::add_triangle(
 
 }
 
-void gmio_stl_mesh_creator_occmesh::init_C_members()
+void gmio_stl_mesh_creator_occmesh::init()
 {
     this->cookie = this;
     this->func_begin_solid = &gmio_stl_mesh_creator_occmesh::begin_solid;
@@ -189,23 +167,11 @@ void gmio_stl_mesh_creator_occmesh::init_C_members()
 
 int gmio_stl_mesh_creator_occmesh::add_unique_vertex(const gmio_vec3f& v)
 {
-    //--------------------------------------------------------------------------
-    // Code excerpted from OpenCascade v7.0.0
-    //     File: RWStl/RWStl.cxx
-    //     Function: "static int AddVertex(...)" lines 38..61
-    //--------------------------------------------------------------------------
     const gp_XYZ pnt(v.x, v.y, v.z);
-    m_inspector.SetCurrent(pnt);
-    const gp_XYZ min_pnt = m_inspector.Shift(pnt, -Precision::Confusion());
-    const gp_XYZ max_pnt = m_inspector.Shift(pnt, +Precision::Confusion());
-    m_filter.Inspect(min_pnt, max_pnt, m_inspector);
-    if (!m_inspector.ResInd().IsEmpty()) {
-      const int index = m_inspector.ResInd().First(); // There should be only one
-      m_inspector.ClearResList();
-      return index;
-    }
-    const int index = m_mesh->AddVertex(pnt.X(), pnt.Y(), pnt.Z());
-    m_filter.Add(index, pnt);
-    m_inspector.Add(pnt);
+    int index = gmio_occ_find_vertex_index(pnt, &m_filter, &m_inspector);
+    if (index != -1)
+        return index;
+    index = m_mesh->AddVertex(pnt.X(), pnt.Y(), pnt.Z());
+    gmio_occ_add_vertex_index(pnt, index, &m_filter, &m_inspector);
     return index;
 }

@@ -27,17 +27,17 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-/*! \file stl_occ_mesh.h
- *  STL support of OpenCascade's \c StlMesh_Mesh
+/*! \file stl_occ_polytri.h
+ *  STL support of OpenCascade's \c Poly_Triangulation
  *
  *  To use this header the source file
- *      <tt>$INSTALL/src/gmio_support/stl_occ_mesh.cpp</tt>\n
+ *      <tt>$INSTALL/src/gmio_support/stl_occ_polytri.cpp</tt>\n
  *  needs to be built in the target project(\c $INSTALL is the root directory
  *  where is installed gmio)
  *
  *  Of course this requires the includepath and libpath to point to OpenCascade,
  *  the import libraries likely needed are:\n
- *      <tt>TKernel TKMath TKSTL TKTopAlgo</tt>
+ *      <tt>TKernel TKMath TKTopAlgo</tt>
  *
  *  \addtogroup gmio_support
  *  @{
@@ -55,86 +55,68 @@
 
 #include <BRepBuilderAPI_CellFilter.hxx>
 #include <BRepBuilderAPI_VertexInspector.hxx>
-#include <StlMesh_Mesh.hxx>
-#include <StlMesh_MeshTriangle.hxx>
-#include <TColgp_SequenceOfXYZ.hxx>
+#include <Poly_Triangulation.hxx>
+#include <gp_XYZ.hxx>
 #include <vector>
 
-/*! Provides access to all the triangles of an OpenCascade \c StlMesh_Mesh
+/*! Provides access to the triangles of an OpenCascade \c Poly_Triangulation
  *
- *  gmio_stl_mesh_occmesh iterates efficiently over the triangles of all
- *  domains.
-  *
  *  Example of use:
  *  \code{.cpp}
- *      const Handle_StlMesh_Mesh occmesh = ...;
- *      const gmio_stl_mesh_occmesh mesh(occmesh);
- *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
+ *      const Handle_Poly_Triangulation occpolytri = ...;
+ *      const gmio_stl_mesh_occpolytri mesh(occpolytri);
+ *      gmio_stl_write_file(stl_format, filepath, &occmesh, &options);
  *  \endcode
  */
-struct gmio_stl_mesh_occmesh : public gmio_stl_mesh
+struct gmio_stl_mesh_occpolytri : public gmio_stl_mesh
 {
-    gmio_stl_mesh_occmesh();
-    explicit gmio_stl_mesh_occmesh(const Handle_StlMesh_Mesh& hnd);
+    gmio_stl_mesh_occpolytri();
+    explicit gmio_stl_mesh_occpolytri(const Handle_Poly_Triangulation& hnd);
 
-    const Handle_StlMesh_Mesh& mesh() const { return m_mesh; }
+    const Handle_Poly_Triangulation& polytri() const { return m_polytri; }
 
 private:
     static void get_triangle(
             const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
-
     void init();
 
-    struct domain_data {
-        std::vector<const gp_XYZ*> vec_coords;
-    };
-
-    struct triangle_data {
-        const StlMesh_MeshTriangle* ptr_triangle;
-        const domain_data* ptr_domain;
-    };
-
-    Handle_StlMesh_Mesh m_mesh;
-    std::vector<domain_data> m_vec_domain_data;
-    std::vector<triangle_data> m_vec_triangle_data;
+    Handle_Poly_Triangulation m_polytri;
+    const TColgp_Array1OfPnt* m_polytri_vec_node;
+    const Poly_Array1OfTriangle* m_polytri_vec_triangle;
+    bool m_polytri_has_normals;
+    const TShort_Array1OfShortReal* m_polytri_vec_normal;
 };
 
-/*! Provides creation of a new domain within an OpenCascade \c StlMesh_Mesh
- *
- *  gmio_stl_mesh_creator::func_add_triangle() calls
- *  <tt>StlMesh_Mesh::AddVertex()</tt> only for new unique vertices, ie. they
- *  are no vertex duplicates in the resulting domain.
- *
- *  As of OpenCascade v7.0.0, it's not possible to rely on
- *  <tt>StlMesh_Mesh::AddOnlyNewVertex()</tt>: this function
- *  still has the same effect as <tt>StlMesh_Mesh::AddVertex()</tt>
+/*! Provides creation of an OpenCascade \c Poly_Triangulation
  *
  *  Example of use:
  *  \code{.cpp}
- *      Handle_StlMesh_Mesh occmesh = new StlMesh_Mesh;
- *      gmio_stl_mesh_creator_occmesh meshcreator(occmesh);
+ *      gmio_stl_mesh_creator_occpolytri meshcreator;
  *      gmio_stl_read_file(filepath, &meshcreator, &options);
+ *      Handle_Poly_Triangulation occpolytri = meshcreator.polytri();
  *  \endcode
  */
-struct gmio_stl_mesh_creator_occmesh : public gmio_stl_mesh_creator
+struct gmio_stl_mesh_creator_occpolytri : public gmio_stl_mesh_creator
 {
-    gmio_stl_mesh_creator_occmesh();
-    explicit gmio_stl_mesh_creator_occmesh(const Handle_StlMesh_Mesh& hnd);
-
-    const Handle_StlMesh_Mesh& mesh() const { return m_mesh; }
+public:
+    gmio_stl_mesh_creator_occpolytri();
+    const Handle_Poly_Triangulation& polytri() const { return m_polytri; }
 
 private:
     static void begin_solid(
             void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
     static void add_triangle(
             void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri);
+    static void end_solid(void* cookie);
 
-    void init();
-    int add_unique_vertex(const gmio_vec3f& v);
+    int add_unique_vertex(const gmio_vec3f& v, const gmio_vec3f& n);
 
-    Handle_StlMesh_Mesh m_mesh;
+    Handle_Poly_Triangulation m_polytri;
     BRepBuilderAPI_CellFilter m_filter;
     BRepBuilderAPI_VertexInspector m_inspector;
+    std::vector<gp_XYZ> m_vec_node;
+    std::vector<gmio_vec3f> m_vec_normal;
+    std::vector<Poly_Triangle> m_vec_triangle;
 };
 
 /*! @} */

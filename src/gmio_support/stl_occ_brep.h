@@ -28,11 +28,12 @@
 ****************************************************************************/
 
 /*! \file stl_occ_brep.h
- *  STL support of OpenCascade's TopoDS_Shape
+ *  STL support of OpenCascade's \c TopoDS_Shape
  *
- *  To use this header the source file
+ *  To use this header the source files
  *      <tt>$INSTALL/src/gmio_support/stl_occ_brep.cpp</tt>\n
- *  needs to be built in the target project(\c $INSTALL is the root directory
+ *      <tt>$INSTALL/src/gmio_support/stl_occ_polytri.cpp</tt>\n
+ *  need to be built in the target project(\c $INSTALL is the root directory
  *  where is installed gmio)
  *
  *  Of course this requires the includepath and libpath to point to OpenCascade,
@@ -50,16 +51,14 @@
 #pragma once
 
 #include "support_global.h"
+#include "stl_occ_polytri.h"
 #include "../gmio_stl/stl_mesh.h"
-
-#include <vector>
 
 #include <Poly_Triangulation.hxx>
 #include <TopoDS_Shape.hxx>
-class TopoDS_Face;
+#include <vector>
 
-/*! Provides access to all the internal triangles of OpenCascade's
- *  \c TopoDS_Shape
+/*! Provides access to the internal triangles of an OpenCascade \c TopoDS_Shape
  *
  *  gmio_stl_mesh_occshape iterates efficiently over the triangles of all
  *  sub <tt>TopoDS_Faces</tt>(internal \c Poly_Triangulation objects).
@@ -76,7 +75,7 @@ struct gmio_stl_mesh_occshape : public gmio_stl_mesh
     gmio_stl_mesh_occshape();
     explicit gmio_stl_mesh_occshape(const TopoDS_Shape& shape);
 
-    inline const TopoDS_Shape* shape() const { return m_shape; }
+    const TopoDS_Shape* shape() const { return m_shape; }
 
 private:
     static void get_triangle(
@@ -97,6 +96,28 @@ private:
     std::vector<face_data> m_vec_face_data;
     std::vector<triangle_data> m_vec_triangle_data;
     const TopoDS_Shape* m_shape;
+};
+
+/*! Provides creation of an OpenCascade \c TopoDS_Shape containing no
+ *  geometrical surfaces but only a \c Poly_Triangulation structure
+ *
+ *  Example of use:
+ *  \code{.cpp}
+ *      gmio_stl_mesh_creator_occshape meshcreator;
+ *      gmio_stl_read_file(filepath, &meshcreator, &options);
+ *      const TopoDS_Shape shape = meshcreator.shape();
+ *  \endcode
+ */
+struct gmio_stl_mesh_creator_occshape : public gmio_stl_mesh_creator_occpolytri
+{
+public:
+    gmio_stl_mesh_creator_occshape();
+    TopoDS_Shape& shape() { return m_shape; }
+
+private:
+    static void end_solid(void* cookie);
+    void (*m_func_end_solid_occpolytri)(void* cookie);
+    TopoDS_Shape m_shape;
 };
 
 /*! @} */
