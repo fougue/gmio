@@ -41,14 +41,19 @@ enum gmio_float_text_format
 {
     /*! Decimal floating point, lowercase (ex: 392.65) */
     GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE = 0,
+
     /*! Decimal floating point, uppercase (ex: 392.65) */
     GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE,
+
     /*! Scientific notation, lowercase (ex: 3.9265e+2) */
     GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE,
+
     /*! Scientific notation, uppercase (ex: 3.9265E+2) */
     GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE,
+
     /*! Use the shortest representation: decimal or scientific lowercase */
     GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE,
+
     /*! Use the shortest representation: decimal or scientific uppercase */
     GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE
 };

@@ -45,6 +45,14 @@ GMIO_C_LINKAGE_BEGIN
 
 /*! Writes AMF document to stream
  *
+ *  When gmio_amf_write_options::create_zip_archive is \c ON then a compressed
+ *  ZIP archive is written on the fly. At the end it will contains a single file
+ *  entry containing the AMF document.\n
+ *  In case of compression the first half of the memory pointed to by
+ *  gmio_amf_write_options::stream_memblock is used internally as a <i>stream
+ *  buffer</i> and the second half is employed as a <i>compression buffer</i>
+ *  for zlib.
+ *
  *  \pre <tt> stream != NULL </tt>
  *  \pre <tt> doc != NULL </tt>
  *
@@ -63,6 +71,10 @@ GMIO_API int gmio_amf_write(
  *
  *  This is just a facility function over gmio_amf_write(). The internal stream
  *  object is created to read file at \p filepath
+ *
+ *  In case gmio_amf_write_options::create_zip_archive is \c ON and
+ *  \c zip_entry_filename is \c NULL or empty then the ZIP entry filename is
+ *  automatically set to the basename of \p filepath suffixed by <tt>.amf</tt>
  *
  *  \pre <tt> filepath != \c NULL </tt>\n
  *       The file is opened with \c fopen() so \p filepath shall follow the file

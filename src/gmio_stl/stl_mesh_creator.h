@@ -83,11 +83,11 @@ struct gmio_stl_mesh_creator
 
     /* All function pointers are optional (ie can be set to NULL) */
 
-    /*! Optional pointer on a function that handles declaration of a solid */
+    /*! Optional function that handles declaration of a solid */
     void (*func_begin_solid)(
             void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
 
-    /*! Pointer on a function that adds a triangle to the user mesh
+    /*! Function that adds a triangle to the user mesh
      *
      *  The argument \p triangle is the triangle to be added, note that
      *  struct gmio_stl_triangle::attribute_byte_count is meaningless for STL
@@ -100,7 +100,7 @@ struct gmio_stl_mesh_creator
             uint32_t tri_id,
             const struct gmio_stl_triangle* triangle);
 
-    /*! Optional pointer on a function that finalizes creation of the user mesh
+    /*! Optional function that finalizes creation of the user mesh
      *
      *  The function is called at the end of the read process, ie. after all
      *  triangles have been added */

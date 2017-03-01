@@ -81,7 +81,7 @@ struct gmio_stream
      *  hook functions */
     void* cookie;
 
-    /*! Pointer on a function that checks end-of-stream indicator
+    /*! Function that checks end-of-stream indicator
      *
      *  Checks whether the end-of-stream indicator associated with stream
      *  pointed by \p cookie is set, returning true if it is.
@@ -91,7 +91,7 @@ struct gmio_stream
      */
     bool (*func_at_end)(void* cookie);
 
-    /*! Pointer on a function that checks error indicator
+    /*! Function that checks error indicator
      *
      *  Checks if the error indicator associated with stream pointed by
      *  \p cookie is set, returning a value different from zero if it is.
@@ -101,7 +101,7 @@ struct gmio_stream
      */
     int (*func_error)(void* cookie);
 
-    /*! Pointer on a function that reads block of data from stream
+    /*! Function that reads block of data from stream
      *
      *  Reads an array of \p count elements, each one with a size of
      *  \p size bytes, from the stream pointed by \p cookie and stores them in
@@ -114,7 +114,7 @@ struct gmio_stream
      */
     size_t (*func_read)(void* cookie, void* ptr, size_t size, size_t count);
 
-    /*! Pointer on a function that writes block of data to stream
+    /*! Function that writes block of data to stream
      *
      *  Writes an array of \p count elements, each one with a size of
      *  \p size bytes, from the block of memory pointed by \p ptr to the current
@@ -127,17 +127,17 @@ struct gmio_stream
      */
     size_t (*func_write)(void* cookie, const void* ptr, size_t size, size_t count);
 
-    /*! Pointer on a function that returns the size(in bytes) of the stream */
+    /*! Function that returns the size(in bytes) of the stream */
     gmio_streamsize_t (*func_size)(void* cookie);
 
-    /*! Pointer on a function that retrieves the current position in the stream
+    /*! Function that retrieves the current position in the stream
      *
      *  \retval 0 on success
      *  \retval !=0 on error
      */
     int (*func_get_pos)(void* cookie, struct gmio_streampos* pos);
 
-    /*! Pointer on a function that restores the current position in the stream
+    /*! Function that restores the current position in the stream
      *  to \p pos
      *
      *  \retval 0 on success

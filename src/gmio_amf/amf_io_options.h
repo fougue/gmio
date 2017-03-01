@@ -71,20 +71,23 @@ struct gmio_amf_write_options
 
     /* ZIP/Deflate compression */
 
-    /*! Flag to write AMF geometry in a ZIP archive containing one file entry.
-     *  Options below have no effect if <tt>create_zip_archive==false</tt> */
+    /*! Flag to write AMF document in ZIP archive containing one file entry */
     bool create_zip_archive;
 
-    /*! Filename of the single AMF entry within the ZIP archive */
+    /*! Filename of the single AMF entry within the ZIP archive.
+     *  Applicable only if <tt>create_zip_archive==true</tt> */
     const char* zip_entry_filename;
 
-    /*! Filename length of the single AMF entry within the ZIP archive */
+    /*! Filename length of the single AMF entry within the ZIP archive.
+     *  Applicable only if <tt>create_zip_archive==true</tt> */
     uint16_t zip_entry_filename_len;
 
-    /*! Flag to disable use of the Zip64 format extensions */
+    /*! Flag to disable use of the Zip64 format extensions.
+     *  Applicable only if <tt>create_zip_archive==true</tt> */
     bool dont_use_zip64_extensions;
 
-    /*! Options for the zlib(deflate) compression */
+    /*! Options for the zlib(deflate) compression.
+     *  Applicable only if <tt>create_zip_archive==true</tt> */
     struct gmio_zlib_compress_options z_compress_options;
 };
 

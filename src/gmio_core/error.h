@@ -40,17 +40,15 @@
 
 /*! Common errors
  *
- *  Format:
- *  <code>
- *    4-bytes signed integer (ISO C restricts enumerator value to 'int')
- *    max value: 0x7FFFFFFF
- *    bits 0x00FFFFFF..0x7FFFFFFF: tag identifying the error category
- *    bits 0x001FFFFF..0x00FFFFFF: tag identifying an error sub-category
- *    bits 0x00000000..0x000FFFFF: error value in the (sub)category
- *    Max count of categories : 128 (2^7)
- *    Max count of sub-categories : 15 (2^4 - 1)
+ *  Format: \n
+ *    4-bytes signed integer (ISO C restricts enumerator value to 'int') \n
+ *    max value: 0x7FFFFFFF \n
+ *    bits 0x00FFFFFF..0x7FFFFFFF: tag identifying the error category \n
+ *    bits 0x001FFFFF..0x00FFFFFF: tag identifying an error sub-category \n
+ *    bits 0x00000000..0x000FFFFF: error value in the (sub)category \n
+ *    Max count of categories : 128 (2^7) \n
+ *    Max count of sub-categories : 15 (2^4 - 1) \n
  *    Max count of error values : 1048576 (2^20)
- *  <encode>
  */
 enum gmio_error
 {

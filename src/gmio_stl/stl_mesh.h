@@ -49,8 +49,8 @@ struct gmio_stl_mesh
     /*! Number of triangles in the mesh */
     uint32_t triangle_count;
 
-    /*! Pointer on a function that stores the mesh triangle of index \p tri_id
-     *  into \p triangle */
+    /*! Function that stores the mesh triangle of index \p tri_id into
+     *  \p triangle */
     void (*func_get_triangle)(
             const void* cookie,
             uint32_t tri_id,
