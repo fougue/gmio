@@ -527,7 +527,7 @@ size_t gmio_zip64_write_end_of_central_directory_record(
     gmio_adv_encode_uint64_le(info->entry_count, &buff);
     gmio_adv_encode_uint64_le(info->central_dir_size, &buff);
     gmio_adv_encode_uint64_le(info->central_dir_offset, &buff);
-    /* Note: don't write any PKWARE reserved "zip64 extensible data sector"
+    /* Note: don't write any PKWARE reserved "zip64 extensible data sector" */
     /* Write to stream */
     const size_t expected_written_len = sizeof(bytes);
     const size_t written_len =
