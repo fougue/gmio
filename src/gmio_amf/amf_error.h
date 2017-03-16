@@ -73,13 +73,9 @@ enum gmio_amf_error
      *  is \c NULL while some gmio_amf_material::composite_count > 0 */
     GMIO_AMF_ERROR_NULL_FUNC_GET_MATERIAL_COMPOSITE,
 
-    /*! Function pointer gmio_amf_document::func_get_object_mesh_vertex_metadata
-     *  is \c NULL while some gmio_amf_vertex::metadata_count > 0 */
-    GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_VERTEX_METADATA,
-
-    /*! Function pointer gmio_amf_document::func_get_object_mesh_volume_metadata
-     *  is \c NULL while some gmio_amf_volume::metadata_count > 0 */
-    GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_VOLUME_METADATA
+    /*! Function pointer gmio_amf_document::func_get_object_mesh_element_metadata
+     *  is \c NULL while some metadata is attached to a mesh element */
+    GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_ELEMENT_METADATA
 };
 
 /*! @} */

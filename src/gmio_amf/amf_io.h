@@ -63,9 +63,9 @@ GMIO_C_LINKAGE_BEGIN
  *  \sa gmio_amf_write_file()
  */
 GMIO_API int gmio_amf_write(
-        struct gmio_stream* stream,
-        const struct gmio_amf_document* doc,
-        const struct gmio_amf_write_options* opts);
+                struct gmio_stream* stream,
+                const struct gmio_amf_document* doc,
+                const struct gmio_amf_write_options* opts);
 
 /*! Writes AMF document to stream
  *
@@ -86,9 +86,9 @@ GMIO_API int gmio_amf_write(
  *  \sa gmio_amf_write(), gmio_stream_stdio(FILE*)
  */
 GMIO_API int gmio_amf_write_file(
-        const char* filepath,
-        const struct gmio_amf_document* doc,
-        const struct gmio_amf_write_options* opts);
+                const char* filepath,
+                const struct gmio_amf_document* doc,
+                const struct gmio_amf_write_options* opts);
 
 GMIO_C_LINKAGE_END
 

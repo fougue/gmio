@@ -202,9 +202,14 @@ enum gmio_amf_mesh_element {
 
 /*! Index of an element(vertex, edge or volume) within a mesh */
 struct gmio_amf_object_mesh_element_index {
-    uint32_t object_index; /*!< Index of the object that owns the mesh */
-    uint32_t mesh_index; /*!< Index of the mesh that owns element */
-    uint32_t value; /*!< Index of the inner element */
+    /*! Index of the object that owns the mesh */
+    uint32_t object_index;
+    /*! Index of the mesh that owns element */
+    uint32_t mesh_index;
+    /*! Index of the inner element */
+    uint32_t value;
+    /*! Type of the inner element */
+    enum gmio_amf_mesh_element element_type;
 };
 
 /*! Provides an interface for accessing the underlying(hidden) user AMF data
@@ -257,7 +262,7 @@ struct gmio_amf_document {
      *  \c material element
      *
      *  Function not required(can be set to \c NULL) if there is no material
-     *  composite in the document to write */
+     *  composite in the document */
     void (*func_get_material_composite)(
             const void* cookie,
             uint32_t material_index,
@@ -268,7 +273,7 @@ struct gmio_amf_document {
      *  \c constellation element
      *
      *  Function not required(can be set to \c NULL) if there is no
-     *  constellation in the document to write */
+     *  constellation in the document */
     void (*func_get_constellation_instance)(
             const void* cookie,
             uint32_t constellation_index,
@@ -284,7 +289,6 @@ struct gmio_amf_document {
 
     /*! Function that retrieves the i-th sub-element of a \c mesh element
      *
-     *  \p element is the type of the sub-element of interest.\n
      *  \p element_index is the index of the sub-element within the \c mesh
      *  element.\n
      *  The domain of this index(ie. \c value field) depends on \p element :
@@ -296,12 +300,10 @@ struct gmio_amf_document {
      */
     void (*func_get_object_mesh_element)(
             const void* cookie,
-            enum gmio_amf_mesh_element element,
             const struct gmio_amf_object_mesh_element_index* element_index,
             void* ptr_element);
 
-    /*! Function that retrieves the i-th \c triangle within a mesh \c volume
-     *  element */
+    /*! Function that retrieves the i-th \c triangle within a mesh \c volume */
     void (*func_get_object_mesh_volume_triangle)(
             const void* cookie,
             const struct gmio_amf_object_mesh_element_index* volume_index,
@@ -324,7 +326,7 @@ struct gmio_amf_document {
      *  CONSTELLATION | <tt> [0 .. constellation_count[ </tt> | gmio_amf_constellation
      *
      *  Function not required(can be set to \c NULL) if there is no metadata in
-     *  the document to write */
+     *  the document */
     void (*func_get_document_element_metadata)(
             const void* cookie,
             enum gmio_amf_document_element element,
@@ -332,25 +334,14 @@ struct gmio_amf_document {
             uint32_t metadata_index,
             struct gmio_amf_metadata* ptr_metadata);
 
-    /*! Optional function that retrieves the i-th metadata assigned to a mesh
-     *  vertex
+    /*! Optional function that retrieves the i-th metadata attached to a mesh
+     *  element(only vertex or volume)
      *
-     *  Function not required(can be set to \c NULL) if there is no mesh vertex
-     *  metadata in the document to write */
-    void (*func_get_object_mesh_vertex_metadata)(
+     *  Function not required(can be set to \c NULL) if there is no metadata
+     *  for all mesh elements */
+    void (*func_get_object_mesh_element_metadata)(
             const void* cookie,
-            const struct gmio_amf_object_mesh_element_index* vertex_index,
-            uint32_t metadata_index,
-            struct gmio_amf_metadata* ptr_metadata);
-
-    /*! Optional function that retrieves the i-th metadata assigned to a mesh
-     *  volume
-     *
-     *  Function not required(can be set to \c NULL) if there is no mesh volume
-     *  metadata in the document to write */
-    void (*func_get_object_mesh_volume_metadata)(
-            const void* cookie,
-            const struct gmio_amf_object_mesh_element_index* volume_index,
+            const struct gmio_amf_object_mesh_element_index* mesh_element_index,
             uint32_t metadata_index,
             struct gmio_amf_metadata* ptr_metadata);
 };

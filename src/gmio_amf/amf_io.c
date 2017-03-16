@@ -274,6 +274,26 @@ static void gmio_amf_write_texmap(
     gmio_ostringstream_write_chararray(sstream, "</texmap>\n");
 }
 
+static bool gmio_amf_write_mesh_object_element_metadata(
+        struct gmio_amf_wcontext* context,
+        const struct gmio_amf_object_mesh_element_index* mesh_element_index,
+        uint32_t metadata_count)
+{
+    const struct gmio_amf_document* doc = context->document;
+    if (doc->func_get_object_mesh_element_metadata == NULL) {
+        return gmio_amf_wcontext_set_error(
+                    context,
+                    GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_ELEMENT_METADATA);
+    }
+    struct gmio_amf_metadata metadata = {0};
+    for (uint32_t imeta = 0; imeta < metadata_count; ++imeta) {
+        doc->func_get_object_mesh_element_metadata(
+                    doc->cookie, mesh_element_index, imeta, &metadata);
+        gmio_amf_write_metadata(&context->sstream, &metadata);
+    }
+    return gmio_no_error(context->error);
+}
+
 /* Writes gmio_amf_mesh to stream */
 static bool gmio_amf_write_mesh(
         struct gmio_amf_wcontext* context,
@@ -287,13 +307,13 @@ static bool gmio_amf_write_mesh(
     const struct gmio_ostringstream_format_float* f64_format =
             &context->f64_format;
     /* Write mesh <vertices> element */
+    mesh_elt_index.element_type = GMIO_AMF_MESH_ELEMENT_VERTEX;
     struct gmio_amf_vertex vertex = {0};
     gmio_ostringstream_write_chararray(sstream, "<mesh>\n<vertices>\n");
     for (uint32_t ivert = 0; ivert < mesh->vertex_count; ++ivert) {
         mesh_elt_index.value = ivert;
         doc->func_get_object_mesh_element(
-                    doc->cookie,
-                    GMIO_AMF_MESH_ELEMENT_VERTEX, &mesh_elt_index, &vertex);
+                    doc->cookie, &mesh_elt_index, &vertex);
         /* Write <coordinates> element */
         gmio_ostringstream_write_chararray(sstream, "<vertex><coordinates>");
         gmio_ostringstream_write_chararray(sstream, "<x>");
@@ -318,17 +338,10 @@ static bool gmio_amf_write_mesh(
         }
         /* Write <metadata> elements */
         if (vertex.metadata_count > 0) {
-            if (doc->func_get_object_mesh_vertex_metadata == NULL) {
-                return gmio_amf_wcontext_set_error(
-                            context,
-                            GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_VERTEX_METADATA);
-            }
-            struct gmio_amf_metadata metadata = {0};
-            for (uint32_t imeta = 0; imeta < vertex.metadata_count; ++imeta) {
-                doc->func_get_object_mesh_vertex_metadata(
-                            doc->cookie, &mesh_elt_index, imeta, &metadata);
-                gmio_amf_write_metadata(sstream, &metadata);
-            }
+            gmio_amf_write_mesh_object_element_metadata(
+                        context, &mesh_elt_index, vertex.metadata_count);
+            if (gmio_error(context->error))
+                return false;
         }
         gmio_ostringstream_write_chararray(sstream, "</vertex>\n");
         gmio_amf_wcontext_incr_task_progress(context);
@@ -337,12 +350,12 @@ static bool gmio_amf_write_mesh(
     }
     /* Write mesh vertices <edge> elements */
     if (mesh->edge_count > 0) {
+        mesh_elt_index.element_type = GMIO_AMF_MESH_ELEMENT_EDGE;
         struct gmio_amf_edge edge = {0};
         for (uint32_t iedge = 0; iedge < mesh->edge_count; ++iedge) {
             mesh_elt_index.value = iedge;
             doc->func_get_object_mesh_element(
-                        doc->cookie,
-                        GMIO_AMF_MESH_ELEMENT_EDGE, &mesh_elt_index, &edge);
+                        doc->cookie, &mesh_elt_index, &edge);
             gmio_ostringstream_write_chararray(sstream, "<edge><v1>");
             gmio_ostringstream_write_u32(sstream, edge.v1);
             gmio_ostringstream_write_chararray(sstream, "</v1><dx1>");
@@ -368,12 +381,12 @@ static bool gmio_amf_write_mesh(
     gmio_ostringstream_write_chararray(sstream, "</vertices>\n");
     /* Write mesh <volume> elements */
     if (mesh->volume_count > 0) {
+        mesh_elt_index.element_type = GMIO_AMF_MESH_ELEMENT_VOLUME;
         struct gmio_amf_volume volume = {0};
         for (uint32_t ivol = 0; ivol < mesh->volume_count; ++ivol) {
             mesh_elt_index.value = ivol;
             doc->func_get_object_mesh_element(
-                        doc->cookie,
-                        GMIO_AMF_MESH_ELEMENT_VOLUME, &mesh_elt_index, &volume);
+                        doc->cookie, &mesh_elt_index, &volume);
             /* Write <volume ...> element begin */
             gmio_ostringstream_write_chararray(sstream, "<volume");
             gmio_ostringstream_write_xmlattr_u32(
@@ -389,17 +402,10 @@ static bool gmio_amf_write_mesh(
             gmio_ostringstream_write_chararray(sstream, ">\n");
             /* Write volume <metadata> elements */
             if (volume.metadata_count > 0) {
-                if (doc->func_get_object_mesh_volume_metadata == NULL) {
-                    return gmio_amf_wcontext_set_error(
-                                context,
-                                GMIO_AMF_ERROR_NULL_FUNC_GET_OBJECT_MESH_VOLUME_METADATA);
-                }
-                struct gmio_amf_metadata metadata = {0};
-                for (uint32_t imeta = 0; imeta < volume.metadata_count; ++imeta) {
-                    doc->func_get_object_mesh_volume_metadata(
-                                doc->cookie, &mesh_elt_index, imeta, &metadata);
-                    gmio_amf_write_metadata(sstream, &metadata);
-                }
+                gmio_amf_write_mesh_object_element_metadata(
+                            context, &mesh_elt_index, volume.metadata_count);
+                if (gmio_error(context->error))
+                    return false;
             }
             /* Write volume <color> element */
             if (volume.has_color)
@@ -477,8 +483,8 @@ static bool gmio_amf_write_root_objects(struct gmio_amf_wcontext* context)
         if (object.mesh_count > 0) {
             struct gmio_amf_mesh mesh = {0};
             for (uint32_t imesh = 0; imesh < object.mesh_count; ++imesh) {
-                struct gmio_amf_object_mesh_element_index base_mesh_elt_index;
                 doc->func_get_object_mesh(doc->cookie, iobj, imesh, &mesh);
+                struct gmio_amf_object_mesh_element_index base_mesh_elt_index;
                 base_mesh_elt_index.object_index = iobj;
                 base_mesh_elt_index.mesh_index = imesh;
                 base_mesh_elt_index.value = 0;
@@ -766,6 +772,7 @@ static intmax_t gmio_amf_task_progress_max(const struct gmio_amf_document* doc)
             progress_max += mesh.vertex_count;
             progress_max += mesh.edge_count;
             struct gmio_amf_object_mesh_element_index mesh_elt_index;
+            mesh_elt_index.element_type = GMIO_AMF_MESH_ELEMENT_VOLUME;
             mesh_elt_index.object_index = iobj;
             mesh_elt_index.mesh_index = imesh;
             mesh_elt_index.value = 0;
@@ -773,10 +780,7 @@ static intmax_t gmio_amf_task_progress_max(const struct gmio_amf_document* doc)
                 struct gmio_amf_volume volume = {0};
                 mesh_elt_index.value = ivol;
                 doc->func_get_object_mesh_element(
-                            doc->cookie,
-                            GMIO_AMF_MESH_ELEMENT_VOLUME,
-                            &mesh_elt_index,
-                            &volume);
+                            doc->cookie, &mesh_elt_index, &volume);
                 progress_max += volume.triangle_count;
             }
         }

@@ -124,12 +124,11 @@ static void __tamf__get_object_mesh(
 
 static void __tamf__get_object_mesh_element(
         const void* cookie,
-        enum gmio_amf_mesh_element element,
         const struct gmio_amf_object_mesh_element_index* element_index,
         void* ptr_element)
 {
     const struct __tamf__document* doc = (const struct __tamf__document*)cookie;
-    switch (element) {
+    switch (element_index->element_type) {
     case GMIO_AMF_MESH_ELEMENT_VERTEX: {
         struct gmio_amf_vertex* ptr_vertex = (struct gmio_amf_vertex*)ptr_element;
         ptr_vertex->coords = doc->mesh.vec_vertex[element_index->value];
