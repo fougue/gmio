@@ -1,5 +1,5 @@
 <img src="doc/gmio.png" height="91" alt="gmio_logo"/>
-======================================================
+
 
 [![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio) 
 [![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio) 
@@ -28,9 +28,8 @@ Main highlights:
   * [x] Operations can be easily aborted
   * [x] Progress report about the I/O operation
 
-Supported formats:
 
-                          |  Read     |  Write
+ Supported formats        |  Read     |  Write
 --------------------------|-----------|---------
 STL ascii                 |  &#10004; | &#10004;
 STL binary(little-endian) |  &#10004; | &#10004;
