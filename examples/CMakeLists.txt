@@ -27,6 +27,8 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
+include(../scripts/enable_cxx11.cmake)
+
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
 include_directories(${CMAKE_SOURCE_DIR}/tests/fake_support/opencascade)

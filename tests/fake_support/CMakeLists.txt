@@ -27,6 +27,8 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
+include(../../scripts/enable_cxx11.cmake)
+
 file(GLOB  GMIO_FAKEOCC_HEADERS  opencascade/*.hxx  opencascade/*.h)
 set(GMIO_FAKEOCC_HEADERS  ${GMIO_FAKEOCC_HEADERS})
 

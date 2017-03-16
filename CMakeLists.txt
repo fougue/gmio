@@ -30,6 +30,8 @@
 cmake_minimum_required(VERSION 2.8)
 #cmake_policy(SET CMP0018 NEW)
 
+project(gmio)
+
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 include(CheckSymbolExists)
@@ -37,7 +39,6 @@ include(CheckCSourceCompiles)
 include(CheckTypeSize)
 include(CMakeDependentOption)
 
-project(gmio)
 set(GMIO_VERSION_MAJOR 0)
 set(GMIO_VERSION_MINOR 4)
 set(GMIO_VERSION_PATCH 0)
@@ -162,7 +163,7 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
     # in case GCC wrongly warns about universal zero initializer {0}
     # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
-    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} -Werror=missing-braces")
+    set(CMAKE_REQUIRED_FLAGS "-Werror=missing-braces")
     check_c_source_compiles(
         "struct data { char array[128]; };
          int main() {
@@ -170,7 +171,7 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
              return d.array[0];
          }"
         GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}") # Restore CMAKE_REQUIRED_FLAGS
+    set(CMAKE_REQUIRED_FLAGS) # Popup changes
     if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
     endif()
@@ -213,8 +214,6 @@ if(MSVC)
     # Enable "Generate Intrinsic Functions"
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
 endif()
-
-set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
 
 # Some compilers (like GCC v4.9) don't disable <stdint.h> when needed
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
