@@ -53,6 +53,10 @@ GMIO_C_LINKAGE_BEGIN
  *  buffer</i> and the second half is employed as a <i>compression buffer</i>
  *  for zlib.
  *
+ *  If specified, gmio_amf_write_options::task_iface::func_is_stop_requested
+ *  is checked each time the gmio_amf_write_options::stream_memblock is about
+ *  to be flushed to the stream.
+ *
  *  \pre <tt> stream != NULL </tt>
  *  \pre <tt> doc != NULL </tt>
  *

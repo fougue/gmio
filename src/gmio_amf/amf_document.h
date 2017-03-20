@@ -44,16 +44,18 @@
 
 #include <stddef.h>
 
+/*! Addition information about an element(eg name, description, ... */
 struct gmio_amf_metadata {
     const char* type; /*!< UTF8-encoded */
     const char* data; /*!< UTF8-encoded */
 };
 
+/*! Red, green, blue and alpha channels as numbers or formulas in [0,1] */
 struct gmio_amf_color {
-    double r; /*!< Red channel in [0,1] */
-    double g; /*!< Green channel in [0,1] */
-    double b; /*!< Blue channel in [0,1] */
-    double a; /*!< Optional alpha(transparency) channel in [0,1] */
+    double r;
+    double g;
+    double b;
+    double a;
     const char* r_formula;
     const char* g_formula;
     const char* b_formula;
@@ -77,7 +79,7 @@ struct gmio_amf_composite {
     const char* value_formula;
 };
 
-/*! Vertex within an AMF mesh */
+/*! Vertex within a mesh */
 struct gmio_amf_vertex {
     struct gmio_vec3d coords;
     bool has_normal;
@@ -87,7 +89,7 @@ struct gmio_amf_vertex {
     uint32_t metadata_count;
 };
 
-/*! Edge within an AMF mesh, for curved triangles */
+/*! Edge within a mesh, for curved triangles */
 struct gmio_amf_edge {
     uint32_t v1; /* XML:nonNegativeInteger */
     uint32_t v2; /* XML:nonNegativeInteger */
@@ -122,7 +124,7 @@ enum gmio_amf_volume_type {
     GMIO_AMF_VOLUME_TYPE_SUPPORT
 };
 
-/*! Volume within an AMF mesh */
+/*! Closed volume of an object */
 struct gmio_amf_volume {
     uint32_t materialid; /* XML:nonNegativeInteger */
     enum gmio_amf_volume_type type;
@@ -132,12 +134,14 @@ struct gmio_amf_volume {
     struct gmio_amf_color color; /* XML:Color */
 };
 
+/*! Triangular mesh referencing a set of vertices */
 struct gmio_amf_mesh {
     uint32_t vertex_count;
     uint32_t edge_count;
     uint32_t volume_count;
 };
 
+/*! Volume or volumes of material */
 struct gmio_amf_object {
     uint32_t id; /* XML:integer */
     uint32_t mesh_count;
@@ -146,13 +150,14 @@ struct gmio_amf_object {
     struct gmio_amf_color color; /* XML:Color */
 };
 
+/*! Combination of objects */
 struct gmio_amf_constellation {
     uint32_t id; /* XML:integer */
     uint32_t instance_count; /*!< Should be >= 2 */
     uint32_t metadata_count;
 };
 
-/*! Instance within an AMF constellation */
+/*! Position of an object in a constellation */
 struct gmio_amf_instance
 {
     uint32_t objectid; /* XML:nonNegativeInteger */

@@ -50,9 +50,7 @@ char* gmio_u32toa(uint32_t value, char* str)
         *str++ = '0' + (char)value;
         return str;
     }
-    else {
-        return u32toa_branchlut(value, str);
-    }
+    return u32toa_branchlut(value, str);
 }
 
 char* gmio_i32toa(int32_t value, char* str)

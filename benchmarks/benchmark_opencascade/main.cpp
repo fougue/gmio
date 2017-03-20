@@ -68,7 +68,7 @@ public:
     Standard_Boolean Show(const Standard_Boolean /*force*/) override
     {
         const Standard_Real pc = this->GetPosition(); // Always within [0,1]
-        const int val = 1 + pc * (100 - 1);
+        const int val = static_cast<int>(1 + pc * (100 - 1));
         if (val > m_val) {
             std::cout << val;
             if (val < 100)
