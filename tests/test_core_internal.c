@@ -39,6 +39,7 @@
 #include "../src/gmio_core/internal/fast_atof.h"
 #include "../src/gmio_core/internal/file_utils.h"
 #include "../src/gmio_core/internal/helper_stream.h"
+#include "../src/gmio_core/internal/itoa.h"
 #include "../src/gmio_core/internal/locale_utils.h"
 #include "../src/gmio_core/internal/numeric_utils.h"
 #include "../src/gmio_core/internal/ostringstream.h"
@@ -848,19 +849,22 @@ static const char* test_internal__zip_utils()
 
 static const char* test_internal__zlib_enumvalues()
 {
-    /* enum gmio_zlib_compress_level */
-    UTEST_COMPARE_INT(Z_BEST_SPEED, GMIO_ZLIB_COMPRESS_LEVEL_BEST_SPEED);
-    UTEST_COMPARE_INT(Z_BEST_COMPRESSION, GMIO_ZLIB_COMPRESS_LEVEL_BEST_SIZE);
-    UTEST_COMPARE_INT(0, GMIO_ZLIB_COMPRESS_LEVEL_DEFAULT);
-    UTEST_COMPARE_INT(-1, GMIO_ZLIB_COMPRESS_LEVEL_NONE);
-
-    /* enum gmio_zlib_compress_strategy */
-    UTEST_COMPARE_INT(Z_DEFAULT_STRATEGY, GMIO_ZLIB_COMPRESSION_STRATEGY_DEFAULT);
-    UTEST_COMPARE_INT(Z_FILTERED, GMIO_ZLIB_COMPRESSION_STRATEGY_FILTERED);
-    UTEST_COMPARE_INT(Z_HUFFMAN_ONLY, GMIO_ZLIB_COMPRESSION_STRATEGY_HUFFMAN_ONLY);
-    UTEST_COMPARE_INT(Z_RLE, GMIO_ZLIB_COMPRESSION_STRATEGY_RLE);
-    UTEST_COMPARE_INT(Z_FIXED, GMIO_ZLIB_COMPRESSION_STRATEGY_FIXED);
-
+    struct __int_pair { int v1; int v2; };
+    static const struct __int_pair enumConst[] = {
+        /* enum gmio_zlib_compress_level */
+        { Z_BEST_SPEED, GMIO_ZLIB_COMPRESS_LEVEL_BEST_SPEED },
+        { Z_BEST_COMPRESSION, GMIO_ZLIB_COMPRESS_LEVEL_BEST_SIZE },
+        { 0, GMIO_ZLIB_COMPRESS_LEVEL_DEFAULT },
+        { -1, GMIO_ZLIB_COMPRESS_LEVEL_NONE },
+        /* enum gmio_zlib_compress_strategy */
+        { Z_DEFAULT_STRATEGY, GMIO_ZLIB_COMPRESSION_STRATEGY_DEFAULT },
+        { Z_FILTERED, GMIO_ZLIB_COMPRESSION_STRATEGY_FILTERED },
+        { Z_HUFFMAN_ONLY, GMIO_ZLIB_COMPRESSION_STRATEGY_HUFFMAN_ONLY },
+        { Z_RLE, GMIO_ZLIB_COMPRESSION_STRATEGY_RLE },
+        { Z_FIXED, GMIO_ZLIB_COMPRESSION_STRATEGY_FIXED }
+    };
+    for (size_t i = 0; i < GMIO_ARRAY_SIZE(enumConst); ++i)
+        UTEST_COMPARE_INT(enumConst[i].v1, enumConst[i].v2);
     return NULL;
 }
 
@@ -895,5 +899,37 @@ static const char* test_internal__file_utils()
     cstr = gmio_fileutils_find_basefilename("C:\\Program Files\\gmio\\file.txt");
     UTEST_ASSERT(strncmp("file", cstr.ptr, cstr.len) == 0);
 
+    return NULL;
+}
+
+static const char* test_internal__itoa()
+{
+    char buff[512] = {0};
+    {
+        gmio_u32toa(0, buff);
+        UTEST_COMPARE_CSTR("0", buff);
+        gmio_u32toa(100, buff);
+        UTEST_COMPARE_CSTR("100", buff);
+        gmio_u32toa(UINT32_MAX, buff);
+        UTEST_COMPARE_CSTR("4294967295", buff);
+
+        memset(buff, 0, sizeof(buff));
+        gmio_i32toa(0, buff);
+        UTEST_COMPARE_CSTR("0", buff);
+        gmio_i32toa(-100, buff);
+        UTEST_COMPARE_CSTR("-100", buff);
+    }
+#ifdef GMIO_HAVE_INT64_TYPE
+    {
+        uint64_t u64 = UINT32_MAX;
+        u64 += UINT32_MAX;
+        gmio_u64toa(u64, buff);
+        UTEST_COMPARE_CSTR("8589934590", buff);
+
+        const int64_t i64 = -1 * u64;
+        gmio_i64toa(i64, buff);
+        UTEST_COMPARE_CSTR("-8589934590", buff);
+    }
+#endif
     return NULL;
 }

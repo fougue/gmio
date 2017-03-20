@@ -45,30 +45,28 @@
 #include <string.h>
 #include <zlib.h>
 
-struct __tamf__material
-{
+struct __tamf__material {
     double color[3];
     const char* name;
 };
 
-struct __tamf__triangle
-{
+struct __tamf__triangle {
     uint32_t vertex[3];
 };
 
-struct __tamf__mesh
-{
+struct __tamf__mesh {
     const struct gmio_vec3d* vec_vertex;
     uint32_t vertex_count;
     const struct __tamf__triangle* vec_triangle;
     uint32_t triangle_count;
 };
 
-struct __tamf__document
-{
+struct __tamf__document {
     const struct __tamf__material* vec_material;
     uint32_t material_count;
+    uint32_t instance_count;
     struct __tamf__mesh mesh;
+    const struct gmio_amf_instance* vec_instance;
 };
 
 static void __tamf__get_document_element(
@@ -101,10 +99,29 @@ static void __tamf__get_document_element(
     case GMIO_AMF_DOCUMENT_ELEMENT_TEXTURE:
         break;
     case GMIO_AMF_DOCUMENT_ELEMENT_CONSTELLATION:
+        if (element_index == 0) {
+            struct gmio_amf_constellation* ptr_constellation =
+                    (struct gmio_amf_constellation*)ptr_element;
+            ptr_constellation->id = element_index;
+            ptr_constellation->instance_count = doc->instance_count;
+            ptr_constellation->metadata_count = 0;
+        }
         break;
     case GMIO_AMF_DOCUMENT_ELEMENT_METADATA:
         break;
     }
+}
+
+static void __tamf__get_constellation_instance(
+        const void* cookie,
+        uint32_t constellation_index,
+        uint32_t instance_index,
+        struct gmio_amf_instance* ptr_instance)
+{
+    const struct __tamf__document* doc =
+            (const struct __tamf__document*)cookie;
+    if (constellation_index == 0)
+        *ptr_instance = doc->vec_instance[instance_index];
 }
 
 static void __tamf__get_object_mesh(
@@ -216,11 +233,21 @@ const struct __tamf__triangle __tamf__doc_1_triangles[] = {
     { 3, 5, 2}
 };
 
+const struct gmio_amf_instance __tamf__doc_1_instances[] = {
+    { 0, {0}, {0} },
+    { 1, {10, 0,  0}, { 45, 0,  0} },
+    { 2, {0,  10, 0}, { 0,  45, 0} },
+    { 3, {0,  0, 10}, { 0,  0,  45} },
+    { 4, {10, 10, 0}, { 45, 45,  0} },
+};
+
 struct __tamf__document __tamf__create_doc_1()
 {
     struct __tamf__document doc = {0};
     doc.vec_material = __tamf__doc_1_materials;
+    doc.vec_instance = __tamf__doc_1_instances;
     doc.material_count = GMIO_ARRAY_SIZE(__tamf__doc_1_materials);
+    doc.instance_count = GMIO_ARRAY_SIZE(__tamf__doc_1_instances);
     doc.mesh.vec_vertex = __tamf__doc_1_vertices;
     doc.mesh.vertex_count = GMIO_ARRAY_SIZE(__tamf__doc_1_vertices);
     doc.mesh.vec_triangle = __tamf__doc_1_triangles;
@@ -235,6 +262,7 @@ struct gmio_amf_document __tamf_create_doc(
     doc.cookie = testdoc;
     doc.unit = GMIO_AMF_UNIT_MILLIMETER;
     doc.func_get_document_element = __tamf__get_document_element;
+    doc.func_get_constellation_instance = __tamf__get_constellation_instance;
     doc.func_get_object_mesh = __tamf__get_object_mesh;
     doc.func_get_object_mesh_element = __tamf__get_object_mesh_element;
     doc.func_get_object_mesh_volume_triangle =
@@ -243,6 +271,7 @@ struct gmio_amf_document __tamf_create_doc(
             __tamf__get_document_element_metadata;
     doc.object_count = 1;
     doc.material_count = testdoc->material_count;
+    doc.constellation_count = testdoc->instance_count > 0 ? 1 : 0;
     return doc;
 }
 
@@ -448,5 +477,62 @@ static const char* test_amf_write_doc_1_zip64_file()
     options.create_zip_archive = true;
     const int error = gmio_amf_write_file("output_64_file.zip", &doc, &options);
     UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+    return NULL;
+}
+
+struct __tamf__task {
+    intmax_t max_value;
+    intmax_t current_value;
+    intmax_t trigger_stop_value;
+    bool progress_error;
+};
+
+static bool __tamf__is_stop_requested(void* cookie)
+{
+    struct __tamf__task* task = (struct __tamf__task*)cookie;
+    return task->current_value >= task->trigger_stop_value;
+}
+
+static void __tamf__handle_progress(
+        void* cookie, intmax_t value, intmax_t max_value)
+{
+    struct __tamf__task* task = (struct __tamf__task*)cookie;
+    if (task->current_value > value)
+        task->progress_error = true;
+    task->current_value = value;
+    task->max_value = max_value;
+}
+
+static const char* test_amf_write_doc_1_task_iface()
+{
+    static const size_t wbuffsize = 8192;
+    struct gmio_rw_buffer wbuff = {0};
+    wbuff.ptr = calloc(wbuffsize, 1);
+    wbuff.len = wbuffsize;
+    const struct __tamf__document testdoc = __tamf__create_doc_1();
+    const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
+    struct gmio_amf_write_options options = {0};
+    struct __tamf__task task = {0};
+    options.task_iface.cookie = &task;
+    options.task_iface.func_handle_progress = __tamf__handle_progress;
+    {
+        const int error = __tamf__write_amf(&wbuff, &doc, &options);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_ASSERT(!task.progress_error);
+        UTEST_COMPARE_INT(task.current_value, task.max_value);
+        printf("\n-- Info: max_value=%d\n", task.max_value);
+    }
+
+    uint8_t memblock[256] = {0};
+    options.stream_memblock = gmio_memblock(&memblock, sizeof(memblock), NULL);
+    task.trigger_stop_value = task.max_value / 2;
+    options.task_iface.func_is_stop_requested = __tamf__is_stop_requested;
+    {
+        const int error = __tamf__write_amf(&wbuff, &doc, &options);
+        UTEST_COMPARE_INT(error, GMIO_ERROR_TASK_STOPPED);
+        UTEST_ASSERT(task.current_value < task.max_value);
+    }
+
+    free(wbuff.ptr);
     return NULL;
 }

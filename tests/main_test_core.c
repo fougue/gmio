@@ -52,6 +52,7 @@ const char* all_tests()
     UTEST_RUN(test_internal__fast_atof);
     UTEST_RUN(test_internal__locale_utils);
     UTEST_RUN(test_internal__error_check);
+    UTEST_RUN(test_internal__itoa);
     UTEST_RUN(test_internal__ostringstream);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__stringstream);
