@@ -96,6 +96,8 @@ int gmio_stla_infos_probe(
 
     if (flags == 0)
         return err;
+    if (flag_stla_solidname && infos->stla_solidname == NULL)
+        return GMIO_STL_ERROR_INFO_NULL_SOLIDNAME;
     if (!gmio_check_memblock(&err, &opts->stream_memblock))
         return err;
 
@@ -127,18 +129,17 @@ int gmio_stla_infos_probe(
         gmio_stla_parse_solidname_beg(&parse_data);
 
         /* Copy parsed solid name into infos->stla_solid_name */
-        {
-            const struct gmio_string* strbuff = &parse_data.token_str;
-            const size_t name_len_for_cpy =
-                    GMIO_MIN(infos->stla_solidname_maxlen - 1, strbuff->len);
+        const struct gmio_string* strbuff = &parse_data.token_str;
+        const size_t name_len_for_cpy =
+                GMIO_MIN(infos->stla_solidname_maxlen - 1, strbuff->len);
 
-            strncpy(infos->stla_solidname, strbuff->ptr, name_len_for_cpy);
-            /* Null terminate C string */
-            if (name_len_for_cpy != 0)
-                infos->stla_solidname[name_len_for_cpy] = 0;
-            else if (infos->stla_solidname_maxlen != 0)
-                infos->stla_solidname[0] = 0;
-        }
+        strncpy(infos->stla_solidname, strbuff->ptr, name_len_for_cpy);
+        /* Null terminate C string */
+        if (name_len_for_cpy != 0)
+            infos->stla_solidname[name_len_for_cpy] = '\0';
+        else if (infos->stla_solidname_maxlen != 0)
+            infos->stla_solidname[0] = '\0';
+
         sstream = parse_data.strstream;
     }
 

@@ -101,3 +101,14 @@ static const char* test_stl_infos()
     }
     return NULL;
 }
+
+static const char* test_stl_infos_github8()
+{
+    const char* filepath = "models/solid_empty.stla";
+    struct gmio_stl_infos infos = {0};
+    infos.stla_solidname_maxlen = 512;
+    const int error = gmio_stl_infos_probe_file(
+                &infos, filepath, GMIO_STL_INFO_FLAG_ALL, NULL);
+    UTEST_COMPARE_INT(error, GMIO_STL_ERROR_INFO_NULL_SOLIDNAME);
+    return NULL;
+}

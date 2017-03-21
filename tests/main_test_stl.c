@@ -61,6 +61,7 @@ const char* all_tests()
     UTEST_RUN(test_stl_internal__error_check);
 
     UTEST_RUN(test_stl_infos);
+    UTEST_RUN(test_stl_infos_github8);
 
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stl_read_multi_solid);
