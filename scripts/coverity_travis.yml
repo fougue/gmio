@@ -19,6 +19,6 @@ addons:
       name: "fougue/gmio"
       description: "C library for geometry input/output"
     notification_email: delorme.hugues@fougue.pro
-    build_command_prepend: "mkdir scan; cd scan; cmake .. -G 'Unix Makefiles' -DCMAKE_DEBUG_POSTFIX=_d -DCMAKE_BUILD_TYPE=Debug -DGMIO_BUILD_BENCHMARKS=ON -DGMIO_BUILD_BENCHMARK_ASSIMP=OFF -DGMIO_BUILD_BENCHMARK_OPENCASCADE=OFF"
+    build_command_prepend: "mkdir scan; cd scan; cmake .. -G 'Unix Makefiles' -DCMAKE_DEBUG_POSTFIX=_d -DCMAKE_BUILD_TYPE=Debug -DGMIO_BUILD_BENCHMARKS=OFF -DGMIO_BUILD_TESTS_FAKE_SUPPORT=OFF"
     build_command: "make -j4 check"
     branch_pattern: coverity_scan
