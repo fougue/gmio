@@ -5,16 +5,16 @@ set -e
 
 # CMake options as environment variables
 if [ -n "${TRAVIS_GCC_VERSION}" ]; then
-    export CC=gcc-$TRAVIS_GCC_VERSION;
-    export CXX=g++-$TRAVIS_GCC_VERSION;
+    export CC=gcc-$TRAVIS_GCC_VERSION
+    export CXX=g++-$TRAVIS_GCC_VERSION
 fi
 
 if [ -z "${TRAVIS_TESTS_COVERAGE}" ]; then
-    export TRAVIS_TESTS_COVERAGE=OFF;
+    export TRAVIS_TESTS_COVERAGE=OFF
 fi
 
 if [ -z "${TRAVIS_FLOAT2STR_LIB}" ]; then
-    export TRAVIS_FLOAT2STR_LIB=std;
+    export TRAVIS_FLOAT2STR_LIB=std
 fi
 
 # Run CMake
