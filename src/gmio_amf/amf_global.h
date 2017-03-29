@@ -31,14 +31,14 @@
  *  Global declarations for the AMF module
  *
  *  \defgroup gmio_amf gmioAMF
- *  Provides API to handle input/output operations with the AMF file format
+ *  Provides API to handle output operations with the AMF file format
  *
  *  In addition, the gmioAMF module has the following advatanges:
  *  \li The user keeps its own geometry data structures, no conversion needed.
  *  \li Fixed memory consumption and independant of the geometry size
  *
  *  In this module, the name of all entities(structures, functions, ...) are
- *  prefixed either with \c gmio_amf
+ *  prefixed with \c gmio_amf
  *
  *  <table>
  *    <tr>

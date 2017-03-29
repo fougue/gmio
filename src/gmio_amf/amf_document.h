@@ -263,28 +263,6 @@ struct gmio_amf_document {
             uint32_t element_index,
             void* ptr_element);
 
-    /*! Optional function that retrieves the i-th \c composite within a
-     *  \c material element
-     *
-     *  Function not required(can be set to \c NULL) if there is no material
-     *  composite in the document */
-    void (*func_get_material_composite)(
-            const void* cookie,
-            uint32_t material_index,
-            uint32_t composite_index,
-            struct gmio_amf_composite* ptr_composite);
-
-    /*! Optional function that retrieves the i-th \c instance within a
-     *  \c constellation element
-     *
-     *  Function not required(can be set to \c NULL) if there is no
-     *  constellation in the document */
-    void (*func_get_constellation_instance)(
-            const void* cookie,
-            uint32_t constellation_index,
-            uint32_t instance_index,
-            struct gmio_amf_instance* ptr_instance);
-
     /*! Function that retrieves the i-th \c mesh within an \c object element */
     void (*func_get_object_mesh)(
             const void* cookie,
@@ -315,7 +293,29 @@ struct gmio_amf_document {
             uint32_t triangle_index,
             struct gmio_amf_triangle* ptr_triangle);
 
-    /* Function pointers to retrieve metadata */
+    /*! Optional function that retrieves the i-th \c composite within a
+     *  \c material element
+     *
+     *  Function not required(can be set to \c NULL) if there is no material
+     *  composite in the document */
+    void (*func_get_material_composite)(
+            const void* cookie,
+            uint32_t material_index,
+            uint32_t composite_index,
+            struct gmio_amf_composite* ptr_composite);
+
+    /*! Optional function that retrieves the i-th \c instance within a
+     *  \c constellation element
+     *
+     *  Function not required(can be set to \c NULL) if there is no
+     *  constellation in the document */
+    void (*func_get_constellation_instance)(
+            const void* cookie,
+            uint32_t constellation_index,
+            uint32_t instance_index,
+            struct gmio_amf_instance* ptr_instance);
+
+    /* Optional function pointers to retrieve metadata */
 
     /*! Optional function that retrieves the i-th metadata assigned to a
      *  document sub-element
