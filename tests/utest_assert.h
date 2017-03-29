@@ -3,8 +3,7 @@
  *       http://c.learncodethehardway.org/book/ex30.html
  */
 
-#ifndef UTEST_ASSERT_H
-#define UTEST_ASSERT_H
+#pragma once
 
 #include <stdio.h>
 
@@ -47,5 +46,3 @@
 
 #define UTEST_COMPARE_CSTR(expected, actual) \
     UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_STRCMP__INTERNAL, "%s", "C-string")
-
-#endif /* UTEST_ASSERT_H */

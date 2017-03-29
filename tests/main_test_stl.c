@@ -44,10 +44,8 @@ struct gmio_memblock gmio_memblock_for_tests()
     return gmio_memblock(buff, sizeof(buff), NULL);
 }
 
-const char* all_tests()
+void all_tests()
 {
-    UTEST_SUITE_START();
-
     gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
 
 #if 0
@@ -73,7 +71,5 @@ const char* all_tests()
 
     UTEST_RUN(test_stlb_header_str);
     UTEST_RUN(test_stlb_header_to_printable_str);
-
-    return NULL;
 }
 UTEST_MAIN(all_tests)

@@ -42,10 +42,8 @@ struct gmio_memblock gmio_memblock_for_tests()
     return gmio_memblock_malloc(512 * 1024); /* 512KB */
 }
 
-const char* all_tests()
+void all_tests()
 {
-    UTEST_SUITE_START();
-
     gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
 
     UTEST_RUN(test_amf_write_doc_null);
@@ -54,7 +52,5 @@ const char* all_tests()
     UTEST_RUN(test_amf_write_doc_1_zip64);
     UTEST_RUN(test_amf_write_doc_1_zip64_file);
     UTEST_RUN(test_amf_write_doc_1_task_iface);
-
-    return NULL;
 }
 UTEST_MAIN(all_tests)

@@ -34,10 +34,8 @@
 #include "test_core_internal.c"
 #include "test_core_platform.c"
 
-const char* all_tests()
+void all_tests()
 {
-    UTEST_SUITE_START();
-
     UTEST_RUN(test_core__buffer);
     UTEST_RUN(test_core__endian);
     UTEST_RUN(test_core__error);
@@ -61,7 +59,5 @@ const char* all_tests()
     UTEST_RUN(test_internal__zip_utils);
     UTEST_RUN(test_internal__zlib_enumvalues);
     UTEST_RUN(test_internal__file_utils);
-
-    return NULL;
 }
 UTEST_MAIN(all_tests)

@@ -3,38 +3,42 @@
  *       http://c.learncodethehardway.org/book/ex30.html
  */
 
-#ifndef UTEST_LIB_H
-#define UTEST_LIB_H
+#pragma once
 
 #include "utest_assert.h"
-
 #include <stdlib.h>
 
-#define UTEST_SUITE_START() const char* message = NULL
-                                        
-#define UTEST_RUN(test) printf("\n-----%s", " " #test); \
-                        message = test();\
-                        tests_run++;\
-                        if (message) return message;
+#define UTEST_RUN(func_run_utest) \
+        {\
+            printf("\n-----%s", " " #func_run_utest); \
+            ++test_count;\
+            const char* str_error = func_run_utest();\
+            if (str_error == NULL)\
+                ++test_ok_count;\
+            else\
+                printf("  FAILED: %s\n", str_error);\
+        }
 
-#define UTEST_MAIN(name) \
+#define UTEST_MAIN(func_run_utests) \
         int main(int argc, char *argv[]) {\
-            const char *result = NULL; \
-            \
-            (void)argc; \
-            printf("----\nRUNNING: %s\n", argv[0]);\
-            result = name();\
-            if (result != NULL) {\
-                printf("\n\nFAILED: %s\n", result);\
+            const char* prg_test_name = argv[0];\
+            (void)argc;\
+            test_count = test_ok_count = 0;\
+            printf("----\nRUNNING: %s\n", prg_test_name);\
+            func_run_utests();\
+            printf("\n\nRESULT: %s\n"\
+                   "        tested: %d  |  passed: %d  |  failed: %d\n",\
+                   prg_test_name,\
+                   test_count, test_ok_count, test_count - test_ok_count);\
+            if (test_count > 0) {\
+                if (test_ok_count == test_count)\
+                    printf("        ALL TESTS PASSED\n");\
+                else\
+                    printf("        TEST FAILURE\n");\
             }\
-            else {\
-                printf("\n\nALL TESTS PASSED\n");\
-            }\
-            printf("Tests run: %d\n", tests_run);\
-            exit(result != NULL);\
+            exit(test_ok_count != test_count);\
         }
 
 
-static int tests_run;
-
-#endif /* UTEST_LIB_H */
+static int test_count;
+static int test_ok_count;
