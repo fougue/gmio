@@ -343,8 +343,8 @@ static const char* test_internal__stringstream()
 static const char* test_internal__ostringstream()
 {
     static const size_t size = 8192;
-    char* input = malloc(size);
-    char* output = malloc(size);
+    char* input = g_testcore_memblock.ptr;
+    char* output = (char*)g_testcore_memblock.ptr + size;
     char strbuff[256] = {0};
     struct gmio_rw_buffer rwbuff = gmio_rw_buffer(output, size, 0);
     struct gmio_ostringstream sstream =
@@ -418,8 +418,6 @@ static const char* test_internal__ostringstream()
         }
     }
 
-    free(input);
-    free(output);
     return NULL;
 }
 
@@ -608,7 +606,7 @@ static const char* __tc__zip_compare_entry(
 static const char* test_internal__zip_utils()
 {
     static const unsigned bytes_size = 1024;
-    uint8_t* bytes = calloc(bytes_size, 1);
+    uint8_t* bytes = g_testcore_memblock.ptr;
     struct gmio_rw_buffer wbuff = gmio_rw_buffer(bytes, bytes_size, 0);
     struct gmio_stream stream = gmio_stream_buffer(&wbuff);
     int error;
@@ -843,7 +841,6 @@ static const char* test_internal__zip_utils()
         UTEST_COMPARE_UINT(fcookie.zdata_len, zip_dd.compressed_size);
     }
 
-    free(bytes);
     return NULL;
 }
 

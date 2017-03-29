@@ -862,7 +862,7 @@ int gmio_amf_write(
 
     struct gmio_amf_wcontext context = {0};
     struct gmio_memblock_helper mblock_helper =
-            gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
+            gmio_memblock_helper(&opts->stream_memblock);
     const struct gmio_memblock* memblock = &mblock_helper.memblock;
 
     /* Check validity of input parameters */
@@ -971,6 +971,7 @@ int gmio_amf_write_file(
     }
 
 label_end:
-    fclose(file);
+    if (file != NULL)
+        fclose(file);
     return error;
 }

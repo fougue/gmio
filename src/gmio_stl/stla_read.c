@@ -260,8 +260,7 @@ GMIO_INLINE bool stla_parsing_can_continue(
 /* Parses the (optional) solid name that appears after token "endsolid"
  *
  * It should be the same name as the one parsed with
- * gmio_stla_parse_solidname_beg()
- */
+ * gmio_stla_parse_solidname_beg() */
 static int parse_solidname_end(struct gmio_stla_parse_data* data);
 
 /* Parses "solid <name>" */
@@ -678,8 +677,15 @@ void parse_facets(struct gmio_stla_parse_data* data)
                 func_add_triangle(creator_cookie, i_facet, &facet);
             /* Eat next unknown token */
             token_str->len = 0;
-            gmio_stringstream_eat_word(&data->strstream, token_str);
-            data->token = stla_find_token_from_string(token_str);
+            const enum gmio_eat_word_error eat_error =
+                    gmio_stringstream_eat_word(&data->strstream, token_str);
+            if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
+                data->token = stla_find_token_from_string(token_str);
+            }
+            else {
+                data->token = unknown_token;
+                data->error = true;
+            }
             ++i_facet;
         }
         else {

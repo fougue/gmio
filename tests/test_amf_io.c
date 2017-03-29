@@ -288,7 +288,7 @@ static const char* test_amf_write_doc_1_plaintext()
 {
     static const size_t wbuffsize = 8192;
     struct gmio_rw_buffer wbuff = {0};
-    wbuff.ptr = calloc(wbuffsize, 1);
+    wbuff.ptr = g_testamf_memblock.ptr;
     wbuff.len = wbuffsize;
 
     const struct __tamf__document testdoc = __tamf__create_doc_1();
@@ -302,7 +302,6 @@ static const char* test_amf_write_doc_1_plaintext()
 #endif
     UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
     /* printf("%s\n", wbuff.ptr); */
-    free(wbuff.ptr);
     return NULL;
 }
 
@@ -313,8 +312,10 @@ static const char* test_amf_write_doc_1_zip()
 {
     static const size_t wbuffsize = 8192;
     struct gmio_rw_buffer wbuff = {0};
-    wbuff.ptr = calloc(wbuffsize, 1);
+    uint8_t* ptr_g_memblock = g_testamf_memblock.ptr;
+    wbuff.ptr = ptr_g_memblock;
     wbuff.len = wbuffsize;
+    ptr_g_memblock += wbuff.len;
 
     const struct __tamf__document testdoc = __tamf__create_doc_1();
     const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
@@ -327,8 +328,9 @@ static const char* test_amf_write_doc_1_zip()
 
     const size_t amf_data_len = wbuff.pos;
     const uint32_t crc32_amf_data = gmio_zlib_crc32(wbuff.ptr, amf_data_len);
-    uint8_t* amf_data = calloc(amf_data_len, 1);
+    uint8_t* amf_data = ptr_g_memblock;
     memcpy(amf_data, wbuff.ptr, amf_data_len);
+    ptr_g_memblock += amf_data_len;
 
     {   /* Write compressed(ZIP) */
         wbuff.pos = 0;
@@ -376,24 +378,22 @@ static const char* test_amf_write_doc_1_zip()
         /* -- Read and check compressed AMF data */
         wbuff.pos = lfh_read_len + zip_lfh.filename_len + zip_lfh.extrafield_len;
         {
-            uint8_t* dest = calloc(amf_data_len, 1);
+            uint8_t* dest = ptr_g_memblock;
             size_t dest_len = amf_data_len;
+            ptr_g_memblock += dest_len;
             const uint8_t* amf_zdata = (const uint8_t*)wbuff.ptr + wbuff.pos;
             const int error = gmio_zlib_uncompress_buffer(
                         dest, &dest_len, amf_zdata, amf_zdata_len);
-            printf("\n-- Info: z_len=%i  src_len=%i\n",
-                   amf_zdata_len, amf_data_len);
+            printf("\ninfo: z_len=%u  src_len=%u\n",
+                   (unsigned)amf_zdata_len, (unsigned)amf_data_len);
             UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
             UTEST_COMPARE_UINT(dest_len, amf_data_len);
             UTEST_COMPARE_INT(memcmp(dest, amf_data, amf_data_len), 0);
             const uint32_t crc32_uncomp = gmio_zlib_crc32(dest, dest_len);
             UTEST_COMPARE_UINT(crc32_amf_data, crc32_uncomp);
-            free(dest);
         }
     }
 
-    free(amf_data);
-    free(wbuff.ptr);
     return NULL;
 }
 
@@ -401,7 +401,7 @@ static const char* test_amf_write_doc_1_zip64()
 {
     static const size_t wbuffsize = 8192;
     struct gmio_rw_buffer wbuff = {0};
-    wbuff.ptr = calloc(wbuffsize, 1);
+    wbuff.ptr = g_testamf_memblock.ptr;
     wbuff.len = wbuffsize;
 
     const struct __tamf__document testdoc = __tamf__create_doc_1();
@@ -464,7 +464,6 @@ static const char* test_amf_write_doc_1_zip64()
         UTEST_COMPARE_UINT(amf_data_len, zip64_extra.uncompressed_size);
     }
 
-    free(wbuff.ptr);
     return NULL;
 }
 
@@ -507,7 +506,7 @@ static const char* test_amf_write_doc_1_task_iface()
 {
     static const size_t wbuffsize = 8192;
     struct gmio_rw_buffer wbuff = {0};
-    wbuff.ptr = calloc(wbuffsize, 1);
+    wbuff.ptr = g_testamf_memblock.ptr;
     wbuff.len = wbuffsize;
     const struct __tamf__document testdoc = __tamf__create_doc_1();
     const struct gmio_amf_document doc = __tamf_create_doc(&testdoc);
@@ -520,7 +519,7 @@ static const char* test_amf_write_doc_1_task_iface()
         UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
         UTEST_ASSERT(!task.progress_error);
         UTEST_COMPARE_INT(task.current_value, task.max_value);
-        printf("\n-- Info: max_value=%d\n", task.max_value);
+        printf("\ninfo: max_value=%d\n", (int)task.max_value);
     }
 
     uint8_t memblock[256] = {0};
@@ -533,6 +532,5 @@ static const char* test_amf_write_doc_1_task_iface()
         UTEST_ASSERT(task.current_value < task.max_value);
     }
 
-    free(wbuff.ptr);
     return NULL;
 }

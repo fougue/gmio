@@ -29,11 +29,10 @@
 
 #include "utest_lib.h"
 
-#include "../src/gmio_core/global.h"
 #include "../src/gmio_core/memblock.h"
+static struct gmio_memblock g_testamf_memblock;
 
 #include "test_amf_io.c"
-
 #include <stddef.h>
 
 /* Static memblock */
@@ -45,6 +44,7 @@ struct gmio_memblock gmio_memblock_for_tests()
 void all_tests()
 {
     gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
+    g_testamf_memblock = gmio_memblock_calloc(32, 1024); /* 32KB */
 
     UTEST_RUN(test_amf_write_doc_null);
     UTEST_RUN(test_amf_write_doc_1_plaintext);
@@ -52,5 +52,7 @@ void all_tests()
     UTEST_RUN(test_amf_write_doc_1_zip64);
     UTEST_RUN(test_amf_write_doc_1_zip64_file);
     UTEST_RUN(test_amf_write_doc_1_task_iface);
+
+    gmio_memblock_deallocate(&g_testamf_memblock);
 }
 UTEST_MAIN(all_tests)

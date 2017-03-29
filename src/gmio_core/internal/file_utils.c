@@ -41,7 +41,7 @@ struct gmio_const_string gmio_fileutils_find_basefilename(const char* filepath)
     const char* const pos_filepath_begin = filepath;
     const char* const pos_filepath_end = filepath + filepath_len;
     const char* pos_last_dot = pos_filepath_end;
-    const char* it = filepath_len != 0 ? pos_filepath_end - 1 : NULL;
+    const char* it = pos_filepath_end - 1;
     while (it != pos_filepath_begin
            && *it != '/'
            && *it != '\\')

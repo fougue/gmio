@@ -29,6 +29,9 @@
 
 #include "utest_lib.h"
 
+#include "../src/gmio_core/memblock.h"
+static struct gmio_memblock g_testcore_memblock;
+
 #include "test_core.c"
 #include "test_core_benchmark_fast_atof.c"
 #include "test_core_internal.c"
@@ -36,6 +39,8 @@
 
 void all_tests()
 {
+    g_testcore_memblock = gmio_memblock_calloc(32, 1024); /* 32KB */
+
     UTEST_RUN(test_core__buffer);
     UTEST_RUN(test_core__endian);
     UTEST_RUN(test_core__error);
@@ -59,5 +64,7 @@ void all_tests()
     UTEST_RUN(test_internal__zip_utils);
     UTEST_RUN(test_internal__zlib_enumvalues);
     UTEST_RUN(test_internal__file_utils);
+
+    gmio_memblock_deallocate(&g_testcore_memblock);
 }
 UTEST_MAIN(all_tests)
