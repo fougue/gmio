@@ -1,45 +1,24 @@
 language: cpp
 
-sudo: false
+compiler:
+  - gcc
 
-_anchors:
-  - &gcc49-packages
-    apt:
-      sources:
-      - ubuntu-toolchain-r-test
-      packages:
-      - gcc-4.9
-      - g++-4.9
-
-matrix:
-  include:
-    # Linux GCC-4.6 debug tests_coverage
-    - compiler: gcc
-      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_TESTS_COVERAGE=ON
-    # Linux GCC-4.6 debug google_double-conversion
-    - compiler: gcc
-      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_FLOAT2STR_LIB=google_doubleconversion
-    # Linux GCC-4.9 release
-    - compiler: gcc-4.9
-      addons: *gcc49-packages
-      env: TRAVIS_BUILD_TYPE=Release  TRAVIS_GCC_VERSION=4.9
-    # OSX Clang debug
-    - os: osx
-      compiler: clang
-      env: TRAVIS_BUILD_TYPE=Debug
-    # OSX Clang debug google_double-conversion
-    - os: osx
-      compiler: clang
-      env: TRAVIS_BUILD_TYPE=Debug  TRAVIS_FLOAT2STR_LIB=google_doubleconversion
-    # OSX Clang release
-    - os: osx
-      compiler: clang
-      env: TRAVIS_BUILD_TYPE=Release
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   # via the "travis encrypt" command using the project repo's public key
+   - secure: "lW9g6zQIjdhiHNuyM8pnCU3hLmXUQFfsqmQMe8RTN/jMydLhz50KLLd6BXHrRlQMXL/rh7gSRwxTh27SrqsgWIlYzwJ81g3FDQF/ckecNOfW7bTjbumg0tR/GBZXpCQ8L8CMfh374O1cgjhwAh8L9+9+wX19Oxozr1xnAGCFnhkMOR84jdwqUHin13mBLNNntzWj/T0gDpy1A+u3uqHFS6QAuUYkeOdw4+nKkHTqMO4QV/qVhBpQ3Z1jFRpXJWP80QHYgjG3Av7JSCM63eQhH+3/SfcpRrOZaWB1CzXmNNkFSEYfFER2UFPrvhUsQBhnGaqz+eyzrH2q2fp+WETM6m4NJdzSsXWC7PsI23GfI0aJOoKU3gFl106ttB5QUSIQq3eADUCNoswDP4OrlSUJ/SJ0oy/T0P1bDTEeEQcUmyvDwSRUCFpYaTihXSQENo0CsSVXQoev7NrCi77lTeEK/GolQ+4T63Q4OPwQvon1ZVGwrYO5W30fUip0OSzruJzUdI1vSiL87oTOXkRaUCiL0k9R5ktHOG4QuSjSaxOWKOVoTdIoNuY59tGPbTWjrAK2HR2pc8igcQfZRW4ywRMilw0KynqmAezEYjKUzHiTJtFQdsHCXYdfv2euqG4gjPtZcDfo5/8DSucjIZg8X1zNjF903+69pRHsPoKML0PC/PI="
 
 script:
-  - chmod +x scripts/travis-build.sh
-  - ./scripts/travis-build.sh
+   # dummy
+   - pwd
 
-after_success:
-  - chmod +x scripts/travis-codecov.sh
-  - ./scripts/travis-codecov.sh
+addons:
+  coverity_scan:
+    project:
+      name: "fougue/gmio"
+      description: "C library for geometry input/output"
+    notification_email: delorme.hugues@fougue.pro
+    build_command_prepend: "mkdir scan; cd scan; cmake .. -G 'Unix Makefiles' -DCMAKE_DEBUG_POSTFIX=_d -DCMAKE_BUILD_TYPE=Debug -DGMIO_BUILD_BENCHMARKS=OFF -DGMIO_BUILD_TESTS_FAKE_SUPPORT=OFF"
+    build_command: "make -j4 check"
+    branch_pattern: coverity_scan
