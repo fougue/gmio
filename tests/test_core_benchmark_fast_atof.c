@@ -68,6 +68,7 @@ static void __tc__run_atof(float (*func_atof)(const char*))
             fres = func_atof(strbuff);
             gmio_snprintf(strbuff, sizeof(strbuff), "%E", f);
             fres = func_atof(strbuff);
+            GMIO_UNUSED(fres);
         }
     }
 }

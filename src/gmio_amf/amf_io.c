@@ -633,22 +633,20 @@ static size_t gmio_amf_ostringstream_write_zlib(
         const char* ptr,
         size_t len)
 {
+    const uint8_t* ptr_u8 = (const uint8_t*)ptr;
     struct gmio_memblock* z_mblock = &context->z_memblock;
     struct z_stream_s* z_stream = &context->z_stream;
     size_t total_written_len = 0;
     int z_retcode = Z_OK;
 
     context->z_uncompressed_size += len;
-    context->z_crc32 =
-            gmio_zlib_crc32_update(context->z_crc32, (const uint8_t*)ptr, len);
+    context->z_crc32 = gmio_zlib_crc32_update(context->z_crc32, ptr_u8, len);
 
-    z_stream->next_in = (z_const Bytef*)ptr;
-    z_stream->avail_in = len;
+    gmio_zlib_assign_zstream_in(z_stream, ptr_u8, len);
     /* Run zlib deflate() on input until output buffer not full
      * Finish compression when zflush == Z_FINISH */
     do {
-        z_stream->next_out = z_mblock->ptr;
-        z_stream->avail_out = z_mblock->size;
+        gmio_zlib_assign_zstream_out(z_stream, z_mblock->ptr, z_mblock->size);
         z_retcode = deflate(z_stream, context->z_flush);
         /* Check state not clobbered */
         if (z_retcode == Z_STREAM_ERROR) {

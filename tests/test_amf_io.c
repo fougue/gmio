@@ -208,37 +208,37 @@ const struct __tamf__material __tamf__doc_1_materials[] = {
 };
 
 const struct gmio_vec3d __tamf__doc_1_vertices[] = {
-    { 0.,  0., 0.},
-    { 1.,  0., 0.},
-    { 1., -1., 0.},
-    { 0., -1., 0.},
-    { 1.,  0., 1.},
-    { 1., -1., 1.},
-    { 0.,  0., 1.},
-    { 0., -1., 1.}
+    { 0.,  0., 0. },
+    { 1.,  0., 0. },
+    { 1., -1., 0. },
+    { 0., -1., 0. },
+    { 1.,  0., 1. },
+    { 1., -1., 1. },
+    { 0.,  0., 1. },
+    { 0., -1., 1. }
 };
 
 const struct __tamf__triangle __tamf__doc_1_triangles[] = {
-    { 0, 1, 2},
-    { 0, 2, 3},
-    { 1, 5, 2},
-    { 1, 4, 5},
-    { 6, 5, 7},
-    { 6, 4, 5},
-    { 0, 6, 7},
-    { 0, 7, 3},
-    { 0, 6, 4},
-    { 0, 4, 1},
-    { 3, 7, 5},
-    { 3, 5, 2}
+    { {0, 1, 2} },
+    { {0, 2, 3} },
+    { {1, 5, 2} },
+    { {1, 4, 5} },
+    { {6, 5, 7} },
+    { {6, 4, 5} },
+    { {0, 6, 7} },
+    { {0, 7, 3} },
+    { {0, 6, 4} },
+    { {0, 4, 1} },
+    { {3, 7, 5} },
+    { {3, 5, 2} }
 };
 
 const struct gmio_amf_instance __tamf__doc_1_instances[] = {
-    { 0, {0}, {0} },
-    { 1, {10, 0,  0}, { 45, 0,  0} },
-    { 2, {0,  10, 0}, { 0,  45, 0} },
-    { 3, {0,  0, 10}, { 0,  0,  45} },
-    { 4, {10, 10, 0}, { 45, 45,  0} },
+    { 0, {0,  0,  0}, {0,  0,  0} },
+    { 1, {10, 0,  0}, {45, 0,  0} },
+    { 2, {0,  10, 0}, {0,  45, 0} },
+    { 3, {0,  0, 10}, {0,  0,  45} },
+    { 4, {10, 10, 0}, {45, 45,  0} },
 };
 
 struct __tamf__document __tamf__create_doc_1()
@@ -382,7 +382,7 @@ static const char* test_amf_write_doc_1_zip()
             size_t dest_len = amf_data_len;
             ptr_g_memblock += dest_len;
             const uint8_t* amf_zdata = (const uint8_t*)wbuff.ptr + wbuff.pos;
-            const int error = gmio_zlib_uncompress_buffer(
+            error = gmio_zlib_uncompress_buffer(
                         dest, &dest_len, amf_zdata, amf_zdata_len);
             printf("\ninfo: z_len=%u  src_len=%u\n",
                    (unsigned)amf_zdata_len, (unsigned)amf_data_len);

@@ -62,3 +62,11 @@ uint32_t gmio_zlib_crc32_initial();
 /*! Updates a running CRC-32 with the bytes from \p buff */
 uint32_t gmio_zlib_crc32_update(
         uint32_t crc, const uint8_t* buff, size_t buff_len);
+
+/*! Type-safe assigns z_stream_s::next_in and z_stream_s::avail_in */
+void gmio_zlib_assign_zstream_in(
+        struct z_stream_s* zstream, const uint8_t* next_in, size_t avail_in);
+
+/*! Type-safe assigns z_stream_s::next_out and z_stream_s::avail_out */
+void gmio_zlib_assign_zstream_out(
+        struct z_stream_s* zstream, uint8_t* next_out, size_t avail_out);

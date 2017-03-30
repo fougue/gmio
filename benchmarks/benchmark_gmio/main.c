@@ -242,7 +242,7 @@ void bmk_gmio_stl_infos_probe_all(const void* filepath)
                "    Size: %uKo\n"
                "    Facets: %u\n",
                cfilepath,
-               infos.size / 1024,
+               (unsigned)infos.size / 1024,
                infos.facet_count);
         if (infos.format == GMIO_STL_FORMAT_ASCII)
             printf("    [STLA]Solid name: %s\n", infos.stla_solidname);
@@ -264,7 +264,7 @@ void bmk_gmio_stl_infos_probe_size(const void* filepath)
                "    File: %s\n"
                "    Size: %uKo\n",
                cfilepath,
-               infos.size / 1024);
+               (unsigned)infos.size / 1024);
     }
     already_exec = true;
 }

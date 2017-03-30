@@ -162,3 +162,17 @@ uint32_t gmio_zlib_crc32_initial()
 {
     return crc32(0, NULL, 0);
 }
+
+void gmio_zlib_assign_zstream_in(
+        struct z_stream_s *zstream, const uint8_t *next_in, size_t avail_in)
+{
+    zstream->next_in = (z_const Bytef*)next_in;
+    zstream->avail_in = (uInt)avail_in;
+}
+
+void gmio_zlib_assign_zstream_out(
+        struct z_stream_s *zstream, uint8_t *next_out, size_t avail_out)
+{
+    zstream->next_out = next_out;
+    zstream->avail_out = (uInt)avail_out;
+}
