@@ -64,8 +64,14 @@ enum gmio_error
     /*! Argument size for the memory block is too small */
     GMIO_ERROR_INVALID_MEMBLOCK_SIZE,
 
+    /*! Provided gmio_stream is \c NULL */
+    GMIO_ERROR_NULL_STREAM,
+
     /*! An error occurred with gmio_stream */
     GMIO_ERROR_STREAM,
+
+    /*! Some required gmio_stream function pointer is NULL */
+    GMIO_ERROR_STREAM_FUNC_REQUIRED,
 
     /*! Task was stopped by user, that is to say
      *  gmio_task_iface::func_is_stop_requested() returned true */
@@ -104,6 +110,12 @@ enum gmio_error
     /*! Invalid compression memory usage, see
      *  gmio_zlib_compress_options::memory_usage */
     GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE,
+
+    /*! All input to be deflated(compressed) was not processed */
+    GMIO_ERROR_ZLIB_DEFLATE_NOT_ALL_INPUT_USED,
+
+    /*! Deflate failure to flush pending output */
+    GMIO_ERROR_ZLIB_DEFLATE_STREAM_INCOMPLETE,
 
     /* ZIP */
     /*! Zip64 format requires the compiler to provide a 64b integer type */

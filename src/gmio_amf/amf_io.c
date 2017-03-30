@@ -670,14 +670,12 @@ static size_t gmio_amf_ostringstream_write_zlib(
     } while (z_stream->avail_out == 0);
     /* Check all input was used */
     if (z_stream->avail_in != 0) {
-        /* TODO: set more precise error */
-        context->error = GMIO_ERROR_UNKNOWN;
+        context->error = GMIO_ERROR_ZLIB_DEFLATE_NOT_ALL_INPUT_USED;
         return total_written_len;
     }
     /* Check stream is complete */
     if (context->z_flush == Z_FINISH && z_retcode != Z_STREAM_END) {
-        /* TODO: set more precise error */
-        context->error = GMIO_ERROR_UNKNOWN;
+        context->error = GMIO_ERROR_ZLIB_DEFLATE_STREAM_INCOMPLETE;
         return total_written_len;
     }
     context->z_compressed_size += total_written_len;
@@ -867,7 +865,8 @@ int gmio_amf_write(
 
     /* Check validity of input parameters */
     context.error = GMIO_ERROR_OK;
-    /* TODO: check stream function pointers */
+    if (!gmio_check_ostream(&context.error, stream))
+        goto label_end;
     if (!gmio_check_memblock(&context.error, memblock))
         goto label_end;
     if (!gmio_amf_check_document(&context.error, doc))

@@ -32,12 +32,17 @@
 #include "../global.h"
 #include <stddef.h>
 struct gmio_memblock;
+struct gmio_stream;
 
 bool gmio_check_memblock(
         int* error, const struct gmio_memblock* mblock);
 bool gmio_check_memblock_size(
         int* error, const struct gmio_memblock* mblock, size_t minsize);
 
-/*! Checks gmio_lc_numeric_is_C(), if false sets \p *error to
- *  \c GMIO_ERROR_BAD_LC_NUMERIC*/
+/* Checks gmio_lc_numeric_is_C()
+ * If false sets *error to GMIO_ERROR_BAD_LC_NUMERIC */
 bool gmio_check_lc_numeric(int* error);
+
+bool gmio_check_istream(int* error, const struct gmio_stream* stream);
+bool gmio_check_ostream(int* error, const struct gmio_stream* stream);
+bool gmio_check_stream(int* error, const struct gmio_stream* stream);

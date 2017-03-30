@@ -32,6 +32,7 @@
 #include "locale_utils.h"
 #include "../error.h"
 #include "../memblock.h"
+#include "../stream.h"
 
 bool gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
 {
@@ -55,4 +56,44 @@ bool gmio_check_lc_numeric(int *error)
     if (!gmio_lc_numeric_is_C())
         *error = GMIO_ERROR_BAD_LC_NUMERIC;
     return gmio_no_error(*error);
+}
+
+bool gmio_check_istream(int *error, const struct gmio_stream *stream)
+{
+    if (stream == NULL)
+        *error = GMIO_ERROR_NULL_STREAM;
+    else if (stream->func_at_end == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_error == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_read == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_size == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_get_pos == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_set_pos == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    return gmio_no_error(*error);
+}
+
+bool gmio_check_ostream(int *error, const struct gmio_stream *stream)
+{
+    if (stream == NULL)
+        *error = GMIO_ERROR_NULL_STREAM;
+    else if (stream->func_error == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_write == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_get_pos == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    else if (stream->func_set_pos == NULL)
+        *error = GMIO_ERROR_STREAM_FUNC_REQUIRED;
+    return gmio_no_error(*error);
+}
+
+bool gmio_check_stream(int *error, const struct gmio_stream *stream)
+{
+    return gmio_check_istream(error, stream)
+           && gmio_check_ostream(error, stream);
 }

@@ -185,7 +185,7 @@ enum gmio_bool_value
 #    define GMIO_RESTRICT __restrict__  /* Compatible with C90 */
 #  elif defined(_MSC_VER)
 #    define GMIO_RESTRICT __restrict
-#  elif defined(GMIO_HAVE_C99_RESTRICT) /* TODO: add cmake detectection */
+#  elif defined(GMIO_HAVE_C99_RESTRICT) /* TODO: add cmake detection */
 #    define GMIO_RESTRICT restrict
 #  else
 /*! Expands to the C compiler specific restrict keyword (if any) */

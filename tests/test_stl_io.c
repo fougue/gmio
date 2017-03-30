@@ -270,7 +270,7 @@ static const char* test_stla_write()
 {
     const char* model_filepath = filepath_stlb_grabcad_arm11;
     const char* model_filepath_out = "temp/solid.stla";
-    struct gmio_stl_data data = {0}; /* TODO: fix memory leak on error */
+    struct gmio_stl_data data = {0};
     char header_str[GMIO_STLB_HEADER_SIZE + 1] = {0};
 
     /* Read input model file */
