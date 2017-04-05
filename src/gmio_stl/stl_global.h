@@ -100,13 +100,8 @@
  *      <td>gmio_stl_triangle</td>
  *    </tr>
  *  </table>
- *
- *  \addtogroup gmio_stl
- *  @{
  */
 
 #pragma once
 
 #include "../gmio_core/global.h"
-
-/*! @} */

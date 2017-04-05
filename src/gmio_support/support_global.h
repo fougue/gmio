@@ -99,8 +99,6 @@
  *  All \c gmio_support source files are copied with install target (ie by doing
  *  <tt>(n)make install</tt>) to <tt>PREFIX/src/gmio_support</tt>
  *
- *  \addtogroup gmio_support
- *  @{
  */
 
 /*
@@ -125,5 +123,3 @@
 #pragma once
 
 #include "../gmio_core/global.h"
-
-/*! @} */

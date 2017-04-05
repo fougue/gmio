@@ -52,13 +52,8 @@
  *          gmio_amf_write_options</td>
  *    </tr>
  *  </table>
- *
- *  \addtogroup gmio_amf
- *  @{
  */
 
 #pragma once
 
 #include "../gmio_core/global.h"
-
-/*! @} */

@@ -263,6 +263,28 @@ struct gmio_amf_document {
             uint32_t element_index,
             void* ptr_element);
 
+    /*! Optional function that retrieves the i-th metadata assigned to a
+     *  document sub-element
+     *
+     *  \p element is the type of the sub-element of interest.\n
+     *  \p element_index is the index of the sub-element within the AMF
+     *  document.\n
+     *  The domain of this index depends on \p element :
+     *   Element type | Domain of index                       | gmio type
+     *  --------------|---------------------------------------|----------------
+     *  MATERIAL      | <tt> [0 .. material_count[      </tt> | gmio_amf_material
+     *  OBJECT        | <tt> [0 .. object_count[        </tt> | gmio_amf_object
+     *  CONSTELLATION | <tt> [0 .. constellation_count[ </tt> | gmio_amf_constellation
+     *
+     *  Function not required(can be set to \c NULL) if there is no metadata in
+     *  the document */
+    void (*func_get_document_element_metadata)(
+            const void* cookie,
+            enum gmio_amf_document_element element,
+            uint32_t element_index,
+            uint32_t metadata_index,
+            struct gmio_amf_metadata* ptr_metadata);
+
     /*! Function that retrieves the i-th \c mesh within an \c object element */
     void (*func_get_object_mesh)(
             const void* cookie,
@@ -285,6 +307,17 @@ struct gmio_amf_document {
             const void* cookie,
             const struct gmio_amf_object_mesh_element_index* element_index,
             void* ptr_element);
+
+    /*! Optional function that retrieves the i-th metadata attached to a mesh
+     *  element(only vertex or volume)
+     *
+     *  Function not required(can be set to \c NULL) if there is no metadata
+     *  for all mesh elements */
+    void (*func_get_object_mesh_element_metadata)(
+            const void* cookie,
+            const struct gmio_amf_object_mesh_element_index* mesh_element_index,
+            uint32_t metadata_index,
+            struct gmio_amf_metadata* ptr_metadata);
 
     /*! Function that retrieves the i-th \c triangle within a mesh \c volume */
     void (*func_get_object_mesh_volume_triangle)(
@@ -314,41 +347,6 @@ struct gmio_amf_document {
             uint32_t constellation_index,
             uint32_t instance_index,
             struct gmio_amf_instance* ptr_instance);
-
-    /* Optional function pointers to retrieve metadata */
-
-    /*! Optional function that retrieves the i-th metadata assigned to a
-     *  document sub-element
-     *
-     *  \p element is the type of the sub-element of interest.\n
-     *  \p element_index is the index of the sub-element within the AMF
-     *  document.\n
-     *  The domain of this index depends on \p element :
-     *   Element type | Domain of index                       | gmio type
-     *  --------------|---------------------------------------|----------------
-     *  MATERIAL      | <tt> [0 .. material_count[      </tt> | gmio_amf_material
-     *  OBJECT        | <tt> [0 .. object_count[        </tt> | gmio_amf_object
-     *  CONSTELLATION | <tt> [0 .. constellation_count[ </tt> | gmio_amf_constellation
-     *
-     *  Function not required(can be set to \c NULL) if there is no metadata in
-     *  the document */
-    void (*func_get_document_element_metadata)(
-            const void* cookie,
-            enum gmio_amf_document_element element,
-            uint32_t element_index,
-            uint32_t metadata_index,
-            struct gmio_amf_metadata* ptr_metadata);
-
-    /*! Optional function that retrieves the i-th metadata attached to a mesh
-     *  element(only vertex or volume)
-     *
-     *  Function not required(can be set to \c NULL) if there is no metadata
-     *  for all mesh elements */
-    void (*func_get_object_mesh_element_metadata)(
-            const void* cookie,
-            const struct gmio_amf_object_mesh_element_index* mesh_element_index,
-            uint32_t metadata_index,
-            struct gmio_amf_metadata* ptr_metadata);
 };
 
 /*! @} */
