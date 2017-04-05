@@ -1,14 +1,14 @@
 <img src="doc/gmio.png" height="91" alt="gmio_logo"/>
 
 
-[![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=develop)](https://travis-ci.org/fougue/gmio)
+[![Build Status](https://travis-ci.org/fougue/gmio.svg?branch=master)](https://travis-ci.org/fougue/gmio)
 [![Build status](https://ci.appveyor.com/api/projects/status/0q4f69lqo6sw9108?svg=true)](https://ci.appveyor.com/project/HuguesDelorme/gmio) 
 <a href="https://scan.coverity.com/projects/5721">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/5721/badge.svg"/>
 </a>
-[![Codecov](https://codecov.io/github/fougue/gmio/coverage.svg?branch=develop)](https://codecov.io/gh/fougue/gmio/branch/develop)
-[![License](https://img.shields.io/badge/license-BSD%202--clause-blue.svg)](https://github.com/fougue/gmio/blob/develop/LICENSE.txt)
+[![Codecov](https://codecov.io/github/fougue/gmio/coverage.svg?branch=master)](https://codecov.io/gh/fougue/gmio/branch/master)
+[![License](https://img.shields.io/badge/license-BSD%202--clause-blue.svg)](https://github.com/fougue/gmio/blob/master/LICENSE.txt)
 [![Version](https://img.shields.io/badge/version-v0.4.0-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
 
 
@@ -86,7 +86,7 @@ create a small test program that shows the problem when run.
 License
 =======
 
-gmio is made available under a "2-clause" BSD [license](https://github.com/fougue/gmio/blob/develop/LICENSE.txt).
+gmio is made available under a "2-clause" BSD [license](https://github.com/fougue/gmio/blob/master/LICENSE.txt).
 
 
 Credits
