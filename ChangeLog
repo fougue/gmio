@@ -1,4 +1,4 @@
-v0.4.0-dev (jj-mm-aaaa)
+v0.4.0 (06-04-2017)
     * gmio_amf: add AMF file format support(export only)
       This is a new module providing complete support for writting geometry in
       the AMF v1.2 format.
