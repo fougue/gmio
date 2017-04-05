@@ -5,7 +5,7 @@
   gmio is a reusable C library providing complete I/O support for various CAD
   file formats(eg. <a href="https://en.wikipedia.org/wiki/STL_%28file_format%29">STL</a>)
 
-  gmio aims to be <a href="https://github.com/fougue/gmio/wiki/4.-Benchmarks">fast</a>,
+  gmio aims to be <a href="https://github.com/fougue/gmio/wiki/v0.4-Benchmarks">fast</a>,
   portable(C99 conformance) and feature-rich.
   Main highlights:
 
@@ -17,19 +17,19 @@
 
  Supported formats        |  Read  |  Write
 --------------------------|--------|---------
-STL ascii                 |  yes   | yes
-STL binary(little-endian) |  yes   | yes
-STL binary(big-endian)    |  yes   | yes
 AMF uncompressed          |  no    | yes
 AMF zip                   |  no    | yes
 AMF zip64                 |  no    | yes
+STL ascii                 |  yes   | yes
+STL binary(little-endian) |  yes   | yes
+STL binary(big-endian)    |  yes   | yes
 
 
 \section build Building gmio
 
 gmio can be built with CMake, by default a static library is generated.
 
-Read the <a href="https://github.com/fougue/gmio/wiki/2.-Build-instructions">Build instructions</a>
+Read the <a href="https://github.com/fougue/gmio/wiki/v0.4-Build-instructions">Build instructions</a>
 
 \section bug_report How to report a bug
 
