@@ -18,7 +18,7 @@ C library for geometry input/output
 gmio is a reusable C library providing complete I/O support for various CAD file
 formats(eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
 
-gmio aims to be [fast](https://github.com/fougue/gmio/wiki/v0.3-Benchmarks),
+gmio aims to be [fast](https://github.com/fougue/gmio/wiki/v0.4-Benchmarks),
 portable(C99 conformance) and feature-rich.
 
 Main highlights:
@@ -31,12 +31,12 @@ Main highlights:
 
  Supported formats        |  Read     |  Write
 --------------------------|-----------|---------
-STL ascii                 |  &#10004; | &#10004;
-STL binary(little-endian) |  &#10004; | &#10004;
-STL binary(big-endian)    |  &#10004; | &#10004;
 AMF uncompressed          |  &#10007; | &#10004;
 AMF zip                   |  &#10007; | &#10004;
 AMF zip64                 |  &#10007; | &#10004;
+STL ascii                 |  &#10004; | &#10004;
+STL binary(little-endian) |  &#10004; | &#10004;
+STL binary(big-endian)    |  &#10004; | &#10004;
 
 
 Building gmio
