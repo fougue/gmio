@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,14 +34,14 @@
 #include "../gmio_core/internal/helper_stream.h"
 #include "stl_error.h"
 #include "stl_format.h"
-#include "internal/stla_infos_get.h"
-#include "internal/stlb_infos_get.h"
+#include "internal/stla_infos_probe.h"
+#include "internal/stlb_infos_probe.h"
 
-int gmio_stl_infos_get(
+int gmio_stl_infos_probe(
         struct gmio_stl_infos* infos,
         struct gmio_stream* stream,
         unsigned flags,
-        const struct gmio_stl_infos_get_options* opts)
+        const struct gmio_stl_infos_probe_options* opts)
 {
     int error = GMIO_ERROR_OK;
     const struct gmio_streampos begin_streampos = gmio_streampos(stream, NULL);
@@ -49,7 +49,7 @@ int gmio_stl_infos_get(
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     enum gmio_stl_format format =
             opts != NULL ? opts->format_hint : GMIO_STL_FORMAT_UNKNOWN;
-    struct gmio_stl_infos_get_options ovrdn_opts = {0};
+    struct gmio_stl_infos_probe_options ovrdn_opts = {0};
 
     if (opts != NULL)
         ovrdn_opts = *opts;
@@ -71,11 +71,11 @@ int gmio_stl_infos_get(
     /* Dispatch to the sub-function */
     switch (format) {
     case GMIO_STL_FORMAT_ASCII:
-        error = gmio_stla_infos_get(infos, stream, flags, &ovrdn_opts);
+        error = gmio_stla_infos_probe(infos, stream, flags, &ovrdn_opts);
         break;
     case GMIO_STL_FORMAT_BINARY_LE:
     case GMIO_STL_FORMAT_BINARY_BE:
-        error = gmio_stlb_infos_get(infos, stream, flags, &ovrdn_opts);
+        error = gmio_stlb_infos_probe(infos, stream, flags, &ovrdn_opts);
         break;
     default:
         error = GMIO_STL_ERROR_UNKNOWN_FORMAT;
@@ -88,13 +88,29 @@ label_end:
     return error;
 }
 
-gmio_streamsize_t gmio_stla_infos_get_streamsize(
+int gmio_stl_infos_probe_file(
+        struct gmio_stl_infos *infos,
+        const char *filepath,
+        unsigned flags,
+        const struct gmio_stl_infos_probe_options *options)
+{
+    FILE* file = fopen(filepath, "rb");
+    if (file != NULL) {
+        struct gmio_stream stream = gmio_stream_stdio(file);
+        const int error = gmio_stl_infos_probe(infos, &stream, flags, options);
+        fclose(file);
+        return error;
+    }
+    return GMIO_ERROR_STDIO;
+}
+
+gmio_streamsize_t gmio_stla_infos_probe_streamsize(
         struct gmio_stream *stream, struct gmio_memblock *stream_memblock)
 {
     struct gmio_stl_infos infos = {0};
-    struct gmio_stl_infos_get_options options = {0};
+    struct gmio_stl_infos_probe_options options = {0};
     options.stream_memblock = *stream_memblock;
     options.format_hint = GMIO_STL_FORMAT_ASCII;
-    gmio_stl_infos_get(&infos, stream, GMIO_STL_INFO_FLAG_SIZE, &options);
+    gmio_stl_infos_probe(&infos, stream, GMIO_STL_INFO_FLAG_SIZE, &options);
     return infos.size;
 }

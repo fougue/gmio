@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLA_PARSING_H
-#define GMIO_INTERNAL_STLA_PARSING_H
+#pragma once
 
 #include "../../gmio_core/global.h"
 #include "../../gmio_core/stream.h"
@@ -102,8 +101,7 @@ int gmio_stla_parse_solidname_beg(struct gmio_stla_parse_data* data);
 /* Eats next token string and checks it against an expected token
  *
  * This procedure copies the token string into internal
- * struct gmio_stla_parse_data::strbuff
- */
+ * struct gmio_stla_parse_data::strbuff */
 int gmio_stla_eat_next_token(
         struct gmio_stla_parse_data* data, enum gmio_stla_token expected_token);
 
@@ -112,16 +110,12 @@ int gmio_stla_eat_next_token(
  * This procedure does the same thing as parsing_eat_next_token() but is faster
  * as it does not copy the token string(it just "reads" it).
  * It performs "in-place" case insensitive string comparison of the current
- * token string against expected
- */
+ * token string against expected */
 int gmio_stla_eat_next_token_inplace(
         struct gmio_stla_parse_data* data, enum gmio_stla_token expected_token);
 
 /* Eats contents until some expected "end" token is matched
  *
- * Array \p end_tokens must end with a "null_token" item
- */
+ * Array \p end_tokens must end with a "null_token" item */
 int gmio_stla_eat_until_token(
         struct gmio_stla_parse_data* data, const enum gmio_stla_token* end_tokens);
-
-#endif /* GMIO_INTERNAL_STLA_PARSING_H */

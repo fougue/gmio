@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 #include "stl_triangle.h"
 #include "stlb_header.h"
 #include "internal/stlb_byte_swap.h"
-#include "internal/stlb_infos_get.h"
+#include "internal/stlb_infos_probe.h"
 
 #include "../gmio_core/endian.h"
 #include "../gmio_core/internal/byte_codec.h"

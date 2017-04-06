@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -29,14 +29,17 @@
 
 #include "utest_lib.h"
 
+#include "../src/gmio_core/memblock.h"
+static struct gmio_memblock g_testcore_memblock;
+
 #include "test_core.c"
 #include "test_core_benchmark_fast_atof.c"
 #include "test_core_internal.c"
 #include "test_core_platform.c"
 
-const char* all_tests()
+void all_tests()
 {
-    UTEST_SUITE_START();
+    g_testcore_memblock = gmio_memblock_calloc(32, 1024); /* 32KB */
 
     UTEST_RUN(test_core__buffer);
     UTEST_RUN(test_core__endian);
@@ -48,13 +51,20 @@ const char* all_tests()
 
     UTEST_RUN(test_internal__byte_swap);
     UTEST_RUN(test_internal__byte_codec);
+    UTEST_RUN(test_internal__const_string);
     UTEST_RUN(test_internal__fast_atof);
     UTEST_RUN(test_internal__locale_utils);
+    UTEST_RUN(test_internal__error_check);
+    UTEST_RUN(test_internal__itoa);
+    UTEST_RUN(test_internal__ostringstream);
     UTEST_RUN(test_internal__safe_cast);
     UTEST_RUN(test_internal__stringstream);
     UTEST_RUN(test_internal__string_ascii_utils);
     UTEST_RUN(test_internal__benchmark_gmio_fast_atof);
+    UTEST_RUN(test_internal__zip_utils);
+    UTEST_RUN(test_internal__zlib_enumvalues);
+    UTEST_RUN(test_internal__file_utils);
 
-    return NULL;
+    gmio_memblock_deallocate(&g_testcore_memblock);
 }
 UTEST_MAIN(all_tests)

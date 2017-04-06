@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #include "stlb_write.h"
 
 #include "stl_funptr_typedefs.h"
-#include "stl_rw_common.h"
+#include "stl_error_check.h"
 #include "stlb_byte_swap.h"
 #include "../stl_error.h"
 #include "../stl_io.h"
@@ -38,6 +38,7 @@
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/internal/byte_codec.h"
+#include "../../gmio_core/internal/error_check.h"
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
 #include "../../gmio_core/internal/min_max.h"
@@ -106,6 +107,7 @@ int gmio_stlb_write(
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
+    static const struct gmio_stl_write_options default_opts = {0};
     const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
@@ -115,10 +117,6 @@ int gmio_stlb_write(
             byte_order != GMIO_ENDIANNESS_HOST ?
                 gmio_stlb_encode_facets_byteswap :
                 gmio_stlb_encode_facets;
-    const bool write_triangles_only =
-            opts != NULL ? opts->stl_write_triangles_only : false;
-    const struct gmio_stlb_header* header =
-            opts != NULL ? &opts->stlb_header : NULL;
 
     /* Variables */
     uint32_t i_facet = 0; /* Facet counter */
@@ -126,6 +124,9 @@ int gmio_stlb_write(
             gmio_size_to_uint32(mblock_size / GMIO_STLB_TRIANGLE_RAWSIZE);
     void* const mblock_ptr = mblock_helper.memblock.ptr;
     int error = GMIO_ERROR_OK;
+
+    /* Make options non NULL */
+    opts = opts != NULL ? opts : &default_opts;
 
     /* Check validity of input parameters */
     if (!gmio_check_memblock(&error, &mblock_helper.memblock))
@@ -135,8 +136,9 @@ int gmio_stlb_write(
     if (!gmio_stlb_check_byteorder(&error, byte_order))
         goto label_end;
 
-    if (!write_triangles_only) {
-        error = gmio_stlb_header_write(stream, byte_order, header, facet_count);
+    if (!opts->stl_write_triangles_only) {
+        error = gmio_stlb_header_write(
+                    stream, byte_order, &opts->stlb_header, facet_count);
         if (gmio_error(error))
             goto label_end;
     }
@@ -165,7 +167,7 @@ int gmio_stlb_write(
 
         /* Handle stop request */
         if (gmio_no_error(error) && gmio_task_iface_is_stop_requested(task))
-            error = GMIO_ERROR_TRANSFER_STOPPED;
+            error = GMIO_ERROR_TASK_STOPPED;
     } /* end for */
 
 label_end:

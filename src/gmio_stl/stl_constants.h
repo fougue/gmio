@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_CONSTANTS_H
-#define GMIO_STL_CONSTANTS_H
+#pragma once
 
 #include "../gmio_core/global.h"
 
@@ -58,5 +57,4 @@ enum gmio_stl_constants
     GMIO_STLB_MIN_CONTENTS_SIZE = 284
 };
 
-#endif /* GMIO_STL_CONSTANTS_H */
 /*! @} */

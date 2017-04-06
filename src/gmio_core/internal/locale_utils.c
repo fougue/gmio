@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include "../error.h"
 #include "string_ascii_utils.h"
 
+#include <assert.h>
 #include <locale.h>
 #include <stddef.h>
 #include <string.h>
@@ -49,28 +50,26 @@ bool gmio_lc_numeric_is_C()
             || gmio_ascii_stricmp(lc, "POSIX") == 0);
 }
 
-bool gmio_check_lc_numeric(int *error)
-{
-    if (!gmio_lc_numeric_is_C())
-        *error = GMIO_ERROR_BAD_LC_NUMERIC;
-    return gmio_no_error(*error);
-}
-
-static char global_lc_numeric[64] = {0};
+static char global_lcnum[64] = {0};
+static const size_t maxlen_global_lcnum = GMIO_ARRAY_SIZE(global_lcnum);
 
 void gmio_lc_numeric_save()
 {
     /* Save LC_NUMERIC
      * POSIX specifies that the pointer returned by setlocale(), not just the
      * contents of the pointed-to string, may be invalidated by subsequent calls
-     * to setlocale */
-    strncpy(global_lc_numeric,
-            setlocale(LC_NUMERIC, NULL),
-            GMIO_ARRAY_SIZE(global_lc_numeric));
+     * to setlocale() */
+    const char* lcnum = setlocale(LC_NUMERIC, NULL);
+    const size_t lcnum_len = strlen(lcnum != NULL ? lcnum : "");
+    const size_t lcnum_endpos = lcnum_len > 0 ? lcnum_len + 1 : 0;
+    assert(lcnum_endpos < maxlen_global_lcnum);
+    if (lcnum_len > 0)
+        strncpy(global_lcnum, lcnum, lcnum_len);
+    global_lcnum[lcnum_endpos] = '\0';
 }
 
 void gmio_lc_numeric_restore()
 {
-    if (global_lc_numeric[0] != '\0')
-        setlocale(LC_NUMERIC, global_lc_numeric);
+    if (global_lcnum[0] != '\0')
+        setlocale(LC_NUMERIC, global_lcnum);
 }

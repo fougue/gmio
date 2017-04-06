@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_MESH_H
-#define GMIO_STL_MESH_H
+#pragma once
 
 #include "stl_global.h"
 #include "stl_triangle.h"
@@ -50,13 +49,12 @@ struct gmio_stl_mesh
     /*! Number of triangles in the mesh */
     uint32_t triangle_count;
 
-    /*! Pointer on a function that stores the mesh triangle of index \p tri_id
-     *  into \p triangle */
+    /*! Function that stores the mesh triangle of index \p tri_id into
+     *  \p triangle */
     void (*func_get_triangle)(
             const void* cookie,
             uint32_t tri_id,
             struct gmio_stl_triangle* triangle);
 };
 
-#endif /* GMIO_STL_MESH_H */
 /*! @} */

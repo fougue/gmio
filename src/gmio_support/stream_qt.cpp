@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
-
 #include <cstring>
 
 QT_USE_NAMESPACE

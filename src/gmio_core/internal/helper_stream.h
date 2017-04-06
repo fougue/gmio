@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_HELPER_STREAM_H
-#define GMIO_INTERNAL_HELPER_STREAM_H
+#pragma once
 
 #include "../stream.h"
 
@@ -152,5 +151,3 @@ int gmio_stream_set_pos(
         return stream->func_set_pos(stream->cookie, pos);
     return -1;
 }
-
-#endif /* GMIO_INTERNAL_HELPER_STREAM_H */

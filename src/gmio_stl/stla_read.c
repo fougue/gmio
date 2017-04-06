@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,16 @@
 #include "stl_error.h"
 #include "internal/helper_stl_mesh_creator.h"
 #include "internal/stl_funptr_typedefs.h"
-#include "internal/stl_rw_common.h"
+#include "internal/stl_error_check.h"
 #include "internal/stla_parsing.h"
 
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/c99_stdio_compat.h"
+#include "../gmio_core/internal/const_string.h"
+#include "../gmio_core/internal/error_check.h"
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
-#include "../gmio_core/internal/locale_utils.h"
 #include "../gmio_core/internal/min_max.h"
 #include "../gmio_core/internal/safe_cast.h"
 #include "../gmio_core/internal/stringstream.h"
@@ -129,8 +130,9 @@ int gmio_stla_read(
         struct gmio_stl_mesh_creator* mesh_creator,
         const struct gmio_stl_read_options* opts)
 {
-    const bool check_lcnum =
-            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
+    /* Constants */
+    static const struct gmio_stl_read_options default_opts = {0};
+    /* Variables */
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
     struct gmio_memblock* const mblock = &mblock_helper.memblock;
@@ -138,17 +140,22 @@ int gmio_stla_read(
     struct gmio_stla_parse_data parse_data;
     int error = GMIO_ERROR_OK;
 
-    if (check_lcnum && !gmio_check_lc_numeric(&error))
+    /* Make options non NULL */
+    opts = opts != NULL ? opts : &default_opts;
+
+    /* Check validity of input parameters */
+    if (!opts->stla_dont_check_lc_numeric && !gmio_check_lc_numeric(&error))
         goto label_end;
 
+    /* Initialize helper gmio_stla_parse_data object */
     parse_data.token = unknown_token;
     parse_data.error = false;
 
-    parse_data.strstream_cookie.task = opts != NULL ? &opts->task_iface : NULL;
+    parse_data.strstream_cookie.task = &opts->task_iface;
     parse_data.strstream_cookie.stream_offset = 0;
 
     parse_data.strstream_cookie.stream_size =
-            opts != NULL && opts->func_stla_get_streamsize != NULL ?
+            opts->func_stla_get_streamsize != NULL ?
                 opts->func_stla_get_streamsize(stream, mblock) :
                 gmio_stream_size(stream);
     parse_data.strstream_cookie.is_stop_requested = false;
@@ -169,7 +176,7 @@ int gmio_stla_read(
     if (parse_data.error)
         error = GMIO_STL_ERROR_PARSING;
     if (parse_data.strstream_cookie.is_stop_requested)
-        error = GMIO_ERROR_TRANSFER_STOPPED;
+        error = GMIO_ERROR_TASK_STOPPED;
 
 label_end:
     gmio_memblock_helper_release(&mblock_helper);
@@ -253,8 +260,7 @@ GMIO_INLINE bool stla_parsing_can_continue(
 /* Parses the (optional) solid name that appears after token "endsolid"
  *
  * It should be the same name as the one parsed with
- * gmio_stla_parse_solidname_beg()
- */
+ * gmio_stla_parse_solidname_beg() */
 static int parse_solidname_end(struct gmio_stla_parse_data* data);
 
 /* Parses "solid <name>" */
@@ -367,8 +373,7 @@ bool stla_token_match_candidate(
         enum gmio_stla_token token, const enum gmio_stla_token* candidates)
 {
     bool found = false;
-    size_t i;
-    for (i = 0; !found && candidates[i] != null_token; ++i)
+    for (size_t i = 0; !found && candidates[i] != null_token; ++i)
         found = token == candidates[i];
     return found;
 }
@@ -409,10 +414,9 @@ int gmio_stla_eat_next_token(
         enum gmio_stla_token expected_token)
 {
     struct gmio_string* token_str = &data->token_str;
-    enum gmio_eat_word_error eat_error;
-
     token_str->len = 0;
-    eat_error = gmio_stringstream_eat_word(&data->strstream, token_str);
+    const enum gmio_eat_word_error eat_error =
+            gmio_stringstream_eat_word(&data->strstream, token_str);
     if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
         const char* expected_token_str = stla_token_to_string(expected_token);
         if (gmio_ascii_stricmp(token_str->ptr, expected_token_str) == 0) {
@@ -436,12 +440,11 @@ int gmio_stla_eat_next_token_inplace(
         enum gmio_stla_token expected_token)
 {
     struct gmio_stringstream* sstream = &data->strstream;
-    const char* stream_char = NULL;
     const char* expected_token_str = stla_token_to_string(expected_token);
     bool error = false;
 
     data->token = unknown_token;
-    stream_char = gmio_stringstream_skip_ascii_spaces(sstream);
+    const char* stream_char = gmio_stringstream_skip_ascii_spaces(sstream);
     while (!error) {
         if (stream_char == NULL || gmio_ascii_isspace(*stream_char)) {
             if (*expected_token_str == 0) {
@@ -465,11 +468,9 @@ int gmio_stla_eat_next_token_inplace(
     {
         size_t i = 0;
         /* -- Copy the matching part of the expected token */
-        {
-            const char* it = stla_token_to_string(expected_token);
-            while (it != expected_token_str)
-                data->token_str.ptr[i++] = *(it++);
-        }
+        const char* it = stla_token_to_string(expected_token);
+        while (it != expected_token_str)
+            data->token_str.ptr[i++] = *(it++);
         /* -- Copy the non matching part */
         while (i < data->token_str.capacity
                && stream_char != NULL
@@ -501,15 +502,13 @@ int gmio_stla_eat_until_token(
 
         do {
             const size_t previous_buff_len = strbuff->len;
-            enum gmio_eat_word_error eat_word_err = 0;
-            const char* next_word = NULL; /* Pointer on next word string */
-            size_t next_word_len = 0; /* Length of next word string */
-
             gmio_stringstream_copy_ascii_spaces(sstream, strbuff);
             /* Next word */
-            next_word = strbuff->ptr + strbuff->len;
-            eat_word_err = gmio_stringstream_eat_word(sstream, strbuff);
-            next_word_len = (strbuff->ptr + strbuff->len) - next_word;
+            const char* next_word = strbuff->ptr + strbuff->len;
+            const enum gmio_eat_word_error eat_word_err =
+                    gmio_stringstream_eat_word(sstream, strbuff);
+            const size_t next_word_len =
+                    (strbuff->ptr + strbuff->len) - next_word;
             /* Qualify token */
             data->token =
                     eat_word_err == GMIO_EAT_WORD_ERROR_OK ?
@@ -678,8 +677,15 @@ void parse_facets(struct gmio_stla_parse_data* data)
                 func_add_triangle(creator_cookie, i_facet, &facet);
             /* Eat next unknown token */
             token_str->len = 0;
-            gmio_stringstream_eat_word(&data->strstream, token_str);
-            data->token = stla_find_token_from_string(token_str);
+            const enum gmio_eat_word_error eat_error =
+                    gmio_stringstream_eat_word(&data->strstream, token_str);
+            if (eat_error == GMIO_EAT_WORD_ERROR_OK) {
+                data->token = stla_find_token_from_string(token_str);
+            }
+            else {
+                data->token = unknown_token;
+                data->error = true;
+            }
             ++i_facet;
         }
         else {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLA_WRITE_H
-#define GMIO_INTERNAL_STLA_WRITE_H
+#pragma once
 
 #include "../../gmio_core/stream.h"
 #include "../stl_io_options.h"
@@ -44,5 +43,3 @@ int gmio_stla_write(
         struct gmio_stream* stream,
         const struct gmio_stl_mesh* mesh,
         const struct gmio_stl_write_options* options);
-
-#endif /* GMIO_INTERNAL_STLA_WRITE_H */

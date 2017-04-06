@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -29,13 +29,10 @@
 
 enable_testing()
 set(CMAKE_CTEST_COMMAND ctest -V --timeout 120)
-if(WIN32 AND GMIO_BUILD_SHARED_LIBS)
-    configure_file(win_ctest_cmd.bat.cmake win_ctest_cmd.bat @ONLY)
-    set(CMAKE_CTEST_COMMAND win_ctest_cmd.bat)
-endif()
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For generated cmake headers
+include_directories(${ZLIB_INCLUDE_DIRS})
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 
@@ -45,18 +42,8 @@ set(GMIO_TEST_CORE_SRC
         core_utils.c
         stream_buffer.c
         ../benchmarks/commons/benchmark_tools.c)
-if(GMIO_BUILD_SHARED_LIBS)
-    # Note_1: MSVC wants it because internal symbols are not exported (GCC
-    #         exports all symbols)
-    set(GMIO_TEST_CORE_SRC
-            ${GMIO_TEST_CORE_SRC}
-            ../src/gmio_core/internal/locale_utils.c
-            ../src/gmio_core/internal/numeric_utils.c
-            ../src/gmio_core/internal/stringstream.c)
-endif()
-
 add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
-target_link_libraries(test_core gmio)
+target_link_libraries(test_core gmio_static)
 
 # test_stl
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
@@ -66,17 +53,16 @@ set(GMIO_TEST_STL_SRC
         stl_testcases.c
         core_utils.c
         stl_utils.c)
-if(GMIO_BUILD_SHARED_LIBS)
-    # See Note_1
-    set(GMIO_TEST_STL_SRC
-            ${GMIO_TEST_STL_SRC}
-            ../src/gmio_core/internal/locale_utils.c
-            ../src/gmio_core/internal/numeric_utils.c
-            ../src/gmio_stl/internal/stl_rw_common.c)
-endif()
-
 add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})
-target_link_libraries(test_stl gmio)
+target_link_libraries(test_stl gmio_static)
+
+# test_amf
+set(GMIO_TEST_AMF_SRC
+        main_test_amf.c
+        stream_buffer.c)
+add_executable(test_amf EXCLUDE_FROM_ALL ${GMIO_TEST_AMF_SRC})
+target_link_libraries(test_amf gmio_static)
+target_link_libraries(test_amf ${ZLIB_LIBRARIES})
 
 # fake_support
 if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
@@ -93,5 +79,5 @@ endif()
 # Declare tests
 add_test(NAME test_core  COMMAND test_core)
 add_test(NAME test_stl   COMMAND test_stl)
-
-add_dependencies(check test_core test_stl)
+add_test(NAME test_amf   COMMAND test_amf)
+add_dependencies(check test_core test_stl test_amf)

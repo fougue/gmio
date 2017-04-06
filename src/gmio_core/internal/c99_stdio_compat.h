@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_C99_STDIO_COMPAT_H
-#define GMIO_INTERNAL_C99_STDIO_COMPAT_H
+#pragma once
 
 #include "../global.h"
 
@@ -78,5 +77,3 @@ GMIO_INLINE int gmio_snprintf(char* buf, size_t bufn, const char* fmt, ...)
     return ret;
 }
 #endif
-
-#endif /* GMIO_INTERNAL_C99_STDIO_COMPAT_H */

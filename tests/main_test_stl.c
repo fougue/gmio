@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -44,10 +44,8 @@ struct gmio_memblock gmio_memblock_for_tests()
     return gmio_memblock(buff, sizeof(buff), NULL);
 }
 
-const char* all_tests()
+void all_tests()
 {
-    UTEST_SUITE_START();
-
     gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
 
 #if 0
@@ -58,9 +56,10 @@ const char* all_tests()
     UTEST_RUN(test_stl_triangle_packing);
     UTEST_RUN(test_stl_triangle_compute_normal);
 
-    UTEST_RUN(test_stl_internal__rw_common);
+    UTEST_RUN(test_stl_internal__error_check);
 
     UTEST_RUN(test_stl_infos);
+    UTEST_RUN(test_stl_infos_github8);
 
     UTEST_RUN(test_stl_read);
     UTEST_RUN(test_stl_read_multi_solid);
@@ -72,7 +71,5 @@ const char* all_tests()
 
     UTEST_RUN(test_stlb_header_str);
     UTEST_RUN(test_stlb_header_to_printable_str);
-
-    return NULL;
 }
 UTEST_MAIN(all_tests)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,22 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLA_INFOS_GET_H
-#define GMIO_INTERNAL_STLA_INFOS_GET_H
+#pragma once
 
-#include "../stl_infos.h"
+#include "../global.h"
+#include <stddef.h>
+struct gmio_memblock;
+struct gmio_stream;
 
-/*! Find infos from a STL ASCII stream */
-int gmio_stla_infos_get(
-        struct gmio_stl_infos* infos,
-        struct gmio_stream* stream,
-        unsigned flags,
-        const struct gmio_stl_infos_get_options* opts);
+bool gmio_check_memblock(
+        int* error, const struct gmio_memblock* mblock);
+bool gmio_check_memblock_size(
+        int* error, const struct gmio_memblock* mblock, size_t minsize);
 
-#endif /* GMIO_INTERNAL_STLA_INFOS_GET_H */
+/* Checks gmio_lc_numeric_is_C()
+ * If false sets *error to GMIO_ERROR_BAD_LC_NUMERIC */
+bool gmio_check_lc_numeric(int* error);
+
+bool gmio_check_istream(int* error, const struct gmio_stream* stream);
+bool gmio_check_ostream(int* error, const struct gmio_stream* stream);
+bool gmio_check_stream(int* error, const struct gmio_stream* stream);

@@ -44,7 +44,7 @@ public:
     }
 };
 
-#include "generic_handle.h"
-typedef FakeOcc::GenericHandle<StlMesh_Mesh> Handle_StlMesh_Mesh;
+#include <Standard_Handle.hxx>
+typedef opencascade::handle<StlMesh_Mesh> Handle_StlMesh_Mesh;
 
 #endif // _StlMesh_Mesh_HeaderFile

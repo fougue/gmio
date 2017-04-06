@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_TASK_IFACE_H
-#define GMIO_TASK_IFACE_H
+#pragma once
 
 #include "global.h"
 
@@ -46,24 +45,19 @@ struct gmio_task_iface
      *  argument to hook functions */
     void* cookie;
 
-    /*! Optional pointer on a function that says if the currently running
-     *  task must stop
+    /*! Optional function that says if the currently running task must stop
      *
      *  If \c true is returned then the current task should abort as
-     *  soon as possible, otherwise it can continue execution.
-     */
+     *  soon as possible, otherwise it can continue execution */
     bool (*func_is_stop_requested)(void* cookie);
 
-    /*! Optional pointer on a function that is called anytime some new progress
-     *  was done
+    /*! Optional function that is called anytime some new progress was done
      *
      *  \param cookie The cookie set inside the gmio_task_iface object
      *  \param value Current value of the task progress (<= \p max_value )
-     *  \param max_value Maximum value of the task progress
-     */
+     *  \param max_value Maximum value of the task progress */
     void (*func_handle_progress)(
             void* cookie, intmax_t value, intmax_t max_value);
 };
 
-#endif /* GMIO_TASK_IFACE_H */
 /*! @} */

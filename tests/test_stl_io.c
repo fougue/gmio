@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -151,7 +151,6 @@ static const char* test_stlb_header_write()
     const char* filepath = "temp/solid.stlb";
     struct gmio_stlb_header header = {0};
     const char* header_str = "temp/solid.stlb generated with gmio library";
-    int error = GMIO_ERROR_OK;
 
     {
         FILE* outfile = fopen(filepath, "wb");
@@ -159,7 +158,7 @@ static const char* test_stlb_header_write()
         memcpy(&header,
                header_str,
                GMIO_MIN(GMIO_STLB_HEADER_SIZE, strlen(header_str)));
-        error = gmio_stlb_header_write(
+        const int error = gmio_stlb_header_write(
                     &stream, GMIO_ENDIANNESS_LITTLE, &header, 0);
         fclose(outfile);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
@@ -168,7 +167,7 @@ static const char* test_stlb_header_write()
     {
         struct gmio_stl_data data = {0};
         struct gmio_stl_mesh_creator creator = gmio_stl_data_mesh_creator(&data);
-        error = gmio_stl_read_file(filepath, &creator, NULL);
+        const int error = gmio_stl_read_file(filepath, &creator, NULL);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
         UTEST_ASSERT(gmio_stlb_header_equal(&header, &data.header));
         UTEST_COMPARE_UINT(0, data.tri_array.count);
@@ -192,12 +191,11 @@ static const char* test_stlb_write()
     const char* model_fpath_out = "temp/solid.le_stlb";
     const char* model_fpath_out_be = "temp/solid.be_stlb";
     struct gmio_stl_data data = {0};
-    int error = GMIO_ERROR_OK;
 
     /* Read input model file */
     {
         struct gmio_stl_mesh_creator creator = gmio_stl_data_mesh_creator(&data);
-        error = gmio_stl_read_file(model_fpath, &creator, NULL);
+        const int error = gmio_stl_read_file(model_fpath, &creator, NULL);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
@@ -208,13 +206,14 @@ static const char* test_stlb_write()
         const struct gmio_stl_mesh mesh = gmio_stl_data_mesh(&data);
         struct gmio_stl_write_options opts = {0};
         opts.stlb_header = data.header;
-        error = gmio_stl_write_file(
+        int error = gmio_stl_write_file(
                     GMIO_STL_FORMAT_BINARY_LE, model_fpath_out, &mesh, &opts);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
 
         /* Big-endian version */
         error = gmio_stl_write_file(
                     GMIO_STL_FORMAT_BINARY_BE, model_fpath_out_be, &mesh, &opts);
+        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
     /* Check input and output models are equal */
@@ -251,7 +250,7 @@ static const char* test_stlb_write()
     {
         struct gmio_stl_data data_be = {0};
         struct gmio_stl_mesh_creator creator = gmio_stl_data_mesh_creator(&data_be);
-        error = gmio_stl_read_file(model_fpath_out_be, &creator, NULL);
+        const int error = gmio_stl_read_file(model_fpath_out_be, &creator, NULL);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
         UTEST_ASSERT(gmio_stlb_header_equal(&data.header, &data_be.header));
         UTEST_COMPARE_UINT(data.tri_array.count, data_be.tri_array.count);
@@ -271,14 +270,13 @@ static const char* test_stla_write()
 {
     const char* model_filepath = filepath_stlb_grabcad_arm11;
     const char* model_filepath_out = "temp/solid.stla";
-    struct gmio_stl_data data = {0}; /* TODO: fix memory leak on error */
+    struct gmio_stl_data data = {0};
     char header_str[GMIO_STLB_HEADER_SIZE + 1] = {0};
-    int error = GMIO_ERROR_OK;
 
     /* Read input model file */
     {
         struct gmio_stl_mesh_creator creator = gmio_stl_data_mesh_creator(&data);
-        error = gmio_stl_read_file(model_filepath, &creator, NULL);
+        const int error = gmio_stl_read_file(model_filepath, &creator, NULL);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
 
@@ -290,7 +288,7 @@ static const char* test_stla_write()
         opts.stla_solid_name = header_str;
         opts.stla_float32_prec = 7;
         opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
-        error = gmio_stl_write_file(
+        const int error = gmio_stl_write_file(
                     GMIO_STL_FORMAT_ASCII, model_filepath_out, &mesh, &opts);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
     }
@@ -301,18 +299,17 @@ static const char* test_stla_write()
         struct gmio_stl_data data_stla = {0};
         struct gmio_stl_mesh_creator creator =
                 gmio_stl_data_mesh_creator(&data_stla);
-        size_t i = 0;
         gmio_cstr_copy(
                     trim_header_str,
                     sizeof(trim_header_str),
                     header_str,
                     sizeof(header_str));
         gmio_string_trim_from_end(trim_header_str, sizeof(header_str));
-        error = gmio_stl_read_file(model_filepath_out, &creator, NULL);
+        const int error = gmio_stl_read_file(model_filepath_out, &creator, NULL);
         UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
         UTEST_COMPARE_UINT(data.tri_array.count, data_stla.tri_array.count);
         UTEST_COMPARE_CSTR(trim_header_str, data_stla.solid_name);
-        for (i = 0; i < data.tri_array.count; ++i) {
+        for (size_t i = 0; i < data.tri_array.count; ++i) {
             const struct gmio_stl_triangle* lhs = &data.tri_array.ptr[i];
             const struct gmio_stl_triangle* rhs = &data_stla.tri_array.ptr[i];
             const bool tri_equal = gmio_stl_triangle_equal(lhs, rhs, 5);
@@ -333,7 +330,7 @@ static const char* __tstl__test_stl_read_multi_solid(
         struct gmio_stream stream = gmio_stream_stdio(infile);
         struct gmio_stl_read_options roptions = {0};
         struct gmio_stl_mesh_creator null_creator = {0};
-        roptions.func_stla_get_streamsize = gmio_stla_infos_get_streamsize;
+        roptions.func_stla_get_streamsize = gmio_stla_infos_probe_streamsize;
         while (gmio_no_error(error) && !gmio_stream_at_end(&stream)) {
             error = gmio_stl_read(&stream, &null_creator, &roptions);
             if (gmio_no_error(error))
@@ -369,7 +366,7 @@ static const char* test_stla_lc_numeric()
     int error[4] = {0};
 
     gmio_lc_numeric_save();
-    setlocale(LC_NUMERIC, "");
+    setlocale(LC_NUMERIC, ""); /* "" -> environment's default locale */
     if (!gmio_lc_numeric_is_C()) {
         struct gmio_stl_read_options read_opts = {0};
         struct gmio_stl_write_options write_opts = {0};
@@ -381,17 +378,14 @@ static const char* test_stla_lc_numeric()
         error[2] = gmio_stla_read(&null_stream, &null_meshcreator, &read_opts);
         error[3] = gmio_stl_write(
                     GMIO_STL_FORMAT_ASCII, &null_stream, &null_mesh, &write_opts);
-    }
-    else {
-        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX");
-    }
-    gmio_lc_numeric_restore();
-    {
-        size_t i = 0;
-        for (; i < GMIO_ARRAY_SIZE(error); ++i) {
+        for (size_t i = 0; i < GMIO_ARRAY_SIZE(error); ++i) {
             UTEST_COMPARE_INT(GMIO_ERROR_BAD_LC_NUMERIC, error[i]);
         }
     }
+    else {
+        fprintf(stderr, "\nskip: default locale is NULL or already C/POSIX\n");
+    }
+    gmio_lc_numeric_restore();
 
     return NULL;
 }
@@ -435,8 +429,8 @@ static void generate_stlb_tests_models()
         struct gmio_stream istream = gmio_stream_stdio(infile);
         struct gmio_stream ostream = gmio_stream_stdio(outfile);
         struct gmio_stl_read_options ropts = {0};
-        ropts.func_stla_get_streamsize = gmio_stla_infos_get_streamsize;
-        while (gmio_no_error(read_error) && !gmio_stream_at_end(&istream)) {
+        ropts.func_stla_get_streamsize = gmio_stla_infos_probe_streamsize;
+        while (gmio_no_error(read_error)) {
             struct gmio_stl_data data = {0};
             struct gmio_stl_mesh_creator creator = gmio_stl_data_mesh_creator(&data);
             struct gmio_stl_mesh mesh = {0};

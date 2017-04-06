@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLB_BYTE_SWAP_H
-#define GMIO_INTERNAL_STLB_BYTE_SWAP_H
+#pragma once
 
 #include "../../gmio_core/global.h"
 #include "../stl_triangle.h"
@@ -39,5 +38,3 @@
  *  the "attribute byte count" member.
  */
 void gmio_stl_triangle_bswap(struct gmio_stl_triangle* triangle);
-
-#endif /* GMIO_INTERNAL_STLB_BYTE_SWAP_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 /*! \file stl_occ_mesh.h
- *  STL support of OpenCascade's StlMesh_Mesh
+ *  STL support of OpenCascade's \c StlMesh_Mesh
  *
  *  To use this header the source file
  *      <tt>$INSTALL/src/gmio_support/stl_occ_mesh.cpp</tt>\n
@@ -47,22 +47,20 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STL_OCC_MESH_H
-#define GMIO_SUPPORT_STL_OCC_MESH_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
 #include "../gmio_stl/stl_mesh_creator.h"
-
-#include <vector>
 
 #include <BRepBuilderAPI_CellFilter.hxx>
 #include <BRepBuilderAPI_VertexInspector.hxx>
 #include <StlMesh_Mesh.hxx>
 #include <StlMesh_MeshTriangle.hxx>
 #include <TColgp_SequenceOfXYZ.hxx>
+#include <vector>
 
-/*! Provides access to all the triangles of OpenCascade's \c StlMesh_Mesh
+/*! Provides access to all the triangles of an OpenCascade \c StlMesh_Mesh
  *
  *  gmio_stl_mesh_occmesh iterates efficiently over the triangles of all
  *  domains.
@@ -77,17 +75,15 @@
 struct gmio_stl_mesh_occmesh : public gmio_stl_mesh
 {
     gmio_stl_mesh_occmesh();
-    explicit gmio_stl_mesh_occmesh(const StlMesh_Mesh* mesh);
     explicit gmio_stl_mesh_occmesh(const Handle_StlMesh_Mesh& hnd);
 
-    inline const StlMesh_Mesh* mesh() const { return m_mesh; }
+    const Handle_StlMesh_Mesh& mesh() const { return m_mesh; }
 
 private:
     static void get_triangle(
             const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
 
-    void init_C_members();
-    void init_cache();
+    void init();
 
     struct domain_data {
         std::vector<const gp_XYZ*> vec_coords;
@@ -98,12 +94,12 @@ private:
         const domain_data* ptr_domain;
     };
 
-    const StlMesh_Mesh* m_mesh;
+    Handle_StlMesh_Mesh m_mesh;
     std::vector<domain_data> m_vec_domain_data;
     std::vector<triangle_data> m_vec_triangle_data;
 };
 
-/*! Provides creation of a new domain within an StlMesh_Mesh object
+/*! Provides creation of a new domain within an OpenCascade \c StlMesh_Mesh
  *
  *  gmio_stl_mesh_creator::func_add_triangle() calls
  *  <tt>StlMesh_Mesh::AddVertex()</tt> only for new unique vertices, ie. they
@@ -123,10 +119,9 @@ private:
 struct gmio_stl_mesh_creator_occmesh : public gmio_stl_mesh_creator
 {
     gmio_stl_mesh_creator_occmesh();
-    explicit gmio_stl_mesh_creator_occmesh(StlMesh_Mesh* mesh);
     explicit gmio_stl_mesh_creator_occmesh(const Handle_StlMesh_Mesh& hnd);
 
-    inline StlMesh_Mesh* mesh() const { return m_mesh; }
+    const Handle_StlMesh_Mesh& mesh() const { return m_mesh; }
 
 private:
     static void begin_solid(
@@ -134,13 +129,12 @@ private:
     static void add_triangle(
             void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri);
 
-    void init_C_members();
+    void init();
     int add_unique_vertex(const gmio_vec3f& v);
 
-    StlMesh_Mesh* m_mesh;
+    Handle_StlMesh_Mesh m_mesh;
     BRepBuilderAPI_CellFilter m_filter;
     BRepBuilderAPI_VertexInspector m_inspector;
 };
 
-#endif /* GMIO_SUPPORT_STL_OCC_MESH_H */
 /*! @} */

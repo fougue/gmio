@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,28 +27,45 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-/* TODO : documentation */
+#pragma once
 
-#ifndef GMIO_INTERNAL_STL_RW_COMMON_H
-#define GMIO_INTERNAL_STL_RW_COMMON_H
+#include "../global.h"
 
-#include "stl_funptr_typedefs.h"
+GMIO_INLINE char* gmio_u32toa(uint32_t value, char* str);
+GMIO_INLINE char* gmio_i32toa(int32_t value, char* str);
+#ifdef GMIO_HAVE_INT64_TYPE
+GMIO_INLINE char* gmio_u64toa(uint64_t value, char* str);
+GMIO_INLINE char* gmio_i64toa(int64_t value, char* str);
+#endif
 
-#include "../../gmio_core/global.h"
-#include "../../gmio_core/endian.h"
+/*
+ * Implementation
+ */
 
-struct gmio_memblock;
-struct gmio_stl_mesh;
+#include "../../3rdparty/miloyip_itoa/branchlut.h"
 
-bool gmio_check_memblock(int* error, const struct gmio_memblock* mblock);
+char* gmio_u32toa(uint32_t value, char* str)
+{
+    if (value < 10) {
+        *str++ = '0' + (char)value;
+        return str;
+    }
+    return u32toa_branchlut(value, str);
+}
 
-bool gmio_check_memblock_size(
-        int* error, const struct gmio_memblock* mblock, size_t minsize);
+char* gmio_i32toa(int32_t value, char* str)
+{
+    return i32toa_branchlut(value, str);
+}
 
-bool gmio_stl_check_mesh(int* error, const struct gmio_stl_mesh* mesh);
+#ifdef GMIO_HAVE_INT64_TYPE
+char* gmio_u64toa(uint64_t value, char* str)
+{
+    return u64toa_branchlut(value, str);
+}
 
-bool gmio_stla_check_float32_precision(int* error, uint8_t prec);
-
-bool gmio_stlb_check_byteorder(int* error, enum gmio_endianness byte_order);
-
-#endif /* GMIO_INTERNAL_STLB_RW_COMMON_H */
+char* gmio_i64toa(int64_t value, char* str)
+{
+    return i64toa_branchlut(value, str);
+}
+#endif /* GMIO_HAVE_INT64_TYPE */

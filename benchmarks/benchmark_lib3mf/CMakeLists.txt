@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,10 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
+include(../../scripts/enable_cxx11.cmake)
+
 set(ROOTDIR_LIB3MF ${CMAKE_SOURCE_DIR} CACHE PATH
     "Directory where the Lib3MF library resides")
-
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif()
 
 include_directories(${ROOTDIR_LIB3MF}/Include)
 add_executable(benchmark_lib3mf main.cpp ${COMMONS_FILES})

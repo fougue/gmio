@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,9 @@
 #############################################################################
 
 cmake_minimum_required(VERSION 2.8)
+#cmake_policy(SET CMP0018 NEW)
+
+project(gmio)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -36,10 +39,9 @@ include(CheckCSourceCompiles)
 include(CheckTypeSize)
 include(CMakeDependentOption)
 
-project(gmio)
 set(GMIO_VERSION_MAJOR 0)
-set(GMIO_VERSION_MINOR 3)
-set(GMIO_VERSION_PATCH 2)
+set(GMIO_VERSION_MINOR 4)
+set(GMIO_VERSION_PATCH 0)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
@@ -67,14 +69,14 @@ else()
 endif()
 
 # Options
-option(GMIO_BUILD_STRICT_C90  "Build gmio library(and tests) with strict conformance to C90 standard" OFF)
-option(GMIO_BUILD_SHARED_LIBS "Build gmio as a shared library (DLL)" OFF)
+option(GMIO_BUILD_DLL         "Build gmio also as a shared library(DLL)" ON)
 option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
 option(GMIO_BUILD_EXAMPLES    "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
 endif()
+option(GMIO_USE_BUNDLED_ZLIB "Use bundled version of zlib in gmio" ON)
 
 # Declare variable GMIO_STR2FLOAT_LIB(library for string-to-float conversion)
 #     - std:
@@ -122,19 +124,98 @@ message(STATUS "GMIO_TARGET_ARCH_BIT_SIZE = ${GMIO_TARGET_ARCH_BIT_SIZE}")
 include(TestBigEndian)
 test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 
-# Adapt C compiler flags to satisfy the GMIO_BUILD_STRICT_C90 option
-#    It must be done before checking non ANSI features(C99, POSIX, ...)
-if(GMIO_BUILD_STRICT_C90)
-    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ansi -pedantic-errors")
-    elseif(MSVC)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Za")
+# Adapt C compiler flags for GCC
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    # Enable strict ISO C99 conformance
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
+    if(CMAKE_COMPILER_IS_GNUCC)
+        add_definitions(-D_POSIX_SOURCE)
+    endif()
+
+    # cmake < v2.8.9 does not support CMAKE_POSITION_INDEPENDENT_CODE
+    #     For this project, gcc needs -fPIC option on x86_64 UNIX platform
+    if(NOT (WIN32 OR CYGWIN)
+           AND (CMAKE_VERSION VERSION_LESS 2.8.9)
+           AND ((${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86")
+                OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i.86"))
+           AND (GMIO_TARGET_ARCH_BIT_SIZE EQUAL 64))
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
+    endif()
+
+    # Force PIC
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
+# Adapt C compiler flags GCC-like compilers
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
+    if(CMAKE_COMPILER_IS_GNUCC)
+        # Undefined behavior sanitizer(ubsan), requires GCC >= v4.9
+        #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
+    else()
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
+    endif()
+
+    # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
+    # in case GCC wrongly warns about universal zero initializer {0}
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
+    set(CMAKE_REQUIRED_FLAGS "-Werror=missing-braces")
+    check_c_source_compiles(
+        "struct data { char array[128]; };
+         int main() {
+             struct data d = {0};
+             return d.array[0];
+         }"
+        GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
+    set(CMAKE_REQUIRED_FLAGS) # Popup changes
+    if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
     endif()
 endif()
 
-set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}")
+# Adapt C compiler flags Clang
+if(CMAKE_COMPILER_IS_CLANG)
+    # Clang on apple-darwin13.4.0 wrongly reports many unused functions
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
+endif()
 
-# Some compilers (like GCC v4.9) don't disable <stdint.h> in C90 mode
+# Adapt C compiler flags for Visual C++
+if(MSVC)
+    # Set warning level to /W4
+    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+
+    # Set warning level to /Wall
+    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
+
+    # Enable static analysis
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
+
+    # Treat some warnings as errors
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4013")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4024")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4057")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4090")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
+
+    # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
+    if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
+    endif()
+
+    # Disable deprecation warnings about "non-secure" CRT functions
+    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
+
+    # Enable "Generate Intrinsic Functions"
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
+endif()
+
+# Some compilers (like GCC v4.9) don't disable <stdint.h> when needed
 check_include_files(stdint.h GMIO_HAVE_STDINT_H)
 
 # Find size of short, int and long types
@@ -166,32 +247,40 @@ elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
     set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
 endif()
 
-# Check C99 features
-if(NOT GMIO_BUILD_STRICT_C90)
-    if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-        list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
-    endif()
-    check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
-    check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
-    check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
-    check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_MACRO)
-    check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_MACRO)
-    set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
-
-    check_include_files(stdbool.h GMIO_HAVE_STDBOOL_H)
-
-    check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
-    if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
-        check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
-    endif()
-
-    check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
-    if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
-        check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
-    endif()
+# Check available C99 features
+if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+    list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
+endif()
+check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
+check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
+check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
+check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_SYM)
+check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_SYM)
+if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
+    check_symbol_exists(_finite float.h GMIO_HAVE_WIN__FINITE_SYM)
+endif()
+if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
+    check_symbol_exists(_isnan float.h GMIO_HAVE_WIN__ISNAN_SYM)
 endif()
 
-# Check POSIX features
+set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
+
+check_c_source_compiles(
+    "#include <stdbool.h>
+     int main() { const bool c = 0; return 0; }"
+    GMIO_HAVE_C99_BOOL)
+
+check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
+if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
+    check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
+endif()
+
+check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
+if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
+    check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
+endif()
+
+# Check available POSIX features
 if(UNIX)
     # See:
     #   http://linux.die.net/man/2/fstat64
@@ -264,80 +353,21 @@ elseif(MSVC)
         GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
 endif()
 
-# Specific flags for GCC-like compilers
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
-    if(CMAKE_COMPILER_IS_GNUCC)
-        # Undefined behavior sanitizer(ubsan), requires GCC >= v4.9
-        #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
-    else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
-    endif()
-
-    # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
-    # in case GCC wrongly warns about universal zero initializer {0}
-    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
-    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS} -Werror=missing-braces")
-    check_c_source_compiles(
-        "struct data { char array[128]; };
-         int main() {
-             struct data d = {0};
-             return d.array[0];
-         }"
-        GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-    set(CMAKE_REQUIRED_FLAGS "${CMAKE_C_FLAGS}") # Restore CMAKE_REQUIRED_FLAGS
-    if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
-    endif()
-
-    # Force PIC for GCC
-    #     See https://www.gentoo.org/proj/en/base/amd64/howtos/index.xml?part=1&chap=3
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
-
-# Specific flags for Clang
-if(CMAKE_COMPILER_IS_CLANG)
-    # Clang on apple-darwin13.4.0 wrongly reports many unused functions
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
-endif()
-
-# Specific flags for Visual C++
-if(MSVC)
-    # Treat all files a C source files
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TC")
-
-    # Set warning level to /W4
-    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-
-    # Set warning level to /Wall
-    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
-
-    # Enable static analysis
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
-
-    # Treat some warnings as errors
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4013")
-
-    # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
-    if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
-    endif()
-
-    # Disable deprecation warnings about "non-secure" CRT functions
-    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
-
-    # Enable "Generate Intrinsic Functions"
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
-endif()
-
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# zlib
+if(GMIO_USE_BUNDLED_ZLIB)
+    message(STATUS "Bundled version of zlib")
+    set(ZLIB_INCLUDE_DIRS
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/3rdparty/zlib
+            ${CMAKE_CURRENT_BINARY_DIR}/src/3rdparty/zlib)
+    set(ZLIB_LIBRARIES zlibstatic)
+else()
+    find_package(ZLIB)
+    if (NOT(ZLIB_VERSION_MAJOR EQUAL 1) AND NOT(ZLIB_VERSION_MINOR EQUAL 2))
+        message(FATAL_ERROR "Incompatible zlib version ${ZLIB_VERSION_STRING} (gmio expects v1.2.x)")
+    endif()
+endif()
 
 # Sub-directories
 add_subdirectory(src)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,10 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_NUMERIC_UTILS_H
-#define GMIO_INTERNAL_NUMERIC_UTILS_H
+#pragma once
 
 #include "../global.h"
 #include "convert.h"
-
 #include <stddef.h>
 
 /*! Does \p a and \p b compares equals by ULP (Units in the Last Place) ?
@@ -75,5 +73,3 @@ int gmio_float32_sign(float v)
 {
     return gmio_int32_sign(gmio_convert_int32(v));
 }
-
-#endif /* GMIO_INTERNAL_NUMERIC_UTILS_H */

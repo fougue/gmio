@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H
-#define GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H
+#pragma once
 
 #include "../stl_mesh_creator.h"
 
@@ -61,5 +60,3 @@ GMIO_INLINE void gmio_stl_mesh_creator_end_solid(
     if (creator != NULL && creator->func_end_solid != NULL)
         creator->func_end_solid(creator->cookie);
 }
-
-#endif /* GMIO_INTERNAL_HELPER_STL_MESH_CREATOR_H */

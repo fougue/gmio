@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_TESTS_STL_UTILS_H
-#define GMIO_TESTS_STL_UTILS_H
+#pragma once
 
 #include "../src/gmio_core/global.h"
 #include "../src/gmio_stl/stl_mesh.h"
@@ -86,5 +85,3 @@ struct gmio_stl_data
 
 struct gmio_stl_mesh_creator gmio_stl_data_mesh_creator(struct gmio_stl_data* data);
 struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data* data);
-
-#endif /* GMIO_TESTS_STL_UTILS_H */

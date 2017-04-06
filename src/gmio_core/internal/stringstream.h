@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STRINGSTREAM_H
-#define GMIO_INTERNAL_STRINGSTREAM_H
+#pragma once
 
 #include "../global.h"
 #include "../stream.h"
@@ -58,13 +57,12 @@ struct gmio_stringstream
     /*! Data to be passed to callback func_stream_read */
     void* cookie;
 
-    /*! Pointer on a function called each time next contents chunk has to be
-     * read */
+    /*! Pointer on a function called each time next contents chunk has to be read */
     size_t (*func_stream_read)(
             void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 };
 
-/*! Returns an initialized gmio_stringstream object */
+/*! Returns an initialized stringstream */
 struct gmio_stringstream gmio_stringstream(
         const struct gmio_stream stream,
         const struct gmio_string strbuff);
@@ -73,7 +71,7 @@ struct gmio_stringstream gmio_stringstream(
 void gmio_stringstream_init_pos(struct gmio_stringstream* sstream);
 
 /*! Default function for gmio_stringstream::func_stream_read */
-GMIO_INLINE size_t gmio_stringstream_default_func_read(
+size_t gmio_stringstream_default_func_read(
         void* cookie, struct gmio_stream* stream, char* ptr, size_t len);
 
 /*! Returns the char where the iterator is currently pointing at */
@@ -110,10 +108,8 @@ enum gmio_eat_word_error gmio_stringstream_eat_word(
         struct gmio_stringstream* sstream, struct gmio_string* str);
 
 #if 0
-/*! Iterate over stream while it matches input string \p str
- *
- *  Returns true if \p str was fully matched
- */
+/*! Iterate over stream while it matches input string \p str.
+ *  Returns true if \p str was fully matched */
 bool gmio_stringstream_checked_next_chars(
         struct gmio_stringstream* sstream, const char* str);
 #endif
@@ -144,7 +140,6 @@ GMIO_INLINE float gmio_to_float32(const char* str);
  */
 
 #include "c99_stdlib_compat.h"
-#include "helper_stream.h"
 #include "string_ascii_utils.h"
 #if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_IRRLICHT
 #  include "fast_atof.h"
@@ -161,13 +156,6 @@ const char* gmio_stringstream_current_char(
     return sstream->strbuff_at < sstream->strbuff_end ?
                 sstream->strbuff_at :
                 NULL;
-}
-
-size_t gmio_stringstream_default_func_read(
-        void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
-{
-    GMIO_UNUSED(cookie);
-    return gmio_stream_read(stream, ptr, 1, len);
 }
 
 const char *gmio_stringstream_next_char(struct gmio_stringstream *sstream)
@@ -265,5 +253,3 @@ float gmio_stringstream_parse_float32(struct gmio_stringstream* sstream)
     return gmio_str2float_googledoubleconversion(num, strnum.len);
 #endif
 }
-
-#endif /* GMIO_INTERNAL_STRINGSTREAM_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_IO_OPTIONS_H
-#define GMIO_STL_IO_OPTIONS_H
+#pragma once
 
 #include "stl_global.h"
 #include "stlb_header.h"
@@ -73,7 +72,7 @@ struct gmio_stl_read_options
      *  The resulting stream size is passed to
      *  gmio_task_iface::func_handle_progress() as the \p max_value argument.
      *
-     *  \sa gmio_stla_infos_get_streamsize()
+     *  \sa gmio_stla_infos_probe_streamsize()
      */
     gmio_streamsize_t (*func_stla_get_streamsize)(
             struct gmio_stream* stream,
@@ -160,5 +159,4 @@ struct gmio_stl_write_options
     struct gmio_stlb_header stlb_header;
 };
 
-#endif /* GMIO_STL_IO_OPTIONS_H */
 /*! @} */

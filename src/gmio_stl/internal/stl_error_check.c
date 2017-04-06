@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,28 +27,11 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#include "stl_rw_common.h"
+#include "stl_error_check.h"
 
 #include "../../gmio_core/error.h"
 #include "../stl_error.h"
 #include "../stl_io.h"
-
-bool gmio_check_memblock(int *error, const struct gmio_memblock* mblock)
-{
-    if (mblock == NULL || mblock->ptr == NULL)
-        *error = GMIO_ERROR_NULL_MEMBLOCK;
-    else if (mblock->size == 0)
-        *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
-    return gmio_no_error(*error);
-}
-
-bool gmio_check_memblock_size(
-        int *error, const struct gmio_memblock *mblock, size_t minsize)
-{
-    if (gmio_check_memblock(error, mblock) && mblock->size < minsize)
-        *error = GMIO_ERROR_INVALID_MEMBLOCK_SIZE;
-    return gmio_no_error(*error);
-}
 
 bool gmio_stl_check_mesh(int *error, const struct gmio_stl_mesh* mesh)
 {

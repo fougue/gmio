@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_TESTS_STL_TESTCASES_H
-#define GMIO_TESTS_STL_TESTCASES_H
+#pragma once
 
 #include "../src/gmio_core/error.h"
 #include "../src/gmio_core/stream.h"
@@ -54,5 +53,3 @@ extern const char filepath_stlb_header_nofacets[];
 extern const char filepath_stlb_empty[];
 extern const char filepath_stla_4meshs[];
 extern const char filepath_stlb_4meshs[];
-
-#endif /* GMIO_TESTS_STL_TESTCASES_H */

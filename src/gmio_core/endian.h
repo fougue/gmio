@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,11 @@
  *  @{
  */
 
-#ifndef GMIO_ENDIAN_H
-#define GMIO_ENDIAN_H
+#pragma once
 
 #include "global.h"
 
-/*! This enum identifies common endianness (byte order) of computer memory */
+/*! Common endianness (byte order) of computer memory */
 enum gmio_endianness
 {
     /*! Other (unknown) byte-order */
@@ -56,12 +55,11 @@ enum gmio_endianness
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
     GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_BIG
 #else
-    /*! Defines the endianness(byte order) used by the host computer for
-     *  storing data in memory.
+    /*! Endianness(byte order) used by the host computer for storing data in
+     *  memory.
      *
-     *  It is set at configure-time to either GMIO_ENDIANNESS_LITTLE or
-     *  GMIO_ENDIANNESS_BIG
-     */
+     *  Set at configure-time to either GMIO_ENDIANNESS_LITTLE or
+     *  GMIO_ENDIANNESS_BIG */
     GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_LITTLE
 #endif
 };
@@ -73,5 +71,4 @@ GMIO_API enum gmio_endianness gmio_host_endianness();
 
 GMIO_C_LINKAGE_END
 
-#endif /* GMIO_ENDIAN_H */
 /*! @} */

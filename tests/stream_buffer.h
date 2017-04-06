@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_STREAM_BUFFER_H
-#define GMIO_STREAM_BUFFER_H
+#pragma once
 
 #include "../src/gmio_core/stream.h"
 
@@ -52,6 +51,4 @@ struct gmio_ro_buffer gmio_ro_buffer(const void* ptr, size_t len, size_t pos);
 struct gmio_rw_buffer gmio_rw_buffer(void* ptr, size_t len, size_t pos);
 
 struct gmio_stream gmio_istream_buffer(struct gmio_ro_buffer* buff);
-struct gmio_stream gmio_iostream_buffer(struct gmio_rw_buffer* buff);
-
-#endif /* GMIO_STREAM_BUFFER_H */
+struct gmio_stream gmio_stream_buffer(struct gmio_rw_buffer* buff);

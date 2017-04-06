@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
+include(../../scripts/enable_cxx11.cmake)
+
 file(GLOB  GMIO_FAKEOCC_HEADERS  opencascade/*.hxx  opencascade/*.h)
 set(GMIO_FAKEOCC_HEADERS  ${GMIO_FAKEOCC_HEADERS})
 
@@ -39,11 +41,12 @@ add_executable(
         qt/QtCore/QIODevice
         qt/QtCore/QString
         qt/QtCore/QtGlobal
+        ../../src/gmio_support/stl_occ_brep.cpp
         ../../src/gmio_support/stl_occ_mesh.cpp
         ../../src/gmio_support/stl_occ_meshvs.cpp
-        ../../src/gmio_support/stl_occ_brep.cpp
+        ../../src/gmio_support/stl_occ_polytri.cpp
         ../../src/gmio_support/stream_qt.cpp)
-target_link_libraries(fake_support gmio)
+target_link_libraries(fake_support gmio_static)
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/opencascade

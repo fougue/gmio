@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STL_MESH_CREATOR_H
-#define GMIO_STL_MESH_CREATOR_H
+#pragma once
 
 #include "stl_global.h"
 #include "stl_format.h"
@@ -52,10 +51,8 @@ struct gmio_stl_mesh_creator_infos
     /*! Format of the input STL mesh */
     enum gmio_stl_format format;
 
-    /*! Null terminated C-string holding the STL mesh(solid) name
-     *
-     *  Available only if STL ASCII format, \c NULL otherwise
-     */
+    /*! Null terminated C-string holding the STL mesh(solid) name.
+     *  Available only if STL ASCII format, \c NULL otherwise */
     const char* stla_solid_name;
 
     /*! Total size (in bytes) of the input stream
@@ -67,16 +64,12 @@ struct gmio_stl_mesh_creator_infos
      */
     gmio_streamsize_t stla_stream_size;
 
-    /*! Contains the header data(80 bytes)
-     *
-     *  Available only if binary STL, \c NULL otherwise
-     */
+    /*! Contains the header data(80 bytes).
+     *  Available only if binary STL, \c NULL otherwise */
     const struct gmio_stlb_header* stlb_header;
 
-    /*! Count of mesh facets(triangles)
-     *
-     *  Available only if binary STL, \c 0 otherwise
-     */
+    /*! Count of mesh facets(triangles).
+     *  Available only if binary STL, \c 0 otherwise */
     uint32_t stlb_triangle_count;
 };
 
@@ -90,11 +83,11 @@ struct gmio_stl_mesh_creator
 
     /* All function pointers are optional (ie can be set to NULL) */
 
-    /*! Optional pointer on a function that handles declaration of a solid */
+    /*! Optional function that handles declaration of a solid */
     void (*func_begin_solid)(
             void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
 
-    /*! Pointer on a function that adds a triangle to the user mesh
+    /*! Function that adds a triangle to the user mesh
      *
      *  The argument \p triangle is the triangle to be added, note that
      *  struct gmio_stl_triangle::attribute_byte_count is meaningless for STL
@@ -107,13 +100,11 @@ struct gmio_stl_mesh_creator
             uint32_t tri_id,
             const struct gmio_stl_triangle* triangle);
 
-    /*! Optional pointer on a function that finalizes creation of the user mesh
+    /*! Optional function that finalizes creation of the user mesh
      *
      *  The function is called at the end of the read process, ie. after all
-     *  triangles have been added
-     */
+     *  triangles have been added */
     void (*func_end_solid)(void* cookie);
 };
 
-#endif /* GMIO_STL_MESH_CREATOR_H */
 /*! @} */

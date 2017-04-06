@@ -1,4 +1,47 @@
-v0.3.0
+v0.4.0 (06-04-2017)
+    * gmio_amf: add AMF file format support(export only)
+      This is a new module providing complete support for writting geometry in
+      the AMF v1.2 format.
+      Output can be plain XML or compressed on-the-fly in a ZIP archive.
+      (GitHub issue #6)
+
+    * gmio_core: fix wrong error code name GMIO_ERROR_TRANSFER_STOPPED
+      Error code renamed to GMIO_ERROR_TASK_STOPPED
+      (GitHub issue #7)
+
+    * gmio_stl: better API with consistent function names
+      Renamed functions gmio_stl_infos_get_xxx() -> gmio_stl_infos_probe_xxx()
+      (GitHub issue #3)
+
+    * gmio_stl: add overload function gmio_stl_infos_probe_file()
+      Facility function over gmio_stl_infos_probe() for files
+      (GitHub issue #4)
+
+    * gmio_stl: fix segfault in function gmio_stl_infos_probe()
+      (GitHub issue #8)
+
+    * gmio_support: add OpenCascade Poly_Triangulation support for STL format
+      See new gmio_stl_mesh_occpolytri / gmio_stl_mesh_creator_occpolytri
+      in header stl_occ_polytri.h
+      (GitHub issue #5)
+
+    * gmio_support: add OpenCascade TopoDS_Shape support for STL solid import
+      See new gmio_stl_mesh_creator_occshape in header stl_occ_brep.h
+      (GitHub issue #5)
+
+v0.3.2 (12-10-2016)
+    * gmio_stl: fix ending error when reading multiple STL solids from stream
+      (GitHub issue #2)
+
+v0.3.1 (21-09-2016)
+    * gmio_support: fix compilation error with OpenCascade v6.8.0
+      (GitHub issue #1)
+
+    * gmio_support: OpenCascade related files no longer requires C++11
+
+    * gmio_stl: remove public #include of internal header
+
+v0.3.0 (05-07-2016)
     * gmio_stl: check LC_NUMERIC is C or POSIX
       gmio_stla_read() and gmio_stla_write() now checks LC_NUMERIC is
       either "C" or "POSIX", if not then GMIO_ERROR_BAD_LC_NUMERIC is returned.
@@ -8,10 +51,10 @@ v0.3.0
 
     * Relicense under BSD 2-clause
 
-v0.2.1
+v0.2.1 (30-06-2016)
     * fake_support: fix compilation errors with Clang
 
-v0.2.0
+v0.2.0 (29-06-2016)
     * gmio_support: fix duplicated vertices when reading STL file into StlMesh_Mesh
 
-v0.1.0
+v0.1.0 (24-06-2016)

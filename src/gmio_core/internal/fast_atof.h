@@ -6,8 +6,7 @@
 
 /* Adapted to ISO-C90 */
 
-#ifndef GMIO_INTERNAL_FAST_ATOF_H
-#define GMIO_INTERNAL_FAST_ATOF_H
+#pragma once
 
 #include "../global.h"
 #include "c99_math_compat.h"
@@ -406,5 +405,3 @@ GMIO_INLINE float fast_atof(const char* str)
     return ret;
 }
 #endif
-
-#endif /* GMIO_INTERNAL_FAST_ATOF_H */

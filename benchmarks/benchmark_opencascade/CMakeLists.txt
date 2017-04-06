@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@ add_executable(
     main.cpp
     ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_brep.cpp
     ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.cpp
+    ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_polytri.cpp
     ${COMMONS_FILES})
 
 if(GMIO_TARGET_ARCH_BIT_SIZE EQUAL 64)

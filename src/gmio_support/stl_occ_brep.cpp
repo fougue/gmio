@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,18 @@
 ****************************************************************************/
 
 #include <gmio_support/stl_occ_brep.h>
-
 #include "stl_occ_utils.h"
 
+#include <BRep_TFace.hxx>
 #include <BRep_Tool.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
+
+// -----------------------------------------------------------------------------
+// gmio_stl_mesh_occshape
+// -----------------------------------------------------------------------------
 
 gmio_stl_mesh_occshape::gmio_stl_mesh_occshape()
     : m_shape(NULL)
@@ -127,4 +131,27 @@ void gmio_stl_mesh_occshape::init_C_members()
     this->cookie = this;
     this->func_get_triangle = &gmio_stl_mesh_occshape::get_triangle;
     this->triangle_count = 0;
+}
+
+// -----------------------------------------------------------------------------
+// gmio_stl_mesh_creator_occshape
+// -----------------------------------------------------------------------------
+
+gmio_stl_mesh_creator_occshape::gmio_stl_mesh_creator_occshape()
+{
+    this->cookie = this;
+    this->m_func_end_solid_occpolytri = this->func_end_solid;
+    this->func_end_solid = &gmio_stl_mesh_creator_occshape::end_solid;
+}
+
+void gmio_stl_mesh_creator_occshape::end_solid(void* cookie)
+{
+    gmio_stl_mesh_creator_occshape* creator =
+            static_cast<gmio_stl_mesh_creator_occshape*>(cookie);
+    creator->m_func_end_solid_occpolytri(cookie);
+    if (!creator->polytri().IsNull()) {
+        Handle_BRep_TFace face = new BRep_TFace;
+        face->Triangulation(creator->polytri());
+        creator->m_shape.TShape(face);
+    }
 }

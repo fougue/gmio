@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,9 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_HELPER_MEMBLOCK_H
-#define GMIO_INTERNAL_HELPER_MEMBLOCK_H
+#pragma once
 
 #include "../memblock.h"
-
 #include <stddef.h>
 
 struct gmio_memblock_helper
@@ -76,5 +74,3 @@ void gmio_memblock_helper_release(struct gmio_memblock_helper* helper)
         helper->was_allocated = false;
     }
 }
-
-#endif /* GMIO_INTERNAL_HELPER_MEMBLOCK_H */

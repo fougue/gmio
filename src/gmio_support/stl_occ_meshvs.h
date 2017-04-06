@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 /*! \file stl_occ_meshvs.h
- *  STL support of OpenCascade's MeshVS_DataSource
+ *  STL support of OpenCascade's \c MeshVS_DataSource
  *
  *  To use this header the source file
  *      <tt>$INSTALL/src/gmio_support/stl_occ_meshvs.cpp</tt>\n
@@ -47,18 +47,16 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STL_OCC_MESHVS_H
-#define GMIO_SUPPORT_STL_OCC_MESHVS_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_stl/stl_mesh.h"
 
-#include <vector>
-
 #include <MeshVS_DataSource.hxx>
 #include <TColStd_Array1OfReal.hxx>
+#include <vector>
 
-/*! Provides access to all the triangles of OpenCascade's \c MeshVS_DataSource
+/*! Provides access to all the triangles of an OpenCascade \c MeshVS_DataSource
  *
  *  gmio_stl_mesh_occmeshvs iterates efficiently over the elements of a
  *  \c MeshVS_DataSource object.\n
@@ -74,22 +72,19 @@
 struct gmio_stl_mesh_occmeshvs : public gmio_stl_mesh
 {
     gmio_stl_mesh_occmeshvs();
-    explicit gmio_stl_mesh_occmeshvs(const MeshVS_DataSource* ds);
     explicit gmio_stl_mesh_occmeshvs(const Handle_MeshVS_DataSource& hnd);
 
-    inline const MeshVS_DataSource* data_src() const { return m_data_src; }
+    const Handle_MeshVS_DataSource& data_src() const { return m_data_src; }
 
 private:
     static void get_triangle(
             const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
 
-    void init_C_members();
-    void init_cache();
+    void init();
 
-    const MeshVS_DataSource* m_data_src;
+    Handle_MeshVS_DataSource m_data_src;
     std::vector<int> m_vec_element_key;
     mutable TColStd_Array1OfReal m_element_coords;
 };
 
-#endif /* GMIO_SUPPORT_STL_OCC_MESHVS_H */
 /*! @} */

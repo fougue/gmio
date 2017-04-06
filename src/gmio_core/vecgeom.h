@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_CORE_VECGEOM_H
-#define GMIO_CORE_VECGEOM_H
+#pragma once
 
 /*! Vector of three float coords */
 struct gmio_vec3f
@@ -53,5 +52,4 @@ struct gmio_vec3d
     double z;
 };
 
-#endif /* GMIO_CORE_VECGEOM_H */
 /*! @} */

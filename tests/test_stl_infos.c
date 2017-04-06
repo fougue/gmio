@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ static const char* __tstl__test_stl_infos(
 
     infos.stla_solidname = stla_solid_name;
     infos.stla_solidname_maxlen = sizeof(stla_solid_name) - 1;
-    error = gmio_stl_infos_get(&infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
+    error = gmio_stl_infos_probe(&infos, &stream, GMIO_STL_INFO_FLAG_ALL, NULL);
 
     if (testcase->expected_size == -1)
         expected_size = gmio_stream_size(&stream);
@@ -99,5 +99,16 @@ static const char* test_stl_infos()
         }
         ++testcase;
     }
+    return NULL;
+}
+
+static const char* test_stl_infos_github8()
+{
+    const char* filepath = "models/solid_empty.stla";
+    struct gmio_stl_infos infos = {0};
+    infos.stla_solidname_maxlen = 512;
+    const int error = gmio_stl_infos_probe_file(
+                &infos, filepath, GMIO_STL_INFO_FLAG_ALL, NULL);
+    UTEST_COMPARE_INT(error, GMIO_STL_ERROR_INFO_NULL_SOLIDNAME);
     return NULL;
 }

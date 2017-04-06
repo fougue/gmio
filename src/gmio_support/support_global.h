@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -53,11 +53,20 @@
  *    </tr>
  *    <tr>
  *      <td>TopoDS_Shape</td>
- *      <td style="color:red">no</td>
+ *      <td style="color:green">yes<sup>1</sup></td>
  *      <td style="color:green">yes</td>
  *      <td>stl_occ_brep.h</td>
  *    </tr>
+ *    <tr>
+ *      <td>Poly_Triangulation</td>
+ *      <td style="color:green">yes</td>
+ *      <td style="color:green">yes</td>
+ *      <td>stl_occ_polytri.h</td>
+ *    </tr>
  *  </table>
+ *
+ *  <sup>1</sup> The resulting \c TopoDS_Shape object has no geometrical surface
+ *  but only a \c Poly_Triangulation structure containing all the triangles.
  *
  *  \n
  *
@@ -90,18 +99,17 @@
  *  All \c gmio_support source files are copied with install target (ie by doing
  *  <tt>(n)make install</tt>) to <tt>PREFIX/src/gmio_support</tt>
  *
- *  \addtogroup gmio_support
- *  @{
  */
 
 /*
  *  OpenCascade support :
- *   |                   |       STL       |
- *   |                   | import | export |
- *   |-------------------|--------|--------|
- *   | StlMesh_Mesh      |  yes   |  yes   |
- *   | MeshVS_DataSource |  no    |  yes   |
- *   | TopoDS_Shape      |  no    |  yes   |
+ *   |                    |       STL       |
+ *   |                    | import | export |
+ *   |--------------------|--------|--------|
+ *   | StlMesh_Mesh       |  yes   |  yes   |
+ *   | MeshVS_DataSource  |  no    |  yes   |
+ *   | TopoDS_Shape       |  yes   |  yes   |
+ *   | Poly_Triangulation |  yes   |  yes   |
  *
  *  I/O stream support :
  *   |                      | read | write |
@@ -112,10 +120,6 @@
  *
  */
 
-#ifndef GMIO_SUPPORT_GLOBAL_H
-#define GMIO_SUPPORT_GLOBAL_H
+#pragma once
 
 #include "../gmio_core/global.h"
-
-#endif /* GMIO_SUPPORT_GLOBAL_H */
-/*! @} */

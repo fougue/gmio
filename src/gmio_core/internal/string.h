@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,28 +27,14 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STRING_H
-#define GMIO_INTERNAL_STRING_H
+#pragma once
 
 #include "../global.h"
-
 #include <stddef.h>
 
-/*! Stores a read-only string of 8-bit chars
- *
- *  For faster lookups, it knowns the length of its contents.
- */
-struct gmio_const_string
-{
-    const char* ptr; /*!< Contents */
-    size_t len;      /*!< Size(length) of current contents */
-};
-
-/*! Stores a mutable string of 8-bit chars
- *
+/*! Stores a mutable string of chars.
  *  For faster lookups, it knowns the length of its contents. Length must not
- *  exceeds the maximum size(capacity).
- */
+ *  exceeds the maximum size(capacity).  */
 struct gmio_string
 {
     char*  ptr; /*!< Contents */
@@ -56,29 +42,12 @@ struct gmio_string
     size_t capacity; /*!< Maximum contents size */
 };
 
-/*! Expands to bracket initialization of a gmio_const_string from const char[]
- *
- *  Example:
- *  \code{.c}
- *      static const char token[] = "woops";
- *      struct gmio_const_string token_s = GMIO_CONST_STRING_FROM_ARRAY(token);
- *  \endcode
- */
-#define GMIO_CONST_STRING_FROM_ARRAY(array) { &(array)[0], sizeof(array) - 1 }
-
-/*! Returns an initialized struct gmio_const_string object */
-GMIO_INLINE struct gmio_const_string gmio_const_string(const char* ptr, size_t len);
-
-/*! Returns an initialized struct gmio_string object
- *
- *  gmio_string::capacity is set to <tt>max(len,capacity)</tt>
- */
+/*! Returns an initialized struct string.
+ *  gmio_string::capacity is set to <tt>max(len,capacity)</tt> */
 GMIO_INLINE struct gmio_string gmio_string(char* ptr, size_t len, size_t capacity);
 
-/*! Clears the contents of the string \p str and makes it null
- *
- *  \warning Memory pointed to by gmio_string::ptr is not freed in any way
- */
+/*! Clears the contents of the string \p str and makes it null.
+ *  \warning Memory pointed to by gmio_string::ptr is not freed in any way */
 GMIO_INLINE void gmio_string_clear(struct gmio_string* str);
 
 /*! Returns a pointer after the last character of \p str */
@@ -98,14 +67,6 @@ GMIO_INLINE char* gmio_cstr_copy(
 
 #include <string.h>
 #include "min_max.h"
-
-struct gmio_const_string gmio_const_string(const char* ptr, size_t len)
-{
-    struct gmio_const_string cstr;
-    cstr.ptr = ptr;
-    cstr.len = len;
-    return cstr;
-}
 
 struct gmio_string gmio_string(char* ptr, size_t len, size_t capacity)
 {
@@ -139,14 +100,10 @@ char* gmio_cstr_copy(
         char* dst, size_t dst_capacity, const char* src, size_t src_len)
 {
     const size_t copy_len =
-            dst_capacity > 0 ?
-                GMIO_MIN(dst_capacity - 1, src_len) :
-                0;
+            dst_capacity > 0 ? GMIO_MIN(dst_capacity - 1, src_len) : 0;
     if (copy_len > 0) {
         strncpy(dst, src, copy_len);
         dst[copy_len] = '\0';
     }
     return dst + copy_len;
 }
-
-#endif /* GMIO_INTERNAL_STRING_H */

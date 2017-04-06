@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,14 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
+#pragma once
+
 #include "../global.h"
 
 const char* gmio_lc_numeric();
 
 /*! Returns result of case-insensitive test <tt>LC_NUMERIC == "C|POSIX"</tt> */
 bool gmio_lc_numeric_is_C();
-
-/*! Checks gmio_lc_numeric_is_C(), if false sets \p *error to
- *  \c GMIO_ERROR_BAD_LC_NUMERIC*/
-bool gmio_check_lc_numeric(int* error);
 
 void gmio_lc_numeric_save();
 void gmio_lc_numeric_restore();

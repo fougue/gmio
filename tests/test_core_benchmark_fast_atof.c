@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -68,6 +68,7 @@ static void __tc__run_atof(float (*func_atof)(const char*))
             fres = func_atof(strbuff);
             gmio_snprintf(strbuff, sizeof(strbuff), "%E", f);
             fres = func_atof(strbuff);
+            GMIO_UNUSED(fres);
         }
     }
 }

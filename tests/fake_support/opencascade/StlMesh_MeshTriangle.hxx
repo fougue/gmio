@@ -10,7 +10,7 @@ public:
     { }
 };
 
-#include "generic_handle.h"
-typedef FakeOcc::GenericHandle<StlMesh_MeshTriangle> Handle_StlMesh_MeshTriangle;
+#include <Standard_Handle.hxx>
+typedef opencascade::handle<StlMesh_MeshTriangle> Handle_StlMesh_MeshTriangle;
 
 #endif // _StlMesh_MeshTriangle_HeaderFile

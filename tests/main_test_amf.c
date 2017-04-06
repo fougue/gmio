@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,21 +27,32 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_STLB_INFOS_GET_H
-#define GMIO_INTERNAL_STLB_INFOS_GET_H
+#include "utest_lib.h"
 
-#include "../stl_infos.h"
-#include "../../gmio_core/endian.h"
+#include "../src/gmio_core/memblock.h"
+static struct gmio_memblock g_testamf_memblock;
 
-/*! Finds infos from a STL binary stream */
-int gmio_stlb_infos_get(
-        struct gmio_stl_infos* infos,
-        struct gmio_stream* stream,
-        unsigned flags,
-        const struct gmio_stl_infos_get_options* opts);
+#include "test_amf_io.c"
+#include <stddef.h>
 
-/*! Returns the size(in bytes) of the whole STL binary data given some facet
- *  count */
-gmio_streamsize_t gmio_stlb_infos_size(uint32_t facet_count);
+/* Static memblock */
+struct gmio_memblock gmio_memblock_for_tests()
+{
+    return gmio_memblock_malloc(512 * 1024); /* 512KB */
+}
 
-#endif /* GMIO_INTERNAL_STLB_INFOS_GET_H */
+void all_tests()
+{
+    gmio_memblock_set_default_constructor(gmio_memblock_for_tests);
+    g_testamf_memblock = gmio_memblock_calloc(32, 1024); /* 32KB */
+
+    UTEST_RUN(test_amf_write_doc_null);
+    UTEST_RUN(test_amf_write_doc_1_plaintext);
+    UTEST_RUN(test_amf_write_doc_1_zip);
+    UTEST_RUN(test_amf_write_doc_1_zip64);
+    UTEST_RUN(test_amf_write_doc_1_zip64_file);
+    UTEST_RUN(test_amf_write_doc_1_task_iface);
+
+    gmio_memblock_deallocate(&g_testamf_memblock);
+}
+UTEST_MAIN(all_tests)

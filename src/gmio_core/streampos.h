@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
  *  @{
  */
 
-#ifndef GMIO_STREAMPOS_H
-#define GMIO_STREAMPOS_H
+#pragma once
 
 #include "global.h"
 
@@ -58,5 +57,4 @@ struct gmio_streampos
     uint8_t cookie[GMIO_STREAMPOS_COOKIE_SIZE];
 };
 
-#endif /* GMIO_STREAMPOS_H */
 /*! @} */

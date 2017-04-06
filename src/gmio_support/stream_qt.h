@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 /*! \file stream_qt.h
- *  Support of Qt's QIODevice (requires at least Qt4)
+ *  Support of Qt's \c QIODevice (requires at least Qt4)
  *
 *  \addtogroup gmio_support
  *  @{
@@ -38,8 +38,7 @@
 #  error C++ compiler required
 #endif
 
-#ifndef GMIO_SUPPORT_STREAM_QT_H
-#define GMIO_SUPPORT_STREAM_QT_H
+#pragma once
 
 #include "support_global.h"
 #include "../gmio_core/stream.h"
@@ -58,5 +57,4 @@ struct gmio_stream gmio_stream_qiodevice(
 #endif /* !DOXYGEN */
         );
 
-#endif /* GMIO_SUPPORT_STREAM_QT_H */
 /*! @} */

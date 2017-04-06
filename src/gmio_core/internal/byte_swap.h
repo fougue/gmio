@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
-#ifndef GMIO_INTERNAL_BYTE_SWAP_H
-#define GMIO_INTERNAL_BYTE_SWAP_H
+#pragma once
 
 #include "../global.h"
 
@@ -58,12 +57,9 @@ GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
 #elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
     return _byteswap_ulong(val);
 #else
-    return
-            ((val & 0x000000FF) << 24)
+    return ((val & 0x000000FF) << 24)
             | ((val & 0x0000FF00) << 8)
             | ((val >> 8) & 0x0000FF00)
             | ((val >> 24) & 0x000000FF);
 #endif
 }
-
-#endif /* GMIO_INTERNAL_BYTE_SWAP_H */

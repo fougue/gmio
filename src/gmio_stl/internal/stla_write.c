@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,17 @@
 #include "stla_write.h"
 
 #include "stl_funptr_typedefs.h"
-#include "stl_rw_common.h"
+#include "stl_error_check.h"
 #include "../stl_error.h"
 
 #include "../../gmio_core/error.h"
 #include "../../gmio_core/task_iface.h"
 #include "../../gmio_core/text_format.h"
+#include "../../gmio_core/internal/error_check.h"
+#include "../../gmio_core/internal/float_format_utils.h"
 #include "../../gmio_core/internal/helper_memblock.h"
 #include "../../gmio_core/internal/helper_stream.h"
 #include "../../gmio_core/internal/helper_task_iface.h"
-#include "../../gmio_core/internal/locale_utils.h"
 #include "../../gmio_core/internal/min_max.h"
 #include "../../gmio_core/internal/safe_cast.h"
 
@@ -117,33 +118,6 @@ GMIO_INLINE char* gmio_write_rawstr_eol(char* buffer, const char* str)
     return gmio_write_eol(buffer);
 }
 
-GMIO_INLINE char gmio_float_text_format_to_specifier(
-        enum gmio_float_text_format format)
-{
-    switch (format) {
-    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE: return 'f';
-    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE: return 'F';
-    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE: return 'e';
-    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE: return 'E';
-    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE: return 'g';
-    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE: return 'G';
-    }
-    /* Default, should not be here */
-    return GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-}
-
-GMIO_INLINE char* gmio_write_stdio_format(
-        char* buffer, char format_specifier, uint8_t prec)
-{
-    int prec_len = 0;
-
-    buffer[0] = '%';
-    buffer[1] = '.';
-    prec_len = sprintf(buffer + 2, "%u", prec);
-    buffer[2 + prec_len] = format_specifier;
-    return buffer + 3 + prec_len;
-}
-
 struct gmio_vec3f_text_format
 {
     enum gmio_float_text_format coord_format;
@@ -195,8 +169,7 @@ int gmio_stla_write(
         const struct gmio_stl_write_options* opts)
 {
     /* Constants */
-    const bool check_lcnum =
-            opts != NULL ? !opts->stla_dont_check_lc_numeric : true;
+    static const struct gmio_stl_write_options default_opts = {0};
     const struct gmio_task_iface* task = opts != NULL ? &opts->task_iface : NULL;
     struct gmio_memblock_helper mblock_helper =
             gmio_memblock_helper(opts != NULL ? &opts->stream_memblock : NULL);
@@ -204,10 +177,6 @@ int gmio_stla_write(
     const uint32_t total_facet_count = mesh != NULL ? mesh->triangle_count : 0;
     const uint32_t buffer_facet_count =
             gmio_size_to_uint32(mblock_size / GMIO_STLA_FACET_SIZE_P2);
-    const char* opt_solid_name = opts != NULL ? opts->stla_solid_name : NULL;
-    const char* solid_name = opt_solid_name != NULL ? opt_solid_name : "";
-    const bool write_triangles_only =
-            opts != NULL ? opts->stl_write_triangles_only : false;
 
     /* Variables */
     struct gmio_memblock* const mblock = &mblock_helper.memblock;
@@ -216,33 +185,30 @@ int gmio_stla_write(
     int error = GMIO_ERROR_OK;
     struct gmio_vec3f_text_format vec_txtformat = {0};
 
-    /* Initialize helper data for text formatting of vec3f coords */
-    {
-        const uint8_t opt_f32_prec =
-                opts != NULL ? opts->stla_float32_prec : 9;
-        const enum gmio_float_text_format f32_format =
-                opts != NULL ?
-                    opts->stla_float32_format :
-                    GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-        vec_txtformat.coord_prec = opt_f32_prec != 0 ? opt_f32_prec : 9;
-        vec_txtformat.coord_format = f32_format;
+    /* Make options non NULL */
+    opts = opts != NULL ? opts : &default_opts;
 
-        /* Create XYZ coords format string (for normal and vertex coords) */
-        {
-            const uint8_t f32_prec = vec_txtformat.coord_prec;
-            const char f32_spec = gmio_float_text_format_to_specifier(f32_format);
-            char* buffpos = vec_txtformat.str_printf_format;
-            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-            buffpos = gmio_write_char(buffpos, ' ');
-            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-            buffpos = gmio_write_char(buffpos, ' ');
-            buffpos = gmio_write_stdio_format(buffpos, f32_spec, f32_prec);
-            *buffpos = 0;
-        }
+    /* Initialize helper data for text formatting of vec3f coords */
+    vec_txtformat.coord_prec =
+            opts->stla_float32_prec != 0 ? opts->stla_float32_prec : 9;
+    vec_txtformat.coord_format = opts->stla_float32_format;
+
+    /* Create XYZ coords format string (for normal and vertex coords) */
+    {
+        const uint8_t f32_prec = vec_txtformat.coord_prec;
+        enum gmio_float_text_format f32_format = opts->stla_float32_format;
+        const char f32_spec = gmio_float_text_format_to_stdio_specifier(f32_format);
+        char* buffpos = vec_txtformat.str_printf_format;
+        buffpos = gmio_write_stdio_float_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_char(buffpos, ' ');
+        buffpos = gmio_write_stdio_float_format(buffpos, f32_spec, f32_prec);
+        buffpos = gmio_write_char(buffpos, ' ');
+        buffpos = gmio_write_stdio_float_format(buffpos, f32_spec, f32_prec);
+        *buffpos = 0;
     }
 
     /* Check validity of input parameters */
-    if (check_lcnum && !gmio_check_lc_numeric(&error))
+    if (!opts->stla_dont_check_lc_numeric && !gmio_check_lc_numeric(&error))
         goto label_end;
     if (!gmio_check_memblock_size(&error, mblock, GMIO_STLA_FACET_SIZE_P2))
         goto label_end;
@@ -252,10 +218,11 @@ int gmio_stla_write(
         goto label_end;
 
     /* Write solid declaration */
-    if (!write_triangles_only) {
+    if (!opts->stl_write_triangles_only) {
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "solid ");
-        buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
+        if (opts->stla_solid_name != NULL)
+            buffpos = gmio_write_rawstr_eol(buffpos, opts->stla_solid_name);
         if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos)) {
             error = GMIO_ERROR_STREAM;
             goto label_end;
@@ -302,14 +269,15 @@ int gmio_stla_write(
 
         /* Task control */
         if (gmio_no_error(error) && gmio_task_iface_is_stop_requested(task))
-            error = GMIO_ERROR_TRANSFER_STOPPED;
+            error = GMIO_ERROR_TASK_STOPPED;
     } /* end for (ifacet) */
 
     /* Write end of solid */
-    if (gmio_no_error(error) && !write_triangles_only) {
+    if (gmio_no_error(error) && !opts->stl_write_triangles_only) {
         char* buffpos = mblock_ptr;
         buffpos = gmio_write_rawstr(buffpos, "endsolid ");
-        buffpos = gmio_write_rawstr_eol(buffpos, solid_name);
+        if (opts->stla_solid_name != NULL)
+            buffpos = gmio_write_rawstr_eol(buffpos, opts->stla_solid_name);
         if (!gmio_stream_flush_buffer(stream, mblock_ptr, buffpos))
             error = GMIO_ERROR_STREAM;
     }

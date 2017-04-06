@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,14 @@
 #include "stl_error.h"
 #include "internal/helper_stl_mesh_creator.h"
 #include "internal/stl_funptr_typedefs.h"
-#include "internal/stl_rw_common.h"
+#include "internal/stl_error_check.h"
 #include "internal/stlb_byte_swap.h"
 
 #include "../gmio_core/endian.h"
 #include "../gmio_core/error.h"
 #include "../gmio_core/internal/byte_swap.h"
 #include "../gmio_core/internal/convert.h"
+#include "../gmio_core/internal/error_check.h"
 #include "../gmio_core/internal/helper_memblock.h"
 #include "../gmio_core/internal/helper_stream.h"
 #include "../gmio_core/internal/helper_task_iface.h"
@@ -185,7 +186,7 @@ int gmio_stlb_read(
                         mesh_creator, mblock->ptr, read_facet_count, i_facet);
             i_facet += read_facet_count;
             if (gmio_task_iface_is_stop_requested(task))
-                error = GMIO_ERROR_TRANSFER_STOPPED;
+                error = GMIO_ERROR_TASK_STOPPED;
         }
         gmio_task_iface_handle_progress(task, i_facet, total_facet_count);
     } /* end while */

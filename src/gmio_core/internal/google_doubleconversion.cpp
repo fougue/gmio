@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -38,17 +38,20 @@
 
 #include <limits>
 
-inline float gmio_snanf()
-{
-    return std::numeric_limits<float>::signaling_NaN();
-}
+namespace {
 
-inline float gmio_inff()
-{
-    return std::numeric_limits<float>::infinity();
-}
+template<typename T> T gmio_snan()
+{ return std::numeric_limits<T>::signaling_NaN(); }
 
-float gmio_str2float_googledoubleconversion(const char* num, size_t numlen)
+template<typename T> T gmio_inf()
+{ return std::numeric_limits<T>::infinity(); }
+
+template<typename T> struct FloatTraits {};
+template<> struct FloatTraits<float> { static float zero() { return 0.f; } };
+template<> struct FloatTraits<double> { static double zero() { return 0.; } };
+
+template<typename T>
+T gmio_generic_str2float_googledoubleconversion(const char* num, size_t numlen)
 {
     // Important note: implementation adapted from Qt5 source code
     //     qtbase/src/corelib/tools/qlocale_tools.cpp
@@ -74,14 +77,14 @@ float gmio_str2float_googledoubleconversion(const char* num, size_t numlen)
 
     bool ok = false;
     int processed = 0;
-    float f = 0.f;
+    T f = FloatTraits<T>::zero();
     static const int conv_flags =
             double_conversion::StringToDoubleConverter::NO_FLAGS;
 
     if (*num == '\0') {
         ok = false;
         processed = 0;
-        return 0.f;
+        return FloatTraits<T>::zero();
     }
     ok = true;
 
@@ -90,38 +93,38 @@ float gmio_str2float_googledoubleconversion(const char* num, size_t numlen)
     // or sscanf, we don't allow "-nan" or "+nan"
     if (gmio_ascii_stricmp(num, "nan") == 0) {
         processed = 3;
-        return gmio_snanf();
+        return gmio_snan<T>();
     }
     else if ((num[0] == '-' || num[0] == '+')
              && gmio_ascii_stricmp(num + 1, "nan") == 0)
     {
         processed = 0;
         ok = false;
-        return 0.f;
+        return FloatTraits<T>::zero();
     }
 
     // Infinity values are implementation defined in the sscanf case. In the
     // libdouble-conversion case we need infinity as overflow marker
     if (gmio_ascii_stricmp(num, "+inf") == 0) {
         processed = 4;
-        return gmio_inff();
+        return gmio_inf<T>();
     } else if (gmio_ascii_stricmp(num, "inf") == 0) {
         processed = 3;
-        return gmio_inff();
+        return gmio_inf<T>();
     } else if (gmio_ascii_stricmp(num, "-inf") == 0) {
         processed = 4;
-        return -gmio_inff();
+        return -gmio_inf<T>();
     }
 
     static const double_conversion::StringToDoubleConverter conv(
-                conv_flags, 0.0, gmio_snanf(), 0, 0);
+                conv_flags, 0., gmio_snan<T>(), NULL, NULL);
     f = conv.StringToFloat(num, static_cast<int>(numlen), &processed);
     if (!gmio_isfinite(f)) {
         ok = false;
         if (gmio_isnan(f)) {
             // Garbage found. We don't accept it and return 0
             processed = 0;
-            return 0.f;
+            return FloatTraits<T>::zero();
         } else {
             // Overflow. That's not OK, but we still return infinity
             return f;
@@ -145,8 +148,9 @@ float gmio_str2float_googledoubleconversion(const char* num, size_t numlen)
     return f;
 }
 
-int gmio_float2str_googledoubleconversion(
-        float value,
+template<typename T>
+int gmio_generic_float2str_googledoubleconversion(
+        T value,
         char *buff,
         size_t bufflen,
         gmio_float_text_format textformat,
@@ -179,6 +183,40 @@ int gmio_float2str_googledoubleconversion(
         break;
     }
     return result_builder.position();
+}
+
+} // Anonymous namespace
+
+float gmio_str2float_googledoubleconversion(const char* num, size_t numlen)
+{
+    return ::gmio_generic_str2float_googledoubleconversion<float>(num, numlen);
+}
+
+double gmio_str2double_googledoubleconversion(const char* num, size_t numlen)
+{
+    return ::gmio_generic_str2float_googledoubleconversion<double>(num, numlen);
+}
+
+int gmio_float2str_googledoubleconversion(
+        float value,
+        char *buff,
+        size_t bufflen,
+        gmio_float_text_format textformat,
+        uint8_t prec)
+{
+    return gmio_generic_float2str_googledoubleconversion<float>(
+                value, buff, bufflen, textformat, prec);
+}
+
+int gmio_double2str_googledoubleconversion(
+        double value,
+        char* buff,
+        size_t bufflen,
+        enum gmio_float_text_format textformat,
+        uint8_t prec)
+{
+    return gmio_generic_float2str_googledoubleconversion<double>(
+                value, buff, bufflen, textformat, prec);
 }
 
 #endif /* GMIO_STR2FLOAT_LIB == LIB_GOOGLE_DOUBLE_CONVERSION */

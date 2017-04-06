@@ -6,8 +6,7 @@
 
 /* Adapted to ISO-C90 */
 
-#ifndef GMIO_INTERNAL_STRINGSTREAM_FAST_ATOF_H
-#define GMIO_INTERNAL_STRINGSTREAM_FAST_ATOF_H
+#pragma once
 
 #include "fast_atof.h"
 #include "c99_math_compat.h"
@@ -110,5 +109,3 @@ GMIO_INLINE float gmio_stringstream_fast_atof(struct gmio_stringstream* sstream)
     }
     return negative ? -value : value;
 }
-
-#endif /* GMIO_INTERNAL_STRINGSTREAM_FAST_ATOF_H */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+** Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ** All rights reserved.
 **
 ** Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,13 @@ void gmio_stringstream_init_pos(struct gmio_stringstream *sstream)
     sstream->strbuff_end = sstream->strbuff.ptr;
     sstream->strbuff_at = sstream->strbuff_end;
     gmio_stringstream_next_char(sstream);
+}
+
+size_t gmio_stringstream_default_func_read(
+        void* cookie, struct gmio_stream* stream, char* ptr, size_t len)
+{
+    GMIO_UNUSED(cookie);
+    return gmio_stream_read(stream, ptr, 1, len);
 }
 
 enum gmio_eat_word_error gmio_stringstream_eat_word(

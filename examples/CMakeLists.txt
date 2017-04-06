@@ -1,5 +1,5 @@
 #############################################################################
-## Copyright (c) 2016, Fougue Ltd. <http://www.fougue.pro>
+## Copyright (c) 2017, Fougue Ltd. <http://www.fougue.pro>
 ## All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,12 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
+include(../scripts/enable_cxx11.cmake)
+
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_BINARY_DIR}/src/gmio_core) # For cmake generated headers
 include_directories(${CMAKE_SOURCE_DIR}/tests/fake_support/opencascade)
-link_libraries(gmio)
+link_libraries(gmio_static)
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     link_libraries(m) # -lm
 endif()
