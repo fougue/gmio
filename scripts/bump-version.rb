@@ -14,7 +14,7 @@ if not ARGV.empty? then
         script_dir_name = File.expand_path(File.dirname(__FILE__))
 
         # CMakeLists.txt
-        path_CMakeLists_txt = "#{script_dir_name}/CMakeLists.txt"
+        path_CMakeLists_txt = "#{script_dir_name}/../CMakeLists.txt"
         CMakeLists_txt = File.open(path_CMakeLists_txt, "r").read
         CMakeLists_txt.sub!(/(set\(GMIO_VERSION_MAJOR\s+)\d+/, "\\1#{major}")
         CMakeLists_txt.sub!(/(set\(GMIO_VERSION_MINOR\s+)\d+/, "\\1#{minor}")
@@ -23,7 +23,7 @@ if not ARGV.empty? then
         puts "Bumped #{path_CMakeLists_txt}"
 
         # README.md
-        path_README_md = "#{script_dir_name}/README.md"
+        path_README_md = "#{script_dir_name}/../README.md"
         README_md = File.open(path_README_md, "r").read
         README_md.sub!(
             /(img\.shields\.io\/badge\/version\-v)\d+\.\d+\.\d+/,
@@ -35,7 +35,7 @@ if not ARGV.empty? then
         puts "Bumped #{path_README_md}"
 
         # appveyor.yml
-        path_appveyor_yml = "#{script_dir_name}/appveyor.yml"
+        path_appveyor_yml = "#{script_dir_name}/../appveyor.yml"
         appveyor_yml = File.open(path_appveyor_yml, "r").read
         appveyor_yml.sub!(
             /(version:\s+)\d+\.\d+(_build)/,
