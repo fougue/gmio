@@ -33,7 +33,7 @@
 
 #include <stdlib.h>
 
-#ifdef GMIO_HAVE_STRTOF_FUNC
+#ifdef GMIO_HAVE_STRTOF
 #  define gmio_strtof strtof
 #else
 /* No strtof() function, call strtod() as fallback */

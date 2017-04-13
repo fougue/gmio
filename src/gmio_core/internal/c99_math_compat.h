@@ -32,7 +32,7 @@
 #include "../global.h"
 #include <math.h>
 
-#ifdef GMIO_HAVE_POWF_FUNC
+#ifdef GMIO_HAVE_POWF
 #  define gmio_powf powf
 #else
 /* No powf() function, call pow(double) as fallback */
@@ -40,7 +40,7 @@ GMIO_INLINE float gmio_powf(float base, float exponent)
 { return (float)pow((double)base, (double)exponent); }
 #endif
 
-#ifdef GMIO_HAVE_SQRTF_FUNC
+#ifdef GMIO_HAVE_SQRTF
 #  define gmio_sqrtf sqrtf
 #else
 /* No sqrtf() function, call sqrt(double) as fallback */
@@ -48,9 +48,9 @@ GMIO_INLINE float gmio_sqrtf(float x)
 { return (float)sqrt((double)x); }
 #endif
 
-#if defined(GMIO_HAVE_ISFINITE_SYM)
+#if defined(GMIO_HAVE_ISFINITE)
 #  define gmio_isfinite(x) isfinite(x)
-#elif defined(GMIO_HAVE_WIN__FINITE_SYM)
+#elif defined(GMIO_HAVE_WIN__FINITE)
 #  include <float.h>
 #  define gmio_isfinite(x) _finite(x)
 #else
@@ -58,9 +58,9 @@ GMIO_INLINE float gmio_sqrtf(float x)
 #  define gmio_isfinite(x) (((x) != NAN) && ((x) != INFINITY))
 #endif
 
-#if defined(GMIO_HAVE_ISNAN_SYM)
+#if defined(GMIO_HAVE_ISNAN)
 #  define gmio_isnan(x) isnan(x)
-#elif defined(GMIO_HAVE_WIN__ISNAN_SYM)
+#elif defined(GMIO_HAVE_WIN__ISNAN)
 #  include <float.h>
 #  define gmio_isnan(x) _isnan(x)
 #else

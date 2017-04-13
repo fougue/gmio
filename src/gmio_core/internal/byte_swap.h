@@ -31,7 +31,7 @@
 
 #include "../global.h"
 
-#ifdef GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC
+#ifdef GMIO_HAVE_MSVC_BUILTIN_BSWAP
 #  include <stdlib.h>
 #endif
 
@@ -39,9 +39,9 @@
  *  functions if available */
 GMIO_INLINE uint16_t gmio_uint16_bswap(uint16_t val)
 {
-#ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
+#ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP16
     return __builtin_bswap16(val);
-#elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+#elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP)
     return _byteswap_ushort(val);
 #else
     return ((val & 0x00FF) << 8) | ((val >> 8) & 0x00FF);
@@ -52,9 +52,9 @@ GMIO_INLINE uint16_t gmio_uint16_bswap(uint16_t val)
  *  functions if available */
 GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
 {
-#ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC
+#ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP32
     return __builtin_bswap32(val);
-#elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+#elif defined(GMIO_HAVE_MSVC_BUILTIN_BSWAP)
     return _byteswap_ulong(val);
 #else
     return ((val & 0x000000FF) << 24)

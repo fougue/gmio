@@ -40,10 +40,10 @@
 /* gmio_stat_t: type alias on the stat structure
  * GMIO_FSTAT_FUNC_NAME: alias on the fstat() function
  */
-#  if defined(GMIO_HAVE_WIN__FSTAT64_FUNC)
+#  if defined(GMIO_HAVE_WIN__FSTAT64)
 typedef struct __stat64 gmio_stat_t;
 #    define GMIO_FSTAT_FUNC_NAME _fstat64
-#  elif defined(GMIO_HAVE_POSIX_FSTAT64_FUNC)
+#  elif defined(GMIO_HAVE_POSIX_FSTAT64)
 typedef struct stat64 gmio_stat_t;
 #    define GMIO_FSTAT_FUNC_NAME fstat64
 #  else
@@ -93,7 +93,7 @@ static gmio_streamsize_t gmio_stream_stdio_size(void* cookie)
 
 #if defined(GMIO_HAVE_SYS_TYPES_H) \
     && defined(GMIO_HAVE_SYS_STAT_H) \
-    && defined(GMIO_HAVE_POSIX_FILENO_FUNC)
+    && defined(GMIO_HAVE_POSIX_FILENO)
 
     const int fd = fileno(file);
     if (fd != -1) {
