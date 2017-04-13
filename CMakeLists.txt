@@ -251,16 +251,24 @@ endif()
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
 endif()
-check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
-check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
-check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
+check_symbol_exists(powf math.h GMIO_HAVE_POWF_FUNC)
+check_symbol_exists(sqrtf math.h GMIO_HAVE_SQRTF_FUNC)
+check_symbol_exists(strtof stdlib.h GMIO_HAVE_STRTOF_FUNC)
 check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_SYM)
-check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_SYM)
+check_symbol_exists(isnan math.h GMIO_HAVE_ISNAN_SYM)
+check_symbol_exists(snprintf "stdio.h;stdlib.h" GMIO_HAVE_SNPRINTF_FUNC)
+check_symbol_exists(vsnprintf stdio.h GMIO_HAVE_VSNPRINTF_FUNC)
 if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
     check_symbol_exists(_finite float.h GMIO_HAVE_WIN__FINITE_SYM)
 endif()
 if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
     check_symbol_exists(_isnan float.h GMIO_HAVE_WIN__ISNAN_SYM)
+endif()
+if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
+    check_symbol_exists(_snprintf stdio.h GMIO_HAVE_WIN__SNPRINTF_FUNC)
+endif()
+if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
+    check_symbol_exists(_vsnprintf stdio.h GMIO_HAVE_WIN__VSNPRINTF_FUNC)
 endif()
 
 set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
@@ -269,16 +277,6 @@ check_c_source_compiles(
     "#include <stdbool.h>
      int main() { const bool c = 0; return 0; }"
     GMIO_HAVE_C99_BOOL)
-
-check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
-if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
-    check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
-endif()
-
-check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
-if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
-    check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
-endif()
 
 # Check available POSIX features
 if(UNIX)
