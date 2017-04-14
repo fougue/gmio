@@ -41,7 +41,7 @@ include(CMakeDependentOption)
 
 set(GMIO_VERSION_MAJOR 0)
 set(GMIO_VERSION_MINOR 4)
-set(GMIO_VERSION_PATCH 0)
+set(GMIO_VERSION_PATCH 1)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
@@ -251,16 +251,24 @@ endif()
 if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
 endif()
-check_function_exists(powf  GMIO_HAVE_POWF_FUNC)
-check_function_exists(sqrtf GMIO_HAVE_SQRTF_FUNC)
-check_function_exists(strtof GMIO_HAVE_STRTOF_FUNC)
-check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE_SYM)
-check_symbol_exists(isnan    math.h GMIO_HAVE_ISNAN_SYM)
-if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
-    check_symbol_exists(_finite float.h GMIO_HAVE_WIN__FINITE_SYM)
+check_symbol_exists(powf math.h GMIO_HAVE_POWF)
+check_symbol_exists(sqrtf math.h GMIO_HAVE_SQRTF)
+check_symbol_exists(strtof stdlib.h GMIO_HAVE_STRTOF)
+check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE)
+check_symbol_exists(isnan math.h GMIO_HAVE_ISNAN)
+check_symbol_exists(snprintf "stdio.h;stdlib.h" GMIO_HAVE_SNPRINTF)
+check_symbol_exists(vsnprintf stdio.h GMIO_HAVE_VSNPRINTF)
+if(WIN32 AND NOT GMIO_HAVE_ISNAN)
+    check_symbol_exists(_finite float.h GMIO_HAVE_WIN__FINITE)
 endif()
-if(WIN32 AND NOT GMIO_HAVE_ISNAN_SYM)
-    check_symbol_exists(_isnan float.h GMIO_HAVE_WIN__ISNAN_SYM)
+if(WIN32 AND NOT GMIO_HAVE_ISNAN)
+    check_symbol_exists(_isnan float.h GMIO_HAVE_WIN__ISNAN)
+endif()
+if(WIN32 AND NOT GMIO_HAVE_SNPRINTF)
+    check_symbol_exists(_snprintf stdio.h GMIO_HAVE_WIN__SNPRINTF)
+endif()
+if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF)
+    check_symbol_exists(_vsnprintf stdio.h GMIO_HAVE_WIN__VSNPRINTF)
 endif()
 
 set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
@@ -269,16 +277,6 @@ check_c_source_compiles(
     "#include <stdbool.h>
      int main() { const bool c = 0; return 0; }"
     GMIO_HAVE_C99_BOOL)
-
-check_function_exists(snprintf GMIO_HAVE_SNPRINTF_FUNC)
-if(WIN32 AND NOT GMIO_HAVE_SNPRINTF_FUNC)
-    check_function_exists(_snprintf GMIO_HAVE_WIN__SNPRINTF_FUNC)
-endif()
-
-check_function_exists(vsnprintf GMIO_HAVE_VSNPRINTF_FUNC)
-if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF_FUNC)
-    check_function_exists(_vsnprintf GMIO_HAVE_WIN__VSNPRINTF_FUNC)
-endif()
 
 # Check available POSIX features
 if(UNIX)
@@ -306,22 +304,22 @@ if (NOT DEFINED HAVE_SYS_STAT_H)
     check_include_files(sys/stat.h GMIO_HAVE_SYS_STAT_H)
 endif()
 
-check_function_exists(fileno GMIO_HAVE_POSIX_FILENO_FUNC)
+check_function_exists(fileno GMIO_HAVE_POSIX_FILENO)
 
 # Have fstat64() ?
 check_c_source_compiles(
     "#include <sys/stat.h>
      int main() { fstat64(0, NULL); return 0; }"
-    GMIO_HAVE_POSIX_FSTAT64_FUNC)
+    GMIO_HAVE_POSIX_FSTAT64)
 if(WIN32)
-    check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64_FUNC)
+    check_function_exists(_fstat64 GMIO_HAVE_WIN__FSTAT64)
 endif()
 
 # Check size(in bytes) of stat::st_size
 set(CMAKE_EXTRA_INCLUDE_FILES sys/stat.h)
-if(GMIO_HAVE_WIN__FSTAT64_FUNC)
+if(GMIO_HAVE_WIN__FSTAT64)
     check_type_size("((struct _stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
-elseif(GMIO_HAVE_POSIX_FSTAT64_FUNC)
+elseif(GMIO_HAVE_POSIX_FSTAT64)
     check_type_size("((struct stat64*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
 else()
     check_type_size("((struct stat*)0)->st_size" GMIO_SIZEOF_STRUCT_STAT_ST_SIZE)
@@ -342,15 +340,15 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
     # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
     check_c_source_compiles(
         "int main() { return (int)__builtin_bswap16(0x1122); }"
-        GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC)
+        GMIO_HAVE_GCC_BUILTIN_BSWAP16)
     check_c_source_compiles(
         "int main() { return (int)__builtin_bswap32(0x11223344); }"
-        GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC)
+        GMIO_HAVE_GCC_BUILTIN_BSWAP32)
 elseif(MSVC)
     check_c_source_compiles(
         "#include <stdlib.h>
          int main() { return (int)_byteswap_ulong(0x11223344); }"
-        GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC)
+        GMIO_HAVE_MSVC_BUILTIN_BSWAP)
 endif()
 
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)

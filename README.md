@@ -9,7 +9,7 @@
 </a>
 [![Codecov](https://codecov.io/github/fougue/gmio/coverage.svg?branch=master)](https://codecov.io/gh/fougue/gmio/branch/master)
 [![License](https://img.shields.io/badge/license-BSD%202--clause-blue.svg)](https://github.com/fougue/gmio/blob/master/LICENSE.txt)
-[![Version](https://img.shields.io/badge/version-v0.4.0-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
+[![Version](https://img.shields.io/badge/version-v0.4.1-blue.svg?style=flat)](https://github.com/fougue/gmio/releases)  
 
 
 C library for geometry input/output

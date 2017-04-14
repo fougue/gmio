@@ -53,30 +53,30 @@
 #cmakedefine GMIO_HAVE_C99_BOOL
 #endif
 
-#cmakedefine GMIO_HAVE_STRTOF_FUNC
-#cmakedefine GMIO_HAVE_POWF_FUNC
-#cmakedefine GMIO_HAVE_SNPRINTF_FUNC
-#cmakedefine GMIO_HAVE_WIN__SNPRINTF_FUNC
-#cmakedefine GMIO_HAVE_VSNPRINTF_FUNC
-#cmakedefine GMIO_HAVE_WIN__VSNPRINTF_FUNC
+#cmakedefine GMIO_HAVE_STRTOF
+#cmakedefine GMIO_HAVE_POWF
+#cmakedefine GMIO_HAVE_SNPRINTF
+#cmakedefine GMIO_HAVE_WIN__SNPRINTF
+#cmakedefine GMIO_HAVE_VSNPRINTF
+#cmakedefine GMIO_HAVE_WIN__VSNPRINTF
 
-#cmakedefine GMIO_HAVE_ISFINITE_SYM
-#cmakedefine GMIO_HAVE_WIN__FINITE_SYM
-#cmakedefine GMIO_HAVE_ISNAN_SYM
-#cmakedefine GMIO_HAVE_WIN__ISNAN_SYM
+#cmakedefine GMIO_HAVE_ISFINITE
+#cmakedefine GMIO_HAVE_WIN__FINITE
+#cmakedefine GMIO_HAVE_ISNAN
+#cmakedefine GMIO_HAVE_WIN__ISNAN
 
 /* POSIX */
 #cmakedefine GMIO_HAVE_SYS_TYPES_H
 #cmakedefine GMIO_HAVE_SYS_STAT_H
-#cmakedefine GMIO_HAVE_POSIX_FILENO_FUNC
-#cmakedefine GMIO_HAVE_POSIX_FSTAT64_FUNC
-#cmakedefine GMIO_HAVE_WIN__FSTAT64_FUNC
+#cmakedefine GMIO_HAVE_POSIX_FILENO
+#cmakedefine GMIO_HAVE_POSIX_FSTAT64
+#cmakedefine GMIO_HAVE_WIN__FSTAT64
 
 /* Compiler byte-swap functions */
-#cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP16_FUNC
-#cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP32_FUNC
+#cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP16
+#cmakedefine GMIO_HAVE_GCC_BUILTIN_BSWAP32
 
-#cmakedefine GMIO_HAVE_MSVC_BUILTIN_BSWAP_FUNC
+#cmakedefine GMIO_HAVE_MSVC_BUILTIN_BSWAP
 
 /* Target architecture */
 #cmakedefine GMIO_HOST_IS_BIG_ENDIAN

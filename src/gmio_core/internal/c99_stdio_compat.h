@@ -41,9 +41,9 @@
  *
  *     vsnprintf() appeared in C99
  */
-#ifdef GMIO_HAVE_VSNPRINTF_FUNC
+#ifdef GMIO_HAVE_VSNPRINTF
 #  define gmio_vsnprintf vsnprintf
-#elif defined(GMIO_HAVE_WIN__VSNPRINTF_FUNC)
+#elif defined(GMIO_HAVE_WIN__VSNPRINTF)
 #  define gmio_vsnprintf _vsnprintf
 #else
 /* No vsnprintf()-like function, call unsafe vsprintf() as fallback */
@@ -61,9 +61,9 @@ GMIO_INLINE int gmio_vsnprintf(
  *
  *     snprintf() appeared in C99
  */
-#ifdef GMIO_HAVE_SNPRINTF_FUNC
+#ifdef GMIO_HAVE_SNPRINTF
 #  define gmio_snprintf snprintf
-#elif defined(GMIO_HAVE_WIN__SNPRINTF_FUNC)
+#elif defined(GMIO_HAVE_WIN__SNPRINTF)
 #  define gmio_snprintf _snprintf
 #else
 /* No snprintf()-like function, translate to gmio_vsnprintf() call */

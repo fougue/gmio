@@ -128,7 +128,8 @@ FULL_PATH_NAMES        = YES
 # If left blank the directory from which doxygen is run is used as the 
 # path to strip.
 
-STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/../src
+STRIP_FROM_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/../src \
+                         @CMAKE_CURRENT_BINARY_DIR@/../src
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of 
 # the path mentioned in the documentation of a class, which tells 
@@ -642,7 +643,8 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../doc/mainpage.dox \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../src
+                         @CMAKE_CURRENT_SOURCE_DIR@/../src \
+                         @CMAKE_CURRENT_BINARY_DIR@/../src/gmio_core/version.h
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
