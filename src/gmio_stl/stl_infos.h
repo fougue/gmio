@@ -118,6 +118,8 @@ GMIO_C_LINKAGE_BEGIN
  *  \p flags is a bitor combination of \c gmio_stl_info_flag values and is used
  *  to select the informations to retrieve.
  *
+ *  The position of the input stream is preserved.
+ *
  *  \pre <tt> infos != NULL </tt>
  *  \pre <tt> stream != NULL </tt>
  *
