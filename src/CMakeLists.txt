@@ -75,6 +75,9 @@ install(FILES ${GMIO_LIBAMF_HEADERS} DESTINATION include/gmio_amf)
 # Common for support modules
 install(FILES gmio_support/support_global.h DESTINATION include/gmio_support)
 
+# C++ support
+install(FILES gmio_support/stream_cpp.h   DESTINATION include/gmio_support)
+
 # Qt support
 install(FILES gmio_support/stream_qt.h   DESTINATION include/gmio_support)
 install(FILES gmio_support/stream_qt.cpp DESTINATION src/gmio_support)
