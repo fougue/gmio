@@ -42,13 +42,12 @@
 // -----------------------------------------------------------------------------
 
 gmio_stl_mesh_occshape::gmio_stl_mesh_occshape()
-    : m_shape(NULL)
 {
     this->init_C_members();
 }
 
 gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
-    : m_shape(&shape)
+    : m_shape(shape)
 {
     this->init_C_members();
 

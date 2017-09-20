@@ -75,7 +75,7 @@ struct gmio_stl_mesh_occshape : public gmio_stl_mesh
     gmio_stl_mesh_occshape();
     explicit gmio_stl_mesh_occshape(const TopoDS_Shape& shape);
 
-    const TopoDS_Shape* shape() const { return m_shape; }
+    const TopoDS_Shape& shape() const { return m_shape; }
 
 private:
     static void get_triangle(
@@ -95,7 +95,7 @@ private:
 
     std::vector<face_data> m_vec_face_data;
     std::vector<triangle_data> m_vec_triangle_data;
-    const TopoDS_Shape* m_shape;
+    TopoDS_Shape m_shape;
 };
 
 /*! Provides creation of an OpenCascade \c TopoDS_Shape containing no
