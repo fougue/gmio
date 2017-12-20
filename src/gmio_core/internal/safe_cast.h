@@ -30,33 +30,18 @@
 #pragma once
 
 #include "../global.h"
-#include "../stream.h"
 
-#include <stddef.h>
+namespace gmio {
 
-
-/*! Returns \p val safely casted to unsigned 32b integer */
-GMIO_INLINE uint32_t gmio_size_to_uint32(size_t val)
+//! Returns 'val' safely casted to unsigned 32b integer
+constexpr uint32_t size_to_uint32(size_t val)
 {
 #if GMIO_TARGET_ARCH_BIT_SIZE > 32
-    /* TODO : eliminate branch */
-    return val > 0xFFFFFFFF ? 0xFFFFFFFF : (uint32_t)val;
+    // TODO : eliminate branch
+    return val > 0xFFFFFFFF ? 0xFFFFFFFF : static_cast<uint32_t>(val);
 #else
     return val;
 #endif
 }
 
-#define GMIO_MAX_SIZET  ((size_t)-1)
-
-/*! Returns \p val safely casted to \c size_t */
-GMIO_INLINE size_t gmio_streamsize_to_size(gmio_streamsize_t val)
-{
-#if GMIO_TARGET_ARCH_BIT_SIZE < 64 \
-    && defined(GMIO_HAVE_INT64_TYPE)
-    /* TODO : eliminate branch */
-    const uint64_t uval = val;
-    return uval > GMIO_MAX_SIZET ? GMIO_MAX_SIZET : (size_t)uval;
-#else
-    return (size_t)val;
-#endif
-}
+} // namespace gmio

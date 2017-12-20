@@ -36,45 +36,37 @@
 
 #pragma once
 
-/*! \c GMIO_STL_ERROR_TAG
- *  Byte-mask to tag(identify) STL-specific error codes */
-enum { GMIO_STL_ERROR_TAG = 0x01000000 };
+namespace gmio {
 
-/*! Specific error codes reported by STL read/write functions */
-enum gmio_stl_error
-{
-    /*! STL format could not be guessed in read function */
-    GMIO_STL_ERROR_UNKNOWN_FORMAT = GMIO_STL_ERROR_TAG + 0x01,
+//! Byte-mask to tag(identify) STL-specific error codes
+const unsigned STL_TagError = 0x01000000;
 
-    /*! Common STL write error indicating gmio_stl_mesh::func_get_triangle()
-     *  pointer is NULL */
-    GMIO_STL_ERROR_NULL_FUNC_GET_TRIANGLE,
+//! Specific error codes reported by STL read/write functions
+enum STL_Error {
+    //! STL format could not be guessed in read function
+    STL_Error_UnknownFormat = STL_TagError + 0x01,
 
-    /* Specific error codes returned by STL_ascii read function */
+    // Specific error codes returned by STL_ascii read function
 
-    /*! Parsing error occured due to malformed STL ascii input */
-    GMIO_STL_ERROR_PARSING,
+    //! Parsing error occured due to malformed STL ascii input
+    STL_Error_Parsing,
 
-    /*! Invalid max number of decimal significants digits must be in [1..9] */
-    GMIO_STL_ERROR_INVALID_FLOAT32_PREC,
+    //! Invalid max number of decimal significants digits must be in [1..9]
+    STL_Error_InvalidFloat32Prec,
 
-    /* Specific error codes returned by STL_binary read/write functions */
+    // Specific error codes returned by STL_binary read/write functions
 
-    /*! The byte order argument supplied is not supported, must be little or
-     *  big endian */
-    GMIO_STL_ERROR_UNSUPPORTED_BYTE_ORDER,
+    //! The byte order argument supplied is not supported, must be little or
+    //! big endian
+    STL_Error_UnsupportedByteOrder,
 
-    /*! Error occured when reading header data in gmio_stlb_read() */
-    GMIO_STL_ERROR_HEADER_WRONG_SIZE,
+    //! Error occured when reading header data in STL_readBinary()
+    STL_Error_HeaderWrongSize,
 
-    /*! Error occured when reading facet count in gmio_stlb_read() */
-    GMIO_STL_ERROR_FACET_COUNT,
-
-    /* Specific error codes returned by STL infos probe functions */
-
-    /*! Flag \c GMIO_STLA_INFO_FLAG_SOLIDNAME is on but supplied
-     *  gmio_stl_infos::stla_solidname string is NULL */
-    GMIO_STL_ERROR_INFO_NULL_SOLIDNAME
+    //! Error occured when reading facet count in STL_readBinary()
+    STL_Error_FacetCount
 };
+
+} // namespace gmio
 
 /*! @} */

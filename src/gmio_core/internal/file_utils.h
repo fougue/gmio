@@ -29,9 +29,12 @@
 
 #pragma once
 
-#include "const_string.h"
-
+namespace gmio {
+#if 0
 /*! Returns the base name of the file without the path.
- *  The base name consists of all characters in the file up to (but not including)
- *  the last '.' character. */
-struct gmio_const_string gmio_fileutils_find_basefilename(const char* filepath);
+     *  The base name consists of all characters in the file up to (but not including)
+     *  the last '.' character. */
+struct gmio_const_string FileUtils_findBaseFilename(const char* filepath);
+#endif
+
+} // namespace gmio

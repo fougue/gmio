@@ -31,10 +31,14 @@
 
 #include "../global.h"
 
-const char* gmio_lc_numeric();
+namespace gmio {
 
-/*! Returns result of case-insensitive test <tt>LC_NUMERIC == "C|POSIX"</tt> */
-bool gmio_lc_numeric_is_C();
+const char* lc_numeric();
 
-void gmio_lc_numeric_save();
-void gmio_lc_numeric_restore();
+//! Returns result of case-insensitive test LC_NUMERIC == "C|POSIX"
+bool lc_numeric_is_C();
+
+void lc_numeric_save();
+void lc_numeric_restore();
+
+} // namespace gmio

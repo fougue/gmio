@@ -39,134 +39,74 @@
 #include "stl_global.h"
 #include "stl_format.h"
 #include "stlb_header.h"
-#include <stddef.h>
+#include "../gmio_core/iodevice.h"
+#include "../gmio_core/result.h"
+#include "../gmio_core/span.h"
+#include <string>
 
-/*! Informations retrieved by gmio_stl_infos_probe() */
-struct gmio_stl_infos
-{
-    /*! STL format of the input stream */
-    enum gmio_stl_format format;
+namespace gmio {
 
-    /*! Count of facets(triangles) */
-    uint32_t facet_count;
-
-    /*! Size of the STL data in bytes.
-     *  For STL ascii it includes the "endsolid" tag */
-    gmio_streamsize_t size;
-
-    /*! STL ascii only: name of the solid.
-     *  The pointer has to be set before calling gmio_stl_infos_probe()
-     *  \sa stla_solidname_maxlen */
-    char* stla_solidname;
-
-    /*! STL ascii only: maximum length(capacity) of stla_solidname.
-     *  The value has to be set before calling gmio_stl_infos_probe()
-     *  \sa stla_solidname */
-    size_t stla_solidname_maxlen;
-
-    /*! STL binary only: header(80-bytes) of STL data */
-    struct gmio_stlb_header stlb_header;
+//! Informations retrieved by STL_probeInfos()
+struct STL_Infos {
+    STL_Format format;    //!< Format of the input
+    uint32_t facet_count; //!< Count of facets(triangles)
+    uint64_t size;        //!< Size of the STL data in bytes
+    std::string ascii_solid_name;   //!< STL ascii only: name of the solid
+    STL_BinaryHeader binary_header; //!< STL binary only: header(80-bytes)
 };
 
-/*! Flags(OR-combinations) for each STL info */
-enum gmio_stl_info_flag
-{
-    /*! -> gmio_stl_infos::facet_count */
-    GMIO_STL_INFO_FLAG_FACET_COUNT = 0x0001,
-
-    /*! -> gmio_stl_infos::size */
-    GMIO_STL_INFO_FLAG_SIZE = 0x0002,
-
-    /*! -> gmio_stl_infos::stla_solidname */
-    GMIO_STLA_INFO_FLAG_SOLIDNAME = 0x0004,
-
-    /*! -> gmio_stl_infos::stlb_header */
-    GMIO_STLB_INFO_FLAG_HEADER = 0x0008,
-
-    /*! -> gmio_stl_infos::stla_solidname or gmio_stl_infos::stlb_header */
-    GMIO_STL_INFO_FLAG_SOLIDNAME_OR_HEADER =
-        GMIO_STLA_INFO_FLAG_SOLIDNAME | GMIO_STLB_INFO_FLAG_HEADER,
-
-    /*! -> gmio_stl_infos::format */
-    GMIO_STL_INFO_FLAG_FORMAT = 0x0010,
-
-    /*! All infos */
-    GMIO_STL_INFO_FLAG_ALL = 0xFFFF
+//! Flags(OR-combinations) for each STL info
+enum STL_InfoFlag {
+    STL_InfoFlag_FacetCount = 0x0001,     //! -> STL_Infos::facet_count
+    STL_InfoFlag_Size = 0x0002,           //! -> STL_Infos::size
+    STL_InfoFlag_AsciiSolidName = 0x0004, //! -> STL_Infos::ascii_solidname
+    STL_InfoFlag_BinaryHeader = 0x0008,   //! -> STL_Infos::binary_header
+    STL_InfoFlag_SolidNameOrHeader =
+        STL_InfoFlag_AsciiSolidName | STL_InfoFlag_BinaryHeader,
+    STL_InfoFlag_Format = 0x0010, //! -> STL_Infos::format
+    STL_InfoFlag_All = 0xFFFF     //! -> All infos
 };
 
-/*! Options of function gmio_stl_infos_probe() */
-struct gmio_stl_infos_probe_options
-{
-    /*! See gmio_stl_read_options::stream_memblock */
-    struct gmio_memblock stream_memblock;
+//! Options of function STL_probeInfos()
+struct STL_ProbeInfosOptions {
+    Span<uint8_t> buffer;
 
-    /*! Assume STL input format, if GMIO_STL_FORMAT_UNKNOWN then it is
-     *  automatically guessed */
-    enum gmio_stl_format format_hint;
+    //! Assume input format, if STL_Format_Unknown then format is guessed
+    STL_Format format_hint;
 
-    /*! Restrict gmio_stl_infos_probe() to not read further this limit(in bytes)
-     *  \warning Not yet supported */
-    gmio_streamsize_t size_limit;
+    //! Restrict STL_probeInfos() to not read further this limit(in bytes)
+    //! \warning Not yet supported
+    uint64_t size_limit;
 };
 
-GMIO_C_LINKAGE_BEGIN
-
-/*! Finds informations about STL contents
- *
- *  \p infos is an output parameter that will hold the retrieved informations
- *
- *  \p flags is a bitor combination of \c gmio_stl_info_flag values and is used
- *  to select the informations to retrieve.
- *
- *  The position of the input stream is preserved.
- *
- *  \pre <tt> infos != NULL </tt>
- *  \pre <tt> stream != NULL </tt>
- *
- *  \p options can be safely set to \c NULL in this case default values are used
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- */
-GMIO_API int gmio_stl_infos_probe(
-                struct gmio_stl_infos* infos,
-                struct gmio_stream* stream,
+//! Finds informations about STL contents
+//!
+//! 'flags' is a bitor combination of \c STL_InfoFlag values and is used
+//! to select the informations to retrieve.
+GMIO_API Result<STL_Infos> STL_probeInfos(
+                FuncReadData func_read,
                 unsigned flags,
-                const struct gmio_stl_infos_probe_options* options);
+                STL_ProbeInfosOptions options = {});
 
-/*! Finds informations about STL contents from a file
- *
- *  This is just a facility function over gmio_stl_infos_probe(). The internal
- *  object is created to read file at \p filepath.
- *
- *  \pre <tt> infos != NULL </tt>
- *  \pre <tt> filepath != \c NULL </tt>\n
- *       The file is opened with \c fopen() so \p filepath shall follow the file
- *       name specifications of the running environment
- *
- *  \sa gmio_stl_infos_probe(), gmio_stream_stdio(FILE*)
- */
-GMIO_API int gmio_stl_infos_probe_file(
-                struct gmio_stl_infos* infos,
+//! Finds informations about STL contents from a file
+//!
+//! The internal object is created to read file at 'filepath'.
+//!
+//! The file is opened with \c fopen() so 'filepath' shall follow the file name
+//! specifications of the running environment
+GMIO_API Result<STL_Infos> STL_probeInfos(
                 const char* filepath,
                 unsigned flags,
-                const struct gmio_stl_infos_probe_options* options);
+                STL_ProbeInfosOptions options = {});
 
-/*! Returns the size(in bytes) of the next STL ascii solid in \p stream
- *
- *  It is a facade over gmio_stl_infos_probe() for gmio_stl_infos::size only
- *
- *  Pointer to this function can be given to
- *  gmio_stl_read_options::func_stla_get_streamsize() and is useful when
- *  reading in sequence multi solids in STL ascii. The stream can be cleanly
- *  advanced solid by solid after each call to gmio_stl_read()
- *
- *  \pre <tt> stream != NULL </tt>
- *  \pre <tt> stream_memblock != NULL </tt>
- */
-GMIO_API gmio_streamsize_t gmio_stla_infos_probe_streamsize(
-                struct gmio_stream* stream,
-                struct gmio_memblock* stream_memblock);
+//! Returns the size(in bytes) of the STL ascii solid read with 'funcRead'
+//!
+//! It is a facade over STL_probeInfos() for STL_Infos::size only
+//!
+//! Result of this function can be given to STL_ReadOptions::ascii_solid_size
+//! and is useful when reading in sequence multi solids
+GMIO_API uint64_t STL_probeAsciiSolidSize(FuncReadData func_read);
 
-GMIO_C_LINKAGE_END
+} // namespace gmio
 
 /*! @} */

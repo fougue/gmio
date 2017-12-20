@@ -29,83 +29,34 @@
 
 #include <gmio_support/stream_qt.h>
 
-#include <QtCore/QFile>
 #include <QtCore/QIODevice>
-#include <cstring>
 
 QT_USE_NAMESPACE
 
-static bool gmio_stream_qiodevice_at_end(void* cookie)
+namespace gmio {
+
+FuncReadData QIODevice_funcReadData(QIODevice* device)
 {
-    return static_cast<QIODevice*>(cookie)->atEnd();
+    return [=](uint8_t* buff, uint64_t size, ReadState* state) {
+        const qint64 readlen = device->read(buff, size);
+        if (state != nullptr) {
+            if (readlen == -1)
+                return ReadState::Error;
+            else if (device->atEnd())
+                *state = ReadState::Eof;
+            else
+                *state = ReadState::Good;
+        }
+        return readlen;
+    };
 }
 
-static int gmio_stream_qiodevice_error(void* cookie)
+FuncWriteData QIODevice_funcWriteData(QIODevice* device)
 {
-    const QIODevice* device = static_cast<QIODevice*>(cookie);
-    const QFile* file = qobject_cast<const QFile*>(device);
-    if (file != NULL) {
-        return file->error();
-    }
-    else {
-        const QString err_str = device->errorString();
-        return !err_str.isEmpty() ? 1 : 0;
-    }
-    return 0;
+    return [=](const uint8_t* buff, uint64_t size) {
+        const qint64 writelen = device->write(buff, size);
+        return writelen != -1 ? writelen : 0;
+    };
 }
 
-static size_t gmio_stream_qiodevice_read(
-        void* cookie, void* ptr, size_t item_size, size_t item_count)
-{
-    QIODevice* device = static_cast<QIODevice*>(cookie);
-    const qint64 c = device->read(static_cast<char*>(ptr), item_size * item_count);
-    return static_cast<size_t>(c / item_size);
-}
-
-static size_t gmio_stream_qiodevice_write(
-        void* cookie, const void* ptr, size_t item_size, size_t item_count)
-{
-    QIODevice* device = static_cast<QIODevice*>(cookie);
-    const qint64 c = device->write(
-                static_cast<const char*>(ptr), item_size * item_count);
-    return static_cast<size_t>(c / item_size);
-}
-
-static gmio_streamsize_t gmio_stream_qiodevice_size(void* cookie)
-{
-    QIODevice* device = static_cast<QIODevice*>(cookie);
-    return device->size();
-}
-
-static int gmio_stream_qiodevice_get_pos(void* cookie, struct gmio_streampos* pos)
-{
-    QIODevice* device = static_cast<QIODevice*>(cookie);
-    qint64 qpos = device->pos();
-    std::memcpy(&pos->cookie[0], &qpos, sizeof(qint64));
-    return 0;
-}
-
-static int gmio_stream_qiodevice_set_pos(
-        void* cookie, const struct gmio_streampos* pos)
-{
-    QIODevice* device = static_cast<QIODevice*>(cookie);
-    qint64 qpos;
-    std::memcpy(&qpos, &pos->cookie[0], sizeof(qint64));
-    if (device->seek(qpos))
-        return 0;
-    return -1; /* TODO: return error code */
-}
-
-struct gmio_stream gmio_stream_qiodevice(QIODevice* device)
-{
-    struct gmio_stream stream = {};
-    stream.cookie = device;
-    stream.func_at_end = gmio_stream_qiodevice_at_end;
-    stream.func_error = gmio_stream_qiodevice_error;
-    stream.func_read = gmio_stream_qiodevice_read;
-    stream.func_write = gmio_stream_qiodevice_write;
-    stream.func_size = gmio_stream_qiodevice_size;
-    stream.func_get_pos = gmio_stream_qiodevice_get_pos;
-    stream.func_set_pos = gmio_stream_qiodevice_set_pos;
-    return stream;
-}
+} // namespace gmio

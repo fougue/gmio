@@ -38,7 +38,6 @@
 
 #include "amf_global.h"
 #include "../gmio_core/memblock.h"
-#include "../gmio_core/task_iface.h"
 #include "../gmio_core/text_format.h"
 #include "../gmio_core/zlib_compress.h"
 

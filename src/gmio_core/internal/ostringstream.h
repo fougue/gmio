@@ -29,10 +29,24 @@
 
 #pragma once
 
+#if 0
+
 #include "../global.h"
-#include "../stream.h"
+#include "../iodevice.h"
 #include "../text_format.h"
 #include "string.h"
+
+#include <functional>
+
+namespace gmio {
+
+class TextStream {
+public:
+    TextStream(IoDevice* device);
+
+private:
+    IoDevice* m_device;
+};
 
 /*! Output stream that operates on a string
  *
@@ -87,7 +101,7 @@ void gmio_ostringstream_write_nstr(
     gmio_ostringstream_write_nstr((sstream), (array), sizeof(array) - 1)
 
 /*! Writes character \p c to ostringstream \p sstream */
-GMIO_INLINE void gmio_ostringstream_write_char(
+inline void gmio_ostringstream_write_char(
         struct gmio_ostringstream* sstream, char c);
 
 /*! Writes uint32 \p value to ostringstream \p sstream */
@@ -119,7 +133,7 @@ void gmio_ostringstream_write_base64(
         size_t len);
 
 /*! Write pending bytes within sstream->strbuff */
-GMIO_INLINE void gmio_ostringstream_flush(struct gmio_ostringstream* sstream);
+inline void gmio_ostringstream_flush(struct gmio_ostringstream* sstream);
 
 /* XML */
 
@@ -134,9 +148,9 @@ void gmio_ostringstream_write_xmlelt_f64(
         struct gmio_ostringstream* sstream, const char* elt, double val);
 
 
-GMIO_INLINE void gmio_ostringstream_write_xmlcdata_open(
+inline void gmio_ostringstream_write_xmlcdata_open(
         struct gmio_ostringstream* sstream);
-GMIO_INLINE void gmio_ostringstream_write_xmlcdata_close(
+inline void gmio_ostringstream_write_xmlcdata_close(
         struct gmio_ostringstream* sstream);
 
 
@@ -175,3 +189,7 @@ void gmio_ostringstream_write_xmlcdata_close(struct gmio_ostringstream *sstream)
 {
     gmio_ostringstream_write_chararray(sstream, "]]>");
 }
+
+} // namespace gmio
+
+#endif

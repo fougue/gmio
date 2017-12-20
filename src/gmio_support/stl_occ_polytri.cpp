@@ -28,156 +28,137 @@
 ****************************************************************************/
 
 #include <gmio_support/stl_occ_polytri.h>
-#include "stl_occ_utils.h"
 
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
 #include <TShort_HArray1OfShortReal.hxx>
 #include <cstring>
 
+namespace gmio {
+
 // -----------------------------------------------------------------------------
-// gmio_stl_mesh_occpolytri
+// STL_MeshOccPolyTriangulation
 // -----------------------------------------------------------------------------
 
-gmio_stl_mesh_occpolytri::gmio_stl_mesh_occpolytri()
+STL_MeshOccPolyTriangulation::STL_MeshOccPolyTriangulation()
 {
     this->init();
 }
 
-gmio_stl_mesh_occpolytri::gmio_stl_mesh_occpolytri(
+STL_MeshOccPolyTriangulation::STL_MeshOccPolyTriangulation(
         const Handle_Poly_Triangulation& hnd)
     : m_polytri(hnd)
 {
     this->init();
 }
 
-void gmio_stl_mesh_occpolytri::init()
+STL_Triangle STL_MeshOccPolyTriangulation::triangle(uint32_t tri_id) const
 {
-    const bool polytri_not_null = !m_polytri.IsNull();
-    // C members
-    this->cookie = this;
-    this->func_get_triangle = &gmio_stl_mesh_occpolytri::get_triangle;
-    this->triangle_count = polytri_not_null ? m_polytri->NbTriangles() : 0;
-    // Cache
-    m_polytri_vec_node = polytri_not_null ? &m_polytri->Nodes() : NULL;
-    m_polytri_vec_triangle = polytri_not_null ? &m_polytri->Triangles() : NULL;
-    m_polytri_has_normals =
-            polytri_not_null ?
-                (m_polytri->HasNormals() == Standard_True) :
-                false;
-    m_polytri_vec_normal = m_polytri_has_normals ? &m_polytri->Normals() : NULL;
-}
+    STL_Triangle tri;
+    tri.attribute_byte_count = 0;
 
-void gmio_stl_mesh_occpolytri::get_triangle(
-        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
-{
-    const gmio_stl_mesh_occpolytri* mesh =
-            static_cast<const gmio_stl_mesh_occpolytri*>(cookie);
-    const TColgp_Array1OfPnt& vec_node = *mesh->m_polytri_vec_node;
-    const Poly_Array1OfTriangle& vec_triangle = *mesh->m_polytri_vec_triangle;
+    const TColgp_Array1OfPnt& vec_node = *m_polytri_vec_node;
+    const Poly_Array1OfTriangle& vec_triangle = *m_polytri_vec_triangle;
     int n1, n2, n3; // Node index
     vec_triangle.Value(tri_id + vec_triangle.Lower()).Get(n1, n2, n3);
     const gp_Pnt& p1 = vec_node.Value(n1);
     const gp_Pnt& p2 = vec_node.Value(n2);
     const gp_Pnt& p3 = vec_node.Value(n3);
-    gmio_stl_occ_copy_xyz(&tri->v1, p1.XYZ());
-    gmio_stl_occ_copy_xyz(&tri->v2, p2.XYZ());
-    gmio_stl_occ_copy_xyz(&tri->v3, p3.XYZ());
-    if (mesh->m_polytri_has_normals) {
-        const TShort_Array1OfShortReal& vec_normal = *mesh->m_polytri_vec_normal;
+    OCC_copyCoords(&tri.v1, p1.XYZ());
+    OCC_copyCoords(&tri.v2, p2.XYZ());
+    OCC_copyCoords(&tri.v3, p3.XYZ());
+    if (m_polytri_has_normals) {
+        const TShort_Array1OfShortReal& vec_normal = *m_polytri_vec_normal;
         // Take the normal at the first triangle node
-        const int id_start_coord = n1*3 + vec_normal.Lower();
-        std::memcpy(&tri->n,
-                    &vec_normal.Value(id_start_coord),
-                    3*sizeof(float));
+        std::memcpy(&tri.n, &vec_normal.Value(n1*3), 3*sizeof(float));
     }
     else {
-        gmio_stl_triangle_compute_normal(tri);
+        tri.n = STL_triangleNormal(tri);
     }
+
+    return tri;
+}
+
+void STL_MeshOccPolyTriangulation::init()
+{
+    const bool polytri_not_null = !m_polytri.IsNull();
+    this->setTriangleCount(polytri_not_null ? m_polytri->NbTriangles() : 0);
+    m_polytri_vec_node = polytri_not_null ? &m_polytri->Nodes() : nullptr;
+    m_polytri_vec_triangle = polytri_not_null ? &m_polytri->Triangles() : nullptr;
+    m_polytri_has_normals =
+            polytri_not_null ?
+                (m_polytri->HasNormals() == Standard_True) :
+                false;
+    m_polytri_vec_normal = m_polytri_has_normals ? &m_polytri->Normals() : nullptr;
 }
 
 // -----------------------------------------------------------------------------
-// gmio_stl_mesh_creator_occpolytri
+// STL_MeshCreatorOccPolyTriangulation
 // -----------------------------------------------------------------------------
 
-gmio_stl_mesh_creator_occpolytri::gmio_stl_mesh_creator_occpolytri()
-    : m_filter(Precision::Confusion()),
-      m_inspector(Precision::Confusion())
+STL_MeshCreatorOccPolyTriangulation::STL_MeshCreatorOccPolyTriangulation()
 {
-    this->cookie = this;
-    this->func_begin_solid = &gmio_stl_mesh_creator_occpolytri::begin_solid;
-    this->func_add_triangle = &gmio_stl_mesh_creator_occpolytri::add_triangle;
-    this->func_end_solid = &gmio_stl_mesh_creator_occpolytri::end_solid;
 }
 
-void gmio_stl_mesh_creator_occpolytri::begin_solid(
-        void* cookie, const gmio_stl_mesh_creator_infos* infos)
+void STL_MeshCreatorOccPolyTriangulation::beginSolid(const STL_MeshCreatorInfos &infos)
 {
-    gmio_stl_mesh_creator_occpolytri* creator =
-            static_cast<gmio_stl_mesh_creator_occpolytri*>(cookie);
     uint32_t tricount = 0;
-    if (infos->format == GMIO_STL_FORMAT_ASCII)
-        tricount = static_cast<uint32_t>(infos->stla_stream_size / 200u);
-    else if (infos->format & GMIO_STL_FORMAT_TAG_BINARY)
-        tricount = infos->stlb_triangle_count;
+    if (infos.format == STL_Format_Ascii)
+        tricount = static_cast<uint32_t>(infos.ascii_solid_size / 160u);
+    else if (infos.format & STL_Format_TagBinary)
+        tricount = infos.binary_triangle_count;
     if (tricount > 0) {
-        creator->m_vec_node.reserve(3 * tricount);
-        creator->m_vec_normal.reserve(3 * tricount);
-        creator->m_vec_triangle.reserve(tricount);
+        m_vec_node.reserve(3 * tricount);
+        m_vec_normal.reserve(3 * tricount);
+        m_vec_triangle.reserve(tricount);
     }
 }
 
-void gmio_stl_mesh_creator_occpolytri::add_triangle(
-        void *cookie, uint32_t /*tri_id*/, const gmio_stl_triangle *tri)
+void STL_MeshCreatorOccPolyTriangulation::addTriangle(
+        uint32_t, const STL_Triangle &triangle)
 {
-    gmio_stl_mesh_creator_occpolytri* creator =
-            static_cast<gmio_stl_mesh_creator_occpolytri*>(cookie);
-    const gmio_vec3f& n = tri->n;
-    const int id_v1 = creator->add_unique_vertex(tri->v1, n);
-    const int id_v2 = creator->add_unique_vertex(tri->v2, n);
-    const int id_v3 = creator->add_unique_vertex(tri->v3, n);
-    creator->m_vec_triangle.emplace_back(id_v1, id_v2, id_v3);
+    const int id_v1 = this->addUniqueNode(OCC_fromVec3(triangle.v1), triangle.n);
+    const int id_v2 = this->addUniqueNode(OCC_fromVec3(triangle.v2), triangle.n);
+    const int id_v3 = this->addUniqueNode(OCC_fromVec3(triangle.v3), triangle.n);
+    m_vec_triangle.emplace_back(id_v1, id_v2, id_v3);
 }
 
-void gmio_stl_mesh_creator_occpolytri::end_solid(void *cookie)
+void STL_MeshCreatorOccPolyTriangulation::endSolid()
 {
-    gmio_stl_mesh_creator_occpolytri* creator =
-            static_cast<gmio_stl_mesh_creator_occpolytri*>(cookie);
-    creator->m_polytri =
+    m_polytri =
             new Poly_Triangulation(
-                static_cast<int>(creator->m_vec_node.size()),
-                static_cast<int>(creator->m_vec_triangle.size()),
+                static_cast<int>(m_vec_node.size()),
+                static_cast<int>(m_vec_triangle.size()),
                 Standard_False); // False->No UVNodes
     // Copy nodes
-    TColgp_Array1OfPnt* nodes = &creator->m_polytri->ChangeNodes();
-    std::memcpy(&nodes->ChangeValue(nodes->Lower()),
-                creator->m_vec_node.data(),
-                creator->m_vec_node.size() * sizeof(gp_XYZ));
+    TColgp_Array1OfPnt* nodes = &(m_polytri->ChangeNodes());
+    std::memcpy(&(nodes->ChangeValue(nodes->Lower())),
+                m_vec_node.data(),
+                m_vec_node.size() * sizeof(gp_XYZ));
     // Copy normals
     Handle_TShort_HArray1OfShortReal normals =
-            new TShort_HArray1OfShortReal(
-                1, static_cast<int>(3 * creator->m_vec_node.size()));
+            new TShort_HArray1OfShortReal(1, static_cast<int>(3 * m_vec_normal.size()));
     std::memcpy(&normals->ChangeValue(normals->Lower()),
-                creator->m_vec_normal.data(),
-                creator->m_vec_normal.size() * sizeof(gmio_vec3f));
-    creator->m_polytri->SetNormals(normals);
+                m_vec_normal.data(),
+                m_vec_normal.size() * sizeof(Vec3f));
+    m_polytri->SetNormals(normals);
     // Copy triangles
-    Poly_Array1OfTriangle* triangles = &creator->m_polytri->ChangeTriangles();
+    Poly_Array1OfTriangle* triangles = &(m_polytri->ChangeTriangles());
     std::memcpy(&triangles->ChangeValue(triangles->Lower()),
-                creator->m_vec_triangle.data(),
-                creator->m_vec_triangle.size() * sizeof(Poly_Triangle));
+                m_vec_triangle.data(),
+                m_vec_triangle.size() * sizeof(Poly_Triangle));
 }
 
-int gmio_stl_mesh_creator_occpolytri::add_unique_vertex(
-        const gmio_vec3f& v, const gmio_vec3f& n)
+int gmio::STL_MeshCreatorOccPolyTriangulation::addUniqueNode(
+        const gp_XYZ &coords, const Vec3f& normal)
 {
-    const gp_XYZ pnt(v.x, v.y, v.z);
-    int index = gmio_occ_find_vertex_index(pnt, &m_filter, &m_inspector);
-    if (index != -1)
-        return index;
-    m_vec_node.push_back(pnt);
-    m_vec_normal.push_back(n);
-    index = static_cast<int>(m_vec_node.size()); // Note: lowerbound = 1
-    gmio_occ_add_vertex_index(pnt, index, &m_filter, &m_inspector);
+    int index = m_merge_tool.findIndex(coords);
+    if (index == -1) {
+        index = m_merge_tool.addNode(coords);
+        m_vec_node.push_back(std::move(coords));
+        m_vec_normal.push_back(normal);
+    }
     return index;
 }
+
+} // namespace gmio

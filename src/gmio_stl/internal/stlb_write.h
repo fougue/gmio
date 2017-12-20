@@ -30,18 +30,17 @@
 #pragma once
 
 #include "../../gmio_core/endian.h"
-#include "../../gmio_core/stream.h"
+#include "../../gmio_core/iodevice.h"
 #include "../stl_io_options.h"
 #include "../stl_mesh.h"
 
-/*! Writes geometry in the STL binary format
- *
- *  \return Error code (see error.h and stl_error.h)
- *  \retval GMIO_INVALID_MEMBLOCK_SIZE_ERROR
- *          if <tt>opts->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
- */
-int gmio_stlb_write(
-        enum gmio_endianness byte_order,
-        struct gmio_stream* stream,
-        const struct gmio_stl_mesh* mesh,
-        const struct gmio_stl_write_options* opts);
+namespace gmio {
+
+//! Writes geometry in the STL binary format
+int STL_writeBinary(
+        Endianness byte_order,
+        FuncWriteData func_write,
+        const STL_Mesh& mesh,
+        STL_WriteOptions options = {});
+
+} // namespace gmio

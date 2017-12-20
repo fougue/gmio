@@ -36,26 +36,29 @@
 
 #pragma once
 
-/*! Various formats to textually represent a float(single/double precision) */
-enum gmio_float_text_format
-{
-    /*! Decimal floating point, lowercase (ex: 392.65) */
-    GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE = 0,
+namespace gmio {
 
-    /*! Decimal floating point, uppercase (ex: 392.65) */
-    GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE,
+//! Various formats to textually represent a float(single/double precision)
+enum class FloatTextFormat {
+    //! Decimal floating point, lowercase (ex: 392.65)
+    DecimalLowercase = 0,
 
-    /*! Scientific notation, lowercase (ex: 3.9265e+2) */
-    GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE,
+    //! Decimal floating point, uppercase (ex: 392.65)
+    DecimalUppercase,
 
-    /*! Scientific notation, uppercase (ex: 3.9265E+2) */
-    GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE,
+    //! Scientific notation, lowercase (ex: 3.9265e+2)
+    ScientificLowercase,
 
-    /*! Use the shortest representation: decimal or scientific lowercase */
-    GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE,
+    //! Scientific notation, uppercase (ex: 3.9265E+2)
+    ScientificUppercase,
 
-    /*! Use the shortest representation: decimal or scientific uppercase */
-    GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE
+    //! Use the shortest representation: decimal or scientific lowercase
+    ShortestLowercase,
+
+    //! Use the shortest representation: decimal or scientific uppercase
+    ShortestUppercase
 };
+
+} // namespace gmio
 
 /*! @} */

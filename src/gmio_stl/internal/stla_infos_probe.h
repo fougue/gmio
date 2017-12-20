@@ -31,9 +31,12 @@
 
 #include "../stl_infos.h"
 
-/*! Find infos from a STL ASCII stream */
-int gmio_stla_infos_probe(
-        struct gmio_stl_infos* infos,
-        struct gmio_stream* stream,
+namespace gmio {
+
+//! Find infos from a STL ASCII stream
+Result<STL_Infos> STL_probeAsciiInfos(
+        FuncReadData func_read,
         unsigned flags,
-        const struct gmio_stl_infos_probe_options* opts);
+        STL_ProbeInfosOptions options = {});
+
+} // namespace gmio

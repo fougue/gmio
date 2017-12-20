@@ -30,92 +30,67 @@
 #pragma once
 
 #include "../global.h"
+#include "../vecgeom.h"
+#include "numeric_utils.h"
+#include <limits>
 
-/*! Computes in-place cross product of two gmio_vec3f objects */
-GMIO_INLINE void gmio_vec3f_cross_product(
-        const struct gmio_vec3f* u,
-        const struct gmio_vec3f* v,
-        struct gmio_vec3f* n);
+namespace gmio {
 
-/*! Computes in-place cross product of two gmio_vec3d objects */
-GMIO_INLINE void gmio_vec3d_cross_product(
-        const struct gmio_vec3d* u,
-        const struct gmio_vec3d* v,
-        struct gmio_vec3d* n);
+//! Returns cross product of two Vec3 objects
+template<typename T> Vec3<T> vec3_crossProduct(const Vec3<T>& u, const Vec3<T>& v);
 
-/*! Returns the squared length of a gmio_vec3f object */
-GMIO_INLINE float gmio_vec3f_sqr_length(const struct gmio_vec3f* v);
+//! Returns u - v
+template<typename T> constexpr Vec3<T> vec3_sub(const Vec3<T>& u, const Vec3<T>& v);
 
-/*! Returns the squared length of a gmio_vec3d object */
-GMIO_INLINE double gmio_vec3d_sqr_length(const struct gmio_vec3d* v);
+//! Returns normalized Vec3 object
+template<typename T> Vec3<T> vec3_normalized(const Vec3<T>& v);
 
-/*! Normalizes in-place a gmio_vec3f object */
-GMIO_INLINE void gmio_vec3f_normalize(struct gmio_vec3f* v);
+//! Returns the squared length of a Vec3 object
+template<typename T> constexpr T vec3_sqrLength(const Vec3<T>& v);
 
-/*! Normalizes in-place a gmio_vec3d object */
-GMIO_INLINE void gmio_vec3d_normalize(struct gmio_vec3d* v);
+//! Does 'lhs' == 'rhs' using float32_ulpEquals() on coords ?
+template<typename T> bool vec3_equals(
+        const Vec3<T>& lhs, const Vec3<T>& rhs, uint32_t max_ulp_diff);
 
-/*
- *  Implementation
- */
+//
+//  Implementation
+//
 
-#include "c99_math_compat.h"
-#include <float.h>
-
-void gmio_vec3f_cross_product(
-        const struct gmio_vec3f* u,
-        const struct gmio_vec3f* v,
-        struct gmio_vec3f* n)
+template<typename T> Vec3<T> vec3_crossProduct(const Vec3<T>& u, const Vec3<T>& v)
 {
-    const float ux = u->x, uy = u->y, uz = u->z;
-    const float vx = v->x, vy = v->y, vz = v->z;
-    n->x = uy*vz - uz*vy;
-    n->y = uz*vx - ux*vz;
-    n->z = ux*vy - uy*vx;
-    gmio_vec3f_normalize(n);
+    const T ux = u.x, uy = u.y, uz = u.z;
+    const T vx = v.x, vy = v.y, vz = v.z;
+    Vec3<T> n;
+    n.x = uy*vz - uz*vy;
+    n.y = uz*vx - ux*vz;
+    n.z = ux*vy - uy*vx;
+    return vec3_normalized(n);
 }
 
-void gmio_vec3d_cross_product(
-        const struct gmio_vec3d* u,
-        const struct gmio_vec3d* v,
-        struct gmio_vec3d* n)
+template<typename T> Vec3<T> vec3_normalized(const Vec3<T>& v)
 {
-    const double ux = u->x, uy = u->y, uz = u->z;
-    const double vx = v->x, vy = v->y, vz = v->z;
-    n->x = uy*vz - uz*vy;
-    n->y = uz*vx - ux*vz;
-    n->z = ux*vy - uy*vx;
-    gmio_vec3d_normalize(n);
+    const T d = std::sqrt(vec3_sqrLength(v));
+    if (d > std::numeric_limits<T>::min())
+        return { v.x/d, v.y/d, v.z/d};
+    return v;
 }
 
-float gmio_vec3f_sqr_length(const struct gmio_vec3f* v)
+template<typename T> constexpr Vec3<T> vec3_sub(const Vec3<T>& u, const Vec3<T>& v)
 {
-    const float vx = v->x, vy = v->y, vz = v->z;
-    return vx*vx + vy*vy + vz*vz;
+    return { u.x - v.x, u.y - v.y, u.z - v.z };
 }
 
-double gmio_vec3d_sqr_length(const struct gmio_vec3d* v)
+template<typename T> constexpr T vec3_sqrLength(const Vec3<T>& v)
 {
-    const double vx = v->x, vy = v->y, vz = v->z;
-    return vx*vx + vy*vy + vz*vz;
+    return v.x*v.x + v.y*v.y + v.z*v.z;
 }
 
-void gmio_vec3f_normalize(struct gmio_vec3f* v)
+template<typename T> bool vec3_equals(
+        const Vec3<T>& lhs, const Vec3<T>& rhs, uint32_t max_ulp_diff)
 {
-    const float d = gmio_sqrtf(gmio_vec3f_sqr_length(v));
-    if (d > FLT_MIN) {
-        v->x /= d;
-        v->y /= d;
-        v->z /= d;
-    }
+    return float32_ulpEquals(lhs.x, rhs.x, max_ulp_diff)
+            && float32_ulpEquals(lhs.y, rhs.y, max_ulp_diff)
+            && float32_ulpEquals(lhs.z, rhs.z, max_ulp_diff);
 }
 
-void gmio_vec3d_normalize(struct gmio_vec3d* v)
-{
-    const double d = sqrt(gmio_vec3d_sqr_length(v));
-    if (d > DBL_MIN) {
-        v->x /= d;
-        v->y /= d;
-        v->z /= d;
-    }
-}
+} // namespace gmio

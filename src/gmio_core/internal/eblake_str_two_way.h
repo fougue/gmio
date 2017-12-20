@@ -46,10 +46,11 @@
 */
 
 #include "../global.h"
-#include "min_max.h"
+#include <algorithm>
 
-#include <limits.h>
-#include <string.h>
+#include <climits>
+#include <cstring>
+#include <limits>
 
 /* We use the Two-Way string matching algorithm, which guarantees
    linear complexity with constant space.  Additionally, for long
@@ -61,7 +62,7 @@
    and http://en.wikipedia.org/wiki/Boyer-Moore_string_search_algorithm
 */
 
-#define GMIO_SIZE_MAX ((size_t)-1)
+const size_t gmio_size_max = std::numeric_limits<size_t>::max();
 
 /* Point at which computing a bad-byte shift table is likely to be
    worthwhile.  Small needles should not compute a table, since it
@@ -73,7 +74,7 @@
 #if CHAR_BIT < 10
 # define LONG_NEEDLE_THRESHOLD 32U
 #else
-# define LONG_NEEDLE_THRESHOLD GMIO_SIZE_MAX
+# define LONG_NEEDLE_THRESHOLD gmio_size_max
 #endif
 
 #ifndef CANON_ELEMENT
@@ -139,7 +140,7 @@ critical_factorization (const unsigned char *needle, size_t needle_len,
   */
 
   /* Perform lexicographic search.  */
-  max_suffix = GMIO_SIZE_MAX;
+  max_suffix = gmio_size_max;
   j = 0;
   k = p = 1;
   while (j + k < needle_len)
@@ -174,7 +175,7 @@ critical_factorization (const unsigned char *needle, size_t needle_len,
   *period = p;
 
   /* Perform reverse lexicographic search.  */
-  max_suffix_rev = GMIO_SIZE_MAX;
+  max_suffix_rev = gmio_size_max;
   j = 0;
   k = p = 1;
   while (j + k < needle_len)
@@ -256,7 +257,7 @@ two_way_short_needle (const unsigned char *haystack, size_t haystack_len,
           const unsigned char *phaystack;
 
           /* Scan for matches in right half.  */
-          i = GMIO_MAX (suffix, memory);
+          i = std::max(suffix, memory);
           pneedle = &needle[i];
           phaystack = &haystack[i + j];
           while (i < needle_len && (CANON_ELEMENT (*pneedle++)
@@ -302,7 +303,7 @@ two_way_short_needle (const unsigned char *haystack, size_t haystack_len,
 
       /* The two halves of needle are distinct; no extra memory is
          required, and any mismatch results in a maximal shift.  */
-      period = GMIO_MAX (suffix, needle_len - suffix) + 1;
+      period = std::max(suffix, needle_len - suffix) + 1;
       j = 0;
       while (1
 #if !CHECK_EOL
@@ -350,7 +351,7 @@ two_way_short_needle (const unsigned char *haystack, size_t haystack_len,
               i = suffix - 1;
               pneedle = &needle[i];
               phaystack = &haystack[i + j];
-              while (i != GMIO_SIZE_MAX)
+              while (i != gmio_size_max)
                 {
                   if (CANON_ELEMENT (*pneedle--)
                       != (haystack_char = CANON_ELEMENT (*phaystack--)))
@@ -360,7 +361,7 @@ two_way_short_needle (const unsigned char *haystack, size_t haystack_len,
                     }
                   --i;
                 }
-              if (i == GMIO_SIZE_MAX)
+              if (i == gmio_size_max)
                 return (RETURN_TYPE) (haystack + j);
               j += period;
             }
@@ -447,7 +448,7 @@ two_way_long_needle (const unsigned char *haystack, size_t haystack_len,
             }
           /* Scan for matches in right half.  The last byte has
              already been matched, by virtue of the shift table.  */
-          i = GMIO_MAX (suffix, memory);
+          i = std::max(suffix, memory);
           pneedle = &needle[i];
           phaystack = &haystack[i + j];
           while (i < needle_len - 1 && (CANON_ELEMENT (*pneedle++)
@@ -481,7 +482,7 @@ two_way_long_needle (const unsigned char *haystack, size_t haystack_len,
       /* The two halves of needle are distinct; no extra memory is
          required, and any mismatch results in a maximal shift.  */
       size_t shift;
-      period = GMIO_MAX (suffix, needle_len - suffix) + 1;
+      period = std::max(suffix, needle_len - suffix) + 1;
       j = 0;
       while (AVAILABLE (haystack, haystack_len, j, needle_len))
         {
@@ -510,10 +511,10 @@ two_way_long_needle (const unsigned char *haystack, size_t haystack_len,
               i = suffix - 1;
               pneedle = &needle[i];
               phaystack = &haystack[i + j];
-              while (i != GMIO_SIZE_MAX && (CANON_ELEMENT (*pneedle--)
+              while (i != gmio_size_max && (CANON_ELEMENT (*pneedle--)
                                        == CANON_ELEMENT (*phaystack--)))
                 --i;
-              if (i == GMIO_SIZE_MAX)
+              if (i == gmio_size_max)
                 return (RETURN_TYPE) (haystack + j);
               j += period;
             }

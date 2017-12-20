@@ -34,27 +34,34 @@
  *  @{
  */
 
-#ifndef __cplusplus
-#  error C++ compiler required
-#endif
-
 #pragma once
 
 #include "support_global.h"
-#include "../gmio_core/stream.h"
+#include "../gmio_core/iodevice.h"
 #include <QtCore/QtGlobal>
 
 QT_BEGIN_NAMESPACE
 class QIODevice;
 QT_END_NAMESPACE
 
-/*! Returns a gmio_stream for \c QIODevice* (cookie will hold \p device) */
-struct gmio_stream gmio_stream_qiodevice(
-#ifndef DOXYGEN
-        QT_PREPEND_NAMESPACE(QIODevice)* device
-#else
-        QIODevice* device
-#endif /* !DOXYGEN */
-        );
+namespace gmio {
+
+FuncReadData QIODevice_funcReadData(
+        #ifndef DOXYGEN
+                QT_PREPEND_NAMESPACE(QIODevice)* device
+        #else
+                QIODevice* device
+        #endif
+);
+
+FuncWriteData QIODevice_funcWriteData(
+        #ifndef DOXYGEN
+                QT_PREPEND_NAMESPACE(QIODevice)* device
+        #else
+                QIODevice* device
+        #endif
+);
+
+} // namespace gmio
 
 /*! @} */

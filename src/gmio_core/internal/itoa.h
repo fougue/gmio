@@ -30,42 +30,42 @@
 #pragma once
 
 #include "../global.h"
+#include "../../3rdparty/miloyip_itoa/branchlut.h"
 
-GMIO_INLINE char* gmio_u32toa(uint32_t value, char* str);
-GMIO_INLINE char* gmio_i32toa(int32_t value, char* str);
-#ifdef GMIO_HAVE_INT64_TYPE
-GMIO_INLINE char* gmio_u64toa(uint64_t value, char* str);
-GMIO_INLINE char* gmio_i64toa(int64_t value, char* str);
-#endif
+namespace gmio {
+
+inline char* u32toa(uint32_t value, char* str);
+inline char* i32toa(int32_t value, char* str);
+inline char* u64toa(uint64_t value, char* str);
+inline char* i64toa(int64_t value, char* str);
 
 /*
  * Implementation
  */
 
-#include "../../3rdparty/miloyip_itoa/branchlut.h"
 
-char* gmio_u32toa(uint32_t value, char* str)
+char* u32toa(uint32_t value, char* str)
 {
     if (value < 10) {
-        *str++ = '0' + (char)value;
+        *str++ = '0' + static_cast<char>(value);
         return str;
     }
     return u32toa_branchlut(value, str);
 }
 
-char* gmio_i32toa(int32_t value, char* str)
+char* i32toa(int32_t value, char* str)
 {
     return i32toa_branchlut(value, str);
 }
 
-#ifdef GMIO_HAVE_INT64_TYPE
-char* gmio_u64toa(uint64_t value, char* str)
+char* u64toa(uint64_t value, char* str)
 {
     return u64toa_branchlut(value, str);
 }
 
-char* gmio_i64toa(int64_t value, char* str)
+char* i64toa(int64_t value, char* str)
 {
     return i64toa_branchlut(value, str);
 }
-#endif /* GMIO_HAVE_INT64_TYPE */
+
+} // namespace gmio

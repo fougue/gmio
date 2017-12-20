@@ -30,89 +30,83 @@
 #pragma once
 
 #include "../../src/gmio_core/global.h"
-#include <stddef.h>
+#include "../../src/gmio_core/span.h"
 
-GMIO_C_LINKAGE_BEGIN
+#include <cstddef>
+#include <functional>
+#include <ostream>
+#include <string>
+#include <vector>
 
-#ifdef GMIO_HAVE_INT64_TYPE
-typedef uint64_t gmio_time_ms_t;
-#else
-typedef size_t gmio_time_ms_t;
-#endif
+namespace gmio {
 
-/*! Typedef on pointer to function to be benchmarked(execution time) */
-typedef void (*benchmark_func_t)(const void*);
+class Benchmark_Timer {
+public:
+    Benchmark_Timer();
+    ~Benchmark_Timer();
 
-/* benchmark_cmp */
+    void start();
+    uint64_t elapsedMs() const;
 
-/*! Describes a comparison benchmark between two functions */
-struct benchmark_cmp_arg
-{
-    /*! Brief description of the comparison(eg. "Write to file") */
-    const char* tag;
-    /*! Pointer to the 1st function */
-    benchmark_func_t func1;
-    /*! Argument passed to the 1st function on exec */
-    const void* func1_arg;
-    /*! Pointer to the 2nd function */
-    benchmark_func_t func2;
-    /*! Argument passed to the 2nd function on exec */
-    const void* func2_arg;
+private:
+    class Pimpl;
+    Pimpl* d;
 };
 
-/*! Holds the result of the exec time comparison between two functions */
-struct benchmark_cmp_result
-{
-    /*! Identifies the comparison */
-    const char* tag;
-    /*! Execution time(in ms) of the 1st function */
-    gmio_time_ms_t func1_exec_time_ms;
-    /*! Is exec time of the 1st function valid ? */
-    bool has_func1_exec_time;
-    /*! Execution time(in ms) of the 2nd function */
-    gmio_time_ms_t func2_exec_time_ms;
-    /*! Is exec time of the 2nd function valid ? */
-    bool has_func2_exec_time;
+// benchmark_cmp
+
+//! Describes a comparison benchmark between two functions
+struct Benchmark_CmpArg {
+    std::string tag; //! Brief description of the comparison(eg. "Write to file")
+    std::function<void ()> func1; //! Pointer to the 1st function
+    std::function<void ()> func2; //! Pointer to the 2nd function
+};
+
+struct Benchmark_ExecTime {
+    uint64_t ms;   //! Execution time(in ms)
+    bool is_valid; //! Is exec time valid ?
+};
+
+//! Holds the result of the exec time comparison between two functions
+struct Benchmark_CmpResult {
+    std::string tag; //! Identifies the comparison
+    Benchmark_ExecTime func1_exec_time;
+    Benchmark_ExecTime func2_exec_time;
     float func2_func1_ratio;
 };
 
-/*! Runs func1 then func2 and measures the respective execution time */
-struct benchmark_cmp_result benchmark_cmp(struct benchmark_cmp_arg arg);
+//! Runs func1 then func2 and measures the respective execution time
+Benchmark_CmpResult Benchmark_cmp(const Benchmark_CmpArg& arg);
 
-/*! Runs a batch(array) of comparison benchmarks */
-void benchmark_cmp_batch(
+//! Runs a batch(array) of comparison benchmarks
+std::vector<Benchmark_CmpResult> Benchmark_cmpBatch(
         size_t run_count,
-        const struct benchmark_cmp_arg* arg_array,
-        struct benchmark_cmp_result* result_array,
-        void (*func_init)(),
-        void (*func_cleanup)());
+        Span<const Benchmark_CmpArg> args,
+        const std::function<void ()>& func_init = nullptr,
+        const std::function<void ()>& func_cleanup = nullptr);
 
+// benchmark_print_results
 
-/* benchmark_print_results */
-
-enum benchmark_print_format
-{
-    BENCHMARK_PRINT_FORMAT_MARKDOWN = 0
+enum class Benchmark_PrintFormat {
+    Markdown = 0
 };
 
-/*! Array of benchmark_cmp_result */
-struct benchmark_cmp_result_array
-{
-    const struct benchmark_cmp_result* ptr;
-    size_t count;
+//! Horizontal header labels for benchmark results(by column)
+struct Benchmark_CmpResultHeader {
+    std::string component_1;
+    std::string component_2;
 };
 
-/*! Horizontal header labels for benchmark results(by column) */
-struct benchmark_cmp_result_header
-{
-    const char* component_1;
-    const char* component_2;
-};
+//! Prints formatted benchmark results
+void Benchmark_printResults(
+        std::ostream& ostr,
+        Benchmark_PrintFormat format,
+        const Benchmark_CmpResultHeader& header,
+        Span<const Benchmark_CmpResult> results);
 
-/*! Prints formatted benchmark results */
-void benchmark_print_results(
-        enum benchmark_print_format format,
-        struct benchmark_cmp_result_header header,
-        struct benchmark_cmp_result_array result_array);
+void Benchmark_printResults_Markdown(
+        std::ostream& ostr,
+        const Benchmark_CmpResultHeader& header,
+        Span<const Benchmark_CmpResult> results);
 
-GMIO_C_LINKAGE_END
+} // namespace gmio

@@ -32,11 +32,12 @@
 #if GMIO_STR2FLOAT_LIB == GMIO_STR2FLOAT_LIB_DOUBLE_CONVERSION \
     || GMIO_FLOAT2STR_LIB == GMIO_FLOAT2STR_LIB_DOUBLE_CONVERSION
 
-#include "c99_math_compat.h"
 #include "string_ascii_utils.h"
 #include "../../3rdparty/double-conversion/double-conversion.h"
 
 #include <limits>
+
+namespace gmio {
 
 namespace {
 
@@ -51,7 +52,7 @@ template<> struct FloatTraits<float> { static float zero() { return 0.f; } };
 template<> struct FloatTraits<double> { static double zero() { return 0.; } };
 
 template<typename T>
-T gmio_generic_str2float_googledoubleconversion(const char* num, size_t numlen)
+T GDC_str2floatGeneric(const char* num, size_t numlen)
 {
     // Important note: implementation adapted from Qt5 source code
     //     qtbase/src/corelib/tools/qlocale_tools.cpp
@@ -91,12 +92,12 @@ T gmio_generic_str2float_googledoubleconversion(const char* num, size_t numlen)
     // We have to catch NaN before because we need NaN as marker for "garbage"
     // in the libdouble-conversion case and, in contrast to libdouble-conversion
     // or sscanf, we don't allow "-nan" or "+nan"
-    if (gmio_ascii_stricmp(num, "nan") == 0) {
+    if (ascii_stricmp(num, "nan") == 0) {
         processed = 3;
         return gmio_snan<T>();
     }
     else if ((num[0] == '-' || num[0] == '+')
-             && gmio_ascii_stricmp(num + 1, "nan") == 0)
+             && ascii_stricmp(num + 1, "nan") == 0)
     {
         processed = 0;
         ok = false;
@@ -105,23 +106,23 @@ T gmio_generic_str2float_googledoubleconversion(const char* num, size_t numlen)
 
     // Infinity values are implementation defined in the sscanf case. In the
     // libdouble-conversion case we need infinity as overflow marker
-    if (gmio_ascii_stricmp(num, "+inf") == 0) {
+    if (ascii_stricmp(num, "+inf") == 0) {
         processed = 4;
         return gmio_inf<T>();
-    } else if (gmio_ascii_stricmp(num, "inf") == 0) {
+    } else if (ascii_stricmp(num, "inf") == 0) {
         processed = 3;
         return gmio_inf<T>();
-    } else if (gmio_ascii_stricmp(num, "-inf") == 0) {
+    } else if (ascii_stricmp(num, "-inf") == 0) {
         processed = 4;
         return -gmio_inf<T>();
     }
 
     static const double_conversion::StringToDoubleConverter conv(
-                conv_flags, 0., gmio_snan<T>(), NULL, NULL);
+                conv_flags, 0., gmio_snan<T>(), nullptr, nullptr);
     f = conv.StringToFloat(num, static_cast<int>(numlen), &processed);
-    if (!gmio_isfinite(f)) {
+    if (!std::isfinite(f)) {
         ok = false;
-        if (gmio_isnan(f)) {
+        if (std::isnan(f)) {
             // Garbage found. We don't accept it and return 0
             processed = 0;
             return FloatTraits<T>::zero();
@@ -149,74 +150,74 @@ T gmio_generic_str2float_googledoubleconversion(const char* num, size_t numlen)
 }
 
 template<typename T>
-int gmio_generic_float2str_googledoubleconversion(
+int GDC_float2strGeneric(
         T value,
         char *buff,
         size_t bufflen,
-        gmio_float_text_format textformat,
+        FloatTextFormat textformat,
         uint8_t prec)
 {
     static const int flags =
             double_conversion::DoubleToStringConverter::UNIQUE_ZERO
             | double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
     const bool lowercase_exp_char =
-            textformat == GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE
-            || textformat == GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE
-            || textformat == GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE;
+            textformat == FloatTextFormat::DecimalLowercase
+            || textformat == FloatTextFormat::ScientificLowercase
+            || textformat == FloatTextFormat::ShortestLowercase;
     const char exp_char = lowercase_exp_char ? 'e' : 'E';
     const double_conversion::DoubleToStringConverter conv(
                 flags, "Infinity", "NaN", exp_char, -6, 21, 6, 0);
     double_conversion::StringBuilder result_builder(
                 buff, static_cast<int>(bufflen));
     switch (textformat) {
-    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE:
-    case GMIO_FLOAT_TEXT_FORMAT_DECIMAL_UPPERCASE:
+    case FloatTextFormat::DecimalLowercase:
+    case FloatTextFormat::DecimalUppercase:
         conv.ToFixed(value, prec, &result_builder);
         break;
-    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE:
-    case GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_UPPERCASE:
+    case FloatTextFormat::ScientificLowercase:
+    case FloatTextFormat::ScientificUppercase:
         conv.ToExponential(value, prec, &result_builder);
         break;
-    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_LOWERCASE:
-    case GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE:
+    case FloatTextFormat::ShortestLowercase:
+    case FloatTextFormat::ShortestUppercase:
         conv.ToPrecision(value, prec, &result_builder);
         break;
     }
     return result_builder.position();
 }
 
-} // Anonymous namespace
+} // namespace
 
-float gmio_str2float_googledoubleconversion(const char* num, size_t numlen)
+float GDC_str2float(const char* num, size_t numlen)
 {
-    return ::gmio_generic_str2float_googledoubleconversion<float>(num, numlen);
+    return GDC_str2floatGeneric<float>(num, numlen);
 }
 
-double gmio_str2double_googledoubleconversion(const char* num, size_t numlen)
+double GDC_str2double(const char* num, size_t numlen)
 {
-    return ::gmio_generic_str2float_googledoubleconversion<double>(num, numlen);
+    return GDC_str2floatGeneric<double>(num, numlen);
 }
 
-int gmio_float2str_googledoubleconversion(
+int GDC_float2str(
         float value,
         char *buff,
         size_t bufflen,
-        gmio_float_text_format textformat,
+        FloatTextFormat textformat,
         uint8_t prec)
 {
-    return gmio_generic_float2str_googledoubleconversion<float>(
-                value, buff, bufflen, textformat, prec);
+    return GDC_float2strGeneric<float>(value, buff, bufflen, textformat, prec);
 }
 
-int gmio_double2str_googledoubleconversion(
+int GDC_double2strGeneric(
         double value,
         char* buff,
         size_t bufflen,
-        enum gmio_float_text_format textformat,
+        FloatTextFormat textformat,
         uint8_t prec)
 {
-    return gmio_generic_float2str_googledoubleconversion<double>(
-                value, buff, bufflen, textformat, prec);
+    return GDC_float2strGeneric<double>(value, buff, bufflen, textformat, prec);
 }
 
-#endif /* GMIO_STR2FLOAT_LIB == LIB_GOOGLE_DOUBLE_CONVERSION */
+} // namespace gmio
+
+#endif // GMIO_STR2FLOAT_LIB == LIB_GOOGLE_DOUBLE_CONVERSION

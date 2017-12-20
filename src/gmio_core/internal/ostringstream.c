@@ -27,28 +27,30 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
+#if 0
 #include "ostringstream.h"
 
-#include "helper_stream.h"
 #include "itoa.h"
 #include "min_max.h"
 #include "../../3rdparty/base64/b64.h"
 
 #if GMIO_FLOAT2STR_LIB == GMIO_FLOAT2STR_LIB_STD
-#  include "c99_stdio_compat.h"
+#  include <cstdio>
 #elif GMIO_FLOAT2STR_LIB == GMIO_FLOAT2STR_LIB_DOUBLE_CONVERSION
 #  include "google_doubleconversion.h"
 #endif
 
-#include <string.h>
+#include <cstring>
 
-GMIO_INLINE char* gmio_ostringstream_strbuff_pos(
+namespace gmio {
+
+inline char* gmio_ostringstream_strbuff_pos(
         const struct gmio_ostringstream* sstream)
 {
     return sstream->strbuff.ptr + sstream->strbuff.len;
 }
 
-GMIO_INLINE size_t gmio_string_remaining_capacity(const struct gmio_string* str)
+inline size_t gmio_string_remaining_capacity(const struct gmio_string* str)
 {
     return str->capacity - str->len;
 }
@@ -168,7 +170,7 @@ void gmio_ostringstream_write_f64(
     if (buff->capacity - buff->len < 32)
         gmio_ostringstream_flush(sstream);
 #if GMIO_FLOAT2STR_LIB == GMIO_FLOAT2STR_LIB_STD
-    written_count = gmio_snprintf(
+    written_count = std::snprintf(
                 buff->ptr + buff->len,
                 buff->capacity - buff->len,
                 nformat->printf_format,
@@ -212,3 +214,6 @@ void gmio_ostringstream_write_base64(
         buff->len += 4;
     }
 }
+
+} // namespace gmio
+#endif

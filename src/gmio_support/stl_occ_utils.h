@@ -43,43 +43,89 @@
 #include <BRepBuilderAPI_CellFilter.hxx>
 #include <BRepBuilderAPI_VertexInspector.hxx>
 #include <Precision.hxx>
+#include <NCollection_DataMap.hxx>
+#include <NCollection_IncAllocator.hxx>
 
-GMIO_INLINE void gmio_stl_occ_copy_xyz(
-        gmio_vec3f* vec, double x, double y, double z);
+namespace gmio {
 
-GMIO_INLINE void gmio_stl_occ_copy_xyz(
-        gmio_vec3f* vec, const gp_XYZ& coords);
+template<typename T> constexpr void OCC_copyCoords(
+        Vec3<T>* vec, double x, double y, double z);
 
-GMIO_INLINE int gmio_occ_find_vertex_index(
+template<typename T> constexpr void OCC_copyCoords(
+        Vec3<T>* vec, const gp_XYZ& coords);
+
+template<typename T> constexpr gp_XYZ OCC_fromVec3(const Vec3<T>& coords) {
+    return { coords.y, coords.y, coords.z };
+}
+
+template<typename T> constexpr Vec3<T> OCC_toVec3(const gp_XYZ& coords) {
+    return { static_cast<T>(coords.X()),
+             static_cast<T>(coords.Y()),
+             static_cast<T>(coords.Z()) };
+}
+
+inline int OCC_findVertexIndex(
         const gp_XYZ& coords,
         BRepBuilderAPI_CellFilter* filter,
         BRepBuilderAPI_VertexInspector* inspector);
 
-GMIO_INLINE void gmio_occ_add_vertex_index(
+inline void OCC_addVertexIndex(
         const gp_XYZ& coords,
         int index,
         BRepBuilderAPI_CellFilter* filter,
         BRepBuilderAPI_VertexInspector* inspector);
 
+// Excerpted and adapted from OpenCascade RWStl_Reader.cxx
+class OCC_MergeNodeTool {
+public:
+    OCC_MergeNodeTool::OCC_MergeNodeTool()
+        : m_map(1024, new NCollection_IncAllocator(1024 * 1024))
+    { }
 
+    int findIndex(const gp_XYZ& coords) const {
+        int index;
+        return m_map.Find(coords, index) ? index : -1;
+    }
 
-/*
- * Implementation
- */
+    int addNode(const gp_XYZ& coords) {
+        const int index = m_node_index;
+        m_map.Bind(coords, index);
+        ++m_node_index;
+        return index;
+    }
 
-void gmio_stl_occ_copy_xyz(gmio_vec3f* vec, double x, double y, double z)
+    static Standard_Boolean IsEqual(const gp_XYZ& pnt1, const gp_XYZ& pnt2) {
+        return (pnt1 - pnt2).SquareModulus() < Precision::SquareConfusion();
+    }
+
+    static Standard_Integer HashCode(const gp_XYZ& pnt, Standard_Integer upper) {
+        return ::HashCode(pnt.X() * M_LN10 + pnt.Y() * M_PI + pnt.Z() * M_E, upper);
+    }
+
+private:
+    NCollection_DataMap<gp_XYZ, Standard_Integer, OCC_MergeNodeTool> m_map;
+    int m_node_index = 1;
+};
+
+//
+// Implementation
+//
+
+template<typename T> constexpr void OCC_copyCoords(
+        Vec3<T>* vec, double x, double y, double z)
 {
-    vec->x = static_cast<float>(x);
-    vec->y = static_cast<float>(y);
-    vec->z = static_cast<float>(z);
+    vec->x = static_cast<T>(x);
+    vec->y = static_cast<T>(y);
+    vec->z = static_cast<T>(z);
 }
 
-void gmio_stl_occ_copy_xyz(gmio_vec3f* vec, const gp_XYZ& coords)
+template<typename T> constexpr void OCC_copyCoords(
+        Vec3<T>* vec, const gp_XYZ& coords)
 {
-    gmio_stl_occ_copy_xyz(vec, coords.X(), coords.Y(), coords.Z());
+    OCC_copyCoords(vec, coords.X(), coords.Y(), coords.Z());
 }
 
-int gmio_occ_find_vertex_index(
+int OCC_findVertexIndex(
         const gp_XYZ& coords,
         BRepBuilderAPI_CellFilter* filter,
         BRepBuilderAPI_VertexInspector* inspector)
@@ -101,7 +147,7 @@ int gmio_occ_find_vertex_index(
     return -1;
 }
 
-void gmio_occ_add_vertex_index(
+void OCC_addVertexIndex(
         const gp_XYZ& coords,
         int index,
         BRepBuilderAPI_CellFilter* filter,
@@ -110,5 +156,7 @@ void gmio_occ_add_vertex_index(
     filter->Add(index, coords);
     inspector->Add(coords);
 }
+
+} // namespace gmio
 
 /*! @} */

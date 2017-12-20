@@ -30,178 +30,180 @@
 #pragma once
 
 #include "../global.h"
-#include <stddef.h>
+#include <string>
 
-/*! Returns non-zero if \p c is a space, zero otherwise */
-GMIO_INLINE int gmio_ascii_isspace(char c);
+namespace gmio {
 
-/*! Returns non-zero if \p c is a digit, zero otherwise */
-GMIO_INLINE int gmio_ascii_isdigit(char c);
+//! Returns whether 'c' is a space or not
+constexpr bool ascii_isSpace(char c);
 
-/*! Returns non-zero if \p c is an uppercase letter, zero otherwise */
-GMIO_INLINE int gmio_ascii_isupper(char c);
+//! Returns whether 'c' is a digit or not
+constexpr bool ascii_isDigit(char c);
 
-/*! Returns non-zero if \p c is a lowercase letter, zero otherwise */
-GMIO_INLINE int gmio_ascii_islower(char c);
+//! Returns whether 'c' is an uppercase letter or not
+constexpr bool ascii_isUpper(char c);
 
-/*! Returns the lowercase letter converted to uppercase */
-GMIO_INLINE char gmio_ascii_toupper(char c);
+//! Returns whether 'c' is an lowercase letter or not
+constexpr bool ascii_isLower(char c);
 
-/*! Returns the uppercase letter converted to lowercase */
-GMIO_INLINE char gmio_ascii_tolower(char c);
+//! Returns the lowercase letter converted to uppercase
+constexpr char ascii_toUpper(char c);
 
-/*! Returns 0 if \p c1 compare equals to \p c2, non-zero otherwise.
- *  \note Comparison is case-insensitive */
-GMIO_INLINE bool gmio_ascii_char_iequals(char c1, char c2);
+//! Returns the uppercase letter converted to lowercase
+constexpr char ascii_toLower(char c);
 
-/*! Returns 0 if \p str1 and \p str2 compare equal, non-zero otherwise.
- *  \note Comparison is case-insensitive */
-GMIO_INLINE int gmio_ascii_stricmp(const char* str1, const char* str2);
+//! Returns whether 'c1' compare equals to 'c2'.
+//! \note Comparison is case-insensitive
+constexpr bool ascii_iequals(char c1, char c2);
 
-/*! Returns 0 if the first \p n characters of \p str1 and \p str2 compare equal,
- *  non-zero otherwise.
- *  \note Comparison is case-insensitive */
-GMIO_INLINE int gmio_ascii_strincmp(
-        const char* str1, const char* str2, size_t n);
+//! Returns 0 if 'str1' and 'str2' compare equal, non-zero otherwise.
+//! \note Comparison is case-insensitive
+inline int ascii_stricmp(const char* str1, const char* str2);
 
-/*! Returns true if \p str starts with string \p begin.
- *  \note Comparison is case-insensitive */
-GMIO_INLINE bool gmio_ascii_istarts_with(
-        const char* str, const char* begin);
+//! Returns 0 if the first 'n' characters of 'str1' and 'str2' compare equal,
+//! non-zero otherwise.
+//! \note Comparison is case-insensitive
+inline int ascii_strincmp(const char* str1, const char* str2, size_t n);
 
-/*! Locate substring (insensitive case string matching).
- *  Behaves the same as strstr() */
-const char* gmio_ascii_istrstr(const char *str1, const char *str2);
+//! Returns true if 'str' starts with string 'begin'.
+//! \note Comparison is case-insensitive
+inline bool ascii_istartsWith(const char* str, const char* begin);
 
+//! Locate substring (insensitive case string matching).
+//! Behaves the same as strstr()
+const char* ascii_istrstr(const char *str1, const char *str2);
 
-/*
- * -- Implementation
- */
+//! Trim whitespaces in string 'str' from end
+inline void ascii_trimEnd(char* str, size_t len);
 
-#include <string.h>
+inline void ascii_trimEnd(std::string* str);
 
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-#  include <ctype.h>
-#endif
+//
+// -- Implementation
+//
 
-int gmio_ascii_isspace(char c)
+constexpr bool ascii_isSpace(char c)
 {
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-    return isspace(c);
-#else
-    /* 0x20 : space (SPC)
-     * 0x09 : horizontal tab (TAB)
-     * 0x0a : newline (LF)
-     * 0x0b : vertical tab (VT)
-     * 0x0c : feed (FF)
-     * 0x0d : carriage return (CR)
-     *
-     * TODO: eliminate branch
-     */
+    // 0x20 : space (SPC)
+    // 0x09 : horizontal tab (TAB)
+    // 0x0a : newline (LF)
+    // 0x0b : vertical tab (VT)
+    // 0x0c : feed (FF)
+    // 0x0d : carriage return (CR)
+    //
+    // TODO: use table of property bits
     return c == 0x20 || ((uint8_t)(c - 0x09) < 5);
-#endif
 }
 
-int gmio_ascii_isdigit(char c)
+constexpr bool ascii_isDigit(char c)
 {
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-    return isdigit(c);
-#else
-    /* 48 <= c <= 57 */
+    // 48 <= c <= 57
     return (uint8_t)(c - 48) < 10;
-#endif
 }
 
-int gmio_ascii_isupper(char c)
+constexpr bool ascii_isUpper(char c)
 {
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-    return isupper(c);
-#else
-    /* 65 <= c <= 90; */
+    // 65 <= c <= 90;
     return (uint8_t)(c - 65) < 26;
-#endif
 }
 
-int gmio_ascii_islower(char c)
+constexpr bool ascii_isLower(char c)
 {
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-    return islower(c);
-#else
-    /* 97 <= c <= 122; */
+    // 97 <= c <= 122;
     return (uint8_t)(c - 97) < 26;
-#endif
 }
 
-char gmio_ascii_toupper(char c)
+static const char ascii_tableUpper[128] = {
+    0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
+    0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
+    ' ', '!', '"', '#', '$', '%', '&','\'', '(', ')', '*', '+', ',', '-', '.', '/',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
+    '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[','\\', ']', '^', '_',
+    '`', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+    'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '{', '|', '}', '~', 0,
+};
+
+constexpr char ascii_toUpper(char c)
 {
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-    return (char)toupper(c);
-#else
-    static const char table_toupper[128] = {
-        0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
-        0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
-        ' ', '!', '"', '#', '$', '%', '&','\'', '(', ')', '*', '+', ',', '-', '.', '/',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
-        '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[','\\', ']', '^', '_',
-        '`', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '{', '|', '}', '~', 0,
-    };
-    return table_toupper[(unsigned char)c];
-#endif
+    return ascii_tableUpper[(unsigned char)c];
 }
 
-char gmio_ascii_tolower(char c)
+static const char ascii_tableLower[128] = {
+    0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
+    0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
+    ' ', '!', '"', '#', '$', '%', '&','\'', '(', ')', '*', '+', ',', '-', '.', '/',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
+    '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '[','\\', ']', '^', '_',
+    '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+    'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', 0,
+};
+
+constexpr char ascii_toLower(char c)
 {
-#ifdef GMIO_STRING_ASCII_UTILS_CTYPE_H
-    return (char)tolower(c);
-#else
-    static const char table_tolower[128] = {
-        0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,0x09,0x0A,  0 ,  0 ,0x0D,  0 ,  0 ,
-        0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,  0 ,
-        ' ', '!', '"', '#', '$', '%', '&','\'', '(', ')', '*', '+', ',', '-', '.', '/',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
-        '@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '[','\\', ']', '^', '_',
-        '`', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-        'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', '~', 0,
-    };
-    return table_tolower[(unsigned char)c];
-#endif
+    return ascii_tableLower[(unsigned char)c];
 }
 
-bool gmio_ascii_char_iequals(char c1, char c2)
+constexpr bool ascii_iequals(char c1, char c2)
 {
-    /* TODO: eliminate branch */
-    return c1 == c2 || (gmio_ascii_toupper(c1) == gmio_ascii_toupper(c2));
+    // TODO: eliminate branch
+    return c1 == c2 || (ascii_toUpper(c1) == ascii_toUpper(c2));
 }
 
-int gmio_ascii_stricmp(const char* str1, const char* str2)
+int ascii_stricmp(const char* str1, const char* str2)
 {
-    while (*str1 != 0 && gmio_ascii_char_iequals(*str1, *str2)) {
+    while (*str1 != '\0' && ascii_iequals(*str1, *str2)) {
         ++str1;
         ++str2;
     }
     return *str1 - *str2;
 }
 
-int gmio_ascii_strincmp(const char* str1, const char* str2, size_t n)
+int ascii_strincmp(const char* str1, const char* str2, size_t n)
 {
-    while (n > 0 && *str1 != 0 && gmio_ascii_char_iequals(*str1, *str2)) {
+    while (n > 0 && *str1 != 0 && ascii_iequals(*str1, *str2)) {
         ++str1;
         ++str2;
         --n;
     }
-    return gmio_ascii_tolower(*str1) - gmio_ascii_tolower(*str2);
+    return ascii_toLower(*str1) - ascii_toLower(*str2);
 }
 
-bool gmio_ascii_istarts_with(const char* str, const char* begin)
+bool ascii_istartsWith(const char* str, const char* begin)
 {
     while (*begin != 0) {
-        if (*str == 0 || !gmio_ascii_char_iequals(*str, *begin))
+        if (*str == 0 || !ascii_iequals(*str, *begin))
             return false;
         ++str;
         ++begin;
     }
     return true;
 }
+
+void ascii_trimEnd(char* str, size_t len)
+{
+    if (len > 0) {
+        do {
+            --len;
+            if (str[len] == '\0' || ascii_isSpace(str[len]))
+                str[len] = '\0';
+            else
+                return;
+        } while (len != 0);
+    }
+}
+
+void ascii_trimEnd(std::string* str)
+{
+    if (!str->empty()) {
+        auto it_begin = str->begin();
+        auto it_erase_end = str->end();
+        auto it = it_erase_end;
+        while (it != it_begin && ascii_isSpace(*(--it)));
+        const auto it_erase_begin = !ascii_isSpace(*it) ? it + 1 : it;
+        str->erase(it_erase_begin, it_erase_end);
+    }
+}
+
+} // namespace gmio

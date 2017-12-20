@@ -32,13 +32,15 @@
 #include "../stl_infos.h"
 #include "../../gmio_core/endian.h"
 
-/*! Finds infos from a STL binary stream */
-int gmio_stlb_infos_probe(
-        struct gmio_stl_infos* infos,
-        struct gmio_stream* stream,
-        unsigned flags,
-        const struct gmio_stl_infos_probe_options* opts);
+namespace gmio {
 
-/*! Returns the size(in bytes) of the whole STL binary data given some facet
- *  count */
-gmio_streamsize_t gmio_stlb_infos_size(uint32_t facet_count);
+//! Finds infos from a STL binary stream
+Result<STL_Infos> STL_probeBinaryInfos(
+        FuncReadData func_read,
+        unsigned flags,
+        STL_ProbeInfosOptions options);
+
+//! Returns the size(in bytes) of the STL binary data given some facet count
+uint64_t STL_binarySize(uint32_t facet_count);
+
+} // namespace gmio

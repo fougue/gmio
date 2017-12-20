@@ -43,10 +43,6 @@
  *  @{
  */
 
-#ifndef __cplusplus
-#  error C++ compiler required
-#endif
-
 #pragma once
 
 #include "support_global.h"
@@ -56,35 +52,36 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <vector>
 
-/*! Provides access to all the triangles of an OpenCascade \c MeshVS_DataSource
- *
- *  gmio_stl_mesh_occmeshvs iterates efficiently over the elements of a
- *  \c MeshVS_DataSource object.\n
- *  Each element should be of type \c MeshVS_ET_Face and made of 3 nodes.
- *
- *  Example of use:
- *  \code{.cpp}
- *      Handle_MeshVS_Mesh occmeshvs = ...;
- *      const gmio_stl_mesh_occmeshvs mesh(occmeshvs);
- *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
- *  \endcode
- */
-struct gmio_stl_mesh_occmeshvs : public gmio_stl_mesh
-{
-    gmio_stl_mesh_occmeshvs();
-    explicit gmio_stl_mesh_occmeshvs(const Handle_MeshVS_DataSource& hnd);
+namespace gmio {
+
+//! Provides access to all the triangles of an OpenCascade \c MeshVS_DataSource
+//!
+//!  STL_MeshOccVsDataSource iterates efficiently over the elements of a
+//!  \c MeshVS_DataSource object.\n
+//!  Each element should be of type \c MeshVS_ET_Face and made of 3 nodes.
+//!
+//!  Example of use:
+//!  \code{.cpp}
+//!      Handle_MeshVS_Mesh occmeshvs = ...;
+//!      const gmio_stl_mesh_occmeshvs mesh(occmeshvs);
+//!      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
+//!  \endcode
+class STL_MeshOccVsDataSource : public STL_Mesh {
+    STL_MeshOccVsDataSource();
+    explicit STL_MeshOccVsDataSource(const Handle_MeshVS_DataSource& hnd);
 
     const Handle_MeshVS_DataSource& data_src() const { return m_data_src; }
 
-private:
-    static void get_triangle(
-            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
+    STL_Triangle triangle(uint32_t tri_id) const override;
 
+private:
     void init();
 
     Handle_MeshVS_DataSource m_data_src;
     std::vector<int> m_vec_element_key;
     mutable TColStd_Array1OfReal m_element_coords;
 };
+
+} // namespace gmio
 
 /*! @} */

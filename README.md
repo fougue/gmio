@@ -15,15 +15,15 @@
 C library for geometry input/output
 ===========================================
 
-gmio is a reusable C library providing complete I/O support for various CAD file
+gmio is a reusable C++ library providing complete I/O support for various CAD file
 formats(eg. [STL](https://en.wikipedia.org/wiki/STL_%28file_format%29))
 
 gmio aims to be [fast](https://github.com/fougue/gmio/wiki/v0.4-Benchmarks),
-portable(C99 conformance) and feature-rich.
+portable and feature-rich.
 
 Main highlights:
 
-  * [x] "Abstract" streams that does not tie the user to C stream(`FILE*`)
+  * [x] "Abstract" streams (eg. you are not tied to `FILE*`)
   * [x] Buffering of input/ouput for efficient device usage
   * [x] Operations can be easily aborted
   * [x] Progress report about the I/O operation

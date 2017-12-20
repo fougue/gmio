@@ -27,15 +27,26 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
+#include <gmio_core/error.h>
+#include <gmio_core/version.h>
+#include <gmio_stl/stl_io.h>
+#include <gmio_stl/stl_io_options.h>
+#include <gmio_support/stl_occ_brep.h>
+#include <gmio_support/stl_occ_polytri.h>
+
+#include <Standard_Version.hxx>
+#if OCC_VERSION_HEX < 0x070200
+#  include <gmio_support/stl_occ_mesh.h>
+#  include <StlMesh_Mesh.hxx>
+#endif
+
 #include <BRep_Tool.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <IGESControl_Reader.hxx>
 #include <Message_ProgressIndicator.hxx>
 #include <OSD_Path.hxx>
 #include <RWStl.hxx>
-#include <Standard_Version.hxx>
 #include <StlAPI_Writer.hxx>
-#include <StlMesh_Mesh.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>
@@ -43,13 +54,6 @@
 #include <XSControl_WorkSession.hxx>
 
 #include <STEPControl_Reader.hxx>
-
-#include <gmio_core/error.h>
-#include <gmio_core/version.h>
-#include <gmio_stl/stl_io.h>
-#include <gmio_stl/stl_io_options.h>
-#include <gmio_support/stl_occ_brep.h>
-#include <gmio_support/stl_occ_mesh.h>
 
 #include "../commons/benchmark_tools.h"
 
@@ -60,10 +64,9 @@
 
 namespace BmkBRep {
 
-TopoDS_Shape inputShape;
+TopoDS_Shape input_shape;
 
-class ProgressIndicator : public Message_ProgressIndicator
-{
+class ProgressIndicator : public Message_ProgressIndicator {
 public:
     Standard_Boolean Show(const Standard_Boolean /*force*/) override
     {
@@ -120,69 +123,55 @@ TopoDS_Shape loadShapeFromFile(
 void readInputIgesShape(const char* filepath)
 {
     Handle_Message_ProgressIndicator indicator = new ProgressIndicator;
-    inputShape = loadShapeFromFile<IGESControl_Reader>(filepath, indicator);
+    input_shape = loadShapeFromFile<IGESControl_Reader>(filepath, indicator);
 }
 
 void readInputStepShape(const char* filepath)
 {
     Handle_Message_ProgressIndicator indicator = new ProgressIndicator;
-    inputShape = loadShapeFromFile<STEPControl_Reader>(filepath, indicator);
+    input_shape = loadShapeFromFile<STEPControl_Reader>(filepath, indicator);
 }
 
 } // namespace BmkBRep
 
 namespace BmkOcc {
 
-Handle_StlMesh_Mesh stlMesh;
+Handle_Poly_Triangulation global_polytri;
 
-static void RWStl_ReadFile(const void* filepath)
+static void RWStl_ReadFile(const char* filepath)
 {
-    stlMesh = RWStl::ReadFile(OSD_Path(static_cast<const char*>(filepath)));
-    if (stlMesh.IsNull())
-        std::cerr << "RWStl::ReadFile(): null mesh" << std::endl;
+    global_polytri = RWStl::ReadFile(OSD_Path(filepath));
+    if (global_polytri.IsNull())
+        std::cerr << "RWStl::ReadFile(): null mesh\n";
 }
 
-static void RWStl_WriteAscii(const void* filepath)
+static void RWStl_WriteAscii(const char* filepath)
 {
-    if (!RWStl::WriteAscii(stlMesh, OSD_Path(static_cast<const char*>(filepath))))
-        std::cerr << "RWStl::WriteAscii() failure" << std::endl;
+    if (!RWStl::WriteAscii(global_polytri, OSD_Path(filepath)))
+        std::cerr << "RWStl::WriteAscii() failure\n";
 }
 
-static void RWStl_WriteBinary(const void* filepath)
+static void RWStl_WriteBinary(const char* filepath)
 {
-    if (!RWStl::WriteBinary(stlMesh, OSD_Path(static_cast<const char*>(filepath))))
-        std::cerr << "RWStl::WriteBinary() failure" << std::endl;
+    if (!RWStl::WriteBinary(global_polytri, OSD_Path(filepath)))
+        std::cerr << "RWStl::WriteBinary() failure\n";
 }
 
-static void StlAPI_WriteAscii(const void* filepath)
+static void StlAPI_WriteAscii(const char* filepath)
 {
-    if (!BmkBRep::inputShape.IsNull()) {
+    if (!BmkBRep::input_shape.IsNull()) {
         StlAPI_Writer writer;
         writer.ASCIIMode() = Standard_True;
-        const char* cfilepath = static_cast<const char*>(filepath);
-#if OCC_VERSION_HEX >= 0x060900
-        const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
-        if (err != StlAPI_StatusOK)
-            std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
-#else
-        writer.Write(BmkBRep::inputShape, cfilepath);
-#endif
+        writer.Write(BmkBRep::input_shape, filepath);
     }
 }
 
-static void StlAPI_WriteBinary(const void* filepath)
+static void StlAPI_WriteBinary(const char* filepath)
 {
-    if (!BmkBRep::inputShape.IsNull()) {
+    if (!BmkBRep::input_shape.IsNull()) {
         StlAPI_Writer writer;
         writer.ASCIIMode() = Standard_False;
-        const char* cfilepath = static_cast<const char*>(filepath);
-#if OCC_VERSION_HEX >= 0x060900
-        const StlAPI_ErrorStatus err = writer.Write(BmkBRep::inputShape, cfilepath);
-        if (err != StlAPI_StatusOK)
-            std::cerr << "StlAPI_Writer::Write() error: " << err << std::endl;
-#else
-        writer.Write(BmkBRep::inputShape, cfilepath);
-#endif
+        writer.Write(BmkBRep::input_shape, filepath);
     }
 }
 
@@ -190,70 +179,39 @@ static void StlAPI_WriteBinary(const void* filepath)
 
 namespace BmkGmio {
 
-Handle_StlMesh_Mesh stlMesh;
+Handle_Poly_Triangulation global_polytri;
 
-static void stl_read(const void* filepath)
+static void stl_read(const char* filepath)
 {
-    stlMesh = new StlMesh_Mesh;
-    gmio_stl_mesh_creator_occmesh mesh_creator(stlMesh);
-    const int error = gmio_stl_read_file(
-                static_cast<const char*>(filepath), &mesh_creator, NULL);
-    if (error != GMIO_ERROR_OK)
-        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
+    gmio::STL_MeshCreatorOccPolyTriangulation creator;
+    const int error = gmio::STL_read(filepath, &creator);
+    global_polytri = creator.polytri();
+    if (error != gmio::Error_OK)
+        std::cerr << "gmio error: 0x" << std::hex << error << '\n';
 }
 
 static void stl_write(
-        const char* filepath, gmio_stl_format format, const gmio_stl_mesh& mesh)
+        const char* filepath, gmio::STL_Format format, const gmio::STL_Mesh& mesh)
 {
-    gmio_stl_write_options options = {};
-    //options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SHORTEST_UPPERCASE;
-    options.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_SCIENTIFIC_LOWERCASE;
-    options.stla_float32_prec = 6;
-    const int error = gmio_stl_write_file(format, filepath, &mesh, &options);
-    if (error != GMIO_ERROR_OK)
-        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
+    gmio::STL_WriteOptions options = {};
+    //options.ascii_float32_format = gmio::FloatTextFormat::ShortestUppercase;
+    options.ascii_float32_format = gmio::FloatTextFormat::ScientificLowercase;
+    options.ascii_float32_prec = 6;
+    const int error = gmio::STL_write(format, filepath, mesh, options);
+    if (error != gmio::Error_OK)
+        std::cerr << "gmio error: 0x" << std::hex << error << '\n';
 }
 
-static void stl_mesh_write(const char* filepath, gmio_stl_format format)
+static void stl_mesh_write(const char* filepath, gmio::STL_Format format)
 {
-    const gmio_stl_mesh_occmesh mesh(stlMesh);
+    const gmio::STL_MeshOccPolyTriangulation mesh(global_polytri);
     stl_write(filepath, format, mesh);
 }
 
-static void stl_brep_write(const char* filepath, gmio_stl_format format)
+static void stl_brep_write(const char* filepath, gmio::STL_Format format)
 {
-    const gmio_stl_mesh_occshape mesh(BmkBRep::inputShape);
+    const gmio::STL_MeshOccShape mesh(BmkBRep::input_shape);
     stl_write(filepath, format, mesh);
-}
-
-static void stla_mesh_write(const void* filepath)
-{
-    stl_mesh_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
-}
-
-static void stlb_mesh_write_le(const void* filepath)
-{
-    stl_mesh_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
-}
-
-static void stlb_mesh_write_be(const void* filepath)
-{
-    stl_mesh_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
-}
-
-static void stla_brep_write(const void* filepath)
-{
-    stl_brep_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
-}
-
-static void stlb_brep_write_le(const void* filepath)
-{
-    stl_brep_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
-}
-
-static void stlb_brep_write_be(const void* filepath)
-{
-    stl_brep_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
 }
 
 } // namespace BmkGmio
@@ -278,25 +236,23 @@ int main(int argc, char** argv)
     }
 
     if (stl_filepath != nullptr) {
-        std::cout << std::endl
-                  << "gmio v" << GMIO_VERSION_STR << std::endl
-                  << "OpenCascade v" << OCC_VERSION_COMPLETE << std::endl
-                  << std::endl
-                  << "STL input file:  " << stl_filepath << std::endl;
+        std::cout << "\ngmio v" << GMIO_VERSION_STR
+                  << "\nOpenCascade v" << OCC_VERSION_COMPLETE
+                  << "\n\nSTL input file:  " << stl_filepath << '\n';
 
         if (igs_filepath != nullptr) {
-            std::cout << "IGES input file: " << igs_filepath << std::endl;
+            std::cout << "IGES input file: " << igs_filepath << '\n';
             BmkBRep::readInputIgesShape(igs_filepath);
         }
         else if (stp_filepath != nullptr) {
-            std::cout << "STEP input file: " << stp_filepath << std::endl;
+            std::cout << "STEP input file: " << stp_filepath << '\n';
             BmkBRep::readInputStepShape(stp_filepath);
         }
 
-        std::cout << std::endl << "Meshing with linear deflection="
+        std::cout << "\nMeshing with linear deflection="
                   << linear_deflection
-                  << " ..." << std::endl;
-        for (TopExp_Explorer expl(BmkBRep::inputShape, TopAbs_FACE);
+                  << " ...\n";
+        for (TopExp_Explorer expl(BmkBRep::input_shape, TopAbs_FACE);
              expl.More();
              expl.Next())
         {
@@ -306,46 +262,48 @@ int main(int argc, char** argv)
             if (poly.IsNull() || poly->Triangles().Length() <= 0)
                 BRepMesh_IncrementalMesh(face, linear_deflection);
         }
-        std::cout << std::endl << "Meshing done" << std::endl;
+        std::cout << "\nMeshing done\n";
 
-        /* Declare benchmarks */
-        const benchmark_cmp_arg cmp_args[] = {
+        const gmio::Benchmark_CmpArg cmp_args[] = {
             { "read",
-              BmkGmio::stl_read, stl_filepath,
-              BmkOcc::RWStl_ReadFile, stl_filepath },
+              [=]{ BmkGmio::stl_read(stl_filepath); },
+              [=]{ BmkOcc::RWStl_ReadFile(stl_filepath); }
+            },
             { "meshwrite(ascii)",
-              BmkGmio::stla_mesh_write, "__bmk_occ_gmio_mesh.stla",
-              BmkOcc::RWStl_WriteAscii, "__bmk_occ_mesh.stla" },
+              []{ BmkGmio::stl_mesh_write(
+                      "__bmk_occ_gmio_mesh.stla", gmio::STL_Format_Ascii); },
+              []{ BmkOcc::RWStl_WriteAscii("__bmk_occ_mesh.stla"); }
+            },
             { "meshwrite(binary/le)",
-              BmkGmio::stlb_mesh_write_le, "__bmk_occ_gmio_mesh.stlb_le",
-              BmkOcc::RWStl_WriteBinary, "__bmk_occ_mesh.stlb_le" },
+              []{ BmkGmio::stl_mesh_write(
+                      "__bmk_occ_gmio_mesh.stlb_le", gmio::STL_Format_BinaryLittleEndian); },
+              []{ BmkOcc::RWStl_WriteBinary("__bmk_occ_mesh.stlb_le"); }
+            },
             { "meshwrite(binary/be)",
-              BmkGmio::stlb_mesh_write_be, "__bmk_occ_gmio_mesh.stlb_be",
-              NULL, NULL },
+              []{ BmkGmio::stl_mesh_write(
+                      "__bmk_occ_gmio_mesh.stlb_be", gmio::STL_Format_BinaryBigEndian); },
+              nullptr
+            },
             { "brepwrite(ascii)",
-              BmkGmio::stla_brep_write, "__bmk_occ_gmio_brep.stla",
-              BmkOcc::StlAPI_WriteAscii, "__bmk_occ_brep.stla" },
+              []{ BmkGmio::stl_brep_write(
+                      "__bmk_occ_gmio_brep.stla", gmio::STL_Format_Ascii); },
+              []{ BmkOcc::StlAPI_WriteAscii("__bmk_occ_brep.stla"); }
+            },
             { "brepwrite(binary/le)",
-              BmkGmio::stlb_brep_write_le, "__bmk_occ_gmio_brep.stlb_le",
-              BmkOcc::StlAPI_WriteBinary, "__bmk_occ_brep.stlb_le" },
+              []{ BmkGmio::stl_brep_write(
+                      "__bmk_occ_gmio_brep.stlb_le", gmio::STL_Format_BinaryLittleEndian); },
+              []{ BmkOcc::StlAPI_WriteBinary("__bmk_occ_brep.stlb_le"); }
+            },
             { "brepwrite(binary/be)",
-              BmkGmio::stlb_brep_write_be, "__bmk_occ_gmio_brep.stlb_be",
-              NULL, NULL },
-            {}
+              []{ BmkGmio::stl_brep_write(
+                      "__bmk_occ_gmio_brep.stlb_be", gmio::STL_Format_BinaryBigEndian); },
+              nullptr
+            }
         };
-
-        /* Execute benchmarks */
-        std::vector<benchmark_cmp_result> cmp_res_vec;
-        cmp_res_vec.resize(GMIO_ARRAY_SIZE(cmp_args) - 1);
-        benchmark_cmp_batch(5, cmp_args, &cmp_res_vec[0], NULL, NULL);
-
-        /* Print results */
-        const benchmark_cmp_result_array res_array = {
-            &cmp_res_vec.at(0), cmp_res_vec.size() };
-        const benchmark_cmp_result_header header = {
-            "gmio", "OpenCascade" };
-        benchmark_print_results(
-                    BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
+        const std::vector<gmio::Benchmark_CmpResult> results =
+                gmio::Benchmark_cmpBatch(5, gmio::makeSpan(cmp_args));
+        gmio::Benchmark_printResults_Markdown(
+                    std::cout, { "gmio", "OpenCascade" }, results);
     }
     return 0;
 }

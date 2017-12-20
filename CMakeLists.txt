@@ -34,8 +34,7 @@ project(gmio)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
-include(CheckSymbolExists)
-include(CheckCSourceCompiles)
+include(CheckCXXSourceCompiles)
 include(CheckTypeSize)
 include(CMakeDependentOption)
 
@@ -45,19 +44,13 @@ set(GMIO_VERSION_PATCH 0)
 set(GMIO_VERSION
     ${GMIO_VERSION_MAJOR}.${GMIO_VERSION_MINOR}.${GMIO_VERSION_PATCH})
 
-# C Compiler detection
-if(CMAKE_C_COMPILER MATCHES ".*clang")
+# C++ Compiler detection
+if(CMAKE_CXX_COMPILER MATCHES ".*clang")
     set(CMAKE_COMPILER_IS_CLANG 1)
 endif ()
 
-if(CMAKE_C_COMPILER MATCHES "tcc")
-    set(CMAKE_COMPILER_IS_TCC 1) # TinyCC
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCC
-       OR CMAKE_COMPILER_IS_CLANG
-       OR CMAKE_COMPILER_IS_TCC)
-    set(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE 1) # Compatible with GNUCC options
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
+    set(CMAKE_CXX_COMPILER_IS_GCC_COMPATIBLE 1) # Compatible with GNUCXX options
 endif()
 
 # Build type
@@ -73,7 +66,7 @@ option(GMIO_BUILD_DLL         "Build gmio also as a shared library(DLL)" ON)
 option(GMIO_BUILD_BENCHMARKS  "Build performance benchmarks for the gmio library" OFF)
 option(GMIO_BUILD_EXAMPLES    "Build gmio examples" OFF)
 option(GMIO_BUILD_TESTS_FAKE_SUPPORT  "Build tests/fake_support target" OFF)
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+if(CMAKE_CXX_COMPILER_IS_GCC_COMPATIBLE)
     option(GMIO_BUILD_TESTS_COVERAGE "Instrument testing code with code coverage" OFF)
 endif()
 option(GMIO_USE_BUNDLED_ZLIB "Use bundled version of zlib in gmio" ON)
@@ -124,10 +117,9 @@ message(STATUS "GMIO_TARGET_ARCH_BIT_SIZE = ${GMIO_TARGET_ARCH_BIT_SIZE}")
 include(TestBigEndian)
 test_big_endian(GMIO_HOST_IS_BIG_ENDIAN)
 
-# Adapt C compiler flags for GCC
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    # Enable strict ISO C99 conformance
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic-errors")
+# Adapt flags for GCC
+if(CMAKE_CXX_COMPILER_IS_GCC_COMPATIBLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic-errors")
     if(CMAKE_COMPILER_IS_GNUCC)
         add_definitions(-D_POSIX_SOURCE)
     endif()
@@ -139,144 +131,68 @@ if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
            AND ((${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86")
                 OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "i.86"))
            AND (GMIO_TARGET_ARCH_BIT_SIZE EQUAL 64))
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_SHARED_LIBRARY_C_FLAGS}")
     endif()
 
     # Force PIC
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
-# Adapt C compiler flags GCC-like compilers
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wstrict-aliasing")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wcast-align -Wfloat-equal")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Winline")
-    if(CMAKE_COMPILER_IS_GNUCC)
+# Adapt flags for GCC-like compilers
+if(CMAKE_CXX_COMPILER_IS_GCC_COMPATIBLE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstrict-aliasing")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wstrict-aliasing")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wcast-align -Wfloat-equal")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Winline")
+    if(CMAKE_COMPILER_IS_GNUCXX)
         # Undefined behavior sanitizer(ubsan), requires GCC >= v4.9
-        #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op")
     else()
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wlogical-op-parentheses")
-    endif()
-
-    # Disable warnings -Wno-missing-braces -Wno-missing-field-initializers
-    # in case GCC wrongly warns about universal zero initializer {0}
-    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53119
-    set(CMAKE_REQUIRED_FLAGS "-Werror=missing-braces")
-    check_c_source_compiles(
-        "struct data { char array[128]; };
-         int main() {
-             struct data d = {0};
-             return d.array[0];
-         }"
-        GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-    set(CMAKE_REQUIRED_FLAGS) # Popup changes
-    if (NOT GMIO_GCC_DOESNT_WARN_UNIVERSAL_0_INITIALIZER)
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces -Wno-missing-field-initializers")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wlogical-op-parentheses")
     endif()
 endif()
 
-# Adapt C compiler flags Clang
+# Adapt flags for Clang
 if(CMAKE_COMPILER_IS_CLANG)
     # Clang on apple-darwin13.4.0 wrongly reports many unused functions
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-function")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-function")
 endif()
 
-# Adapt C compiler flags for Visual C++
+# Adapt flags for Visual C++
 if(MSVC)
     # Set warning level to /W4
-    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    string(REGEX REPLACE "/W[0-9]" "/W4" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
     # Set warning level to /Wall
-    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
+    #string(REGEX REPLACE "/W[0-9]" "/Wall" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4255 /wd4710 /wd4711 /wd4820")
 
     # Enable static analysis
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /analyze")
-    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi /Qvec-report:2")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /analyze")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Oi /Qvec-report:2")
 
     # Treat some warnings as errors
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4013")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4024")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4057")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4090")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /we4133")
+    # 'function' undefined; assuming extern returning int
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4013")
+    # 'function' : different types for formal and actual parameter 'number'
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4024")
+    # 'operator' : 'identifier1' indirection to slightly different base types from 'identifier2'
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4057")
+    # 'type' : incompatible types - from 'type1' to 'type2'
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /we4133")
 
     # Enable /Zc:strictStrings when msvc_ver > 2012 and build_type != Debug
     if((MSVC_VERSION GREATER 1700) AND NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zc:strictStrings")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:strictStrings")
     endif()
 
     # Disable deprecation warnings about "non-secure" CRT functions
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE -D_CRT_SECURE_NO_WARNINGS)
 
     # Enable "Generate Intrinsic Functions"
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Oi")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Oi")
 endif()
-
-# Some compilers (like GCC v4.9) don't disable <stdint.h> when needed
-check_include_files(stdint.h GMIO_HAVE_STDINT_H)
-
-# Find size of short, int and long types
-set(GMIO_SIZEOF_SHORT ${CMAKE_SIZEOF_UNSIGNED_SHORT})
-if (NOT DEFINED HAVE_CMAKE_SIZEOF_UNSIGNED_SHORT)
-    check_type_size("short" GMIO_SIZEOF_SHORT)
-endif()
-check_type_size("int" GMIO_SIZEOF_INT)
-check_type_size("long" GMIO_SIZEOF_LONG)
-
-# Check availability of a 64b integer type
-if(GMIO_HAVE_STDINT_H)
-    set(CMAKE_REQUIRED_INCLUDES stdint.h)
-endif()
-check_type_size("int64_t" GMIO_SIZEOF_INT64_T)
-if(NOT HAVE_GMIO_SIZEOF_INT64_T)
-    check_type_size("__int64" GMIO_SIZEOF_MSVC_INT64)
-    if(NOT HAVE_GMIO_SIZEOF_MSVC_INT64)
-        check_type_size("long long" GMIO_SIZEOF_LONG_LONG)
-    endif()
-endif()
-set(CMAKE_REQUIRED_INCLUDES) # Pop changes
-
-if(HAVE_GMIO_SIZEOF_INT64_T)
-    set(GMIO_HAVE_INT64_T ${HAVE_GMIO_SIZEOF_INT64_T})
-elseif(HAVE_GMIO_SIZEOF_MSVC_INT64)
-    set(GMIO_HAVE_MSVC_INT64 ${HAVE_GMIO_SIZEOF_MSVC_INT64})
-elseif(HAVE_GMIO_SIZEOF_LONG_LONG)
-    set(GMIO_HAVE_LONG_LONG ${HAVE_GMIO_SIZEOF_LONG_LONG})
-endif()
-
-# Check available C99 features
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
-    list(APPEND CMAKE_REQUIRED_LIBRARIES m) # -lm
-endif()
-check_symbol_exists(powf math.h GMIO_HAVE_POWF)
-check_symbol_exists(sqrtf math.h GMIO_HAVE_SQRTF)
-check_symbol_exists(strtof stdlib.h GMIO_HAVE_STRTOF)
-check_symbol_exists(isfinite math.h GMIO_HAVE_ISFINITE)
-check_symbol_exists(isnan math.h GMIO_HAVE_ISNAN)
-check_symbol_exists(snprintf "stdio.h;stdlib.h" GMIO_HAVE_SNPRINTF)
-check_symbol_exists(vsnprintf stdio.h GMIO_HAVE_VSNPRINTF)
-if(WIN32 AND NOT GMIO_HAVE_ISNAN)
-    check_symbol_exists(_finite float.h GMIO_HAVE_WIN__FINITE)
-endif()
-if(WIN32 AND NOT GMIO_HAVE_ISNAN)
-    check_symbol_exists(_isnan float.h GMIO_HAVE_WIN__ISNAN)
-endif()
-if(WIN32 AND NOT GMIO_HAVE_SNPRINTF)
-    check_symbol_exists(_snprintf stdio.h GMIO_HAVE_WIN__SNPRINTF)
-endif()
-if(WIN32 AND NOT GMIO_HAVE_VSNPRINTF)
-    check_symbol_exists(_vsnprintf stdio.h GMIO_HAVE_WIN__VSNPRINTF)
-endif()
-
-set(CMAKE_REQUIRED_LIBRARIES) # Pop changes
-
-check_c_source_compiles(
-    "#include <stdbool.h>
-     int main() { const bool c = 0; return 0; }"
-    GMIO_HAVE_C99_BOOL)
 
 # Check available POSIX features
 if(UNIX)
@@ -307,7 +223,7 @@ endif()
 check_function_exists(fileno GMIO_HAVE_POSIX_FILENO)
 
 # Have fstat64() ?
-check_c_source_compiles(
+check_cxx_source_compiles(
     "#include <sys/stat.h>
      int main() { fstat64(0, NULL); return 0; }"
     GMIO_HAVE_POSIX_FSTAT64)
@@ -335,18 +251,18 @@ if(GMIO_HAVE_SYS_STAT_H
 endif()
 
 # Have compiler-intrisics byte swap functions ?
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+if(CMAKE_CXX_COMPILER_IS_GCC_COMPATIBLE)
     # __builtin_bswap16() is missing in x86 GCC version prior to v4.7
     # See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=52624
-    check_c_source_compiles(
+    check_cxx_source_compiles(
         "int main() { return (int)__builtin_bswap16(0x1122); }"
         GMIO_HAVE_GCC_BUILTIN_BSWAP16)
-    check_c_source_compiles(
+    check_cxx_source_compiles(
         "int main() { return (int)__builtin_bswap32(0x11223344); }"
         GMIO_HAVE_GCC_BUILTIN_BSWAP32)
 elseif(MSVC)
-    check_c_source_compiles(
-        "#include <stdlib.h>
+    check_cxx_source_compiles(
+        "#include <cstdlib>
          int main() { return (int)_byteswap_ulong(0x11223344); }"
         GMIO_HAVE_MSVC_BUILTIN_BSWAP)
 endif()
@@ -378,7 +294,7 @@ if(GMIO_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 message(STATUS "GMIO_STR2FLOAT_LIBCODE = ${GMIO_STR2FLOAT_LIBCODE}(${GMIO_STR2FLOAT_LIB})")
 message(STATUS "GMIO_FLOAT2STR_LIBCODE = ${GMIO_FLOAT2STR_LIBCODE}(${GMIO_FLOAT2STR_LIB})")
 

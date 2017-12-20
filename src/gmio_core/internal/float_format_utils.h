@@ -32,12 +32,12 @@
 #include "../global.h"
 #include "../text_format.h"
 
-char gmio_float_text_format_to_stdio_specifier(
-        enum gmio_float_text_format format);
+#include <array>
 
-char* gmio_write_stdio_float_format(
-        char* buffer, char specifier, uint8_t prec);
+namespace gmio {
 
-struct gmio_string_16 { char array[16]; };
-struct gmio_string_16 gmio_to_stdio_float_format(
-        enum gmio_float_text_format format, uint8_t prec);
+char toStdioSpecifier(FloatTextFormat format);
+char* copyStdioFloatFormat(char* buffer, char specifier, uint8_t prec);
+std::array<char, 16> toStdioFloatFormat(FloatTextFormat format, uint8_t prec);
+
+} // namespace gmio

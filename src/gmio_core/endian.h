@@ -38,37 +38,35 @@
 
 #include "global.h"
 
-/*! Common endianness (byte order) of computer memory */
-enum gmio_endianness
-{
-    /*! Other (unknown) byte-order */
-    GMIO_ENDIANNESS_UNKNOWN = 0,
+namespace gmio {
 
-    /*! The least significant byte is stored at the lowest address. The other
-     *  bytes follow in increasing order of significance */
-    GMIO_ENDIANNESS_LITTLE,
+//! Common endianness (byte order) of computer memory
+enum Endianness {
+    //! Other (unknown) byte-order
+    Endianness_Unknown = 0,
 
-    /*! The most significant byte is stored at the lowest address. The other
-     *  bytes follow in decreasing order of significance */
-    GMIO_ENDIANNESS_BIG,
+    //! The least significant byte is stored at the lowest address. The other
+    //! bytes follow in increasing order of significance
+    Endianness_Little,
+
+    //! The most significant byte is stored at the lowest address. The other
+    //! bytes follow in decreasing order of significance
+    Endianness_Big,
 
 #ifdef GMIO_HOST_IS_BIG_ENDIAN
-    GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_BIG
+    Endianness_Host = Endianness_Big
 #else
-    /*! Endianness(byte order) used by the host computer for storing data in
-     *  memory.
-     *
-     *  Set at configure-time to either GMIO_ENDIANNESS_LITTLE or
-     *  GMIO_ENDIANNESS_BIG */
-    GMIO_ENDIANNESS_HOST = GMIO_ENDIANNESS_LITTLE
+    //! Endianness(byte order) used by the host computer for storing data in
+    //! memory.
+    //!
+    //! Set at configure-time to either Little or Big
+    Endianness_Host = Endianness_Little
 #endif
 };
 
-GMIO_C_LINKAGE_BEGIN
+//! Returns endianness (byte order) of the host's CPU architecture
+GMIO_API Endianness hostEndianness();
 
-/*! Returns endianness (byte order) of the host's CPU architecture */
-GMIO_API enum gmio_endianness gmio_host_endianness();
-
-GMIO_C_LINKAGE_END
+} // namespace gmio
 
 /*! @} */

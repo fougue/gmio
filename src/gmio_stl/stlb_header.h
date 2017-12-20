@@ -39,35 +39,32 @@
 #include "stl_global.h"
 #include "stl_constants.h"
 
-/*! 80-byte data at the beginning of any STL binary file */
-struct gmio_stlb_header
-{
-    uint8_t data[GMIO_STLB_HEADER_SIZE];
-};
+#include "../gmio_core/span.h"
 
-GMIO_C_LINKAGE_BEGIN
+#include <array>
 
-/*! Returns a gmio_stlb_header object whose contents is a copy of \p str
- *
- *  Only the first \c GMIO_STLB_HEADER_SIZE characters are copied.
- *
- *  If the length of \p str is less than \c GMIO_STLB_HEADER_SIZE then the
- *  remaining bytes are filled with zeroes.
- */
-GMIO_API struct gmio_stlb_header gmio_stlb_header_str(const char* str);
+namespace gmio {
 
-/*! Copies \p header into C string \p str
- *
- *  It replaces non-printable bytes with \p replacement char.
- *
- *  \p str must be at least \c GMIO_STLB_HEADER_SIZE+1 long, a terminating null
- *  character ('\0') is copied at position \c GMIO_STLB_HEADER_SIZE
- */
-GMIO_API void gmio_stlb_header_to_printable_str(
-                const struct gmio_stlb_header* header,
-                char* str,
-                char replacement);
+//! 80-byte data at the beginning of any STL binary file
+typedef std::array<uint8_t, STL_BinaryHeaderSize> STL_BinaryHeader;
 
-GMIO_C_LINKAGE_END
+//! Copies 'header' into C string 'str'
+//!
+//! It replaces non-printable bytes with 'replacement' char.
+//!
+//! 'str' must be at least \c STL_BinaryHeaderSize+1 long, a terminating
+//! null character ('\0') is copied at position \c STL_BinaryHeaderSize
+GMIO_API std::array<char, STL_BinaryHeaderSize+1> STL_binaryHeaderToString(
+        const STL_BinaryHeader& header, char replacement = ' ');
+
+//! Returns a BinaryHeader object whose contents is a copy of 'str'
+//!
+//! Only the first \c STL_BinaryHeaderSize characters are copied.
+//!
+//! If the length of 'str' is less than \c STL_BinaryHeaderSize then the
+//! remaining bytes are filled with zeroes.
+GMIO_API STL_BinaryHeader STL_binaryHeaderFromString(Span<const char> str);
+
+} // namespace gmio
 
 /*! @} */

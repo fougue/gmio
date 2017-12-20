@@ -42,9 +42,9 @@ endif()
 set(GMIO_3RDPARTY_FILES
         ${GMIO_3RDPARTY_FILES}
         3rdparty/miloyip_itoa/branchlut.h
-        3rdparty/miloyip_itoa/branchlut.c
+        3rdparty/miloyip_itoa/branchlut.cpp
         3rdparty/base64/b64.h
-        3rdparty/base64/b64.c)
+        3rdparty/base64/b64.cpp)
 set(GMIO_SRC_FILES  ${GMIO_SRC_FILES} ${GMIO_3RDPARTY_FILES})
 
 configure_file(gmio_core/version.h.cmake gmio_core/version.h @ONLY)
@@ -66,17 +66,14 @@ file(GLOB  GMIO_LIBSTL_HEADERS  gmio_stl/*.h)
 install(FILES ${GMIO_LIBSTL_HEADERS} DESTINATION include/gmio_stl)
 
 # Module libAMF
-file(GLOB  GMIO_LIBAMF_SRC_FILES  gmio_amf/*  gmio_amf/internal/*)
-set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBAMF_SRC_FILES})
+#file(GLOB  GMIO_LIBAMF_SRC_FILES  gmio_amf/*  gmio_amf/internal/*)
+#set(GMIO_SRC_FILES  ${GMIO_SRC_FILES}  ${GMIO_LIBAMF_SRC_FILES})
 
-file(GLOB  GMIO_LIBAMF_HEADERS  gmio_amf/*.h)
-install(FILES ${GMIO_LIBAMF_HEADERS} DESTINATION include/gmio_amf)
+#file(GLOB  GMIO_LIBAMF_HEADERS  gmio_amf/*.h)
+#install(FILES ${GMIO_LIBAMF_HEADERS} DESTINATION include/gmio_amf)
 
 # Common for support modules
 install(FILES gmio_support/support_global.h DESTINATION include/gmio_support)
-
-# C++ support
-install(FILES gmio_support/stream_cpp.h   DESTINATION include/gmio_support)
 
 # Qt support
 install(FILES gmio_support/stream_qt.h   DESTINATION include/gmio_support)

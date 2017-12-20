@@ -49,10 +49,7 @@
  *  \li Seamless use of OpenCascade in gmio(see \ref gmio_support module)
  *
  *  In this module, the name of all entities(structures, functions, ...) are
- *  prefixed either with :
- *  \li \c gmio_stl
- *  \li <tt>gmio_stla</tt>, this applies only for STL ascii
- *  \li <tt>gmio_stlb</tt>, this applies only for STL binary(little/big endian)
+ *  prefixed with \c STL_
  *
  *  <table>
  *    <tr>
@@ -60,44 +57,40 @@
  *    </tr>
  *    <tr>
  *      <td>Read</td>
- *      <td>gmio_stl_read()<br/>
- *          gmio_stl_read_file()<br/>
- *          gmio_stla_read()<br/>
- *          gmio_stlb_read()</td>
- *      <td>gmio_stl_read_options<br/>
- *          gmio_stl_mesh_creator<br/>
- *          gmio_stl_mesh_creator_infos<br/>
- *          gmio_stlb_header</td>
+ *      <td>STL_read()<br/>
+ *          STL_readAscii()<br/>
+ *          STL_readBinary()</td>
+ *      <td>STL_ReadOptions<br/>
+ *          STL_MeshCreator<br/>
+ *          STL_MeshCreatorInfos<br/>
+ *          STL_BinaryHeader</td>
  *    </tr>
  *    <tr>
  *      <td>Write</td>
- *      <td>gmio_stl_write()<br/>
- *          gmio_stl_write_file()<br/>
- *          gmio_stlb_header_write()</td>
- *      <td>gmio_stl_write_options<br/>
- *          gmio_stl_mesh<br/>
- *          gmio_stlb_header</td>
+ *      <td>STL_write()<br/>
+ *          STL_writeBinaryHeader()</td>
+ *      <td>STL_WriteOptions<br/>
+ *          STL_Mesh<br/>
+ *          STL_BinaryHeader</td>
  *    </tr>
  *    <tr>
  *      <td>Infos on contents</td>
- *      <td>gmio_stl_infos_probe()<br/>
- *          gmio_stl_infos_probe_file()<br/>
- *          gmio_stla_infos_probe_streamsize()</td>
- *      <td>gmio_stl_infos<br/>
- *          gmio_stl_infos_probe_options</td>
+ *      <td>STL_probeInfos()<br/>
+ *          STL_probeAsciiSolidSize()</td>
+ *      <td>STL_Infos<br/>
+ *          STL_ProbeInfosOptions</td>
  *    </tr>
  *    <tr>
  *      <td>Detect format</td>
- *      <td>gmio_stl_format_probe()<br/>
- *          gmio_stl_format_probe_file()</td>
- *       <td></td>
+ *      <td>STL_probeFormat()</td>
+ *      <td></td>
  *    </tr>
  *    <tr>
  *      <td>Utilities</td>
- *      <td>gmio_stl_triangle_compute_normal()<br/>
- *          gmio_stlb_header_str()<br/>
- *          gmio_stlb_header_to_printable_str()</td>
- *      <td>gmio_stl_triangle</td>
+ *      <td>STL_triangleNormal()<br/>
+ *          STL_BinaryHeader::toPrintableStr()<br/>
+ *          STL_BinaryHeader::fromStr()</td>
+ *      <td>STL_triangle</td>
  *    </tr>
  *  </table>
  */

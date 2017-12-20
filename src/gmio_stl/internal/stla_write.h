@@ -29,17 +29,16 @@
 
 #pragma once
 
-#include "../../gmio_core/stream.h"
+#include "../../gmio_core/iodevice.h"
 #include "../stl_io_options.h"
 #include "../stl_mesh.h"
 
-/*! Writes geometry in the STL ascii format
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>options->stream_memblock.size < 512</tt>
- */
-int gmio_stla_write(
-        struct gmio_stream* stream,
-        const struct gmio_stl_mesh* mesh,
-        const struct gmio_stl_write_options* options);
+namespace gmio {
+
+//! Writes geometry in the STL ascii format
+int STL_writeAscii(
+        FuncWriteData func_write,
+        const STL_Mesh& mesh,
+        STL_WriteOptions options);
+
+} // namespace gmio

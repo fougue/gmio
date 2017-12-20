@@ -36,20 +36,20 @@
 
 #pragma once
 
-/*! Vector of three float coords */
-struct gmio_vec3f
-{
-    float x;
-    float y;
-    float z;
+namespace gmio {
+
+template<typename T> struct Vec3 {
+    T x;
+    T y;
+    T z;
 };
 
-/*! Vector of three double coords */
-struct gmio_vec3d
-{
-    double x;
-    double y;
-    double z;
-};
+//! Vector of three float coords
+typedef Vec3<float> Vec3f;
+
+//! Vector of three double coords
+typedef Vec3<double> Vec3d;
+
+} // namespace gmio
 
 /*! @} */

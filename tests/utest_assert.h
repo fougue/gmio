@@ -5,44 +5,43 @@
 
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
+#include <iostream>
 
 #define UTEST_ASSERT(test) \
     if (!(test)) {\
-        printf("\n  ERROR : %s   (line = %i, file = %s)", #test, __LINE__, __FILE__);\
+        std::cerr << "\n  ERROR : " << #test\
+                  << "   (line = " << std::dec << __LINE__ << ", file = " << __FILE__ << ")";\
         return #test;\
     }
 
 #define UTEST_FAIL(message) \
     {\
-        printf("\n  FAIL: %s   (line = %i, file = %s)", #message, __LINE__, __FILE__);\
+        std::cerr << "\n  FAIL : " << #message\
+                  << "   (line = " << std::dec << __LINE__ << ", file = " << __FILE__ << ")";\
         return "UTEST_FAIL()";\
     }
 
 #define UTEST_ASSERT_MSG(test, message) \
     if (!(test)) {\
-        printf(message);\
+        std::cerr << message;\
         return message;\
     }
 
 #define UTEST_EQUALS_OP__INTERNAL(lhs, rhs) ((lhs) == (rhs))
-#define UTEST_EQUALS_STRCMP__INTERNAL(lhs, rhs) (strcmp((lhs), (rhs)) == 0)
+#define UTEST_EQUALS_STRCMP__INTERNAL(lhs, rhs) (std::strcmp((lhs), (rhs)) == 0)
 
-#define UTEST_COMPARE__INTERNAL(expected, actual, func_cmp, fmt, title) \
-    if (!func_cmp(expected, actual)) {\
-        printf("\n  ERROR: %s comparison failed\n"\
-               "               expected '" fmt "'\n"\
-               "               actual   '" fmt "'\n"\
-               "           line = %i, file = %s\n",\
-               (title), (expected), (actual), __LINE__, __FILE__);\
+#define UTEST_COMPARE__INTERNAL(expected, actual, func_cmp) \
+    if (!func_cmp((expected), (actual))) {\
+        std::cerr << "\n ERROR: comparison failed\n"\
+                  << "        expected '" << (expected) << "'\n"\
+                  << "        actual   '" << (actual) << "'\n"\
+                  << "        line = " << std::dec << __LINE__ << ", file = " << __FILE__ << '\n';\
         return #expected " != " #actual;\
     }
 
-#define UTEST_COMPARE_INT(expected, actual) \
-    UTEST_COMPARE__INTERNAL((int)(expected), (int)(actual), UTEST_EQUALS_OP__INTERNAL, "%d", "int")
-
-#define UTEST_COMPARE_UINT(expected, actual) \
-    UTEST_COMPARE__INTERNAL((unsigned)(expected), (unsigned)(actual), UTEST_EQUALS_OP__INTERNAL, "%u", "uint")
+#define UTEST_COMPARE(expected, actual) \
+    UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_OP__INTERNAL)
 
 #define UTEST_COMPARE_CSTR(expected, actual) \
-    UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_STRCMP__INTERNAL, "%s", "C-string")
+    UTEST_COMPARE__INTERNAL(expected, actual, UTEST_EQUALS_STRCMP__INTERNAL)

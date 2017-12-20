@@ -32,29 +32,26 @@
 #include "../global.h"
 #include "../text_format.h"
 
-#include <stddef.h>
+namespace gmio {
 
-/* Google double-conversion
- *     https://github.com/google/double-conversion
- *     commit #56a0457
- */
+// GDC = Google double-conversion
+//     https://github.com/google/double-conversion
+//     commit #56a0457
 
-GMIO_C_LINKAGE_BEGIN
+float GDC_str2float(const char* num, size_t numlen);
+double GDC_str2double(const char* num, size_t numlen);
 
-float gmio_str2float_googledoubleconversion(const char* num, size_t numlen);
-double gmio_str2double_googledoubleconversion(const char* num, size_t numlen);
-
-int gmio_float2str_googledoubleconversion(
+int GDC_float2str(
         float value,
         char* buff,
         size_t bufflen,
-        enum gmio_float_text_format textformat,
+        FloatTextFormat textformat,
         uint8_t prec);
-int gmio_double2str_googledoubleconversion(
+int GDC_double2str(
         double value,
         char* buff,
         size_t bufflen,
-        enum gmio_float_text_format textformat,
+        FloatTextFormat textformat,
         uint8_t prec);
 
-GMIO_C_LINKAGE_END
+} // namespace gmio

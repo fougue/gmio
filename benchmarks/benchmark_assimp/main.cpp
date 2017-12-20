@@ -58,14 +58,14 @@ static unsigned totalTriangleCount(const aiScene* scene)
     return meshnum;
 }
 
-GMIO_INLINE void copy_gmio_vec3f(aiVector3D* vec3, const gmio_vec3f& coords)
-{
-    *vec3 = *((aiVector3D*)&coords);
+inline aiVector3D to_aiVector3D(const gmio::Vec3f& coords) {
+    const aiVector3D v = reinterpret_cast<const aiVector3D&>(coords);
+    return v;
 }
 
-GMIO_INLINE void copy_aiVector3D(gmio_vec3f* coords, const aiVector3D& vec3)
-{
-    *coords = *((gmio_vec3f*)&vec3);
+inline gmio::Vec3f to_gmioVec3f(const aiVector3D& vec3) {
+    const gmio::Vec3f coords = reinterpret_cast<const gmio::Vec3f&>(vec3);
+    return coords;
 }
 
 namespace BmkAssimp {
@@ -77,26 +77,25 @@ static std::string assimp_version_str()
     return ss.str();
 }
 
-Assimp::Importer* globalImporter = NULL;
-const aiScene* globalScene = NULL;
+Assimp::Importer* global_importer = nullptr;
+const aiScene* global_scene = nullptr;
 
-static void import(const void* filepath)
+static void import(const char* filepath)
 {
-    Assimp::Importer* importer = globalImporter;
-    const aiScene* scene =
-            importer->ReadFile(static_cast<const char*>(filepath), 0);
+    Assimp::Importer* importer = global_importer;
+    const aiScene* scene = importer->ReadFile(filepath, 0);
     const char* aiErrorStr = aiGetErrorString();
     if (std::strlen(aiErrorStr) > 0)
-        std::cerr << aiErrorStr << std::endl;
-    if (scene == NULL || scene->mNumMeshes <= 0) {
-        std::cerr << "Failed to read file " << filepath << std::endl;
+        std::cerr << aiErrorStr << '\n';
+    if (scene == nullptr || scene->mNumMeshes <= 0) {
+        std::cerr << "Failed to read file " << filepath << '\n';
     }
-    globalScene = scene;
+    global_scene = scene;
 //    std::cout << "BmkAssimp, triCount = "
 //              << totalTriangleCount(scene) << std::endl;
 }
 
-static void export_stla(const void* filepath)
+static void export_stla(const char* filepath)
 {
     Assimp::Exporter exporter;
 //    for (std::size_t i = 0; i < exporter.GetExportFormatCount(); ++i) {
@@ -104,294 +103,267 @@ static void export_stla(const void* filepath)
 //                  << exporter.GetExportFormatDescription(i)->description
 //                  << std::endl;
 //    }
-    exporter.Export(globalScene, "stl", static_cast<const char*>(filepath));
+    exporter.Export(global_scene, "stl", filepath);
 }
 
-static void export_stlb(const void* filepath)
+static void export_stlb(const char* filepath)
 {
     Assimp::Exporter exporter;
-    exporter.Export(globalScene, "stlb", static_cast<const char*>(filepath));
+    exporter.Export(global_scene, "stlb", filepath);
 }
 
 } // namespace BmkAssimp
 
 namespace BmkGmio {
 
-struct aiSceneHelper
-{
-    aiScene* scene;
-    uint32_t totalTriangleCount;
-    int hasToCountTriangle;
+class STL_MeshCreatorAssimp : public gmio::STL_MeshCreator {
+public:
+    STL_MeshCreatorAssimp(aiScene* scene)
+        : m_scene(scene)
+    { }
+
+    void beginSolid(const gmio::STL_MeshCreatorInfos& infos) override
+    {
+        aiScene* pScene = m_scene;
+
+        // allocate one mesh
+        pScene->mNumMeshes = 1;
+        pScene->mMeshes = new aiMesh*[1];
+        aiMesh* pMesh = pScene->mMeshes[0] = new aiMesh();
+        pMesh->mMaterialIndex = 0;
+
+        // allocate a single node
+        pScene->mRootNode = new aiNode();
+        pScene->mRootNode->mNumMeshes = 1;
+        pScene->mRootNode->mMeshes = new unsigned int[1];
+        pScene->mRootNode->mMeshes[0] = 0;
+
+        m_loading_ascii = infos.format == gmio::STL_Format_Ascii;
+        if (m_loading_ascii) {
+            std::strcpy(pScene->mRootNode->mName.data, infos.ascii_solid_name.data());
+            pScene->mRootNode->mName.length = infos.ascii_solid_name.size();
+
+            // try to guess how many vertices we could have
+            // assume we'll need 160 bytes for each face
+            const size_t size_estimate =
+                    (static_cast<size_t>(infos.ascii_solid_size) / 160u) * 3;
+            m_ascii_vec_vertex.reserve(std::max<size_t>(1, size_estimate));
+            m_ascii_vec_normal.reserve(std::max<size_t>(1, size_estimate));
+        }
+        else {
+            pScene->mRootNode->mName.Set("<STL_BINARY>");
+            pMesh->mNumFaces = infos.binary_triangle_count;
+            pMesh->mNumVertices = pMesh->mNumFaces*3;
+            pMesh->mVertices = new aiVector3D[pMesh->mNumVertices];
+            pMesh->mNormals = new aiVector3D[pMesh->mNumVertices];
+        }
+    }
+
+    void addTriangle(uint32_t tri_id, const gmio::STL_Triangle& triangle) override
+    {
+        aiScene* pScene = m_scene;
+        aiMesh* pMesh = pScene->mMeshes[0];
+
+        if (m_loading_ascii) {
+            const aiVector3D n = to_aiVector3D(triangle.n);
+            m_ascii_vec_normal.push_back(n);
+            m_ascii_vec_normal.push_back(n);
+            m_ascii_vec_normal.push_back(n);
+
+            m_ascii_vec_vertex.push_back(to_aiVector3D(triangle.v1));
+            m_ascii_vec_vertex.push_back(to_aiVector3D(triangle.v2));
+            m_ascii_vec_vertex.push_back(to_aiVector3D(triangle.v3));
+        }
+        else {
+            aiVector3D* vp = &pMesh->mVertices[tri_id * 3];
+            aiVector3D* vn = &pMesh->mNormals[tri_id * 3];
+
+            *vn = to_aiVector3D(triangle.n);
+            *(vn+1) = *vn;
+            *(vn+2) = *vn;
+
+            *vp = to_aiVector3D(triangle.v1);
+            *(vp+1) = to_aiVector3D(triangle.v2);
+            *(vp+2) = to_aiVector3D(triangle.v3);
+        }
+    }
+
+    void endSolid() override
+    {
+        aiScene* pScene = m_scene;
+        aiMesh* pMesh = pScene->mMeshes[0];
+
+        if (m_loading_ascii) {
+            if (m_ascii_vec_vertex.empty()
+                    || m_ascii_vec_vertex.size() % 3 != 0
+                    || m_ascii_vec_normal.size() != m_ascii_vec_vertex.size())
+            {
+                pMesh->mNumFaces = 0;
+                // TODO report error
+            }
+            else {
+                const unsigned ascii_vec_vertex_size =
+                        static_cast<unsigned>(m_ascii_vec_vertex.size());
+                pMesh->mNumFaces = ascii_vec_vertex_size / 3;
+                pMesh->mNumVertices = ascii_vec_vertex_size;
+                pMesh->mVertices = new aiVector3D[pMesh->mNumVertices];
+                std::memcpy(pMesh->mVertices,
+                            &m_ascii_vec_vertex[0].x,
+                            pMesh->mNumVertices * sizeof(aiVector3D));
+                pMesh->mNormals = new aiVector3D[pMesh->mNumVertices];
+                std::memcpy(pMesh->mNormals,
+                            &m_ascii_vec_normal[0].x,
+                            pMesh->mNumVertices * sizeof(aiVector3D));
+            }
+            m_ascii_vec_vertex.clear();
+            m_ascii_vec_normal.clear();
+        }
+        // now copy faces
+        pMesh->mFaces = new aiFace[pMesh->mNumFaces];
+        for (unsigned int i = 0, p = 0; i < pMesh->mNumFaces; ++i) {
+            aiFace& face = pMesh->mFaces[i];
+            face.mIndices = new unsigned int[face.mNumIndices = 3];
+            for (unsigned int o = 0; o < 3; ++o,++p)
+                face.mIndices[o] = p;
+        }
+
+        // create a single default material, using a light gray diffuse color for
+        // consistency with other geometric types (e.g., PLY).
+        auto pcMat = new aiMaterial;
+        aiString s;
+        s.Set(AI_DEFAULT_MATERIAL_NAME);
+        pcMat->AddProperty(&s, AI_MATKEY_NAME);
+
+        aiColor4D clrDiffuse(0.6f,0.6f,0.6f,1.0f);
+        pcMat->AddProperty(&clrDiffuse,1,AI_MATKEY_COLOR_DIFFUSE);
+        pcMat->AddProperty(&clrDiffuse,1,AI_MATKEY_COLOR_SPECULAR);
+        clrDiffuse = aiColor4D(0.05f,0.05f,0.05f,1.0f);
+        pcMat->AddProperty(&clrDiffuse,1,AI_MATKEY_COLOR_AMBIENT);
+
+        pScene->mNumMaterials = 1;
+        pScene->mMaterials = new aiMaterial*[1];
+        pScene->mMaterials[0] = pcMat;
+    }
+
+private:
+    aiScene* m_scene;
+    bool m_loading_ascii;
+    std::vector<aiVector3D> m_ascii_vec_vertex;
+    std::vector<aiVector3D> m_ascii_vec_normal;
 };
 
-aiSceneHelper globalSceneHelper = {};
-
-static void allocate_stl_scene(aiScene* pScene)
-{
-    // allocate one mesh
-    pScene->mNumMeshes = 1;
-    pScene->mMeshes = new aiMesh*[1];
-    aiMesh* pMesh = pScene->mMeshes[0] = new aiMesh();
-    pMesh->mMaterialIndex = 0;
-
-    // allocate a single node
-    pScene->mRootNode = new aiNode();
-    pScene->mRootNode->mNumMeshes = 1;
-    pScene->mRootNode->mMeshes = new unsigned int[1];
-    pScene->mRootNode->mMeshes[0] = 0;
-}
-
-static void func_begin_solid(
-        void* cookie, const struct gmio_stl_mesh_creator_infos* infos)
-{
-    aiSceneHelper* helper = static_cast<aiSceneHelper*>(cookie);
-
-    aiScene* pScene = helper->scene;
-    allocate_stl_scene(pScene);
-    aiMesh* pMesh = pScene->mMeshes[0];
-
-    if (infos->format == GMIO_STL_FORMAT_ASCII) {
-        helper->hasToCountTriangle = 1; // true
-
-        std::strcpy(pScene->mRootNode->mName.data, infos->stla_solid_name);
-        pScene->mRootNode->mName.length = std::strlen(infos->stla_solid_name);
-
-        // try to guess how many vertices we could have
-        // assume we'll need 200 bytes for each face
-        const unsigned estimatedFacetCount =
-                static_cast<unsigned>(infos->stla_stream_size) / 200u;
-        pMesh->mNumFaces = std::max(1u, estimatedFacetCount);
-    }
-    else {
-        helper->hasToCountTriangle = 0; // false
-        pScene->mRootNode->mName.Set("<STL_BINARY>");
-        pMesh->mNumFaces = infos->stlb_triangle_count;
-    }
-    pMesh->mNumVertices = pMesh->mNumFaces*3;
-    pMesh->mVertices = new aiVector3D[pMesh->mNumVertices];
-    pMesh->mNormals = new aiVector3D[pMesh->mNumVertices];
-}
-
-static void add_triangle(
-        void* cookie, uint32_t tri_id, const gmio_stl_triangle* triangle)
-{
-    aiSceneHelper* helper = static_cast<aiSceneHelper*>(cookie);
-    aiScene* pScene = helper->scene;
-    aiMesh* pMesh = pScene->mMeshes[0];
-    if (pMesh->mNumFaces <= tri_id) {
-        std::cout << "add_triangle() reallocate" << std::endl;
-        // need to resize the arrays, our size estimate was wrong
-#if 0
-        unsigned int iNeededSize = (unsigned int)(sz-mBuffer) / pMesh->mNumFaces;
-        if (iNeededSize <= 160)
-            iNeededSize >>= 1; // prevent endless looping
-        unsigned int add = (unsigned int)((mBuffer+fileSize)-sz) / iNeededSize;
-#endif
-
-        unsigned int add = pMesh->mNumFaces;
-        add += add >> 3; // add 12.5% as buffer
-        const unsigned int iNeededSize = (pMesh->mNumFaces + add)*3;
-
-        aiVector3D* pv = new aiVector3D[iNeededSize];
-        memcpy(pv, pMesh->mVertices, pMesh->mNumVertices*sizeof(aiVector3D));
-        delete[] pMesh->mVertices;
-        pMesh->mVertices = pv;
-        pv = new aiVector3D[iNeededSize];
-        memcpy(pv, pMesh->mNormals, pMesh->mNumVertices*sizeof(aiVector3D));
-        delete[] pMesh->mNormals;
-        pMesh->mNormals = pv;
-
-        pMesh->mNumVertices = iNeededSize;
-        pMesh->mNumFaces += add;
+class STL_MeshAssimp : public gmio::STL_Mesh {
+public:
+    STL_MeshAssimp(const aiMesh* mesh)
+        : m_mesh(mesh)
+    {
+        this->setTriangleCount(mesh->mNumFaces);
     }
 
-    aiVector3D* vp = &pMesh->mVertices[tri_id * 3];
-    aiVector3D* vn = &pMesh->mNormals[tri_id * 3];
+    gmio::STL_Triangle triangle(uint32_t tri_id) const override
+    {
+        const aiFace& f = m_mesh->mFaces[tri_id];
 
-    copy_gmio_vec3f(vn, triangle->n);
-    *(vn+1) = *vn;
-    *(vn+2) = *vn;
-
-    copy_gmio_vec3f(vp, triangle->v1);
-    copy_gmio_vec3f(vp+1, triangle->v2);
-    copy_gmio_vec3f(vp+2, triangle->v3);
-
-    if (helper->hasToCountTriangle)
-        ++(helper->totalTriangleCount);
-}
-
-static void end_solid(void* cookie)
-{
-    aiSceneHelper* helper = static_cast<aiSceneHelper*>(cookie);
-    aiScene* pScene = helper->scene;
-    aiMesh* pMesh = pScene->mMeshes[0];
-
-    if (helper->hasToCountTriangle) {
-        pMesh->mNumFaces = helper->totalTriangleCount;
-        pMesh->mNumVertices = helper->totalTriangleCount * 3;
-    }
-
-    // now copy faces
-    pMesh->mFaces = new aiFace[pMesh->mNumFaces];
-    for (unsigned int i = 0, p = 0; i < pMesh->mNumFaces;++i)	{
-        aiFace& face = pMesh->mFaces[i];
-        face.mIndices = new unsigned int[face.mNumIndices = 3];
-        for (unsigned int o = 0; o < 3;++o,++p) {
-            face.mIndices[o] = p;
+        // we need per-face normals. We specified aiProcess_GenNormals as
+        // pre-requisite for this exporter, but nonetheless we have to expect
+        // per-vertex normals.
+        aiVector3D n;
+        if (m_mesh->mNormals) {
+            for (unsigned int a = 0; a < f.mNumIndices; ++a)
+                n += m_mesh->mNormals[f.mIndices[a]];
+            n.Normalize();
         }
+
+        gmio::STL_Triangle tri;
+        tri.n = to_gmioVec3f(n);
+    #if 0
+        tri.n = to_gmioVec3f(m_mesh->mNormals[f.mIndices[0]]);
+    #endif
+        tri.v1 = to_gmioVec3f(m_mesh->mVertices[f.mIndices[0]]);
+        tri.v2 = to_gmioVec3f(m_mesh->mVertices[f.mIndices[1]]);
+        tri.v3 = to_gmioVec3f(m_mesh->mVertices[f.mIndices[2]]);
+        return tri;
     }
 
-    // create a single default material, using a light gray diffuse color for
-    // consistency with other geometric types (e.g., PLY).
-    aiMaterial* pcMat = new aiMaterial;
-    aiString s;
-    s.Set(AI_DEFAULT_MATERIAL_NAME);
-    pcMat->AddProperty(&s, AI_MATKEY_NAME);
+private:
+    const aiMesh* m_mesh;
+};
 
-    aiColor4D clrDiffuse(0.6f,0.6f,0.6f,1.0f);
-    pcMat->AddProperty(&clrDiffuse,1,AI_MATKEY_COLOR_DIFFUSE);
-    pcMat->AddProperty(&clrDiffuse,1,AI_MATKEY_COLOR_SPECULAR);
-    clrDiffuse = aiColor4D(0.05f,0.05f,0.05f,1.0f);
-    pcMat->AddProperty(&clrDiffuse,1,AI_MATKEY_COLOR_AMBIENT);
+aiScene* global_scene = nullptr;
 
-    pScene->mNumMaterials = 1;
-    pScene->mMaterials = new aiMaterial*[1];
-    pScene->mMaterials[0] = pcMat;
-}
-
-static void get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle* triangle)
+static void stl_read(const char* filepath)
 {
-    const aiMesh* mesh = static_cast<const aiMesh*>(cookie);
-    const aiFace& f = mesh->mFaces[tri_id];
+    STL_MeshCreatorAssimp creator(global_scene);
+    const int error = gmio::STL_read(filepath, &creator);
+    if (error != gmio::Error_OK)
+        std::cerr << "gmio error: 0x" << std::hex << error << '\n';
 
-    // we need per-face normals. We specified aiProcess_GenNormals as
-    // pre-requisite for this exporter, but nonetheless we have to expect
-    // per-vertex normals.
-    aiVector3D nor;
-    if (mesh->mNormals) {
-        for (unsigned int a = 0; a < f.mNumIndices; ++a) {
-            nor += mesh->mNormals[f.mIndices[a]];
-        }
-        nor.Normalize();
-    }
-    copy_aiVector3D(&triangle->n, nor);
-#if 0
-    copy_aiVector3D(&triangle->n, mesh->mNormals[f.mIndices[0]]);
-#endif
-
-    copy_aiVector3D(&triangle->v1, mesh->mVertices[f.mIndices[0]]);
-    copy_aiVector3D(&triangle->v2, mesh->mVertices[f.mIndices[1]]);
-    copy_aiVector3D(&triangle->v3, mesh->mVertices[f.mIndices[2]]);
-}
-
-static void stl_read(const void* filepath)
-{
-    const char* str_filepath = static_cast<const char*>(filepath);
-    gmio_stl_mesh_creator mesh_creator = {};
-    mesh_creator.cookie = &globalSceneHelper;
-    mesh_creator.func_begin_solid = func_begin_solid;
-    mesh_creator.func_add_triangle = add_triangle;
-    mesh_creator.func_end_solid = end_solid;
-
-    const int error = gmio_stl_read_file(str_filepath, &mesh_creator, NULL);
-    if (error != GMIO_ERROR_OK)
-        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
-
-//    const aiScene* scene = globalSceneHelper.scene;
 //    std::cout << "BmkGmio, triCount = "
-//              << totalTriangleCount(scene) << std::endl;
+//              << totalTriangleCount(global_scene) << std::endl;
 }
 
-static void stl_write(const char* filepath, gmio_stl_format format)
+static void stl_write(const char* filepath, gmio::STL_Format format)
 {
-    const aiMesh* sceneMesh = globalSceneHelper.scene->mMeshes[0];
-
-    gmio_stl_mesh mesh = {};
-    mesh.cookie = sceneMesh;
-    mesh.triangle_count = sceneMesh->mNumFaces;
-    mesh.func_get_triangle = get_triangle;
-
-    gmio_stl_write_options opts = {};
-    opts.stla_float32_format = GMIO_FLOAT_TEXT_FORMAT_DECIMAL_LOWERCASE;
-    opts.stla_float32_prec = 7;
-    const int error = gmio_stl_write_file(format, filepath, &mesh, &opts);
-    if (error != GMIO_ERROR_OK)
-        std::cerr << "gmio error: 0x" << std::hex << error << std::endl;
-}
-
-static void stla_write(const void* filepath)
-{
-    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
-}
-
-static void stlb_write_le(const void* filepath)
-{
-    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
-}
-
-static void stlb_write_be(const void* filepath)
-{
-    stl_write(static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
+    const STL_MeshAssimp mesh(global_scene->mMeshes[0]);
+    gmio::STL_WriteOptions opts = {};
+    opts.ascii_float32_format = gmio::FloatTextFormat::DecimalLowercase;
+    opts.ascii_float32_prec = 7;
+    const int error = gmio::STL_write(format, filepath, mesh, opts);
+    if (error != gmio::Error_OK)
+        std::cerr << "gmio error: 0x" << std::hex << error << '\n';
 }
 
 } // namespace BmkGmio
 
 static void bmk_init()
 {
-    BmkAssimp::globalImporter = new Assimp::Importer;
-    BmkGmio::globalSceneHelper.scene = new aiScene;
-    BmkGmio::globalSceneHelper.totalTriangleCount = 0;
+    BmkAssimp::global_importer = new Assimp::Importer;
+    BmkGmio::global_scene = new aiScene;
 }
 
 static void bmk_cleanup()
 {
-    delete BmkAssimp::globalImporter;
-    BmkAssimp::globalImporter = NULL;
-    delete BmkGmio::globalSceneHelper.scene;
-    BmkGmio::globalSceneHelper.scene = NULL;
+    delete BmkAssimp::global_importer;
+    BmkAssimp::global_importer = nullptr;
+    delete BmkGmio::global_scene;
+    BmkGmio::global_scene = nullptr;
 }
 
 int main(int argc, char** argv)
 {
-    if (argc > 1) {
-        const char* filepath = argv[1];
-        std::cout << std::endl
-                  << "gmio v" << GMIO_VERSION_STR << std::endl
-                  << "Assimp v" << BmkAssimp::assimp_version_str() << std::endl
-                  << std::endl
-                  << "Input file: " << filepath << std::endl;
+    if (argc <= 1)
+        return -1;
 
-        /* Declare benchmarks */
-        const benchmark_cmp_arg cmp_args[] = {
-            { "read",
-              BmkGmio::stl_read, filepath,
-              BmkAssimp::import, filepath },
-            { "write(ascii)",
-              BmkGmio::stla_write, "__bmk_assimp_gmio.stla",
-              BmkAssimp::export_stla, "__bmk_assimp.stla" },
-            { "write(binary/le)",
-              BmkGmio::stlb_write_le, "__bmk_assimp_gmio.stlb_le",
-              BmkAssimp::export_stlb, "__bmk_assimp.stlb_le" },
-            { "write(binary/be)",
-              BmkGmio::stlb_write_be, "__bmk_assimp_gmio.stlb_be",
-              NULL, NULL },
-            {}
-        };
+    const char* filepath = argv[1];
+    std::cout << "\ngmio v" << GMIO_VERSION_STR
+              << "\nAssimp v" << BmkAssimp::assimp_version_str()
+              << "\n\nInput file: " << filepath << '\n';
 
-        /* Execute benchmarks */
-        std::vector<benchmark_cmp_result> cmp_res_vec;
-        cmp_res_vec.resize(GMIO_ARRAY_SIZE(cmp_args) - 1);
-        benchmark_cmp_batch(
-                    5, cmp_args, &cmp_res_vec[0], bmk_init, bmk_cleanup);
-
-        /* Print results */
-        const benchmark_cmp_result_array res_array = {
-            &cmp_res_vec.at(0), cmp_res_vec.size() };
-        const benchmark_cmp_result_header header = {
-            "gmio", "Assimp" };
-        benchmark_print_results(
-                    BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
-    }
+    const gmio::Benchmark_CmpArg cmp_args[] = {
+        { "read",
+          [=]{ BmkGmio::stl_read(filepath); },
+          [=]{ BmkAssimp::import(filepath); }
+        },
+        { "write(ascii)",
+          []{ BmkGmio::stl_write(
+                  "__bmk_assimp_gmio.stla", gmio::STL_Format_Ascii); },
+          []{ BmkAssimp::export_stla("__bmk_assimp.stla"); }
+        },
+        { "write(binary/le)",
+          []{ BmkGmio::stl_write(
+                  "__bmk_assimp_gmio.stlb_le", gmio::STL_Format_BinaryLittleEndian); },
+          []{ BmkAssimp::export_stlb("__bmk_assimp.stlb_le"); }
+        },
+        { "write(binary/be)",
+          []{ BmkGmio::stl_write(
+                  "__bmk_assimp_gmio.stlb_be", gmio::STL_Format_BinaryBigEndian); },
+          nullptr,
+        }
+    };
+    const std::vector<gmio::Benchmark_CmpResult> results =
+            gmio::Benchmark_cmpBatch(
+                5, gmio::makeSpan(cmp_args), &bmk_init, &bmk_cleanup);
+    gmio::Benchmark_printResults_Markdown(
+                std::cout, { "gmio", "Assimp" }, results);
     return 0;
 }

@@ -300,7 +300,7 @@ static const char* test_amf_write_doc_1_plaintext()
     if (gmio_error(error))
         printf("\n0x%x\n", error);
 #endif
-    UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+    UTEST_COMPARE(error, GMIO_ERROR_OK);
     /* printf("%s\n", wbuff.ptr); */
     return NULL;
 }
@@ -323,7 +323,7 @@ static const char* test_amf_write_doc_1_zip()
         struct gmio_amf_write_options options = {0};
         options.float64_prec = 9;
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
-        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE(error, GMIO_ERROR_OK);
     }
 
     const size_t amf_data_len = wbuff.pos;
@@ -341,7 +341,7 @@ static const char* test_amf_write_doc_1_zip()
         options.zip_entry_filename_len = zip_entry_filename_len;
         options.dont_use_zip64_extensions = true;
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
-        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE(error, GMIO_ERROR_OK);
 #if 1
         FILE* file = fopen("output.zip", "wb");
         fwrite(wbuff.ptr, 1, wbuff.pos, file);
@@ -361,20 +361,20 @@ static const char* test_amf_write_doc_1_zip()
                 zip_archive_len - GMIO_ZIP_SIZE_END_OF_CENTRAL_DIRECTORY_RECORD;
         struct gmio_zip_end_of_central_directory_record zip_eocdr = {0};
         gmio_zip_read_end_of_central_directory_record(&stream, &zip_eocdr, &error);
-        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE(GMIO_ERROR_OK, error);
         /* -- Read ZIP central directory */
         wbuff.pos = zip_eocdr.central_dir_offset;
         struct gmio_zip_central_directory_header zip_cdh = {0};
         gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
-        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
-        UTEST_COMPARE_UINT(amf_data_len, zip_cdh.uncompressed_size);
+        UTEST_COMPARE(GMIO_ERROR_OK, error);
+        UTEST_COMPARE(amf_data_len, zip_cdh.uncompressed_size);
         const uint32_t amf_zdata_len = zip_cdh.compressed_size;
         /* -- Read(skip) ZIP local file header */
         wbuff.pos = 0;
         struct gmio_zip_local_file_header zip_lfh = {0};
         const size_t lfh_read_len =
                 gmio_zip_read_local_file_header(&stream, &zip_lfh, &error);
-        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE(GMIO_ERROR_OK, error);
         /* -- Read and check compressed AMF data */
         wbuff.pos = lfh_read_len + zip_lfh.filename_len + zip_lfh.extrafield_len;
         {
@@ -386,11 +386,11 @@ static const char* test_amf_write_doc_1_zip()
                         dest, &dest_len, amf_zdata, amf_zdata_len);
             printf("\ninfo: z_len=%u  src_len=%u\n",
                    (unsigned)amf_zdata_len, (unsigned)amf_data_len);
-            UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
-            UTEST_COMPARE_UINT(dest_len, amf_data_len);
-            UTEST_COMPARE_INT(memcmp(dest, amf_data, amf_data_len), 0);
+            UTEST_COMPARE(GMIO_ERROR_OK, error);
+            UTEST_COMPARE(dest_len, amf_data_len);
+            UTEST_COMPARE(memcmp(dest, amf_data, amf_data_len), 0);
             const uint32_t crc32_uncomp = gmio_zlib_crc32(dest, dest_len);
-            UTEST_COMPARE_UINT(crc32_amf_data, crc32_uncomp);
+            UTEST_COMPARE(crc32_amf_data, crc32_uncomp);
         }
     }
 
@@ -410,7 +410,7 @@ static const char* test_amf_write_doc_1_zip64()
         struct gmio_amf_write_options options = {0};
         options.float64_prec = 9;
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
-        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE(error, GMIO_ERROR_OK);
     }
 
     const uintmax_t amf_data_len = wbuff.pos;
@@ -423,7 +423,7 @@ static const char* test_amf_write_doc_1_zip64()
         options.zip_entry_filename = zip_entry_filename;
         options.zip_entry_filename_len = zip_entry_filename_len;
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
-        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE(error, GMIO_ERROR_OK);
 #if 1
         FILE* file = fopen("output_64.zip", "wb");
         fwrite(wbuff.ptr, 1, wbuff.pos, file);
@@ -447,12 +447,12 @@ static const char* test_amf_write_doc_1_zip64()
         struct gmio_zip64_end_of_central_directory_record zip64_eocdr = {0};
         gmio_zip64_read_end_of_central_directory_record(
                     &stream, &zip64_eocdr, &error);
-        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE(GMIO_ERROR_OK, error);
         /* -- Read ZIP central directory */
         wbuff.pos = zip64_eocdr.central_dir_offset;
         struct gmio_zip_central_directory_header zip_cdh = {0};
         gmio_zip_read_central_directory_header(&stream, &zip_cdh, &error);
-        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
+        UTEST_COMPARE(GMIO_ERROR_OK, error);
         /* -- Read ZIP central directory Zip64 extrafield*/
         wbuff.pos =
                 zip64_eocdr.central_dir_offset
@@ -460,8 +460,8 @@ static const char* test_amf_write_doc_1_zip64()
                 + zip_cdh.filename_len;
         struct gmio_zip64_extrafield zip64_extra = {0};
         gmio_zip64_read_extrafield(&stream, &zip64_extra, &error);
-        UTEST_COMPARE_INT(GMIO_ERROR_OK, error);
-        UTEST_COMPARE_UINT(amf_data_len, zip64_extra.uncompressed_size);
+        UTEST_COMPARE(GMIO_ERROR_OK, error);
+        UTEST_COMPARE(amf_data_len, zip64_extra.uncompressed_size);
     }
 
     return NULL;
@@ -475,7 +475,7 @@ static const char* test_amf_write_doc_1_zip64_file()
     options.float64_prec = 9;
     options.create_zip_archive = true;
     const int error = gmio_amf_write_file("output_64_file.zip", &doc, &options);
-    UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+    UTEST_COMPARE(error, GMIO_ERROR_OK);
     return NULL;
 }
 
@@ -516,9 +516,9 @@ static const char* test_amf_write_doc_1_task_iface()
     options.task_iface.func_handle_progress = __tamf__handle_progress;
     {
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
-        UTEST_COMPARE_INT(error, GMIO_ERROR_OK);
+        UTEST_COMPARE(error, GMIO_ERROR_OK);
         UTEST_ASSERT(!task.progress_error);
-        UTEST_COMPARE_INT(task.current_value, task.max_value);
+        UTEST_COMPARE(task.current_value, task.max_value);
         printf("\ninfo: max_value=%d\n", (int)task.max_value);
     }
 
@@ -528,7 +528,7 @@ static const char* test_amf_write_doc_1_task_iface()
     options.task_iface.func_is_stop_requested = __tamf__is_stop_requested;
     {
         const int error = __tamf__write_amf(&wbuff, &doc, &options);
-        UTEST_COMPARE_INT(error, GMIO_ERROR_TASK_STOPPED);
+        UTEST_COMPARE(error, GMIO_ERROR_TASK_STOPPED);
         UTEST_ASSERT(task.current_value < task.max_value);
     }
 

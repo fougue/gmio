@@ -33,40 +33,43 @@
 #include "../zlib_compress.h"
 #include <zlib.h>
 
-/*! Converts zlib error to gmio "zlib-specific" error */
-int zlib_error_to_gmio_error(int z_error);
+namespace gmio {
 
-/*! Wrapper around deflateInit2(), returns a converted gmio error code */
-int gmio_zlib_compress_init(
-        struct z_stream_s* z_stream,
-        const struct gmio_zlib_compress_options* z_opts);
+//! Converts zlib error to gmio "zlib-specific" error
+int ZLIB_toGmioError(int z_error);
 
-/*! Checks zlib compression options */
-bool gmio_check_zlib_compress_options(
-        int* error, const struct gmio_zlib_compress_options* z_opts);
+//! Wrapper around deflateInit2(), returns a converted gmio error code
+int ZLIB_initCompress(
+        z_stream_s* z_stream, const ZLIB_CompressOptions& z_opts);
 
-/*! Decompresses the source buffer into the destination buffer.
- *  \p src_len is the byte length of the source buffer. Upon entry, \p dest_len
- *  is the total size of the destination buffer, which must be large enough to
- *  hold the entire uncompressed data.
- *  Upon exit, \p dest_len is the actual size of the compressed buffer. */
-int gmio_zlib_uncompress_buffer(
+//! Checks zlib compression options
+bool ZLIB_checkCompressOptions(
+        int* error, const ZLIB_CompressOptions& z_opts);
+
+//! Decompresses the source buffer into the destination buffer.
+//! 'src_len' is the byte length of the source buffer. Upon entry, 'dest_len'
+//! is the total size of the destination buffer, which must be large enough to
+//! hold the entire uncompressed data.
+//! Upon exit, 'dest_len' is the actual size of the compressed buffer.
+int ZLIB_uncompressBuffer(
         uint8_t* dest, size_t* dest_len, const uint8_t* src, size_t src_len);
 
-/*! Computes the CRC-32 value with the bytes from \p buff */
-uint32_t gmio_zlib_crc32(const uint8_t* buff, size_t buff_len);
+//! Computes the CRC-32 value with the bytes from 'buff'
+uint32_t ZLIB_crc32(const uint8_t* buff, size_t buff_len);
 
-/*! Returns the required initial value for gmio_zlib_crc32_update() */
-uint32_t gmio_zlib_crc32_initial();
+//! Returns the required initial value for ZLIB_crc32Update()
+uint32_t ZLIB_crc32Initial();
 
-/*! Updates a running CRC-32 with the bytes from \p buff */
-uint32_t gmio_zlib_crc32_update(
+//! Updates a running CRC-32 with the bytes from 'buff'
+uint32_t ZLIB_crc32Update(
         uint32_t crc, const uint8_t* buff, size_t buff_len);
 
-/*! Type-safe assigns z_stream_s::next_in and z_stream_s::avail_in */
-void gmio_zlib_assign_zstream_in(
-        struct z_stream_s* zstream, const uint8_t* next_in, size_t avail_in);
+//! Type-safe assigns z_stream_s::next_in and z_stream_s::avail_in
+void ZLIB_assignNextIn(
+        z_stream_s* zstream, const uint8_t* next_in, size_t avail_in);
 
-/*! Type-safe assigns z_stream_s::next_out and z_stream_s::avail_out */
-void gmio_zlib_assign_zstream_out(
-        struct z_stream_s* zstream, uint8_t* next_out, size_t avail_out);
+//! Type-safe assigns z_stream_s::next_out and z_stream_s::avail_out
+void ZLIB_assignNextOut(
+        z_stream_s* zstream, uint8_t* next_out, size_t avail_out);
+
+} // namespace gmio

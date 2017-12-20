@@ -39,22 +39,24 @@
 #include "stl_global.h"
 #include "stl_triangle.h"
 
-/*! Provides an interface for accessing the underlying(hidden) user mesh */
-struct gmio_stl_mesh
-{
-    /*! Opaque pointer on the user mesh, passed as first argument to hook
-     *  functions */
-    const void* cookie;
+namespace gmio {
 
-    /*! Number of triangles in the mesh */
-    uint32_t triangle_count;
+//! Provides an interface for accessing the underlying(hidden) user mesh
+class GMIO_API STL_Mesh {
+public:
+    //! Number of triangles in the mesh
+    uint32_t triangleCount() const { return m_triangleCount; }
 
-    /*! Function that stores the mesh triangle of index \p tri_id into
-     *  \p triangle */
-    void (*func_get_triangle)(
-            const void* cookie,
-            uint32_t tri_id,
-            struct gmio_stl_triangle* triangle);
+    //! Returns the mesh triangle of index 'tri_id'
+    virtual STL_Triangle triangle(uint32_t tri_id) const = 0;
+
+protected:
+    void setTriangleCount(uint32_t count) { m_triangleCount = count; }
+
+private:
+    uint32_t m_triangleCount;
 };
+
+} // namespace gmio
 
 /*! @} */

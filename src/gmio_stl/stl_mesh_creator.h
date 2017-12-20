@@ -40,71 +40,58 @@
 #include "stl_format.h"
 #include "stl_triangle.h"
 #include "stlb_header.h"
-#include "../gmio_core/stream.h"
 
-#include <stddef.h>
+#include <string>
 
-/*! Informations about the STL stream, used in
- *  gmio_stl_mesh_creator::func_begin_solid() */
-struct gmio_stl_mesh_creator_infos
-{
-    /*! Format of the input STL mesh */
-    enum gmio_stl_format format;
+namespace gmio {
 
-    /*! Null terminated C-string holding the STL mesh(solid) name.
-     *  Available only if STL ASCII format, \c NULL otherwise */
-    const char* stla_solid_name;
+struct STL_MeshCreatorInfos;
 
-    /*! Total size (in bytes) of the input stream
-     *
-     *  This is the result of gmio_stl_read_options::func_stla_get_streamsize()
-     *
-     *  Useful to roughly estimate the facet count in the input mesh.
-     *  Available only if STL ASCII format, \c 0 otherwise
-     */
-    gmio_streamsize_t stla_stream_size;
+//! Provides an interface for the creation of the underlying(hidden) user mesh
+class GMIO_API STL_MeshCreator {
+public:
+    //! Handles declaration of a solid (does nothing by default)
+    virtual void beginSolid(const STL_MeshCreatorInfos& infos);
 
-    /*! Contains the header data(80 bytes).
-     *  Available only if binary STL, \c NULL otherwise */
-    const struct gmio_stlb_header* stlb_header;
+    //! Adds a triangle to the user mesh
+    //!
+    //! The argument 'triangle' is the triangle to be added, note that
+    //! struct STL_Triangle::attribute_byte_count is meaningless for STL ascii.
+    //!
+    //! The argument 'tri_id' is the index of the mesh triangle
+    virtual void addTriangle(uint32_t tri_id, const STL_Triangle& triangle);
 
-    /*! Count of mesh facets(triangles).
-     *  Available only if binary STL, \c 0 otherwise */
-    uint32_t stlb_triangle_count;
+    //! Finalizes creation of the user mesh
+    //!
+    //! The function is called at the end of the read process, ie. after all
+    //! triangles have been added
+    virtual void endSolid();
 };
 
-/*! Provides an interface for the creation of the underlying(hidden)
- *  user mesh */
-struct gmio_stl_mesh_creator
-{
-    /*! Opaque pointer on the user mesh, passed as first argument to hook
-     *  functions */
-    void* cookie;
+//! Informations about the STL stream, used in STL_MeshCreator::beginSolid()
+struct STL_MeshCreatorInfos {
+    //! Format of the input STL mesh
+    STL_Format format;
 
-    /* All function pointers are optional (ie can be set to NULL) */
+    //! STL mesh(solid) name.
+    //! Available only if STL ASCII format
+    std::string ascii_solid_name;
 
-    /*! Optional function that handles declaration of a solid */
-    void (*func_begin_solid)(
-            void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
+    //! Total size (in bytes) of the input stream
+    //!
+    //! Useful to roughly estimate the facet count in the input mesh.
+    //! Available only if STL ASCII format, \c 0 otherwise
+    uint64_t ascii_solid_size;
 
-    /*! Function that adds a triangle to the user mesh
-     *
-     *  The argument \p triangle is the triangle to be added, note that
-     *  struct gmio_stl_triangle::attribute_byte_count is meaningless for STL
-     *  ascii.
-     *
-     *  The argument \p tri_id is the index of the mesh triangle
-     */
-    void (*func_add_triangle)(
-            void* cookie,
-            uint32_t tri_id,
-            const struct gmio_stl_triangle* triangle);
+    //! Contains the header data(80 bytes).
+    //! Available only if binary STL
+    STL_BinaryHeader binary_header;
 
-    /*! Optional function that finalizes creation of the user mesh
-     *
-     *  The function is called at the end of the read process, ie. after all
-     *  triangles have been added */
-    void (*func_end_solid)(void* cookie);
+    //! Count of mesh facets(triangles).
+    //! Available only if binary STL, \c 0 otherwise
+    uint32_t binary_triangle_count;
 };
+
+} // namespace gmio
 
 /*! @} */

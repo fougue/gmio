@@ -50,6 +50,7 @@
 #pragma once
 
 #include "support_global.h"
+#include "stl_occ_utils.h"
 #include "../gmio_stl/stl_mesh.h"
 #include "../gmio_stl/stl_mesh_creator.h"
 
@@ -59,25 +60,26 @@
 #include <gp_XYZ.hxx>
 #include <vector>
 
-/*! Provides access to the triangles of an OpenCascade \c Poly_Triangulation
- *
- *  Example of use:
- *  \code{.cpp}
- *      const Handle_Poly_Triangulation occpolytri = ...;
- *      const gmio_stl_mesh_occpolytri mesh(occpolytri);
- *      gmio_stl_write_file(stl_format, filepath, &occmesh, &options);
- *  \endcode
- */
-struct gmio_stl_mesh_occpolytri : public gmio_stl_mesh
-{
-    gmio_stl_mesh_occpolytri();
-    explicit gmio_stl_mesh_occpolytri(const Handle_Poly_Triangulation& hnd);
+namespace gmio {
+
+//! Provides access to the triangles of an OpenCascade \c Poly_Triangulation
+//!
+//! Example of use:
+//! \code{.cpp}
+//!     const Handle_Poly_Triangulation polytri = ...;
+//!     const gmio::STL_MeshOccPolyTriangulation mesh(polytri);
+//!     gmio::STL_write(stl_format, filepath, mesh);
+//! \endcode
+class STL_MeshOccPolyTriangulation : public STL_Mesh {
+public:
+    STL_MeshOccPolyTriangulation();
+    explicit STL_MeshOccPolyTriangulation(const Handle_Poly_Triangulation& hnd);
 
     const Handle_Poly_Triangulation& polytri() const { return m_polytri; }
 
+    STL_Triangle triangle(uint32_t tri_id) const override;
+
 private:
-    static void get_triangle(
-            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
     void init();
 
     Handle_Poly_Triangulation m_polytri;
@@ -87,36 +89,33 @@ private:
     const TShort_Array1OfShortReal* m_polytri_vec_normal;
 };
 
-/*! Provides creation of an OpenCascade \c Poly_Triangulation
- *
- *  Example of use:
- *  \code{.cpp}
- *      gmio_stl_mesh_creator_occpolytri meshcreator;
- *      gmio_stl_read_file(filepath, &meshcreator, &options);
- *      Handle_Poly_Triangulation occpolytri = meshcreator.polytri();
- *  \endcode
- */
-struct gmio_stl_mesh_creator_occpolytri : public gmio_stl_mesh_creator
-{
+//! Provides creation of an OpenCascade \c Poly_Triangulation
+//!
+//! Example of use:
+//! \code{.cpp}
+//!     STL_MeshCreatorOccPolyTriangulation meshcreator;
+//!     gmio::STL_read(filepath, &meshcreator);
+//!     Handle_Poly_Triangulation polytri = meshcreator.polytri();
+//! \endcode
+class STL_MeshCreatorOccPolyTriangulation : public STL_MeshCreator {
 public:
-    gmio_stl_mesh_creator_occpolytri();
+    STL_MeshCreatorOccPolyTriangulation();
     const Handle_Poly_Triangulation& polytri() const { return m_polytri; }
 
-private:
-    static void begin_solid(
-            void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
-    static void add_triangle(
-            void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri);
-    static void end_solid(void* cookie);
+    void beginSolid(const STL_MeshCreatorInfos& infos) override;
+    void addTriangle(uint32_t tri_id, const STL_Triangle& triangle) override;
+    void endSolid() override;
 
-    int add_unique_vertex(const gmio_vec3f& v, const gmio_vec3f& n);
+private:
+    int addUniqueNode(const gp_XYZ& coords, const Vec3f& normal);
 
     Handle_Poly_Triangulation m_polytri;
-    BRepBuilderAPI_CellFilter m_filter;
-    BRepBuilderAPI_VertexInspector m_inspector;
+    OCC_MergeNodeTool m_merge_tool;
     std::vector<gp_XYZ> m_vec_node;
-    std::vector<gmio_vec3f> m_vec_normal;
+    std::vector<Vec3f> m_vec_normal;
     std::vector<Poly_Triangle> m_vec_triangle;
 };
+
+} // namespace gmio
 
 /*! @} */

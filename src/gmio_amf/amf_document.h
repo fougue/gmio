@@ -39,7 +39,6 @@
 #include "amf_global.h"
 
 #include "../gmio_core/endian.h"
-#include "../gmio_core/memblock.h"
 #include "../gmio_core/vecgeom.h"
 
 #include <stddef.h>

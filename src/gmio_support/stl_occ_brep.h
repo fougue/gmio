@@ -44,10 +44,6 @@
  *  @{
  */
 
-#ifndef __cplusplus
-#  error C++ compiler required
-#endif
-
 #pragma once
 
 #include "support_global.h"
@@ -58,66 +54,62 @@
 #include <TopoDS_Shape.hxx>
 #include <vector>
 
-/*! Provides access to the internal triangles of an OpenCascade \c TopoDS_Shape
- *
- *  gmio_stl_mesh_occshape iterates efficiently over the triangles of all
- *  sub <tt>TopoDS_Faces</tt>(internal \c Poly_Triangulation objects).
- *
- *  Example of use:
- *  \code{.cpp}
- *      const TopoDS_Shape occshape = ...;
- *      const gmio_stl_mesh_occshape mesh(occshape);
- *      gmio_stl_write_file(stl_format, filepath, &occmesh, &options);
- *  \endcode
- */
-struct gmio_stl_mesh_occshape : public gmio_stl_mesh
-{
-    gmio_stl_mesh_occshape();
-    explicit gmio_stl_mesh_occshape(const TopoDS_Shape& shape);
+namespace gmio {
+
+//! Provides access to the internal triangles of an OpenCascade \c TopoDS_Shape
+//!
+//!  gmio_stl_mesh_occshape iterates efficiently over the triangles of all
+//!  sub <tt>TopoDS_Faces</tt>(internal \c Poly_Triangulation objects).
+//!
+//!  Example of use:
+//!  \code{.cpp}
+//!      const TopoDS_Shape shape = ...;
+//!      gmio::STL_write(stl_format, filepath, gmio::STL_MeshOccShape(shape);
+//!  \endcode
+class STL_MeshOccShape : public STL_Mesh {
+public:
+    explicit STL_MeshOccShape(const TopoDS_Shape& shape);
 
     const TopoDS_Shape& shape() const { return m_shape; }
 
+    STL_Triangle triangle(uint32_t tri_id) const override;
+
 private:
-    static void get_triangle(
-            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
-
-    void init_C_members();
-
-    struct face_data {
+    struct FaceData {
         gp_Trsf trsf;
         bool is_reversed;
         const TColgp_Array1OfPnt* ptr_nodes;
     };
-    struct triangle_data {
+    struct TriangleData {
         const Poly_Triangle* ptr_triangle;
-        const face_data* ptr_face_data;
+        const FaceData* ptr_face_data;
     };
 
-    std::vector<face_data> m_vec_face_data;
-    std::vector<triangle_data> m_vec_triangle_data;
+    std::vector<FaceData> m_vec_face_data;
+    std::vector<TriangleData> m_vec_triangle_data;
     TopoDS_Shape m_shape;
 };
 
-/*! Provides creation of an OpenCascade \c TopoDS_Shape containing no
- *  geometrical surfaces but only a \c Poly_Triangulation structure
- *
- *  Example of use:
- *  \code{.cpp}
- *      gmio_stl_mesh_creator_occshape meshcreator;
- *      gmio_stl_read_file(filepath, &meshcreator, &options);
- *      const TopoDS_Shape shape = meshcreator.shape();
- *  \endcode
- */
-struct gmio_stl_mesh_creator_occshape : public gmio_stl_mesh_creator_occpolytri
-{
+//! Provides creation of an OpenCascade \c TopoDS_Shape containing no
+//! geometrical surfaces but only a \c Poly_Triangulation structure
+//!
+//!  Example of use:
+//!  \code{.cpp}
+//!      gmio::STL_MeshCreatorOccShape meshcreator;
+//!      gmio::STL_read(filepath, &meshcreator);
+//!      const TopoDS_Shape shape = meshcreator.shape();
+//!  \endcode
+class STL_MeshCreatorOccShape : public STL_MeshCreatorOccPolyTriangulation {
 public:
-    gmio_stl_mesh_creator_occshape();
+    STL_MeshCreatorOccShape();
     TopoDS_Shape& shape() { return m_shape; }
 
+    void endSolid() override;
+
 private:
-    static void end_solid(void* cookie);
-    void (*m_func_end_solid_occpolytri)(void* cookie);
     TopoDS_Shape m_shape;
 };
+
+} // namespace gmio
 
 /*! @} */

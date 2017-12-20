@@ -38,23 +38,25 @@
 
 #include "../gmio_core/global.h"
 
-enum gmio_stl_constants
-{
-    /*! Compact size of a gmio_vec3f object */
-    GMIO_STL_COORDS_RAWSIZE = (3 * sizeof(float)),
+namespace gmio {
 
-    /*! Compact size of a gmio_stl_triangle object, STL ascii format */
-    GMIO_STLA_TRIANGLE_RAWSIZE = (4 * GMIO_STL_COORDS_RAWSIZE),
+enum STL_Constants {
+    //! Compact size of a Vec3f object
+    STL_CoordsRawSize = (3 * sizeof(float)),
 
-    /*! Compact size of a gmio_stl_triangle object, STL binary format */
-    GMIO_STLB_TRIANGLE_RAWSIZE = (GMIO_STLA_TRIANGLE_RAWSIZE + sizeof(uint16_t)),
+    //! Compact size of a STL_Triangle object, STL ascii format
+    STL_TriangleAsciiRawSize = (4 * STL_CoordsRawSize),
 
-    /*! Size(in bytes) of the header data for STL binary */
-    GMIO_STLB_HEADER_SIZE = 80,
+    //! Compact size of a STL_Triangle object, STL binary format
+    STL_TriangleBinaryRawSize = (STL_TriangleAsciiRawSize + sizeof(uint16_t)),
 
-    /*! Size(in bytes) of the minimum contents possible with the STL binary
-     *  format */
-    GMIO_STLB_MIN_CONTENTS_SIZE = 284
+    //! Size(in bytes) of the header data for STL binary
+    STL_BinaryHeaderSize = 80,
+
+    //! Size(in bytes) of the minimum contents possible with the STL binary format
+    STL_BinaryMinContentsSize = 284
 };
+
+} // namespace gmio
 
 /*! @} */

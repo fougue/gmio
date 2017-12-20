@@ -42,145 +42,93 @@
 #include "stl_io_options.h"
 #include "stl_mesh.h"
 #include "stl_mesh_creator.h"
-#include "../gmio_core/stream.h"
+#include "../gmio_core/iodevice.h"
 #include "../gmio_core/endian.h"
 
-GMIO_C_LINKAGE_BEGIN
+namespace gmio {
 
-/*! Reads STL mesh from stream, format is automatically guessed
- *
- *  The user mesh is created sequentially by calling
- *  gmio_stl_mesh_creator::func_add_triangle() with each triangle read from
- *  the stream.
- *
- *  It does nothing on the triangles read : no checking(eg. for Nan values),
- *  normals are given as they are.
- *
- *  \pre <tt> stream != NULL </tt>
- *  \pre <tt> mesh_creator != NULL </tt>
- *
- *  \p options may be \c NULL in this case default values are used
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *
- *  \sa gmio_stl_read_file()
- */
-GMIO_API int gmio_stl_read(
-                struct gmio_stream* stream,
-                struct gmio_stl_mesh_creator* mesh_creator,
-                const struct gmio_stl_read_options* options);
+//! Reads STL mesh from I/O device, format is automatically guessed
+//!
+//! The user mesh is created sequentially by calling STL_MeshCreator::addTriangle()
+//! with each triangle read from the device.
+//!
+//! It does nothing on the triangles read : no checking(eg. for Nan values),
+//! normals are given as they are.
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+GMIO_API int STL_read(
+                FuncReadData func_read,
+                STL_MeshCreator* creator,
+                STL_ReadOptions options = {});
 
-/*! Reads STL mesh from a file, format is automatically guessed
- *
- *  This is just a facility function over gmio_stl_read(). The internal stream
- *  object is created to read file at \p filepath.
- *
- *  \pre <tt> filepath != \c NULL </tt>\n
- *       The file is opened with \c fopen() so \p filepath shall follow the file
- *       name specifications of the running environment
- *  \pre <tt> mesh_creator != NULL </tt>
- *
- *  \p options may be \c NULL in this case default values are used
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *
- *  \sa gmio_stl_read(), gmio_stream_stdio(FILE*)
- */
-GMIO_API int gmio_stl_read_file(
+//! Reads STL mesh from a file, format is automatically guessed
+//!
+//! The internal stream object is created to read file at 'filepath'
+//!
+//! The file is opened with \c fopen() so 'filepath' shall follow the file name
+//! specifications of the running environment
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+//! \sa read()
+GMIO_API int STL_read(
                 const char* filepath,
-                struct gmio_stl_mesh_creator* mesh_creator,
-                const struct gmio_stl_read_options* options);
+                STL_MeshCreator* creator,
+                STL_ReadOptions options = {});
 
-/*! Reads mesh from STL ascii stream
- *
- *  \pre <tt> stream != NULL </tt>
- *  \pre <tt> mesh_creator != NULL </tt>
- *
- *  \p options may be \c NULL in this case default values are used
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *
- *  \sa gmio_stl_read(), gmio_stl_read_file()
- */
-GMIO_API int gmio_stla_read(
-                struct gmio_stream* stream,
-                struct gmio_stl_mesh_creator* mesh_creator,
-                const struct gmio_stl_read_options* options);
+//! Reads mesh from STL ascii input
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+//! \sa STL_read()
+GMIO_API int STL_readAscii(
+                FuncReadData func_read,
+                STL_MeshCreator* creator,
+                STL_ReadOptions options = {});
 
-/*! Reads mesh from STL binary stream
- *
- *  \pre <tt> stream != NULL </tt>
- *  \pre <tt> mesh_creator != NULL </tt>
- *
- *  \p options may be \c NULL in this case default values are used
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *  \retval GMIO_ERROR_INVALID_MEMBLOCK_SIZE
- *          if <tt>options->stream_memblock.size < GMIO_STLB_MIN_CONTENTS_SIZE</tt>
- *
- *  \sa gmio_stl_read(), gmio_stl_read_file()
- */
-GMIO_API int gmio_stlb_read(
-                struct gmio_stream* stream,
-                struct gmio_stl_mesh_creator* mesh_creator,
-                enum gmio_endianness byte_order,
-                const struct gmio_stl_read_options* options);
+//! Reads mesh from STL binary input
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+//! \sa STL_read()
+GMIO_API int STL_readBinary(
+                Endianness byte_order,
+                FuncReadData func_read,
+                STL_MeshCreator* creator,
+                STL_ReadOptions options = {});
 
-/*! Writes STL mesh to stream
- *
- *  \pre <tt> stream != NULL </tt>
- *  \pre <tt> mesh != NULL </tt>
- *
- *  \p options may be \c NULL in this case default values are used
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *
- *  \sa gmio_stl_write_file()
- */
-GMIO_API int gmio_stl_write(
-                enum gmio_stl_format format,
-                struct gmio_stream* stream,
-                const struct gmio_stl_mesh* mesh,
-                const struct gmio_stl_write_options* options);
+//! Writes STL mesh to I/O device
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+GMIO_API int STL_write(
+                STL_Format format,
+                FuncWriteData func_write,
+                const STL_Mesh& mesh,
+                STL_WriteOptions options = {});
 
-/*! Writes STL mesh to stream
- *
- *  This is just a facility function over gmio_stl_write(). The internal stream
- *  object is created to read file at \p filepath
- *
- *  \pre <tt> filepath != \c NULL </tt>\n
- *       The file is opened with \c fopen() so \p filepath shall follow the file
- *       name specifications of the running environment
- *  \pre <tt> mesh != NULL </tt>
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- *
- *  \sa gmio_stl_write(), gmio_stream_stdio(FILE*)
- */
-GMIO_API int gmio_stl_write_file(
-                enum gmio_stl_format format,
+//! Writes STL mesh to stream
+//!
+//! The internal stream object is created to read file at 'filepath'
+//!
+//! The file is opened with \c fopen() so 'filepath' shall follow the file name
+//! specifications of the running environment
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+GMIO_API int STL_write(
+                STL_Format format,
                 const char* filepath,
-                const struct gmio_stl_mesh* mesh,
-                const struct gmio_stl_write_options* options);
+                const STL_Mesh& mesh,
+                STL_WriteOptions options = {});
 
-/*! Writes STL binary header data to stream
- *
- *  This functions only writes the 80-bytes header array and the count of facets
- *  of the mesh(with respect of the specified byte order).
- *
- *  \pre <tt> stream != NULL </tt>
- *
- *  \p header Can be safely set to \c NULL to generate an array of zeroes
- *
- *  \return Error code (see gmio_core/error.h and stl_error.h)
- */
-GMIO_API int gmio_stlb_header_write(
-                struct gmio_stream* stream,
-                enum gmio_endianness byte_order,
-                const struct gmio_stlb_header* header,
-                uint32_t facet_count
-);
+//! Writes STL binary header data to I/O device
+//!
+//! This functions only writes the 80-bytes header array and the count of facets
+//! of the mesh(with respect of the specified byte order).
+//!
+//! \return Error code (see gmio_core/error.h and stl_error.h)
+GMIO_API int STL_writeBinaryHeader(
+                Endianness byte_order,
+                FuncWriteData func_write,
+                const STL_BinaryHeader& header,
+                uint32_t facet_count);
 
-GMIO_C_LINKAGE_END
+} // namespace gmio
 
 /*! @} */

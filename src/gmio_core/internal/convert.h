@@ -31,42 +31,46 @@
 
 #include "../global.h"
 
-union gmio_uint_float_32
+namespace gmio {
+
+union uint_float_32
 {
     uint32_t as_uint32;
     float    as_float32;
 };
 
-union gmio_int_float_32
+union int_float_32
 {
     int32_t as_int32;
     float   as_float32;
 };
 
-GMIO_INLINE float gmio_convert_ufloat32(uint32_t val)
+inline float convert_ufloat32(uint32_t val)
 {
-    union gmio_uint_float_32 conv;
+    union uint_float_32 conv;
     conv.as_uint32 = val;
     return conv.as_float32;
 }
 
-GMIO_INLINE uint32_t gmio_convert_uint32(float val)
+inline uint32_t convert_uint32(float val)
 {
-    union gmio_uint_float_32 conv;
+    union uint_float_32 conv;
     conv.as_float32 = val;
     return conv.as_uint32;
 }
 
-GMIO_INLINE float gmio_convert_sfloat32(int32_t val)
+inline float convert_sfloat32(int32_t val)
 {
-    union gmio_int_float_32 conv;
+    union int_float_32 conv;
     conv.as_int32 = val;
     return conv.as_float32;
 }
 
-GMIO_INLINE int32_t gmio_convert_int32(float val)
+inline int32_t convert_int32(float val)
 {
-    union gmio_int_float_32 conv;
+    union int_float_32 conv;
     conv.as_float32 = val;
     return conv.as_int32;
 }
+
+} // namespace gmio

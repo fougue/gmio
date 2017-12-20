@@ -37,7 +37,6 @@
 #include <Common/Platform/NMR_ImportStream_COM.h>
 
 #include <gmio_core/error.h>
-#include <gmio_core/memblock.h>
 #include <gmio_core/version.h>
 #include <gmio_stl/stl_format.h>
 #include <gmio_stl/stl_io.h>
@@ -54,9 +53,9 @@
 
 namespace BmkLib3MF {
 
-NMR::CMesh globalMesh;
+NMR::CMesh global_mesh;
 
-std::wstring multibyte_to_wstring(const char* str, int codepage = 0)
+static std::wstring multibyte_to_wstring(const char* str, int codepage = 0)
 {
     const int str_len = static_cast<int>(std::strlen(str));
     const int wlen = MultiByteToWideChar(codepage, 0, str, str_len, nullptr, 0);
@@ -67,31 +66,29 @@ std::wstring multibyte_to_wstring(const char* str, int codepage = 0)
     return wstr;
 }
 
-static void import(const void* filepath)
+static void import(const char* filepath)
 {
-    const char* cstr_filepath = static_cast<const char*>(filepath);
-    const std::wstring wstr_filepath = multibyte_to_wstring(cstr_filepath);
+    const std::wstring wstr_filepath = multibyte_to_wstring(filepath);
     auto istream = std::make_shared<NMR::CImportStream_COM>(wstr_filepath.c_str());
     NMR::CMeshImporter_STL importer(istream);
     importer.setImportColors(false);
     importer.setIgnoreInvalidFaces(true);
     try {
-        importer.loadMesh(&globalMesh, nullptr);
+        importer.loadMesh(&global_mesh, nullptr);
         if (GetLastError() != ERROR_SUCCESS)
-            std::cerr << "NMR::CMeshImporter_STL error" << std::endl;
+            std::cerr << "NMR::CMeshImporter_STL error\n";
     }
     catch(...) {
-        std::cerr << "NMR::CMeshImporter_STL::loadMesh() exception" << std::endl;
+        std::cerr << "NMR::CMeshImporter_STL::loadMesh() exception\n";
     }
 }
 
-static void export_binary(const void* filepath)
+static void export_binary(const char* filepath)
 {
-    const char* cstr_filepath = static_cast<const char*>(filepath);
-    const std::wstring wstr_filepath = multibyte_to_wstring(cstr_filepath);
+    const std::wstring wstr_filepath = multibyte_to_wstring(filepath);
     auto ostream = std::make_shared<NMR::CExportStream_COM>(wstr_filepath.c_str());
     NMR::CMeshExporter_STL exporter(ostream);
-    exporter.exportMesh(&globalMesh, nullptr);
+    exporter.exportMesh(&global_mesh, nullptr);
     if (GetLastError() != ERROR_SUCCESS)
         std::cerr << "NMR::CMeshExporter_STL error" << std::endl;
 }
@@ -104,197 +101,190 @@ struct NMR_CMeshHelper
 {
     NMR::CMesh mesh;
     const NMR::NMATRIX3* matrix;
-    NMR::CVectorTree vectorTree;
-    bool ignoreInvalidFaces;
+    NMR::CVectorTree vector_tree;
+    bool ignore_invalid_faces;
 };
 
-NMR_CMeshHelper globalMeshHelper;
+NMR_CMeshHelper global_mesh_helper;
 
-static void get_triangle(
-        const void* cookie, uint32_t tri_id, gmio_stl_triangle* triangle)
-{
-    // Note: code from lib3mf/Source/Common/MeshImport/NMR_MeshImporter_STL.cpp
-    // Commit #a466df4
-
-    auto constMeshHelper = static_cast<const NMR_CMeshHelper*>(cookie);
-    auto meshHelper = const_cast<NMR_CMeshHelper*>(constMeshHelper);
-    NMR::CMesh* pMesh = &meshHelper->mesh;
-    const NMR::NMATRIX3* pmMatrix = meshHelper->matrix;
-    NMR::MESHFACE* face = pMesh->getFace(tri_id);
-    NMR::MESHFORMAT_STL_FACET facet;
-
-    for (int j = 0; j < 3; j++) {
-        NMR::MESHNODE* node = pMesh->getNode(face->m_nodeindices[j]);
-        if (pmMatrix)
-            facet.m_vertieces[j] = NMR::fnMATRIX3_apply(*pmMatrix, node->m_position);
-        else
-            facet.m_vertieces[j] = node->m_position;
-    }
-
-    // Calculate Triangle Normals
-    const NMR::NVEC3 n =
-            NMR::fnVEC3_calcTriangleNormal(
-                facet.m_vertieces[0], facet.m_vertieces[1], facet.m_vertieces[2]);
-    std::memcpy(&triangle->n, &n, sizeof(gmio_vec3f));
-    std::memcpy(&triangle->v1, &facet.m_vertieces[0], sizeof(gmio_vec3f));
-    std::memcpy(&triangle->v2, &facet.m_vertieces[1], sizeof(gmio_vec3f));
-    std::memcpy(&triangle->v3, &facet.m_vertieces[2], sizeof(gmio_vec3f));
-    triangle->attribute_byte_count = 0;
-}
-
-static void add_triangle(
-        void* cookie, uint32_t /*tri_id*/, const gmio_stl_triangle* triangle)
-{
-    // Note: code from lib3mf/Source/Common/MeshExport/NMR_MeshExporter_STL.cpp
-    // Commit #a466df4
-
-    auto meshHelper = static_cast<NMR_CMeshHelper*>(cookie);
-    NMR::CMesh* pMesh = &meshHelper->mesh;
-    const NMR::NMATRIX3* pmMatrix = meshHelper->matrix;
-    NMR::CVectorTree& VectorTree = meshHelper->vectorTree;
-    NMR::MESHNODE* pNodes[3];
-
-    // Check, if Coordinates are in Valid Space
-    bool bIsValid = true;
+class STL_Mesh3MF : public gmio::STL_Mesh {
+public:
+    STL_Mesh3MF(const NMR_CMeshHelper* mesh_helper)
+        : m_mesh_helper(mesh_helper)
     {
-        const gmio_vec3f* vertex_ptr = &triangle->v1;
-        for (int i = 0; i < 3; i++) {
-            const float* coord_ptr = &vertex_ptr[i].x;
-            for (int j = 0; j < 3; j++)
-                bIsValid &= (fabs(coord_ptr[j]) < NMR_MESH_MAXCOORDINATE);
-        }
+        this->setTriangleCount(
+                    const_cast<NMR::CMesh*>(&mesh_helper->mesh)->getFaceCount());
     }
 
-    // Identify Nodes via Tree
-    if (bIsValid) {
-        const gmio_vec3f* vertex_ptr = &triangle->v1;
+    gmio::STL_Triangle triangle(uint32_t tri_id) const override
+    {
+        // Note: code from lib3mf/Source/Common/MeshImport/NMR_MeshImporter_STL.cpp
+        // Commit #a466df4
+
+        NMR::CMesh* pMesh = const_cast<NMR::CMesh*>(&m_mesh_helper->mesh);
+        const NMR::NMATRIX3* pmMatrix = m_mesh_helper->matrix;
+        NMR::MESHFACE* face = pMesh->getFace(tri_id);
+        NMR::MESHFORMAT_STL_FACET facet;
+
         for (int j = 0; j < 3; j++) {
-            NMR::NVEC3 vPosition;
-            std::memcpy(&vPosition, &vertex_ptr[j], sizeof(NMR::NVEC3));
+            NMR::MESHNODE* node = pMesh->getNode(face->m_nodeindices[j]);
             if (pmMatrix)
-                vPosition = NMR::fnMATRIX3_apply(*pmMatrix, vPosition);
+                facet.m_vertieces[j] = NMR::fnMATRIX3_apply(*pmMatrix, node->m_position);
+            else
+                facet.m_vertieces[j] = node->m_position;
+        }
 
-            uint32_t nNodeIdx;
-            if (VectorTree.findVector3(vPosition, nNodeIdx)) {
-                pNodes[j] = pMesh->getNode(nNodeIdx);
-            }
-            else {
-                pNodes[j] = pMesh->addNode(vPosition);
-                VectorTree.addVector3(
-                            pNodes[j]->m_position,
-                            (uint32_t)pNodes[j]->m_index);
+        // Calculate Triangle Normals
+        const NMR::NVEC3 n =
+                NMR::fnVEC3_calcTriangleNormal(
+                    facet.m_vertieces[0], facet.m_vertieces[1], facet.m_vertieces[2]);
+        gmio::STL_Triangle triangle;
+        std::memcpy(&triangle.n, &n, sizeof(gmio::Vec3f));
+        std::memcpy(&triangle.v1, &facet.m_vertieces[0], sizeof(gmio::Vec3f));
+        std::memcpy(&triangle.v2, &facet.m_vertieces[1], sizeof(gmio::Vec3f));
+        std::memcpy(&triangle.v3, &facet.m_vertieces[2], sizeof(gmio::Vec3f));
+        triangle.attribute_byte_count = 0;
+        return triangle;
+    }
+
+private:
+    const NMR_CMeshHelper* m_mesh_helper;
+};
+
+class STL_MeshCreator3MF : public gmio::STL_MeshCreator {
+public:
+    STL_MeshCreator3MF(NMR_CMeshHelper* mesh_helper)
+        : m_mesh_helper(mesh_helper)
+    { }
+
+    void addTriangle(uint32_t, const gmio::STL_Triangle& triangle) override
+    {
+        // Note: code from lib3mf/Source/Common/MeshExport/NMR_MeshExporter_STL.cpp
+        // Commit #a466df4
+
+        NMR::CMesh* pMesh = &m_mesh_helper->mesh;
+        const NMR::NMATRIX3* pmMatrix = m_mesh_helper->matrix;
+        NMR::CVectorTree& VectorTree = m_mesh_helper->vector_tree;
+        NMR::MESHNODE* pNodes[3];
+
+        // Check, if Coordinates are in Valid Space
+        bool bIsValid = true;
+        {
+            const gmio::Vec3f* vertex_ptr = &triangle.v1;
+            for (int i = 0; i < 3; i++) {
+                const float* coord_ptr = &vertex_ptr[i].x;
+                for (int j = 0; j < 3; j++)
+                    bIsValid &= (std::fabs(coord_ptr[j]) < NMR_MESH_MAXCOORDINATE);
             }
         }
 
-        // check, if Nodes are separate
-        bIsValid = (pNodes[0] != pNodes[1])
-                && (pNodes[0] != pNodes[2])
-                && (pNodes[1] != pNodes[2]);
+        // Identify Nodes via Tree
+        if (bIsValid) {
+            const gmio::Vec3f* vertex_ptr = &triangle.v1;
+            for (int j = 0; j < 3; j++) {
+                NMR::NVEC3 vPosition;
+                std::memcpy(&vPosition, &vertex_ptr[j], sizeof(NMR::NVEC3));
+                if (pmMatrix)
+                    vPosition = NMR::fnMATRIX3_apply(*pmMatrix, vPosition);
+
+                uint32_t nNodeIdx;
+                if (VectorTree.findVector3(vPosition, nNodeIdx)) {
+                    pNodes[j] = pMesh->getNode(nNodeIdx);
+                }
+                else {
+                    pNodes[j] = pMesh->addNode(vPosition);
+                    VectorTree.addVector3(
+                                pNodes[j]->m_position,
+                                (uint32_t)pNodes[j]->m_index);
+                }
+            }
+
+            // check, if Nodes are separate
+            bIsValid = (pNodes[0] != pNodes[1])
+                    && (pNodes[0] != pNodes[2])
+                    && (pNodes[1] != pNodes[2]);
+        }
+
+        // Throw "Invalid Exception"
+        if ((!bIsValid) && !m_mesh_helper->ignore_invalid_faces)
+            throw NMR::CNMRException(NMR_ERROR_INVALIDCOORDINATES);
+
+        if (bIsValid)
+            pMesh->addFace(pNodes[0], pNodes[1], pNodes[2]);
     }
 
-    // Throw "Invalid Exception"
-    if ((!bIsValid) && !meshHelper->ignoreInvalidFaces)
-        throw NMR::CNMRException(NMR_ERROR_INVALIDCOORDINATES);
+private:
+    NMR_CMeshHelper* m_mesh_helper;
+};
 
-    if (bIsValid)
-        pMesh->addFace(pNodes[0], pNodes[1], pNodes[2]);
+static void stl_read(const char* filepath)
+{
+    STL_MeshCreator3MF mesh_creator(&global_mesh_helper);
+    const int error = gmio::STL_read(filepath, &mesh_creator);
+    if (error != gmio::Error_OK)
+        std::cout << "gmio error: 0x" << std::hex << error << '\n';
 }
 
-static void stl_read(const void* filepath)
+static void stl_write(const char* filepath, gmio::STL_Format format)
 {
-    const char* str_filepath = static_cast<const char*>(filepath);
-    gmio_stl_mesh_creator mesh_creator = {};
-    mesh_creator.cookie = &globalMeshHelper;
-    mesh_creator.func_add_triangle = add_triangle;
-    const int error = gmio_stl_read_file(str_filepath, &mesh_creator, NULL);
-    if (error != GMIO_ERROR_OK)
-        std::cout << "gmio error: 0x" << std::hex << error << std::endl;
-}
-
-static void stl_write_generic(const char* filepath, gmio_stl_format format)
-{
-    gmio_stl_mesh mesh = {};
-    mesh.cookie = &globalMeshHelper;
-    mesh.triangle_count = globalMeshHelper.mesh.getFaceCount();
-    mesh.func_get_triangle = get_triangle;
-
-    gmio_stl_write_options opts = {};
-    opts.stla_solid_name = filepath;
-    opts.stla_float32_prec = 7;
-    opts.stlb_header = gmio_stlb_header_str(filepath);
-    const int error = gmio_stl_write_file(format, filepath, &mesh, &opts);
-    if (error != GMIO_ERROR_OK)
-        std::cout << "gmio error: 0x" << std::hex << error << std::endl;
-}
-
-static void stla_write(const void* filepath)
-{
-    stl_write_generic(
-                static_cast<const char*>(filepath), GMIO_STL_FORMAT_ASCII);
-}
-
-static void stlb_write_le(const void* filepath)
-{
-    stl_write_generic(
-                static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_LE);
-}
-
-static void stlb_write_be(const void* filepath)
-{
-    stl_write_generic(
-                static_cast<const char*>(filepath), GMIO_STL_FORMAT_BINARY_BE);
+    const STL_Mesh3MF mesh(&global_mesh_helper);
+    gmio::STL_WriteOptions opts = {};
+    opts.ascii_solid_name = filepath;
+    opts.ascii_float32_prec = 7;
+    opts.binary_header =
+            gmio::STL_binaryHeaderFromString(
+                gmio::makeSpan(filepath, std::strlen(filepath)));
+    const int error = gmio::STL_write(format, filepath, mesh, opts);
+    if (error != gmio::Error_OK)
+        std::cout << "gmio error: 0x" << std::hex << error << '\n';
 }
 
 } // namespace BmkGmio
 
 static void bmk_init()
 {
-    BmkLib3MF::globalMesh.clear();
-    BmkGmio::globalMeshHelper.mesh.clear();
-    BmkGmio::globalMeshHelper.vectorTree = NMR::CVectorTree();
-    BmkGmio::globalMeshHelper.matrix = nullptr;
-    BmkGmio::globalMeshHelper.ignoreInvalidFaces = true;
+    BmkLib3MF::global_mesh.clear();
+    BmkGmio::global_mesh_helper.mesh.clear();
+    BmkGmio::global_mesh_helper.vector_tree = NMR::CVectorTree();
+    BmkGmio::global_mesh_helper.matrix = nullptr;
+    BmkGmio::global_mesh_helper.ignore_invalid_faces = true;
 }
 
 int main(int argc, char** argv)
 {
-    if (argc > 1) {
-        const char* filepath = argv[1];
-        std::cout << std::endl
-                  << "gmio v" << GMIO_VERSION_STR << std::endl
-                  << "Lib3MF commit a466df47231" << std::endl
-                  << std::endl
-                  << "Input file: " << filepath << std::endl;
+    if (argc <= 1)
+        return -1;
 
-        /* Declare benchmarks */
-        const benchmark_cmp_arg cmp_args[] = {
-            { "read",
-              BmkGmio::stl_read, filepath,
-              BmkLib3MF::import, filepath },
-            { "write(ascii)",
-              BmkGmio::stla_write, "__bmk_lib3mf_gmio.stla",
-              nullptr, nullptr },
-            { "write(binary/le)",
-              BmkGmio::stlb_write_le, "__bmk_lib3mf_gmio.stlb_le",
-              BmkLib3MF::export_binary, "__bmk_lib3mf.stlb_le" },
-            { "write(binary/be)",
-              BmkGmio::stlb_write_be, "__bmk_lib3mf_gmio.stlb_be",
-              nullptr, nullptr },
-            {}
-        };
+    const char* filepath = argv[1];
+    std::cout << "\ngmio v" << GMIO_VERSION_STR
+              << "\nLib3MF commit a466df47231"
+              << "\n\nInput file: " << filepath << '\n';
 
-        /* Execute benchmarks */
-        std::vector<benchmark_cmp_result> cmp_res_vec;
-        cmp_res_vec.resize(GMIO_ARRAY_SIZE(cmp_args) - 1);
-        benchmark_cmp_batch(
-                    5, cmp_args, &cmp_res_vec[0], bmk_init, nullptr);
-
-        /* Print results */
-        const benchmark_cmp_result_array res_array = {
-            &cmp_res_vec.at(0), cmp_res_vec.size() };
-        const benchmark_cmp_result_header header = { "gmio", "Lib3MF" };
-        benchmark_print_results(
-                    BENCHMARK_PRINT_FORMAT_MARKDOWN, header, res_array);
-    }
+    const gmio::Benchmark_CmpArg cmp_args[] = {
+        { "read",
+          [=]{ BmkGmio::stl_read(filepath); },
+          [=]{ BmkLib3MF::import(filepath); }
+        },
+        { "write(ascii)",
+          []{ BmkGmio::stl_write(
+                  "__bmk_lib3mf_gmio.stla", gmio::STL_Format_Ascii); },
+          nullptr
+        },
+        { "write(binary/le)",
+          []{ BmkGmio::stl_write(
+                  "__bmk_lib3mf_gmio.stlb_le", gmio::STL_Format_BinaryLittleEndian); },
+          []{ BmkLib3MF::export_binary("__bmk_lib3mf.stlb_le"); }
+        },
+        { "write(binary/be)",
+          []{ BmkGmio::stl_write(
+                  "__bmk_lib3mf_gmio.stlb_be", gmio::STL_Format_BinaryBigEndian); },
+          nullptr
+        }
+    };
+    const std::vector<gmio::Benchmark_CmpResult> results =
+            gmio::Benchmark_cmpBatch(
+                5, gmio::makeSpan(cmp_args), &bmk_init);
+    gmio::Benchmark_printResults_Markdown(
+                std::cout, { "gmio", "Lib3MF" }, results);
     return 0;
 }

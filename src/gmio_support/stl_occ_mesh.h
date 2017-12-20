@@ -27,6 +27,11 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ****************************************************************************/
 
+#include <Standard_Version.hxx>
+#if OCC_VERSION_HEX >= 0x070200
+#  error OpenCascade STL_Mesh was removed from OpenCascade >= v7.2.0
+#endif
+
 /*! \file stl_occ_mesh.h
  *  STL support of OpenCascade's \c StlMesh_Mesh
  *
@@ -43,10 +48,6 @@
  *  @{
  */
 
-#ifndef __cplusplus
-#  error C++ compiler required
-#endif
-
 #pragma once
 
 #include "support_global.h"
@@ -60,81 +61,79 @@
 #include <TColgp_SequenceOfXYZ.hxx>
 #include <vector>
 
-/*! Provides access to all the triangles of an OpenCascade \c StlMesh_Mesh
- *
- *  gmio_stl_mesh_occmesh iterates efficiently over the triangles of all
- *  domains.
-  *
- *  Example of use:
- *  \code{.cpp}
- *      const Handle_StlMesh_Mesh occmesh = ...;
- *      const gmio_stl_mesh_occmesh mesh(occmesh);
- *      gmio_stl_write_file(stl_format, filepath, &mesh, &options);
- *  \endcode
- */
-struct gmio_stl_mesh_occmesh : public gmio_stl_mesh
-{
-    gmio_stl_mesh_occmesh();
-    explicit gmio_stl_mesh_occmesh(const Handle_StlMesh_Mesh& hnd);
+namespace gmio {
+
+//! Provides access to all the triangles of an OpenCascade \c StlMesh_Mesh
+//!
+//!  gmio_stl_mesh_occmesh iterates efficiently over the triangles of all
+//!  domains.
+//!
+//!  Example of use:
+//!  \code{.cpp}
+//!      const Handle_StlMesh_Mesh meshocc = ...;
+//!      gmio::STL_write(stl_format, filepath, gmio::STL_MeshOcc(mesh));
+//!  \endcode
+class STL_MeshOcc : public STL_Mesh {
+public:
+    STL_MeshOcc();
+    explicit STL_MeshOcc(const Handle_StlMesh_Mesh& hnd);
 
     const Handle_StlMesh_Mesh& mesh() const { return m_mesh; }
 
-private:
-    static void get_triangle(
-            const void* cookie, uint32_t tri_id, gmio_stl_triangle* tri);
+    STL_Triangle triangle(uint32_t tri_id) const override;
 
+private:
     void init();
 
-    struct domain_data {
+    struct DomainData {
         std::vector<const gp_XYZ*> vec_coords;
     };
 
-    struct triangle_data {
+    struct TriangleData {
         const StlMesh_MeshTriangle* ptr_triangle;
-        const domain_data* ptr_domain;
+        const DomainData* ptr_domain;
     };
 
     Handle_StlMesh_Mesh m_mesh;
-    std::vector<domain_data> m_vec_domain_data;
-    std::vector<triangle_data> m_vec_triangle_data;
+    std::vector<DomainData> m_vec_domain_data;
+    std::vector<TriangleData> m_vec_triangle_data;
 };
 
-/*! Provides creation of a new domain within an OpenCascade \c StlMesh_Mesh
- *
- *  gmio_stl_mesh_creator::func_add_triangle() calls
- *  <tt>StlMesh_Mesh::AddVertex()</tt> only for new unique vertices, ie. they
- *  are no vertex duplicates in the resulting domain.
- *
- *  As of OpenCascade v7.0.0, it's not possible to rely on
- *  <tt>StlMesh_Mesh::AddOnlyNewVertex()</tt>: this function
- *  still has the same effect as <tt>StlMesh_Mesh::AddVertex()</tt>
- *
- *  Example of use:
- *  \code{.cpp}
- *      Handle_StlMesh_Mesh occmesh = new StlMesh_Mesh;
- *      gmio_stl_mesh_creator_occmesh meshcreator(occmesh);
- *      gmio_stl_read_file(filepath, &meshcreator, &options);
- *  \endcode
- */
-struct gmio_stl_mesh_creator_occmesh : public gmio_stl_mesh_creator
-{
-    gmio_stl_mesh_creator_occmesh();
-    explicit gmio_stl_mesh_creator_occmesh(const Handle_StlMesh_Mesh& hnd);
+//!/ Provides creation of a new domain within an OpenCascade \c StlMesh_Mesh
+//!
+//!  STL_MeshCreatorOcc::addTriangle() calls
+//!  <tt>StlMesh_Mesh::AddVertex()</tt> only for new unique vertices, ie. they
+//!  are no vertex duplicates in the resulting domain.
+//!
+//!  As of OpenCascade v7.0.0, it's not possible to rely on
+//!  <tt>StlMesh_Mesh::AddOnlyNewVertex()</tt>: this function
+//!  still has the same effect as <tt>StlMesh_Mesh::AddVertex()</tt>
+//!
+//!  Example of use:
+//!  \code{.cpp}
+//!      Handle_StlMesh_Mesh mesh = new StlMesh_Mesh;
+//!      gmio::STL_MeshCreatorOcc meshcreator(mesh);
+//!      gmio::STL_read(filepath, &meshcreator);
+//!  \endcode
+class STL_MeshCreatorOcc : public STL_MeshCreator {
+public:
+    STL_MeshCreatorOcc();
+    explicit STL_MeshCreatorOcc(const Handle_StlMesh_Mesh& hnd);
 
     const Handle_StlMesh_Mesh& mesh() const { return m_mesh; }
 
-private:
-    static void begin_solid(
-            void* cookie, const struct gmio_stl_mesh_creator_infos* infos);
-    static void add_triangle(
-            void* cookie, uint32_t tri_id, const gmio_stl_triangle* tri);
+    void beginSolid(const STL_MeshCreatorInfos& infos) override;
+    void addTriangle(uint32_t tri_id, const STL_Triangle& triangle) override;
+    void endSolid() override;
 
-    void init();
-    int add_unique_vertex(const gmio_vec3f& v);
+private:
+    int addUniqueVertex(const Vec3f& v);
 
     Handle_StlMesh_Mesh m_mesh;
     BRepBuilderAPI_CellFilter m_filter;
     BRepBuilderAPI_VertexInspector m_inspector;
 };
+
+} // namespace gmio
 
 /*! @} */

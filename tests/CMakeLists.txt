@@ -38,10 +38,8 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/temp)
 
 # test_core
 set(GMIO_TEST_CORE_SRC
-        main_test_core.c
-        core_utils.c
-        stream_buffer.c
-        ../benchmarks/commons/benchmark_tools.c)
+        main_test_core.cpp
+        ../benchmarks/commons/benchmark_tools.cpp)
 add_executable(test_core EXCLUDE_FROM_ALL ${GMIO_TEST_CORE_SRC})
 target_link_libraries(test_core gmio_static)
 
@@ -49,29 +47,28 @@ target_link_libraries(test_core gmio_static)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/models
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 set(GMIO_TEST_STL_SRC
-        main_test_stl.c
-        stl_testcases.c
-        core_utils.c
-        stl_utils.c)
+        main_test_stl.cpp
+        stl_testcases.cpp
+        stl_utils.cpp)
 add_executable(test_stl EXCLUDE_FROM_ALL ${GMIO_TEST_STL_SRC})
 target_link_libraries(test_stl gmio_static)
 
 # test_amf
-set(GMIO_TEST_AMF_SRC
-        main_test_amf.c
-        stream_buffer.c)
-add_executable(test_amf EXCLUDE_FROM_ALL ${GMIO_TEST_AMF_SRC})
-target_link_libraries(test_amf gmio_static)
-target_link_libraries(test_amf ${ZLIB_LIBRARIES})
+#set(GMIO_TEST_AMF_SRC
+#        main_test_amf.c
+#        stream_buffer.c)
+#add_executable(test_amf EXCLUDE_FROM_ALL ${GMIO_TEST_AMF_SRC})
+#target_link_libraries(test_amf gmio_static)
+#target_link_libraries(test_amf ${ZLIB_LIBRARIES})
 
 # fake_support
-if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
-    add_subdirectory(fake_support)
-    add_dependencies(check fake_support)
-endif()
+#if(GMIO_BUILD_TESTS_FAKE_SUPPORT)
+#    add_subdirectory(fake_support)
+#    add_dependencies(check fake_support)
+#endif()
 
 # For some targets, GCC requires -lm
-if(CMAKE_C_COMPILER_IS_GCC_COMPATIBLE)
+if(CMAKE_CXX_COMPILER_IS_GCC_COMPATIBLE)
     target_link_libraries(test_core m)
     target_link_libraries(test_stl m)
 endif()
@@ -79,5 +76,5 @@ endif()
 # Declare tests
 add_test(NAME test_core  COMMAND test_core)
 add_test(NAME test_stl   COMMAND test_stl)
-add_test(NAME test_amf   COMMAND test_amf)
-add_dependencies(check test_core test_stl test_amf)
+#add_test(NAME test_amf   COMMAND test_amf)
+add_dependencies(check test_core test_stl)# test_amf)

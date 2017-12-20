@@ -38,104 +38,88 @@
 
 #include "global.h"
 
-/*! Common errors
- *
- *  Format: \n
- *    4-bytes signed integer (ISO C restricts enumerator value to 'int') \n
- *    max value: 0x7FFFFFFF \n
- *    bits 0x00FFFFFF..0x7FFFFFFF: tag identifying the error category \n
- *    bits 0x001FFFFF..0x00FFFFFF: tag identifying an error sub-category \n
- *    bits 0x00000000..0x000FFFFF: error value in the (sub)category \n
- *    Max count of categories : 128 (2^7) \n
- *    Max count of sub-categories : 15 (2^4 - 1) \n
- *    Max count of error values : 1048576 (2^20)
- */
-enum gmio_error
-{
-    /*! No error occurred, success */
-    GMIO_ERROR_OK = 0,
+namespace gmio {
 
-    /*! Unknown error */
-    GMIO_ERROR_UNKNOWN,
+//! Common errors
+//!
+//! Format: \n
+//!   4-bytes signed integer (ISO C restricts enumerator value to 'int') \n
+//!   max value: 0x7FFFFFFF \n
+//!   bits 0x00FFFFFF..0x7FFFFFFF: tag identifying the error category \n
+//!   bits 0x001FFFFF..0x00FFFFFF: tag identifying an error sub-category \n
+//!   bits 0x00000000..0x000FFFFF: error value in the (sub)category \n
+//!   Max count of categories : 128 (2^7) \n
+//!   Max count of sub-categories : 15 (2^4 - 1) \n
+//!   Max count of error values : 1048576 (2^20)
+enum Error {
+    //! No error occurred, success
+    Error_OK = 0,
 
-    /*! Pointer on argument memory block is \c NULL */
-    GMIO_ERROR_NULL_MEMBLOCK,
+    //! Unknown error
+    Error_Unknown,
 
-    /*! Argument size for the memory block is too small */
-    GMIO_ERROR_INVALID_MEMBLOCK_SIZE,
+    //! An error occurred with gmio_stream
+    Error_Stream,
 
-    /*! Provided gmio_stream is \c NULL */
-    GMIO_ERROR_NULL_STREAM,
+    //! Task was stopped by user, that is to say Task::isStopRequested()
+    //! returned true
+    Error_TaskStopped,
 
-    /*! An error occurred with gmio_stream */
-    GMIO_ERROR_STREAM,
+    //! An error occured after a call to a \c <stdio.h> function.
+    //! The caller can check \c errno to get the real error number
+    Error_Stdio,
 
-    /*! Some required gmio_stream function pointer is NULL */
-    GMIO_ERROR_STREAM_FUNC_REQUIRED,
+    //! Checking of \c LC_NUMERIC failed(should be "C" or "POSIX")
+    Error_BadLcNumeric,
 
-    /*! Task was stopped by user, that is to say
-     *  gmio_task_iface::func_is_stop_requested() returned true */
-    GMIO_ERROR_TASK_STOPPED,
-
-    /*! An error occured after a call to a \c <stdio.h> function.
-     *  The caller can check \c errno to get the real error number */
-    GMIO_ERROR_STDIO,
-
-    /*! Checking of \c LC_NUMERIC failed(should be "C" or "POSIX") */
-    GMIO_ERROR_BAD_LC_NUMERIC,
+    Error_BufferOverflow,
 
     /* zlib */
-    /*! See \c Z_ERRNO (file operation error) */
-    GMIO_ERROR_ZLIB_ERRNO,
+    //! See \c Z_ERRNO (file operation error)
+    Error_Zlib_Errno,
 
-    /*! See \c Z_STREAM_ERROR */
-    GMIO_ERROR_ZLIB_STREAM,
+    //! See \c Z_STREAM_ERROR
+    Error_Zlib_Stream,
 
-    /*! See \c Z_DATA_ERROR */
-    GMIO_ERROR_ZLIB_DATA,
+    //! See \c Z_DATA_ERROR
+    Error_Zlib_Data,
 
-    /*! See \c Z_MEM_ERROR (not enough memory) */
-    GMIO_ERROR_ZLIB_MEM,
+    //! See \c Z_MEM_ERROR (not enough memory)
+    Error_Zlib_Mem,
 
-    /*! See \c Z_BUF_ERROR */
-    GMIO_ERROR_ZLIB_BUF,
+    //! See \c Z_BUF_ERROR
+    Error_ZLib_Buf,
 
-    /*! See \c Z_VERSION_ERROR (zlib library version is incompatible with the
-     *  version assumed by the caller) */
-    GMIO_ERROR_ZLIB_VERSION,
+    //! See \c Z_VERSION_ERROR (zlib library version is incompatible with the
+    //! version assumed by the caller)
+    Error_Zlib_Version,
 
-    /*! Invalid compression level, see gmio_zlib_compress_options::level */
-    GMIO_ERROR_ZLIB_INVALID_COMPRESS_LEVEL,
+    //! Invalid compression memory usage, see
+    //! gmio_zlib_compress_options::memory_usage
+    Error_Zlib_InvalidCompressMemoryUsage,
 
-    /*! Invalid compression memory usage, see
-     *  gmio_zlib_compress_options::memory_usage */
-    GMIO_ERROR_ZLIB_INVALID_COMPRESS_MEMORY_USAGE,
+    //! All input to be deflated(compressed) was not processed
+    Error_Zlib_DeflateNotAllInputUsed,
 
-    /*! All input to be deflated(compressed) was not processed */
-    GMIO_ERROR_ZLIB_DEFLATE_NOT_ALL_INPUT_USED,
-
-    /*! Deflate failure to flush pending output */
-    GMIO_ERROR_ZLIB_DEFLATE_STREAM_INCOMPLETE,
+    //! Deflate failure to flush pending output
+    Error_Zlib_DeflateStreamIncomplete,
 
     /* ZIP */
-    /*! Zip64 format requires the compiler to provide a 64b integer type */
-    GMIO_ERROR_ZIP_INT64_TYPE_REQUIRED,
-
-    /*! The size of some ZIP file entry exceeds 32b limit and so requires Zip64
-     *  format */
-    GMIO_ERROR_ZIP64_FORMAT_REQUIRED
+    //! The size of some ZIP file entry exceeds 32b limit and so requires Zip64 format
+    Error_Zip64_FormatRequired
 };
 
-/*! \c GMIO_CORE_ERROR_TAG
- *  Byte-mask to tag(identify) gmio_core error codes */
-enum { GMIO_CORE_ERROR_TAG = 0x00 };
+//!  Byte-mask to tag(identify) core error codes
+const unsigned TagError = 0x00;
 
-/*! Returns true if <tt>code == GMIO_NO_ERROR</tt> */
-GMIO_INLINE bool gmio_no_error(int code)
-{ return code == GMIO_ERROR_OK ? true : false; }
+//! Returns true if <tt>code == Error_OK</tt>
+constexpr bool noError(int code)
+{ return code == Error_OK; }
 
-/*! Returns true if <tt>code != GMIO_NO_ERROR</tt> */
-GMIO_INLINE bool gmio_error(int code)
-{ return code != GMIO_ERROR_OK ? true : false; }
+//! Returns true if <tt>code != Error_OK</tt>
+constexpr bool error(int code)
+{ return code != Error_OK; }
 
-/*! @} */
+} // namespace gmio
+
+//! @} */

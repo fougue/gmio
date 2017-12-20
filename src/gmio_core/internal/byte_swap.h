@@ -32,12 +32,24 @@
 #include "../global.h"
 
 #ifdef GMIO_HAVE_MSVC_BUILTIN_BSWAP
-#  include <stdlib.h>
+#  include <cstdlib>
 #endif
 
-/*! Returns \p val with the order of bytes reversed, uses compiler builtin
- *  functions if available */
-GMIO_INLINE uint16_t gmio_uint16_bswap(uint16_t val)
+namespace gmio {
+
+//! Returns 'val' with the order of bytes reversed, uses compiler builtin
+//! functions if available
+inline uint16_t uint16_byteSwap(uint16_t val);
+
+//! Returns 'val' with the order of bytes reversed, uses compiler builtin
+//! functions if available
+inline uint32_t uint32_byteSwap(uint32_t val);
+
+//
+// Implementation
+//
+
+uint16_t uint16_byteSwap(uint16_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP16
     return __builtin_bswap16(val);
@@ -48,9 +60,7 @@ GMIO_INLINE uint16_t gmio_uint16_bswap(uint16_t val)
 #endif
 }
 
-/*! Returns \p val with the order of bytes reversed, uses compiler builtin
- *  functions if available */
-GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
+uint32_t uint32_byteSwap(uint32_t val)
 {
 #ifdef GMIO_HAVE_GCC_BUILTIN_BSWAP32
     return __builtin_bswap32(val);
@@ -63,3 +73,5 @@ GMIO_INLINE uint32_t gmio_uint32_bswap(uint32_t val)
             | ((val >> 24) & 0x000000FF);
 #endif
 }
+
+} // namespace gmio

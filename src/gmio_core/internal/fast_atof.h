@@ -4,19 +4,16 @@
  * and irrXML.h
  */
 
-/* Adapted to ISO-C90 */
-
 #pragma once
 
 #include "../global.h"
-#include "c99_math_compat.h"
 #include "string_ascii_utils.h"
 
-#include <float.h>
-#include <limits.h>
-#include <math.h>
+#include <cfloat>
+#include <climits>
+#include <cmath>
 
-GMIO_INLINE bool is_local_decimal_point(char in)
+inline bool is_local_decimal_point(char in)
 {
     /*! Selection of characters which count as decimal point in fast_atof
      * TODO: This should probably also be used in irr::core::string, but
@@ -53,13 +50,13 @@ static const double fast_atof_table[16] =  {  // we write [16] here instead of [
  * Special version of the function, providing higher accuracy and safety
  * It is mainly used by fast_atof to prevent ugly and unwanted integer overflows.
  * ------------------------------------------------------------------------------------ */
-GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned int* max_inout)
+inline uint64_t strtoul10_64( const char* in, const char** out, unsigned int* max_inout)
 {
     unsigned int cur = 0;
     uint64_t value = 0;
     const bool running = true;
 
-    if ( !gmio_ascii_isdigit(*in) )
+    if ( !gmio::ascii_isDigit(*in) )
         return value;
         /* throw std::invalid_argument(std::string("The string \"") + in + "\" cannot be converted into a value."); */
 
@@ -67,7 +64,7 @@ GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned in
     {
         const uint64_t new_value = ( value * 10 ) + ( *in - '0' );
 
-        if ( !gmio_ascii_isdigit(*in) )
+        if ( !gmio::ascii_isDigit(*in) )
             break;
 
         if (new_value < value) /* numeric overflow, we rely on you */
@@ -82,7 +79,7 @@ GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned in
         if (max_inout && *max_inout == cur) {
 
             if (out) { /* skip to end */
-                while (gmio_ascii_isdigit(*in))
+                while (gmio::ascii_isDigit(*in))
                     ++in;
                 *out = in;
             }
@@ -102,7 +99,7 @@ GMIO_INLINE uint64_t strtoul10_64( const char* in, const char** out, unsigned in
 /* ------------------------------------------------------------------------------------
  * signed variant of strtoul10_64
  * ------------------------------------------------------------------------------------*/
-GMIO_INLINE int64_t strtol10_64(const char* in, const char** out, unsigned int* max_inout)
+inline int64_t strtol10_64(const char* in, const char** out, unsigned int* max_inout)
 {
     const bool inv = (*in == '-');
     int64_t value;
@@ -125,7 +122,7 @@ GMIO_INLINE int64_t strtol10_64(const char* in, const char** out, unsigned int* 
  * about 6 times faster than atof in win32.
  * If you find any bugs, please send them to me, niko (at) irrlicht3d.org.
  * ------------------------------------------------------------------------------------*/
-GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, bool check_comma)
+inline const char* fast_atoreal_move(const char* c, double* out, bool check_comma)
 {
     double f = 0;
     const bool inv = (*c == '-');
@@ -157,8 +154,8 @@ GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, bool check
         return c;
     }
 
-    if (!gmio_ascii_isdigit(c[0]) &&
-        !((c[0] == '.' || (check_comma && c[0] == ',')) && gmio_ascii_isdigit(c[1])))
+    if (!gmio::ascii_isDigit(c[0]) &&
+        !((c[0] == '.' || (check_comma && c[0] == ',')) && gmio::ascii_isDigit(c[1])))
     {
         return c;
         /*throw std::invalid_argument("Cannot parse string "
@@ -171,7 +168,7 @@ GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, bool check
         f = (double)strtoul10_64(c, &c, NULL);
     }
 
-    if ((*c == '.' || (check_comma && c[0] == ',')) && gmio_ascii_isdigit(c[1]))
+    if ((*c == '.' || (check_comma && c[0] == ',')) && gmio::ascii_isDigit(c[1]))
     {
         unsigned int diff = AI_FAST_ATOF_RELAVANT_DECIMALS;
         double pl;
@@ -223,21 +220,21 @@ GMIO_INLINE const char* fast_atoreal_move(const char* c, double* out, bool check
     return c;
 }
 
-GMIO_INLINE float fast_atof(const char* c)
+inline float fast_atof(const char* c)
 {
     double ret;
     fast_atoreal_move(c, &ret, true);
     return (float)ret;
 }
 
-GMIO_INLINE double fast_atod(const char* c)
+inline double fast_atod(const char* c)
 {
     double ret;
     fast_atoreal_move(c, &ret, true);
     return ret;
 }
 
-GMIO_INLINE float fast_strtof(const char* str, const char** out)
+inline float fast_strtof(const char* str, const char** out)
 {
     double ret;
     if (out)
@@ -250,7 +247,7 @@ GMIO_INLINE float fast_strtof(const char* str, const char** out)
 
 #elif defined(IRRLICH_FAST_ATOF)
 
-/* we write [17] here instead of [] to work around a swig bug */
+// we write [17] here instead of [] to work around a swig bug
 static const float fast_atof_table[17] = {
     0.f,
     0.1f,
@@ -280,10 +277,10 @@ static const float fast_atof_table[17] = {
  * \return The unsigned integer value of the digits. If the string specifies
  * too many digits to encode in an uint32_t then INT_MAX will be returned.
  */
-GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
+inline uint32_t strtoul10(const char* in, const char** out)
 {
     unsigned int value = 0;
-    for (; gmio_ascii_isdigit(*in); ++in)
+    for (; gmio::ascii_isDigit(*in); ++in)
         value = (value * 10) + (*in - '0');
     if (out)
         *out = in;
@@ -301,7 +298,7 @@ GMIO_INLINE uint32_t strtoul10(const char* in, const char** out)
  * too many digits to encode in an int32_t then +INT_MAX or -INT_MAX will be
  * returned.
  */
-GMIO_INLINE int32_t strtol10(const char* in, const char** out)
+inline int32_t strtol10(const char* in, const char** out)
 {
     const bool inv = (*in == '-');
     int value = 0;
@@ -324,7 +321,7 @@ GMIO_INLINE int32_t strtol10(const char* in, const char** out)
  * \return The whole positive floating point representation of the digit
  * sequence.
  */
-GMIO_INLINE float strtof10(const char* in, const char** out)
+inline float strtof10(const char* in, const char** out)
 {
     const uint32_t MAX_SAFE_U32_VALUE = UINT_MAX / 10 - 10;
     uint32_t int_val = 0;
@@ -332,12 +329,12 @@ GMIO_INLINE float strtof10(const char* in, const char** out)
 
     /* Use integer arithmetic for as long as possible, for speed and
      * precision */
-    for (; gmio_ascii_isdigit(*in) && int_val < MAX_SAFE_U32_VALUE; ++in)
+    for (; gmio::ascii_isDigit(*in) && int_val < MAX_SAFE_U32_VALUE; ++in)
         int_val = (int_val * 10) + (*in - '0');
     float_val = (float)int_val;
     /* If there are any digits left to parse, then we need to use floating point
      * arithmetic from here */
-    for (; gmio_ascii_isdigit(*in) && float_val <= FLT_MAX; ++in)
+    for (; gmio::ascii_isDigit(*in) && float_val <= FLT_MAX; ++in)
         float_val = (float_val * 10) + (*in - '0');
     if (out)
         *out = in;
@@ -353,7 +350,7 @@ GMIO_INLINE float strtof10(const char* in, const char** out)
  * \return Pointer to the first character in the string that wasn't used
  * to create the float value.
  */
-GMIO_INLINE const char* fast_atof_move(const char* in, float* result)
+inline const char* fast_atof_move(const char* in, float* result)
 {
     const bool negative = ('-' == *in);
     float value = 0.f;
@@ -375,7 +372,7 @@ GMIO_INLINE const char* fast_atof_move(const char* in, float* result)
         /* Assume that the exponent is a whole number.
          * strtol10() will deal with both + and - signs,
          * but calculate as float to prevent overflow at FLT_MAX */
-        value *= gmio_powf(10.f, (float)strtol10(in, &in));
+        value *= std::pow(10.f, static_cast<float>(strtol10(in, &in)));
     }
     *result = negative ? -value : value;
     return in;
@@ -388,7 +385,7 @@ GMIO_INLINE const char* fast_atof_move(const char* in, float* result)
  * wasn't used to create the float value.
  * \result Float value parsed from the input string
  */
-GMIO_INLINE float fast_strtof(const char* str, const char** out)
+inline float fast_strtof(const char* str, const char** out)
 {
     float ret;
     if (out)
@@ -398,7 +395,7 @@ GMIO_INLINE float fast_strtof(const char* str, const char** out)
     return ret;
 }
 
-GMIO_INLINE float fast_atof(const char* str)
+inline float fast_atof(const char* str)
 {
     float ret;
     fast_atof_move(str, &ret);

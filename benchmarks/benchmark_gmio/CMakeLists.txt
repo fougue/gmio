@@ -27,4 +27,4 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #############################################################################
 
-add_executable(benchmark_gmio main.c ${COMMONS_FILES})
+add_executable(benchmark_gmio main.cpp ../../tests/stl_utils.cpp ${COMMONS_FILES})

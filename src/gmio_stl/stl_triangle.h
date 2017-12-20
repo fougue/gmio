@@ -39,21 +39,20 @@
 #include "stl_global.h"
 #include "../gmio_core/vecgeom.h"
 
-/*! STL mesh triangle */
-struct gmio_stl_triangle
-{
-    struct gmio_vec3f n;  /*!< Normal vector */
-    struct gmio_vec3f v1; /*!< Vertex 1 */
-    struct gmio_vec3f v2; /*!< Vertex 2 */
-    struct gmio_vec3f v3; /*!< Vertex 3 */
-    uint16_t attribute_byte_count; /*!< Useful only for STL binary format */
+namespace gmio {
+
+//! STL mesh triangle
+struct STL_Triangle {
+    Vec3f n;  //!< Normal vector
+    Vec3f v1; //!< Vertex 1
+    Vec3f v2; //!< Vertex 2
+    Vec3f v3; //!< Vertex 3
+    uint16_t attribute_byte_count; //!< Useful only for STL binary format
 };
 
-GMIO_C_LINKAGE_BEGIN
+//! Returns the normal vector of triangle 'tri'
+GMIO_API Vec3f STL_triangleNormal(const STL_Triangle& tri);
 
-/*! Computes the normal vector of triangle \p tri */
-GMIO_API void gmio_stl_triangle_compute_normal(struct gmio_stl_triangle* tri);
-
-GMIO_C_LINKAGE_END
+} // namespace gmio
 
 /*! @} */

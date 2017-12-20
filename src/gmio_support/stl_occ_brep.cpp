@@ -37,37 +37,30 @@
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
 
-// -----------------------------------------------------------------------------
-// gmio_stl_mesh_occshape
-// -----------------------------------------------------------------------------
+namespace gmio {
 
-gmio_stl_mesh_occshape::gmio_stl_mesh_occshape()
-{
-    this->init_C_members();
-}
-
-gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
+STL_MeshOccShape::STL_MeshOccShape(const TopoDS_Shape& shape)
     : m_shape(shape)
 {
-    this->init_C_members();
-
     // Count facets and triangles
-    std::size_t face_count = 0;
+    size_t face_count = 0;
+    uint32_t tri_count = 0;
     for (TopExp_Explorer expl(shape, TopAbs_FACE); expl.More(); expl.Next()) {
         TopLoc_Location loc;
         const Handle_Poly_Triangulation& hnd_face_poly =
                 BRep_Tool::Triangulation(TopoDS::Face(expl.Current()), loc);
         if (!hnd_face_poly.IsNull()) {
             ++face_count;
-            this->triangle_count += hnd_face_poly->NbTriangles();
+            tri_count += hnd_face_poly->NbTriangles();
         }
     }
+    this->setTriangleCount(tri_count);
 
     // Fill face and triangle datas
-    std::size_t vec_face_id = 0;
-    std::size_t vec_tri_id = 0;
+    size_t vec_face_id = 0;
+    size_t vec_tri_id = 0;
     m_vec_face_data.resize(face_count);
-    m_vec_triangle_data.resize(this->triangle_count);
+    m_vec_triangle_data.resize(tri_count);
     for (TopExp_Explorer expl(shape, TopAbs_FACE); expl.More(); expl.Next()) {
         const TopoDS_Face& topoface = TopoDS::Face(expl.Current());
         TopLoc_Location loc;
@@ -75,7 +68,7 @@ gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
                 BRep_Tool::Triangulation(topoface, loc);
         if (!hnd_face_poly.IsNull()) {
             // Copy next face_data
-            struct face_data& facedata = m_vec_face_data.at(vec_face_id);
+            FaceData& facedata = m_vec_face_data.at(vec_face_id);
             facedata.trsf = loc.Transformation();
             facedata.is_reversed = (topoface.Orientation() == TopAbs_REVERSED);
             if (facedata.trsf.IsNegative())
@@ -85,7 +78,7 @@ gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
             // Copy triangle_datas
             const Poly_Array1OfTriangle& vec_face_tri = hnd_face_poly->Triangles();
             for (int i = vec_face_tri.Lower(); i <= vec_face_tri.Upper(); ++i) {
-                struct triangle_data& tridata = m_vec_triangle_data.at(vec_tri_id);
+                TriangleData& tridata = m_vec_triangle_data.at(vec_tri_id);
                 tridata.ptr_triangle = &vec_face_tri.Value(i);
                 tridata.ptr_face_data = &facedata;
                 ++vec_tri_id;
@@ -96,20 +89,15 @@ gmio_stl_mesh_occshape::gmio_stl_mesh_occshape(const TopoDS_Shape& shape)
     }
 }
 
-// static
-void gmio_stl_mesh_occshape::get_triangle(
-        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
+STL_Triangle STL_MeshOccShape::triangle(uint32_t tri_id) const
 {
-    const gmio_stl_mesh_occshape* it =
-            static_cast<const gmio_stl_mesh_occshape*>(cookie);
-
-    const struct triangle_data* tridata = &it->m_vec_triangle_data.at(tri_id);
-    const struct face_data* facedata = tridata->ptr_face_data;
+    const TriangleData& tridata = m_vec_triangle_data.at(tri_id);
+    const FaceData* facedata = tridata.ptr_face_data;
     const bool reversed = facedata->is_reversed;
     const gp_Trsf& trsf = facedata->trsf;
     const TColgp_Array1OfPnt* nodes = facedata->ptr_nodes;
     int n1, n2, n3; // Node index
-    const Poly_Triangle* occtri = tridata->ptr_triangle;
+    const Poly_Triangle* occtri = tridata.ptr_triangle;
     occtri->Get(n1, n2, n3);
     gp_Pnt p1 = nodes->Value(n1);
     gp_Pnt p2 = nodes->Value(reversed ? n3 : n2);
@@ -119,38 +107,32 @@ void gmio_stl_mesh_occshape::get_triangle(
         p2.Transform(trsf);
         p3.Transform(trsf);
     }
-    gmio_stl_occ_copy_xyz(&tri->v1, p1.XYZ());
-    gmio_stl_occ_copy_xyz(&tri->v2, p2.XYZ());
-    gmio_stl_occ_copy_xyz(&tri->v3, p3.XYZ());
-    gmio_stl_triangle_compute_normal(tri);
-}
 
-void gmio_stl_mesh_occshape::init_C_members()
-{
-    this->cookie = this;
-    this->func_get_triangle = &gmio_stl_mesh_occshape::get_triangle;
-    this->triangle_count = 0;
+    STL_Triangle tri;
+    tri.attribute_byte_count = 0;
+    OCC_copyCoords(&tri.v1, p1.XYZ());
+    OCC_copyCoords(&tri.v2, p2.XYZ());
+    OCC_copyCoords(&tri.v3, p3.XYZ());
+    tri.n = STL_triangleNormal(tri);
+    return tri;
 }
 
 // -----------------------------------------------------------------------------
-// gmio_stl_mesh_creator_occshape
+// STL_MeshCreatorOccShape
 // -----------------------------------------------------------------------------
 
-gmio_stl_mesh_creator_occshape::gmio_stl_mesh_creator_occshape()
+STL_MeshCreatorOccShape::STL_MeshCreatorOccShape()
 {
-    this->cookie = this;
-    this->m_func_end_solid_occpolytri = this->func_end_solid;
-    this->func_end_solid = &gmio_stl_mesh_creator_occshape::end_solid;
 }
 
-void gmio_stl_mesh_creator_occshape::end_solid(void* cookie)
+void STL_MeshCreatorOccShape::endSolid()
 {
-    gmio_stl_mesh_creator_occshape* creator =
-            static_cast<gmio_stl_mesh_creator_occshape*>(cookie);
-    creator->m_func_end_solid_occpolytri(cookie);
-    if (!creator->polytri().IsNull()) {
+    STL_MeshCreatorOccPolyTriangulation::endSolid();
+    if (!this->polytri().IsNull()) {
         Handle_BRep_TFace face = new BRep_TFace;
-        face->Triangulation(creator->polytri());
-        creator->m_shape.TShape(face);
+        face->Triangulation(this->polytri());
+        m_shape.TShape(face);
     }
 }
+
+} //namespace gmio

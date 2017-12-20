@@ -35,20 +35,22 @@
 #include <TColStd_PackedMapOfInteger.hxx>
 #include <cstddef>
 
-gmio_stl_mesh_occmeshvs::gmio_stl_mesh_occmeshvs()
+namespace gmio {
+
+STL_MeshOccVsDataSource::STL_MeshOccVsDataSource()
     : m_element_coords(1, 1)
 {
     this->init();
 }
 
-gmio_stl_mesh_occmeshvs::gmio_stl_mesh_occmeshvs(const Handle_MeshVS_DataSource &hnd)
+STL_MeshOccVsDataSource::STL_MeshOccVsDataSource(const Handle_MeshVS_DataSource &hnd)
     : m_data_src(hnd),
       m_element_coords(1, 9)
 {
     this->init();
 }
 
-void gmio_stl_mesh_occmeshvs::init()
+void STL_MeshOccVsDataSource::init()
 {
     // C members
     this->cookie = this;
@@ -67,32 +69,32 @@ void gmio_stl_mesh_occmeshvs::init()
     }
 }
 
-void gmio_stl_mesh_occmeshvs::get_triangle(
-        const void *cookie, uint32_t tri_id, gmio_stl_triangle *tri)
+STL_Triangle STL_MeshOccVsDataSource::triangle(uint32_t tri_id) const
 {
-    const gmio_stl_mesh_occmeshvs* mesh =
-            static_cast<const gmio_stl_mesh_occmeshvs*>(cookie);
-    const int element_key = mesh->m_vec_element_key.at(tri_id);
-    TColStd_Array1OfReal& element_coords = mesh->m_element_coords;
+    STL_Triangle tri;
+    const int element_key = m_vec_element_key.at(tri_id);
 
     int node_count;
     MeshVS_EntityType entity_type;
     const Standard_Boolean get_geom_ok =
-            mesh->m_data_src->GetGeom(
+            m_data_src->GetGeom(
                 element_key,
                 Standard_True, // Is element
-                element_coords,
+                m_element_coords,
                 node_count,
                 entity_type);
     if (get_geom_ok && node_count == 3) {
         // Copy vertex coords
-        const TColStd_Array1OfReal& in_coords_array = element_coords;
-        float* out_coords_ptr = &tri->v1.x;
+        const TColStd_Array1OfReal& in_coords_array = m_element_coords;
+        float* out_coords_ptr = &tri.v1.x;
         for (int i = 0; i < 9; ++i)
             out_coords_ptr[i] = static_cast<float>(in_coords_array.Value(i + 1));
         // Copy normal coords
         double nx, ny, nz;
-        mesh->m_data_src->GetNormal(element_key, 3, nx, ny, nz);
-        gmio_stl_occ_copy_xyz(&tri->n, nx, ny, nz);
+        m_data_src->GetNormal(element_key, 3, nx, ny, nz);
+        OCC_copyCoords(&tri.n, nx, ny, nz);
     }
+    return tri;
 }
+
+} // namespace gmio

@@ -33,55 +33,34 @@
 #include "../src/gmio_stl/stl_mesh.h"
 #include "../src/gmio_stl/stl_mesh_creator.h"
 #include "../src/gmio_stl/stl_triangle.h"
-#include "../src/gmio_stl/stlb_header.h"
 
-#include <string.h>
+#include <vector>
 
-bool gmio_stl_triangle_equal(
-        const struct gmio_stl_triangle* lhs,
-        const struct gmio_stl_triangle* rhs,
-        uint32_t max_ulp_diff);
+namespace gmio {
 
-/*! Does binary STL header \p lhs compare equal to \p rhs ? */
-GMIO_INLINE bool gmio_stlb_header_equal(
-        const struct gmio_stlb_header* lhs, const struct gmio_stlb_header* rhs)
-{
-    return memcmp(lhs, rhs, GMIO_STLB_HEADER_SIZE) == 0;
-}
+bool STL_triangleEquals(
+        const STL_Triangle& lhs, const STL_Triangle& rhs, uint32_t max_ulp_diff);
 
-/*! Callback for gmio_stl_mesh_creator::func_add_triangle that does
- *  nothing(ie "no operation") */
-void gmio_stl_nop_add_triangle(
-        void* cookie, uint32_t tri_id, const struct gmio_stl_triangle* triangle);
+class STL_MeshBasic : public STL_Mesh {
+public:
+    STL_MeshBasic(const std::vector<STL_Triangle>& vec_triangle);
+    STL_Triangle triangle(uint32_t tri_id) const override;
 
-/*! Callback for gmio_stl_mesh::func_get_triangle that does nothing */
-void gmio_stl_nop_get_triangle(
-        const void* cookie, uint32_t tri_id, struct gmio_stl_triangle* triangle);
-
-/*! Holds an array of STL triangles */
-struct gmio_stl_triangle_array
-{
-    struct gmio_stl_triangle* ptr;
-    uint32_t count;
-    uint32_t capacity;
+private:
+    const std::vector<STL_Triangle>& m_vec_triangle;
 };
 
-/*! Returns an dynamically allocated array of struct gmio_stl_triangle
- *
- *  Contents of the memory block beginnning at gmio_stl_triangle_array::ptr
- *  is initialized with zeroes
- */
-struct gmio_stl_triangle_array gmio_stl_triangle_array_malloc(size_t tri_count);
+class STL_MeshCreatorBasic : public STL_MeshCreator {
+public:
+    void beginSolid(const STL_MeshCreatorInfos& infos) override;
+    void addTriangle(uint32_t tri_id, const STL_Triangle& triangle) override;
 
-void gmio_stl_triangle_array_free(struct gmio_stl_triangle_array* array);
+    const STL_MeshCreatorInfos& infos() const;
+    const std::vector<STL_Triangle>& triangles() const;
 
-/*! Holds complete STL data (usable for both binary and ascii formats) */
-struct gmio_stl_data
-{
-    struct gmio_stlb_header header;
-    char solid_name[1024];
-    struct gmio_stl_triangle_array tri_array;
+private:
+    STL_MeshCreatorInfos m_infos;
+    std::vector<STL_Triangle> m_vec_triangle;
 };
 
-struct gmio_stl_mesh_creator gmio_stl_data_mesh_creator(struct gmio_stl_data* data);
-struct gmio_stl_mesh gmio_stl_data_mesh(const struct gmio_stl_data* data);
+} // namespace gmio

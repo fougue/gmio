@@ -46,6 +46,10 @@ function(get_msvc_vernum outVerNum)
         set(${outVerNum} 11 PARENT_SCOPE)
     elseif(MSVC12)
         set(${outVerNum} 12 PARENT_SCOPE)
+    elseif(MSVC14) # -> 2015
+        set(${outVerNum} 14 PARENT_SCOPE)
+    elseif(MSVC15) # -> 2017
+        set(${outVerNum} 17 PARENT_SCOPE)
     endif()
 endfunction()
 
@@ -53,7 +57,7 @@ add_executable(
     benchmark_opencascade
     main.cpp
     ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_brep.cpp
-    ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.cpp
+#    ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_mesh.cpp
     ${CMAKE_SOURCE_DIR}/src/gmio_support/stl_occ_polytri.cpp
     ${COMMONS_FILES})
 

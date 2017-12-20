@@ -31,45 +31,47 @@
 
 #include "../global.h"
 #include "convert.h"
-#include <stddef.h>
 
-/*! Does \p a and \p b compares equals by ULP (Units in the Last Place) ?
- *
- *  ULP = spacing between floating-point numbers
- *
- *  See:
- *    http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
- */
-bool gmio_float32_ulp_equals(float a, float b, uint32_t max_ulp_diff);
+namespace gmio {
 
-/*! Count of ULP between \p a and \p b */
-GMIO_INLINE uint32_t gmio_float32_ulp_diff(float a, float b);
+//! Does 'a' and 'b' compares equals by ULP (Units in the Last Place) ?
+//!
+//! ULP = spacing between floating-point numbers
+//!
+//! See:
+//!   http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+bool float32_ulpEquals(float a, float b, uint32_t max_ulp_diff);
 
-/*! Portable sign-extraction for int32 */
-GMIO_INLINE int gmio_int32_sign(int32_t v);
+//! Count of ULP between 'a' and 'b'
+inline uint32_t float32_ulpDiff(float a, float b);
 
-/*! Portable sign-extraction for float32 */
-GMIO_INLINE int gmio_float32_sign(float v);
+//! Portable sign-extraction for int32
+constexpr int int32_sign(int32_t v);
+
+//! Portable sign-extraction for float32
+inline int float32_sign(float v);
 
 
 
-/*
- *  Implementation
- */
+//
+//  Implementation
+//
 
-uint32_t gmio_float32_ulp_diff(float a, float b)
+uint32_t float32_ulpDiff(float a, float b)
 {
-    const uint32_t ua = gmio_convert_uint32(a);
-    const uint32_t ub = gmio_convert_uint32(b);
+    const uint32_t ua = convert_uint32(a);
+    const uint32_t ub = convert_uint32(b);
     return ua > ub ? ua - ub : ub - ua;
 }
 
-int gmio_int32_sign(int32_t v)
+constexpr int int32_sign(int32_t v)
 {
     return (v & 0x80000000) != 0 ? -1 : 1;
 }
 
-int gmio_float32_sign(float v)
+int float32_sign(float v)
 {
-    return gmio_int32_sign(gmio_convert_int32(v));
+    return int32_sign(convert_int32(v));
 }
+
+} // namespace gmio
